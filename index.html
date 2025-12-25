@@ -3,127 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master RG Control Panel</title>
+    <title>Master RG Empire</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --neon-blue: #00f2ff; --neon-pink: #ff004c; --dark-bg: #050505; }
-        body { background: var(--dark-bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        :root { --main: #00f2ff; --pink: #ff004c; --bg: #050505; }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* تقسيم الشاشة - قلب الجهات */
-        .main-wrapper { display: flex; flex: 1; flex-direction: row-reverse; overflow: hidden; }
-        
-        .side-panel { width: 240px; background: #111; border: 1px solid #222; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        #chat-area { flex: 1; display: flex; flex-direction: column; background: #000; border-left: 1px solid #222; border-right: 1px solid #222; }
-        #chat-box { flex: 1; padding: 15px; overflow-y: auto; }
+        /* تقسيم الشاشة - اليمين متصلين - اليسار ملف شخصي */
+        .app-container { display: flex; flex: 1; overflow: hidden; }
+        .side-menu { width: 220px; background: #111; padding: 15px; border: 1px solid #222; display: flex; flex-direction: column; gap: 15px; }
+        #chat-section { flex: 1; display: flex; flex-direction: column; background: #000; border-left: 1px solid #222; border-right: 1px solid #222; }
+        #chat-display { flex: 1; padding: 15px; overflow-y: auto; }
 
-        /* الملف الشخصي */
-        .profile-section { background: #1a1a1a; padding: 10px; border-radius: 10px; border: 1px solid var(--neon-blue); text-align: center; }
-        .p-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--neon-blue); object-fit: cover; cursor: pointer; }
+        /* الملف الشخصي (جهة اليسار) */
+        .profile-box { background: #1a1a1a; border-radius: 12px; border: 1px solid var(--main); overflow: hidden; text-align: center; }
+        .cover-img { width: 100%; height: 50px; background: linear-gradient(to right, var(--main), var(--pink)); cursor: pointer; }
+        .user-p-img { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--main); margin: -25px auto 5px; cursor: pointer; background: #333; }
         
-        /* الرسائل مع الصورة */
-        .msg-row { display: flex; gap: 10px; margin-bottom: 20px; align-items: flex-start; }
-        .msg-img { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon-pink); }
-        .msg-content { background: #151515; padding: 10px; border-radius: 12px; flex: 1; border: 1px solid #222; }
-        .msg-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
-        
-        /* أزرار التحكم */
-        .admin-tools { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
-        .btn-tool { font-size: 10px; padding: 3px 7px; border-radius: 4px; border: none; cursor: pointer; background: #333; color: #fff; }
-        .btn-del { background: #600; } .btn-kick { background: #d35400; }
+        /* الرسايل مع الصور */
+        .message-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .m-avatar { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--main); }
+        .m-body { background: #151515; padding: 10px; border-radius: 10px; flex: 1; position: relative; }
+        .m-user { color: var(--main); font-weight: bold; font-size: 13px; }
+        .m-tools { margin-top: 5px; display: flex; gap: 6px; }
+        .m-tools button { font-size: 10px; background: #222; border: 1px solid #444; color: #aaa; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+        .m-tools .del-btn { color: #ff4444; }
 
-        /* منطقة الإدخال */
-        .input-bar { padding: 15px; background: #111; display: flex; gap: 10px; }
-        #mInput { flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid #333; background: #000; color: #fff; }
-        #sendBtn { background: var(--neon-blue); border: none; padding: 0 20px; border-radius: 20px; font-weight: bold; }
+        /* خانة الكتابة */
+        .write-area { padding: 15px; background: #111; display: flex; gap: 10px; }
+        input { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 10px 15px; border-radius: 25px; outline: none; }
+        #send { background: var(--main); color: #000; border: none; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
 
-        @media (max-width: 768px) { .side-panel { display: none; } }
+        @media (max-width: 768px) { .side-menu { display: none; } }
     </style>
 </head>
 <body>
 
-<div class="main-wrapper">
-    <div class="side-panel">
-        <div style="color:var(--neon-blue); font-size:12px;">المتصلون الآن</div>
-        <div id="user-list">
-            <div style="color:gold">● الماستر RG (أدمن)</div>
+<div class="app-container">
+    <div class="side-menu">
+        <div style="color:var(--main); font-size:13px; border-bottom:1px solid #222; padding-bottom:5px;">المتصلون</div>
+        <div style="font-size:14px;">👑 الماستر RG</div>
+        <div style="font-size:14px; color:#777;">👤 زائر 501</div>
+    </div>
+
+    <div id="chat-section">
+        <div id="chat-display"></div>
+        <div class="write-area">
+            <input type="text" id="msgInput" placeholder="اكتب رسالة...">
+            <button id="send" onclick="sendMsg()">إرسال</button>
         </div>
     </div>
 
-    <div id="chat-area">
-        <div id="chat-box"></div>
-        <div class="input-bar">
-            <input type="text" id="mInput" placeholder="اكتب رسالتك هنا...">
-            <button id="sendBtn" onclick="send()">إرسال</button>
+    <div class="side-menu">
+        <div class="profile-box">
+            <div class="cover-img" onclick="changeCover()"></div>
+            <img src="https://via.placeholder.com/55" id="myAvatar" class="user-p-img" onclick="changeAvatar()">
+            <input type="text" id="myName" value="الماستر_RG" style="width:80%; text-align:center; font-size:14px; margin-bottom:10px;">
         </div>
-    </div>
-
-    <div class="side-panel">
-        <div class="profile-section">
-            <img src="https://via.placeholder.com/60" id="myPic" class="p-img" onclick="changePic()" title="اضغط لتغيير الصورة">
-            <input type="text" id="uName" style="width:100%; background:none; border:none; color:white; text-align:center; margin-top:5px;" value="الماستر_RG">
-            <button class="btn-tool" style="margin-top:5px;" onclick="changePic()">تغيير الصورة</button>
-        </div>
-        <div style="color:var(--neon-pink); font-size:12px; margin-top:10px;">أدوات الإدارة</div>
-        <button class="btn-tool" onclick="alert('تم تفعيل وضع الكتم العام')">كتم الجميع</button>
-        <button class="btn-tool" onclick="location.reload()">تحديث السيرفر</button>
+        <div style="color:var(--pink); font-size:13px;">المميزات</div>
+        <button style="font-size:11px; cursor:pointer;" onclick="changeAvatar()">تغيير الصورة</button>
+        <button style="font-size:11px; cursor:pointer;" onclick="location.reload()">تحديث</button>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
+    const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(config);
     const db = firebase.database();
 
-    let userPic = "https://via.placeholder.com/60";
+    let myImg = "https://via.placeholder.com/55";
 
-    function changePic() {
-        const newUrl = prompt("ضع رابط صورتك الشخصية هنا:");
-        if(newUrl) {
-            userPic = newUrl;
-            document.getElementById('myPic').src = newUrl;
-        }
+    function changeAvatar() {
+        let link = prompt("ضع رابط صورتك الجديدة:");
+        if(link) { myImg = link; document.getElementById('myAvatar').src = link; }
     }
 
-    function send() {
-        const txt = document.getElementById('mInput').value;
-        const name = document.getElementById('uName').value;
-        if(txt) {
-            db.ref('messages').push({ user: name, text: txt, pic: userPic, time: new Date().toLocaleTimeString() });
-            document.getElementById('mInput').value = '';
+    function sendMsg() {
+        const text = document.getElementById('msgInput').value;
+        const name = document.getElementById('myName').value;
+        if(text) {
+            db.ref('messages').push({ user: name, text: text, img: myImg, time: new Date().toLocaleTimeString() });
+            document.getElementById('msgInput').value = '';
         }
     }
 
     db.ref('messages').on('child_added', (snap) => {
         const m = snap.val();
-        const key = snap.key;
+        const id = snap.key;
         const div = document.createElement('div');
-        div.className = 'msg-row';
+        div.className = 'message-row';
         div.innerHTML = `
-            <img src="${m.pic || 'https://via.placeholder.com/40'}" class="msg-img">
-            <div class="msg-content">
-                <div class="msg-header">
-                    <b style="color:var(--neon-blue)">${m.user}</b>
-                    <span style="color:#555">${m.time || ''}</span>
-                </div>
-                <div>${m.text}</div>
-                <div class="admin-tools">
-                    <button class="btn-tool" onclick="quote('${m.user}', '${m.text}')">اقتباس</button>
-                    <button class="btn-tool btn-del" onclick="deleteMsg('${key}')">حذف</button>
-                    <button class="btn-tool btn-kick" onclick="muteUser('${m.user}')">كتم</button>
-                    <button class="btn-tool btn-kick" onclick="kickUser('${m.user}')">طرد</button>
+            <img src="${m.img}" class="m-avatar">
+            <div class="m-body">
+                <div class="m-user">${m.user} <small style="color:#444; float:left;">${m.time}</small></div>
+                <div style="margin-top:5px;">${m.text}</div>
+                <div class="m-tools">
+                    <button onclick="quote('${m.user}','${m.text}')">اقتباس</button>
+                    <button class="del-btn" onclick="del('${id}')">حذف</button>
+                    <button onclick="alert('تم كتم المستخدم')">كتم</button>
                 </div>
             </div>
         `;
-        document.getElementById('chat-box').appendChild(div);
-        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+        document.getElementById('chat-display').appendChild(div);
+        document.getElementById('chat-display').scrollTop = document.getElementById('chat-display').scrollHeight;
     });
 
-    function deleteMsg(key) { if(confirm('حذف الرسالة؟')) db.ref('messages/'+key).remove(); location.reload(); }
-    function quote(user, text) { document.getElementById('mInput').value = `"${user}: ${text}" -> `; }
-    function muteUser(user) { alert(`تم كتم ${user} لمدة 5 دقائق`); }
-    function kickUser(user) { alert(`تم طرد ${user} من السيرفر`); }
-
+    function del(id) { db.ref('messages/'+id).remove(); location.reload(); }
+    function quote(u, t) { document.getElementById('msgInput').value = `رد على ${u}: (${t}) -> `; }
 </script>
+
 </body>
 </html>
