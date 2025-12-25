@@ -2,114 +2,92 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>شات الماستر الحقيقي - بث مباشر</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
+    <title>شات الماستر الحقيقي</title>
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.9.min.js"></script>
     <style>
         :root { --glow: #00f2ff; --master: #ff004c; }
         body { background: #000; color: #fff; margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: sans-serif; overflow: hidden; }
-        
-        header { height: 50px; border-bottom: 2px solid var(--glow); text-align: center; line-height: 50px; color: var(--glow); font-weight: bold; box-shadow: 0 0 15px var(--glow); }
-
-        .main-wrapper { display: flex; flex: 1; overflow: hidden; }
-
-        /* اليمين: أدوات وغرف */
-        #right-panel { width: 220px; background: #050505; border-left: 1px solid #222; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        
-        /* اليسار: متصلين وبروفايل */
-        #left-panel { width: 220px; background: #050505; border-right: 1px solid #222; padding: 15px; }
-
-        /* الوسط: الدردشة */
-        #chat-area { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; }
-        #messages { flex: 1; padding: 20px; overflow-y: auto; }
-
-        /* ستايل الرتب والأسماء */
-        .rank-master { background: var(--master); font-size: 10px; padding: 2px 8px; border-radius: 10px; animation: pulse 1s infinite; }
-        .master-name { color: var(--glow); font-weight: bold; display: block; animation: moveName 2s infinite; text-shadow: 0 0 5px var(--glow); }
-
-        @keyframes pulse { 50% { opacity: 0.5; } }
-        @keyframes moveName { 50% { transform: translateX(5px); } }
-
-        /* الأيقونات تحت الاسم */
-        .user-actions { margin-top: 10px; font-size: 18px; letter-spacing: 10px; cursor: pointer; border-top: 1px solid #222; padding-top: 5px; }
-
-        .msg-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border-right: 3px solid var(--glow); margin-bottom: 10px; }
+        header { height: 50px; border-bottom: 2px solid var(--glow); text-align: center; line-height: 50px; color: var(--glow); font-weight: bold; }
+        .main { display: flex; flex: 1; overflow: hidden; }
+        #right { width: 200px; background: #050505; border-left: 1px solid #222; padding: 15px; }
+        #left { width: 200px; background: #050505; border-right: 1px solid #222; padding: 15px; }
+        #center { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; }
+        #msgs { flex: 1; padding: 20px; overflow-y: auto; }
         .input-box { padding: 15px; background: #000; display: flex; gap: 10px; }
         input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 20px; outline: none; }
-        .send-btn { background: var(--glow); color: #000; border: none; padding: 0 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .btn { background: var(--glow); color: #000; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .rank { background: var(--master); font-size: 10px; padding: 2px 8px; border-radius: 10px; animation: flash 1s infinite; }
+        .name { color: var(--glow); font-weight: bold; display: block; animation: move 2s infinite; }
+        @keyframes flash { 50% { opacity: 0.5; } }
+        @keyframes move { 50% { transform: translateX(5px); } }
+        .msg-line { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 5px; margin-bottom: 10px; border-right: 3px solid var(--glow); }
     </style>
 </head>
 <body>
 
-<header>MASTER LIVE CHAT SYSTEM</header>
+<header>MASTER LIVE SYSTEM - بث حقيقي</header>
 
-<div class="main-wrapper">
-    <div id="right-panel">
+<div class="main">
+    <div id="right">
         <div style="color:var(--glow); font-size:12px;">📁 الغرف</div>
-        <button class="send-btn" style="width:100%; height:35px; font-size:12px;" onclick="addRoom()">+ إضافة غرفة</button>
-        <div id="rooms-list">
-            <button style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid var(--glow); margin-top:5px; border-radius:5px;">العامة</button>
-        </div>
-
-        <div style="color:var(--glow); font-size:12px; margin-top:20px;">🎨 الألوان والخط</div>
-        <button class="send-btn" style="width:100%; height:35px; background:#222; color:#fff;" onclick="changeTheme()">تغيير النيون</button>
+        <button class="btn" style="width:100%; font-size:12px;" onclick="addR()">+ إضافة غرفة</button>
+        <div id="rooms-list"><button class="btn" style="width:100%; margin-top:5px;">العامة</button></div>
     </div>
 
-    <div id="chat-area">
-        <div id="messages"></div>
+    <div id="center">
+        <div id="msgs"></div>
         <div class="input-box">
-            <input type="text" id="msgInput" placeholder="اكتب رسالة تظهر للجميع...">
-            <button class="send-btn" onclick="sendMessage()">إرسال</button>
+            <input type="text" id="msgInput" placeholder="اكتب رسالة ستصل للكل الآن...">
+            <button class="btn" onclick="publishMessage()">إرسال</button>
         </div>
     </div>
 
-    <div id="left-panel">
+    <div id="left">
         <div style="color:var(--glow); font-size:12px; text-align:center; margin-bottom:15px;">👤 المتصلون</div>
-        
         <div style="background:#111; padding:10px; border-radius:10px; text-align:center; border:1px solid #222;">
-            <span class="rank-master">صاحب الشات</span>
-            <span class="master-name">الماستر</span>
-            <div class="user-actions">📩 🤝 ❤️</div>
+            <span class="rank">صاحب الشات</span>
+            <span class="name">الماستر</span>
+            <div style="margin-top:5px;">📩 🤝 ❤️</div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- ملاحظة هامة جداً للماستر ---
-    // لكي ترسل الرسائل للحاسبة الأخرى، يجب وضع إعدادات Firebase الخاصة بك هنا.
-    // بدونها، الشات سيبقى "تجريبي" فقط على جهازك.
-    
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        databaseURL: "YOUR_DB_URL",
-        projectId: "YOUR_PROJECT_ID"
-    };
-    
-    // اترك هذا الجزء كما هو للتجربة حالياً
-    function sendMessage() {
+    // هذا هو المفتاح التجريبي لكي يعمل الشات فوراً بين الأجهزة
+    const pubnub = new PubNub({
+        publishKey: 'pub-c-db838685-3004-4363-9524-7667858c0394',
+        subscribeKey: 'sub-c-576a166e-c14d-11eb-a010-02da5302672a',
+        uuid: "Master_" + Math.random().toString(16).slice(2)
+    });
+
+    // الاشتراك في قناة الدردشة
+    pubnub.subscribe({ channels: ['master_chat'] });
+
+    // استقبال الرسائل من أي جهاز آخر
+    pubnub.addListener({
+        message: function(event) {
+            const msgsDiv = document.getElementById('messages');
+            const msgHtml = `<div class="msg-line"><b style="color:var(--master)">[شخص ما]:</b> ${event.message.text}</div>`;
+            document.getElementById('msgs').innerHTML += msgHtml;
+            document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
+        }
+    });
+
+    // إرسال الرسالة لكي يراها الجميع
+    function publishMessage() {
         const inp = document.getElementById('msgInput');
-        if(!inp.value) return;
-        
-        const msgHtml = `<div class="msg-box"><b style="color:var(--master)">[الماستر]:</b> ${inp.value}</div>`;
-        document.getElementById('messages').innerHTML += msgHtml;
-        
-        // هنا يجب أن يكون كود إرسال البيانات للسيرفر لكي تظهر عند الآخرين
-        // database.ref('msgs').push({ text: inp.value });
-        
-        inp.value = '';
-        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        if(inp.value) {
+            pubnub.publish({
+                channel: 'master_chat',
+                message: { text: inp.value }
+            });
+            inp.value = '';
+        }
     }
 
-    function changeTheme() {
-        const colors = ['#00f2ff', '#ff00ff', '#00ff00', '#ffff00'];
-        const random = colors[Math.floor(Math.random()*colors.length)];
-        document.documentElement.style.setProperty('--glow', random);
-    }
-
-    function addRoom() {
+    function addR() {
         let n = prompt("اسم الغرفة:");
-        if(n) document.getElementById('rooms-list').innerHTML += `<button style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #333; margin-top:5px; border-radius:5px;">${n}</button>`;
+        if(n) document.getElementById('rooms-list').innerHTML += `<button class="btn" style="width:100%; margin-top:5px;">${n}</button>`;
     }
 </script>
 
