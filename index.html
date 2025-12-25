@@ -3,82 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>MASTER RG - Multi Pages</title>
+    <title>MASTER RG - Mega System</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --gold: #ffd700; --bg: #000; }
+        :root { --neon: #00f2ff; --gold: #ffd700; --red: #ff4444; --bg: #000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { margin: 0; background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; }
+
+        /* شاشة الدخول المزدوجة */
+        #login-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-box { background: #111; padding: 25px; border-radius: 20px; border: 1px solid var(--neon); width: 100%; max-width: 360px; text-align: center; }
+        .tab-btn { background: #222; color: #fff; border: none; padding: 10px; width: 48%; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; margin-bottom: 20px; }
+        .tab-btn.active { background: var(--neon); color: #000; font-weight: bold; }
 
         /* الصفحات */
         .page { position: fixed; inset: 0; background: var(--bg); display: none; z-index: 10; }
         .page.active { display: block; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        /* شاشة اختيار الغرف (اللوبي) */
-        #lobby { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .room-card { background: #111; width: 100%; max-width: 320px; padding: 25px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .room-card:active { transform: scale(0.95); border-color: var(--neon); }
-        .room-card h2 { margin: 0; color: var(--neon); }
-        .room-card p { font-size: 12px; color: #888; margin: 10px 0 0; }
+        /* تصميم الرومات (اللوبي) */
+        .lobby-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; padding-top: 70px; overflow-y: auto; height: 100vh; }
+        .room-card { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; cursor: pointer; transition: 0.3s; }
+        .room-card:active { transform: translateY(-5px); border-color: var(--neon); }
+        .room-card i { font-size: 30px; display: block; margin-bottom: 10px; }
 
-        header { height: 60px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
-        .chat-area { position: absolute; top: 60px; left: 0; right: 0; bottom: 80px; overflow-y: auto; padding: 10px; }
+        header { height: 60px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; }
+        .chat-area { position: absolute; top: 60px; left: 0; right: 0; bottom: 80px; overflow-y: auto; padding: 10px; background: #050505; }
 
-        /* رسائل الدردشة */
-        .msg { display: flex; margin-bottom: 15px; }
-        .msg img { width: 40px; height: 40px; border-radius: 8px; border: 1.5px solid var(--neon); margin-left: 10px; }
+        /* القائمة الجانبية (المتواجدين والملف) */
+        .sidebar { position: fixed; top: 0; bottom: 0; right: -320px; width: 300px; background: #0a0a0a; z-index: 2000; padding: 20px; transition: 0.3s ease; border-left: 2px solid var(--neon); overflow-y: auto; }
+        .sidebar.active { right: 0; }
+        .user-item { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #222; font-size: 13px; }
+        .status-dot { width: 8px; height: 8px; background: #0f0; border-radius: 50%; margin-left: 8px; }
+
+        .msg { display: flex; margin-bottom: 12px; cursor: pointer; }
+        .msg img { width: 42px; height: 42px; border-radius: 8px; border: 1.5px solid var(--neon); margin-left: 10px; object-fit: cover; }
         .user-n { font-size: 12px; color: var(--neon); font-weight: bold; }
-        .user-t { background: #1a1a1a; padding: 8px 12px; border-radius: 12px; margin-top: 4px; display: inline-block; max-width: 85%; word-break: break-word; }
+        .user-t { background: #1a1a1a; padding: 8px 12px; border-radius: 12px; margin-top: 4px; display: inline-block; max-width: 80%; }
 
-        .footer { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: #111; display: flex; align-items: center; padding: 15px; border-top: 1px solid #222; }
-        input { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; font-family: 'Cairo'; }
-        .send-btn { background: var(--neon); color: #000; border: none; padding: 10px 15px; border-radius: 10px; margin-right: 10px; font-weight: bold; }
-
-        /* الدخول والبروفايل */
-        #login-screen { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-box { background: #111; padding: 30px; border-radius: 25px; border: 1px solid var(--neon); width: 100%; max-width: 320px; text-align: center; }
+        .footer { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: #111; display: flex; align-items: center; padding: 15px; }
+        #msgInp { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; text-align: right; }
+        
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1500; display: none; }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
     <div class="login-box">
-        <h2 style="color:var(--neon);">إمبراطورية RG</h2>
-        <input type="text" id="regName" placeholder="ادخل اسمك المستعار..." style="width:100%; text-align:center;">
-        <button onclick="entry()" style="width:100%; background:var(--neon); border:none; padding:12px; margin-top:20px; border-radius:10px; font-weight:bold;">دخول 🚀</button>
+        <h2 style="color:var(--neon); margin-bottom: 15px;">دخول الإمبراطورية</h2>
+        <div style="display: flex; justify-content: space-between;">
+            <button id="z-tab" class="tab-btn active" onclick="setTab('z')">زائر</button>
+            <button id="o-tab" class="tab-btn" onclick="setTab('o')">حساب مسجل</button>
+        </div>
+        <input type="text" id="logName" placeholder="الاسم المستعار" style="width:100%; padding:10px; margin-bottom:10px; background:#000; border:1px solid #444; color:#fff; border-radius:8px;">
+        <div id="extra-fields" style="display:none;">
+            <input type="text" id="logEmail" placeholder="البريد الإلكتروني" style="width:100%; padding:10px; margin-bottom:10px; background:#000; border:1px solid #444; color:#fff; border-radius:8px;">
+            <input type="password" id="logPass" placeholder="كلمة السر" style="width:100%; padding:10px; margin-bottom:10px; background:#000; border:1px solid #444; color:#fff; border-radius:8px;">
+        </div>
+        <button onclick="doEntry()" style="width:100%; background:var(--neon); border:none; padding:12px; border-radius:10px; font-weight:bold;">دخول الدردشة 🚀</button>
     </div>
 </div>
 
-<div id="lobby-page" class="page active" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-    <h1 style="color:var(--gold); margin-bottom: 30px;">اختر الغرفة 🏛</h1>
-    
-    <div class="room-card" onclick="openRoom('main', 'عرش الإمبراطورية')">
-        <h2>👑 عرش الإمبراطورية</h2>
-        <p>الدردشة العامة والترحيب بالجميع</p>
+<div id="lobby-page" class="page active">
+    <header>
+        <div style="width:50px"></div>
+        <b style="color:var(--neon); font-size: 18px;">MASTER RG 👑</b>
+        <button onclick="toggleSidebar()" style="background:var(--neon); border:none; padding:7px 12px; border-radius:8px; font-weight:bold;">الملف</button>
+    </header>
+    <div class="lobby-container">
+        <div class="room-card" onclick="openRoom('main', '👑 عرش الإمبراطورية')"><i>🏛</i><b>العرش</b></div>
+        <div class="room-card" onclick="openRoom('vip', '💎 ديوان الماستر')"><i>💎</i><b>الديوان</b></div>
+        <div class="room-card" onclick="openRoom('elite', '🤝 ملتقى النخبة')"><i>🤝</i><b>النخبة</b></div>
+        <div class="room-card" onclick="openRoom('game', '🏆 ميدان المسابقات')"><i>🏆</i><b>المسابقات</b></div>
+        <div class="room-card" onclick="openRoom('poem', '🎸 ركن القوافي')"><i>🎸</i><b>شعر</b></div>
+        <div class="room-card" onclick="openRoom('cafe', '☕ مقهى الذكريات')"><i>☕</i><b>المقهى</b></div>
     </div>
-
-    <div class="room-card" onclick="openRoom('vip', 'ديوان الماستر')">
-        <h2 style="color:var(--gold);">💎 ديوان الماستر</h2>
-        <p>للملوك وكبار الشخصيات فقط</p>
-    </div>
-
-    <button onclick="localStorage.clear(); location.reload();" style="background:none; border:none; color:red; font-family:'Cairo';">تسجيل الخروج</button>
 </div>
 
 <div id="chat-page" class="page">
     <header>
         <button onclick="goBack()" style="background:none; border:none; color:var(--neon); font-size:20px;">➔</button>
-        <b id="room-name-display" style="color:var(--gold);"></b>
-        <div style="width:30px"></div>
+        <b id="room-name-display" style="color:var(--gold); font-size:14px;"></b>
+        <button onclick="toggleSidebar()" style="background:var(--neon); border:none; padding:5px 10px; border-radius:8px; font-size:12px;">المتصلين</button>
     </header>
     <div id="chat-messages" class="chat-area"></div>
     <div class="footer">
-        <input type="text" id="msgInp" placeholder="اكتب هنا...">
-        <button onclick="sendMsg()" class="send-btn">إرسال</button>
+        <input type="text" id="msgInp" placeholder="اكتب رسالتك...">
+        <button onclick="sendMsg()" style="background:var(--neon); border:none; padding:10px 15px; border-radius:10px; margin-right:5px; font-weight:bold;">إرسال</button>
     </div>
+</div>
+
+<div id="overlay" onclick="toggleSidebar()"></div>
+<div id="sidebar" class="sidebar">
+    <div style="background:#111; padding:15px; border-radius:10px; margin-bottom:20px;">
+        <h4 style="margin:0; color:var(--neon)">👤 ملفي</h4>
+        <input type="file" accept="image/*" onchange="upImg(this)" style="font-size:10px; margin-top:10px;">
+        <button onclick="localStorage.clear(); location.reload();" style="width:100%; background:red; border:none; color:#fff; padding:8px; border-radius:5px; margin-top:10px; font-family:'Cairo';">خروج</button>
+    </div>
+    <h4 style="color:var(--gold); border-bottom:1px solid #333;">🟢 المتواجدون الآن</h4>
+    <div id="user-list"></div>
 </div>
 
 <script>
@@ -86,33 +112,56 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
+    let mode = 'z';
     let my = {
         n: localStorage.getItem('rg-n') || "",
+        i: localStorage.getItem('rg-i') || "https://ui-avatars.com/api/?background=00f2ff&color=000&name=U",
         logged: localStorage.getItem('rg-logged') || "false"
     };
 
     let currentRoom = "";
 
-    if(my.logged === "true") document.getElementById('login-screen').style.display = 'none';
+    if(my.logged === "true") {
+        document.getElementById('login-screen').style.display = 'none';
+        updateOnlineStatus();
+    }
 
-    function entry() {
-        let n = document.getElementById('regName').value;
-        if(n.trim().length < 2) return alert("الاسم قصير!");
+    function setTab(t) {
+        mode = t;
+        document.getElementById('z-tab').classList.toggle('active', t==='z');
+        document.getElementById('o-tab').classList.toggle('active', t==='o');
+        document.getElementById('extra-fields').style.display = t === 'o' ? 'block' : 'none';
+    }
+
+    function doEntry() {
+        let n = document.getElementById('logName').value;
+        if(n.length < 2) return alert("الاسم قصير!");
         localStorage.setItem('rg-n', n);
         localStorage.setItem('rg-logged', "true");
         location.reload();
     }
 
+    function updateOnlineStatus() {
+        let userRef = db.ref('online_users/' + my.n);
+        userRef.set({ name: my.n, img: my.i });
+        userRef.onDisconnect().remove();
+    }
+
+    db.ref('online_users').on('value', snap => {
+        let list = document.getElementById('user-list');
+        list.innerHTML = "";
+        snap.forEach(user => {
+            let u = user.val();
+            list.innerHTML += `<div class="user-item"><div class="status-dot"></div> ${u.name}</div>`;
+        });
+    });
+
     function openRoom(roomId, roomName) {
         if(roomId === 'vip' && !my.n.includes("الماستر")) return alert("هذا الديوان للملوك فقط! 💎");
-        
         currentRoom = roomId;
         document.getElementById('room-name-display').innerText = roomName;
-        
-        // إخفاء اللوبي وإظهار الشات
         document.getElementById('lobby-page').classList.remove('active');
         document.getElementById('chat-page').classList.add('active');
-        
         document.getElementById('chat-messages').innerHTML = "";
         loadMessages();
     }
@@ -120,13 +169,13 @@
     function goBack() {
         document.getElementById('chat-page').classList.remove('active');
         document.getElementById('lobby-page').classList.add('active');
-        db.ref('rooms/' + currentRoom).off(); // إيقاف الاستماع للروم
+        db.ref('rooms/' + currentRoom).off();
     }
 
     function sendMsg() {
         let t = document.getElementById('msgInp').value;
         if(t.trim()) {
-            db.ref('rooms/' + currentRoom).push({ u: my.n, t: t, time: Date.now() });
+            db.ref('rooms/' + currentRoom).push({ u: my.n, i: my.i, t: t, time: Date.now() });
             document.getElementById('msgInp').value = '';
         }
     }
@@ -136,15 +185,25 @@
             let m = snap.val();
             let div = document.createElement('div');
             div.className = 'msg';
-            div.innerHTML = `
-                <img src="https://ui-avatars.com/api/?name=${m.u}&background=random">
-                <div class="msg-body">
-                    <div class="user-n">${m.u} ${m.u.includes("الماستر")?'👑':''}</div>
-                    <div class="user-t">${m.t}</div>
-                </div>`;
+            div.innerHTML = `<img src="${m.i}"><div><div class="user-n">${m.u} ${m.u.includes("الماستر")?'👑':''}</div><div class="user-t">${m.t}</div></div>`;
             document.getElementById('chat-messages').appendChild(div);
             document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
         });
+    }
+
+    function upImg(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) { localStorage.setItem('rg-i', e.target.result); alert("تم حفظ الصورة!"); location.reload(); };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function toggleSidebar() {
+        let s = document.getElementById('sidebar');
+        let o = document.getElementById('overlay');
+        s.classList.toggle('active');
+        o.style.display = s.classList.contains('active') ? 'block' : 'none';
     }
 </script>
 </body>
