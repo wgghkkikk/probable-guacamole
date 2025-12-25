@@ -1,31 +1,61 @@
-// 1. الربط بمشروعك (حسب الصور اللي دزيتها)
-const db = firebase.database();
-
-// 2. هذا الاسم اللي راح تدخله في خانة الاسم بالشات
-let myName = "علوش"; 
-let iAmTheMaster = false;
-
-// 3. فحص الصلاحية من السيرفر (الجزء الأهم)
-db.ref('master').on('value', (snapshot) => {
-    if (snapshot.val() === myName) {
-        iAmTheMaster = true;
-        console.log("تم تفعيل صلاحيات الإمبراطور علوش 👑");
-        // هنا الكود يظهر لك أزرار التحكم تلقائياً
-        document.getElementById('admin-btn').style.display = 'block';
+<style>
+    .master-panel {
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: #1a1a1a; border: 2px solid #d4af37; padding: 20px;
+        border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        display: none; z-index: 10000; text-align: center; color: white; width: 250px;
     }
-});
-
-// 4. وظيفة "الطرد" البرمجية
-function kickUser(targetName) {
-    if (iAmTheMaster) {
-        // إرسال أمر طرد للعضو المستهدف في قاعدة البيانات
-        db.ref('actions/' + targetName).set({
-            type: 'KICK',
-            admin: myName,
-            time: Date.now()
-        });
-        alert("تم طرد " + targetName + " بنجاح ✅");
-    } else {
-        alert("عذراً، أنت لا تملك صلاحية الماستر ❌");
+    .master-btn {
+        width: 100%; padding: 10px; margin: 5px 0; border: none; border-radius: 8px;
+        cursor: pointer; font-weight: bold; color: white;
     }
-}
+    .btn-kick { background: #e74c3c; } /* أحمر للطرد */
+    .btn-mute { background: #f1c40f; color: #000; } /* أصفر للكتم */
+</style>
+
+<div id="master-panel" class="master-panel">
+    <h3 id="target-name">اسم العضو</h3>
+    <button class="master-btn btn-kick" onclick="kickUser(currentSelectedUser)">طرد نهائي ⛔</button>
+    <button class="master-btn btn-mute" onclick="muteUser(currentSelectedUser)">كتم الصوت 🔇</button>
+    <button onclick="closePanel()" style="background:none; color:#888; border:none; cursor:pointer; margin-top:10px;">إغلاق</button>
+</div>
+
+<script>
+    // --- المحرك البرمجي ---
+    const db = firebase.database();
+    let myName = "علوش"; 
+    let iAmTheMaster = false;
+    let currentSelectedUser = "";
+
+    // التأكد من أنك "علوش" المعتمد في السيرفر
+    db.ref('master').on('value', (snapshot) => {
+        if (snapshot.val() === myName) {
+            iAmTheMaster = true;
+            console.log("تم تفعيل صلاحيات الإمبراطور علوش 👑");
+        }
+    });
+
+    // وظيفة تفتح اللوحة لما تضغط على اسم أي شخص
+    function openAdminMenu(user) {
+        if (iAmTheMaster) {
+            currentSelectedUser = user;
+            document.getElementById('target-name').innerText = user;
+            document.getElementById('master-panel').style.display = 'block';
+        }
+    }
+
+    function closePanel() { document.getElementById('master-panel').style.display = 'none'; }
+
+    // --- تنفيذ الأوامر في السيرفر ---
+    function kickUser(target) {
+        db.ref('actions/' + target).set({ type: 'KICK', admin: myName, time: Date.now() });
+        alert("تم طرد " + target);
+        closePanel();
+    }
+
+    function muteUser(target) {
+        db.ref('actions/' + target).set({ type: 'MUTE', admin: myName, time: Date.now() });
+        alert("تم كتم " + target);
+        closePanel();
+    }
+</script>
