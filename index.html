@@ -2,82 +2,114 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>شات الماستر</title>
+    <title>شات الماستر الحقيقي - بث مباشر</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <style>
-        body { background: #000; color: #fff; margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: sans-serif; }
-        header { height: 50px; border-bottom: 2px solid #00f2ff; text-align: center; line-height: 50px; color: #00f2ff; font-weight: bold; box-shadow: 0 0 10px #00f2ff; }
-        .main { display: flex; flex: 1; overflow: hidden; }
+        :root { --glow: #00f2ff; --master: #ff004c; }
+        body { background: #000; color: #fff; margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: sans-serif; overflow: hidden; }
         
-        /* اليمين: أدوات */
-        #right { width: 200px; border-left: 1px solid #222; padding: 10px; background: #050505; }
-        /* اليسار: متصلين */
-        #left { width: 200px; border-right: 1px solid #222; padding: 10px; background: #050505; }
-        /* الوسط: شات */
-        #center { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; }
+        header { height: 50px; border-bottom: 2px solid var(--glow); text-align: center; line-height: 50px; color: var(--glow); font-weight: bold; box-shadow: 0 0 15px var(--glow); }
 
-        .btn { width: 100%; padding: 8px; margin: 5px 0; background: #111; border: 1px solid #333; color: #fff; cursor: pointer; border-radius: 5px; font-size: 12px; }
-        .card { background: #111; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 10px; border: 1px solid #222; }
-        
-        /* رتبة الماستر متوهجة ومتحركة */
-        .rank { font-size: 10px; background: #ff004c; padding: 2px 5px; border-radius: 5px; display: inline-block; animation: flash 1s infinite; }
-        .name { color: #00f2ff; display: block; margin: 5px 0; animation: move 2s infinite; font-weight: bold; }
-        
-        @keyframes flash { 50% { opacity: 0.5; } }
-        @keyframes move { 50% { transform: translateX(5px); } }
+        .main-wrapper { display: flex; flex: 1; overflow: hidden; }
 
-        #msgs { flex: 1; padding: 10px; overflow-y: auto; }
-        .input-bar { padding: 10px; background: #000; display: flex; gap: 5px; }
-        input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 8px; border-radius: 5px; }
+        /* اليمين: أدوات وغرف */
+        #right-panel { width: 220px; background: #050505; border-left: 1px solid #222; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        
+        /* اليسار: متصلين وبروفايل */
+        #left-panel { width: 220px; background: #050505; border-right: 1px solid #222; padding: 15px; }
+
+        /* الوسط: الدردشة */
+        #chat-area { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; }
+        #messages { flex: 1; padding: 20px; overflow-y: auto; }
+
+        /* ستايل الرتب والأسماء */
+        .rank-master { background: var(--master); font-size: 10px; padding: 2px 8px; border-radius: 10px; animation: pulse 1s infinite; }
+        .master-name { color: var(--glow); font-weight: bold; display: block; animation: moveName 2s infinite; text-shadow: 0 0 5px var(--glow); }
+
+        @keyframes pulse { 50% { opacity: 0.5; } }
+        @keyframes moveName { 50% { transform: translateX(5px); } }
+
+        /* الأيقونات تحت الاسم */
+        .user-actions { margin-top: 10px; font-size: 18px; letter-spacing: 10px; cursor: pointer; border-top: 1px solid #222; padding-top: 5px; }
+
+        .msg-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border-right: 3px solid var(--glow); margin-bottom: 10px; }
+        .input-box { padding: 15px; background: #000; display: flex; gap: 10px; }
+        input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 20px; outline: none; }
+        .send-btn { background: var(--glow); color: #000; border: none; padding: 0 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<header>MASTER SYSTEM</header>
+<header>MASTER LIVE CHAT SYSTEM</header>
 
-<div class="main">
-    <div id="right">
-        <div style="font-size:12px; color:#00f2ff;">📁 الغرف</div>
-        <button class="btn" onclick="addR()">+ إضافة غرفة</button>
-        <div id="rooms"><button class="btn">العامة</button></div>
+<div class="main-wrapper">
+    <div id="right-panel">
+        <div style="color:var(--glow); font-size:12px;">📁 الغرف</div>
+        <button class="send-btn" style="width:100%; height:35px; font-size:12px;" onclick="addRoom()">+ إضافة غرفة</button>
+        <div id="rooms-list">
+            <button style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid var(--glow); margin-top:5px; border-radius:5px;">العامة</button>
+        </div>
+
+        <div style="color:var(--glow); font-size:12px; margin-top:20px;">🎨 الألوان والخط</div>
+        <button class="send-btn" style="width:100%; height:35px; background:#222; color:#fff;" onclick="changeTheme()">تغيير النيون</button>
+    </div>
+
+    <div id="chat-area">
+        <div id="messages"></div>
+        <div class="input-box">
+            <input type="text" id="msgInput" placeholder="اكتب رسالة تظهر للجميع...">
+            <button class="send-btn" onclick="sendMessage()">إرسال</button>
+        </div>
+    </div>
+
+    <div id="left-panel">
+        <div style="color:var(--glow); font-size:12px; text-align:center; margin-bottom:15px;">👤 المتصلون</div>
         
-        <div style="font-size:12px; color:#00f2ff; margin-top:15px;">🎨 الألوان</div>
-        <button class="btn" onclick="document.documentElement.style.setProperty('--glow', 'pink')">تغيير الثيم</button>
-    </div>
-
-    <div id="center">
-        <div id="msgs"></div>
-        <div class="input-bar">
-            <input type="text" id="inp" placeholder="اكتب رسالة...">
-            <button class="btn" style="width:60px; margin:0; background:#00f2ff; color:#000;" onclick="send()">إرسال</button>
-        </div>
-    </div>
-
-    <div id="left">
-        <div style="font-size:12px; color:#00f2ff; text-align:center;">👤 المتصلين</div>
-        <div class="card">
-            <span class="rank">صاحب الشات</span>
-            <span class="name">الماستر</span>
-            <div style="font-size:14px; margin-top:5px;">📩 🤝 ❤️</div>
-        </div>
-        <div class="card">
-            <span class="rank" style="background:#ffcc00; color:#000;">أدمن</span>
-            <span style="font-size:12px; display:block;">مساعد</span>
-            <div style="font-size:14px; margin-top:5px;">📩 🤝 ❤️</div>
+        <div style="background:#111; padding:10px; border-radius:10px; text-align:center; border:1px solid #222;">
+            <span class="rank-master">صاحب الشات</span>
+            <span class="master-name">الماستر</span>
+            <div class="user-actions">📩 🤝 ❤️</div>
         </div>
     </div>
 </div>
 
 <script>
-    function send() {
-        let i = document.getElementById('inp');
-        if(i.value) {
-            document.getElementById('msgs').innerHTML += `<div><b style="color:#ff004c">[الماستر]:</b> ${i.value}</div>`;
-            i.value = '';
-        }
+    // --- ملاحظة هامة جداً للماستر ---
+    // لكي ترسل الرسائل للحاسبة الأخرى، يجب وضع إعدادات Firebase الخاصة بك هنا.
+    // بدونها، الشات سيبقى "تجريبي" فقط على جهازك.
+    
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        databaseURL: "YOUR_DB_URL",
+        projectId: "YOUR_PROJECT_ID"
+    };
+    
+    // اترك هذا الجزء كما هو للتجربة حالياً
+    function sendMessage() {
+        const inp = document.getElementById('msgInput');
+        if(!inp.value) return;
+        
+        const msgHtml = `<div class="msg-box"><b style="color:var(--master)">[الماستر]:</b> ${inp.value}</div>`;
+        document.getElementById('messages').innerHTML += msgHtml;
+        
+        // هنا يجب أن يكون كود إرسال البيانات للسيرفر لكي تظهر عند الآخرين
+        // database.ref('msgs').push({ text: inp.value });
+        
+        inp.value = '';
+        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
     }
-    function addR() {
+
+    function changeTheme() {
+        const colors = ['#00f2ff', '#ff00ff', '#00ff00', '#ffff00'];
+        const random = colors[Math.floor(Math.random()*colors.length)];
+        document.documentElement.style.setProperty('--glow', random);
+    }
+
+    function addRoom() {
         let n = prompt("اسم الغرفة:");
-        if(n) document.getElementById('rooms').innerHTML += `<button class="btn">${n}</button>`;
+        if(n) document.getElementById('rooms-list').innerHTML += `<button style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #333; margin-top:5px; border-radius:5px;">${n}</button>`;
     }
 </script>
 
