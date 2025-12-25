@@ -3,63 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>MASTER RG - Chat AI</title>
+    <title>MASTER RG - Mega Bot</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --gold: #ffd700; --glass: rgba(255, 255, 255, 0.05); --bg: #000; }
+        :root { --neon: #00f2ff; --gold: #ffd700; --bg: #000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Cairo', sans-serif; }
-        body { margin: 0; background: var(--bg); color: #fff; overflow: hidden; position: fixed; width: 100%; height: 100%; }
-        header { height: 65px; background: #0a0a0a; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1001; }
-        .page { position: fixed; inset: 0; background: var(--bg); display: none; z-index: 10; padding-top: 65px; }
+        body { margin: 0; background: #000; color: #fff; overflow: hidden; position: fixed; width: 100%; height: 100%; }
+        header { height: 60px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
+        .page { position: fixed; inset: 0; background: #000; display: none; z-index: 10; padding-top: 60px; }
         .page.active { display: block; }
-        .lobby-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-        .room-card { background: #111; padding: 25px; border-radius: 20px; border: 1px solid #333; text-align: center; color: var(--neon); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .chat-container { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; }
-        .msg-box { display: flex; margin-bottom: 18px; }
-        .msg-box img { width: 45px; height: 45px; border-radius: 12px; margin-left: 12px; }
-        .bubble { background: var(--glass); border: 1px solid #222; padding: 12px; border-radius: 15px; max-width: 80%; backdrop-filter: blur(10px); }
-        .yt-vid { width: 100%; aspect-ratio: 16/9; margin-top: 10px; border-radius: 12px; border: 1px solid #333; }
-        .sidebar { position: fixed; top: 0; bottom: 0; right: -300px; width: 280px; background: rgba(10, 10, 10, 0.98); z-index: 2000; transition: 0.4s; border-left: 1px solid #333; padding: 25px; }
+        .lobby-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
+        .room-btn { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #333; text-align: center; color: var(--neon); }
+        .chat-area { position: absolute; top: 60px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; background: #050505; }
+        .msg { display: flex; margin-bottom: 15px; }
+        .msg img { width: 45px; height: 45px; border-radius: 10px; margin-left: 10px; border: 1px solid #222; }
+        .bubble { background: #1a1a1a; padding: 12px; border-radius: 15px; max-width: 80%; line-height: 1.5; }
+        .yt-frame { width: 100%; aspect-ratio: 16/9; margin-top: 10px; border-radius: 10px; border: 1px solid #333; }
+        .sidebar { position: fixed; top: 0; bottom: 0; right: -300px; width: 270px; background: #0d0d0d; z-index: 2000; transition: 0.3s; border-left: 2px solid var(--neon); padding: 20px; }
         .sidebar.active { right: 0; }
-        .input-area { position: absolute; bottom: 0; width: 100%; height: 85px; background: #0a0a0a; display: flex; align-items: center; padding: 0 15px; border-top: 1px solid #222; }
-        #mInp { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 15px; text-align: right; }
-        .send-btn { background: var(--neon); border: none; width: 50px; height: 50px; border-radius: 15px; margin-right: 10px; font-weight: bold; color: #000; font-size: 20px; }
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 1500; }
+        .input-bar { position: absolute; bottom: 0; width: 100%; height: 85px; background: #111; display: flex; align-items: center; padding: 15px; }
+        #mInp { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 12px; text-align: right; }
+        .s-btn { background: var(--neon); border: none; width: 50px; height: 50px; border-radius: 12px; margin-right: 10px; color: #000; font-size: 20px; font-weight: bold; }
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
     </style>
 </head>
 <body>
 
 <header>
     <button onclick="toggleSide()" style="background:none; border:none; color:var(--neon); font-size:24px;">☰</button>
-    <b style="color: var(--gold);">MASTER <span style="color:var(--neon)">RG</span></b>
-    <div id="status-bar" style="font-size:11px; color:var(--neon)">0 متصل</div>
+    <b style="color:var(--gold)">MASTER RG 👑</b>
+    <div id="on-count" style="font-size:11px; color:var(--neon)">جاري الاتصال..</div>
 </header>
 
 <div id="lobby" class="page active">
     <div class="lobby-grid">
-        <div class="room-card" onclick="enter('main', '👑 العرش')">🏛 العرش</div>
-        <div class="room-card" onclick="enter('game', '🏆 المسابقات')">🎮 المسابقات</div>
-        <div class="room-card" onclick="enter('vip', '💎 الديوان')">💎 الديوان</div>
-        <div class="room-card" onclick="enter('elite', '🤝 النخبة')">🤝 النخبة</div>
+        <div class="room-btn" onclick="enter('main', '🏛 العرش')">👑 العرش</div>
+        <div class="room-btn" onclick="enter('game', '🏆 المسابقات')">🎮 المسابقات</div>
+        <div class="room-btn" onclick="enter('vip', '💎 الديوان')">💎 الديوان</div>
+        <div class="room-btn" onclick="enter('elite', '🤝 النخبة')">🤝 النخبة</div>
     </div>
 </div>
 
 <div id="chat" class="page">
-    <div id="msgs" class="chat-container"></div>
-    <div class="input-area">
-        <input type="text" id="mInp" placeholder="سولف ويه البوت..">
-        <button onclick="sendMsg()" class="send-btn">➤</button>
-        <button onclick="back()" style="background:#222; border:none; width:40px; height:50px; border-radius:15px; margin-right:5px; color:#fff">🔙</button>
+    <div id="msgs" class="chat-area"></div>
+    <div class="input-bar">
+        <input type="text" id="mInp" placeholder="سولف ويه البوت أو اكتب 'سؤال'..">
+        <button onclick="sendMsg()" class="s-btn">➤</button>
+        <button onclick="back()" style="background:#222; border:none; padding:10px; border-radius:12px; margin-right:5px; color:#fff">🔙</button>
     </div>
 </div>
 
 <div id="overlay" onclick="toggleSide()"></div>
 <div id="sidebar" class="sidebar">
-    <h3 style="color:var(--neon)">الإمبراطورية 🌍</h3>
-    <div id="online-list"></div>
-    <button onclick="localStorage.clear(); location.reload();" style="width:100%; margin-top:30px; background:#ff4444; border:none; padding:10px; border-radius:12px; color:#fff;">تسجيل خروج</button>
+    <h3 style="color:var(--neon)">المتواجدون</h3>
+    <div id="user-list"></div>
+    <button onclick="localStorage.clear(); location.reload();" style="width:100%; margin-top:30px; background:red; border:none; padding:10px; color:#fff; border-radius:10px;">خروج</button>
 </div>
 
 <script>
@@ -67,39 +67,46 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let my = { n: localStorage.getItem('rg_n') || "", xp: parseInt(localStorage.getItem('rg_xp')) || 0, flag: "🇮🇶" };
-    if(!my.n) { let name = prompt("ادخل اسمك:"); if(name){ localStorage.setItem('rg_n', name); location.reload(); } }
+    let my = { n: localStorage.getItem('rg_n') || "", xp: parseInt(localStorage.getItem('rg_xp')) || 0 };
+    if(!my.n) { let n = prompt("ادخل اسمك:"); if(n){ localStorage.setItem('rg_n', n); location.reload(); } }
 
     let curRoom = "", curAns = "";
-    const quiz = [{q:"عاصمة العراق؟", a:"بغداد"}, {q:"أكبر كوكب؟", a:"المشتري"}, {q:"حيوان سريع؟", a:"الفهد"}];
+    const quiz = [{q:"عاصمة العراق؟", a:"بغداد"}, {q:"أكبر كوكب؟", a:"المشتري"}];
 
-    // ذكاء البوت المطور (سوالف عراقية)
-    function botReply(text) {
-        let t = text.toLowerCase();
-        if(t.includes("هلو") || t.includes("السلام") || t.includes("هلاو")) return "هلا وغلا، نورت الإمبراطورية يا غالي!";
-        if(t.includes("شلونك") || t.includes("شلونكم")) return "والله بخير إذا أنت بخير، تدلل عليّ.";
-        if(t.includes("منور")) return "النور نورك، شعلت الشات بوجودك!";
-        if(t.includes("كفو")) return "كفو منك ومن أصلك الطيب.";
-        if(t.includes("ضوجة") || t.includes("ملل")) return "ليش الضوجة؟ سولف ويه الماستر وافتح قلبك!";
-        if(t.includes("تحبني")) return "أعشقك مو بس أحبك، أنت من ريحة الماستر!";
-        if(t.includes("اضحك") || t.includes("نكتة")) return "مرة واحد راح للمطعم، جان يكول للجرسون عندك أجنحة؟ كاله اي، جان يكوله لعد طير من كدامي! هههه";
-        if(t.includes("منو أنت")) return "أنا حارس الشات والمساعد الشخصي للماستر RG.";
-        if(t.includes("شكرا") || t.includes("يسلمو")) return "ولو تدلل، هذا واجبي يا بطل.";
-        if(t.includes("باي") || t.includes("تصبحون")) return "بأمان الله، ننتظرك ترجع تنورنا!";
+    // 🔥 محرك التفاعل الذكي (Smart Interaction Engine)
+    function getBotReply(msg) {
+        const t = msg.toLowerCase().trim();
+        const replies = {
+            "هلو": ["هلا وكل الهلا بنور الشات 👑", "أطلق هلو من أطلق عضو! نورتنا", "هلا يا طيب، شلونك؟"],
+            "شلونك": ["بخير وعافية ما دام أشوفك متصل 🌹", "تمام التمام، أنت بشرني عنك؟", "الحمد لله يا بطل، تسلم على السؤال"],
+            "منور": ["النور بوجودك يا غالي، الشات شعشعت"، "أنت أصل النور والجمال كله"، "نورك غطى على نيون الشات!"],
+            "كفو": ["كفو من شاربك الطيب يا شهم"، "أنت أصل الكفو والله"، "تستاهل لقب الذيب!"],
+            "هههه": ["دوم الضحكة يا رب، فدوة لهالضحكة 😂", "ضحكة خير إن شاء الله"، "عسى دوم متبسم ومنورنا"],
+            "ضوجة": ["منو المزعلك؟ احجيلي وأنا أحلهه الك!", "اترك الضوجة وسولف ويه الإمبراطورية"، "الضوجة تموت بسؤال من البوت، اكتب 'سؤال'"],
+            "منو الماستر": ["الماستر RG هو قائدنا ومؤسس هالصرح العظيم 👑"],
+            "تحبني": ["أحبك وأعزك لأنك جزء من عائلة MASTER RG 💙"],
+            "بوت": ["نعم يا عيوني؟ كول اللي بقلبك وأنا أسمعك", "موجود لخدمتك يا طيب، تآمرني بشيء؟"],
+            "منو أنت": ["أنا بوت إمبراطورية MASTER RG، حارسكم وصديقكم الوفي"]
+        };
+
+        for (let key in replies) {
+            if (t.includes(key)) {
+                const list = replies[key];
+                return list[Math.floor(Math.random() * list.length)];
+            }
+        }
         return null;
     }
 
-    function updatePresence() {
-        db.ref('status/' + my.n).set({ n: my.n, flag: my.flag });
-        db.ref('status/' + my.n).onDisconnect().remove();
+    function presence() {
+        db.ref('status/'+my.n).set({n:my.n}); db.ref('status/'+my.n).onDisconnect().remove();
         db.ref('status').on('value', snap => {
-            let list = document.getElementById('online-list'); list.innerHTML = "";
-            let count = 0;
-            snap.forEach(u => { count++; list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222;">🟢 ${u.val().n}</div>`; });
-            document.getElementById('status-bar').innerText = count + " متصل";
+            let list = document.getElementById('user-list'); list.innerHTML = "";
+            let c = 0; snap.forEach(u => { c++; list.innerHTML += `<div style="padding:8px; border-bottom:1px solid #222;">🟢 ${u.val().n}</div>`; });
+            document.getElementById('on-count').innerText = c + " متصل";
         });
     }
-    updatePresence();
+    presence();
 
     function getYT(t) {
         const r = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -114,19 +121,24 @@
     function sendMsg() {
         let t = document.getElementById('mInp').value.trim(); if(!t) return;
         
+        // 1. فحص إجابة المسابقة
         if(curAns && t === curAns) {
-            db.ref('rooms/'+curRoom).push({ u: "🤖 BOT", t: "🎯 كفووو صح! إجابتك ذكية يا " + my.n, isBot: true });
-            my.xp += 15; localStorage.setItem('rg_xp', my.xp); curAns = "";
-        } else if(t === "سؤال" || t === "بوت") {
+            db.ref('rooms/'+curRoom).push({ u: "🤖 BOT", t: "🌟 بطل! إجابة صحيحة يا " + my.n, bot: true });
+            my.xp += 20; localStorage.setItem('rg_xp', my.xp); curAns = "";
+        } 
+        // 2. فحص طلب المسابقة
+        else if(t === "سؤال" || t === "تحدي") {
             let q = quiz[Math.floor(Math.random()*quiz.length)]; curAns = q.a;
-            db.ref('rooms/'+curRoom).push({ u: "🤖 BOT", t: "🤔 يله شباب/بنات منو يحل: " + q.q, isBot: true });
-        } else {
-            let reply = botReply(t);
-            db.ref('rooms/'+curRoom).push({ u: my.n, t: t, f: my.flag, lv: (Math.floor(my.xp/50)+1) });
+            db.ref('rooms/'+curRoom).push({ u: "🤖 BOT", t: "💡 تحدي جديد: " + q.q, bot: true });
+        } 
+        // 3. التفاعل مع السوالف
+        else {
+            db.ref('rooms/'+curRoom).push({ u: my.n, t: t, lv: (Math.floor(my.xp/50)+1) });
+            let reply = getBotReply(t);
             if(reply) {
                 setTimeout(() => {
-                    db.ref('rooms/'+curRoom).push({ u: "🤖 BOT", t: reply, isBot: true });
-                }, 800);
+                    db.ref('rooms/'+curRoom).push({ u: "🤖 BOT", t: reply, bot: true });
+                }, 700);
             }
         }
         document.getElementById('mInp').value = "";
@@ -137,12 +149,12 @@
         let box = document.getElementById('msgs'); box.innerHTML = "";
         db.ref('rooms/'+curRoom).limitToLast(25).on('child_added', snap => {
             let m = snap.val(); let yt = getYT(m.t);
-            let div = document.createElement('div'); div.className = 'msg-box';
-            div.innerHTML = `<img src="https://ui-avatars.com/api/?name=${m.u}&background=333&color=fff">
+            let div = document.createElement('div'); div.className = 'msg';
+            div.innerHTML = `<img src="https://ui-avatars.com/api/?name=${m.u}&background=222&color=fff">
                 <div class="bubble">
-                    <b style="color:${m.isBot?'var(--gold)':'var(--neon)'}">${m.u} ${m.lv?`[Lv.${m.lv}]`:''}</b><br>
+                    <b style="color:${m.bot?'var(--gold)':'var(--neon)'}">${m.u} ${m.lv?`[Lv.${m.lv}]`:''}</b><br>
                     <span>${m.t}</span>
-                    ${yt ? `<iframe class="yt-vid" src="https://www.youtube.com/embed/${yt}" frameborder="0" allowfullscreen></iframe>` : ''}
+                    ${yt ? `<iframe class="yt-frame" src="https://www.youtube.com/embed/${yt}" frameborder="0" allowfullscreen></iframe>` : ''}
                 </div>`;
             box.appendChild(div); box.scrollTop = box.scrollHeight;
         });
