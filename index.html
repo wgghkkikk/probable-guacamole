@@ -2,127 +2,153 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>MASTER RG - CONTROL PANEL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASTER RG - CONTROL & CHAT</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        /* ثيم ملكي أبيض مريح */
-        body { font-family: 'Cairo', sans-serif; background: #fdfdfd; margin: 0; display: flex; height: 100vh; }
-        #sidebar { width: 280px; border-left: 1px solid #eee; background: #fff; padding: 15px; }
-        #chat-area { flex: 1; display: flex; flex-direction: column; }
+        :root { --main: #d4af37; --owner: linear-gradient(90deg, #ff0000, #440000, #ff0000); }
+        body { margin: 0; font-family: 'Cairo', sans-serif; background: #fff; display: flex; height: 100vh; overflow: hidden; }
+
+        /* القائمة الجانبية */
+        #side { width: 250px; background: #f9f9f9; border-left: 1px solid #eee; display: flex; flex-direction: column; }
+        .u-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; font-weight: bold; }
+
+        /* منطقة الدردشة */
+        #main-area { flex: 1; display: flex; flex-direction: column; position: relative; background: #fff; }
+        header { padding: 12px; border-bottom: 2px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
         
-        /* تصميم قائمة التحكم */
-        .admin-box {
-            position: fixed; top: 20%; left: 50%; transform: translateX(-50%);
-            background: #fff; border: 2px solid #ff0000; padding: 20px;
-            border-radius: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.2);
-            display: none; z-index: 1000; text-align: center;
-        }
-        .btn { padding: 8px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; color: white; }
-        .btn-kick { background: #e74c3c; } /* طرد */
-        .btn-mute { background: #f1c40f; } /* كتم */
-        .btn-up { background: #2ecc71; }   /* ترقية */
-        
-        /* رتبة متحركة صاحب الشات */
-        .owner-bar {
-            background: linear-gradient(90deg, #ff0000, #330000, #ff0000);
-            background-size: 200% auto; animation: shine 3s linear infinite;
-            color: white; padding: 2px 10px; border-radius: 5px; font-weight: bold;
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+
+        /* الرتبة المتحركة */
+        .rank-bar {
+            background: var(--owner); background-size: 200% auto; animation: shine 3s linear infinite;
+            color: #fff; padding: 2px 10px; border-radius: 5px; font-size: 11px; margin-bottom: 5px; display: inline-block;
         }
         @keyframes shine { to { background-position: 200% center; } }
+
+        /* الرسائل */
+        .msg-box { align-self: center; text-align: center; max-width: 80%; }
+        .msg-text { background: #f1f1f1; padding: 10px 18px; border-radius: 15px; display: inline-block; border: 1px solid #e0e0e0; }
+
+        /* لوحة التحكم */
+        #adminPanel {
+            position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%);
+            background: #fff; border: 2px solid red; padding: 20px; border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: none; z-index: 2000; text-align: center;
+        }
+        .adm-btn { width: 100%; padding: 10px; margin: 5px 0; border: none; border-radius: 5px; color: #fff; font-weight: bold; cursor: pointer; }
+
+        /* خانة الكتابة - تأكدت من ظهورها */
+        .input-box { 
+            padding: 15px; border-top: 1px solid #eee; background: #fff; 
+            display: flex; gap: 10px; align-items: center;
+        }
+        #mInput { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 10px; outline: none; background: #fcfcfc; }
+        #sendBtn { background: #333; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="sidebar">
-    <h3 style="color: #d4af37;">المتواجدون 🌍</h3>
-    <div id="userList"></div>
+<div id="side">
+    <div style="padding:15px; background:#eee; font-weight:900;">المتصلون 🌍</div>
+    <div id="uList"></div>
 </div>
 
-<div id="chat-area">
-    <header style="padding: 15px; background: #fff; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
-        <b>MASTER RG 👑</b>
-        <div id="myStatus">جاري التحقق من الصلاحيات...</div>
+<div id="main-area">
+    <header>
+        <b style="color:var(--main)">MASTER RG 👑</b>
+        <div onclick="location.reload()" style="cursor:pointer; font-size: 12px;">🔄 تحديث الشات</div>
     </header>
-    <div id="messages" style="flex:1; overflow-y:auto; padding: 20px;"></div>
+
+    <div id="messages"></div>
+
+    <div class="input-box">
+        <input type="text" id="mInput" placeholder="اكتب رسالتك هنا...">
+        <button id="sendBtn" onclick="send()">إرسال</button>
+    </div>
 </div>
 
-<div id="adminPanel" class="admin-box">
-    <h4 id="targetUser">اسم المستخدم</h4>
-    <button class="btn btn-kick" onclick="fireAction('kick')">طرد نهائي ⛔</button>
-    <button class="btn btn-mute" onclick="fireAction('mute')">كتم الصوت 🔇</button>
-    <button class="btn btn-up" onclick="fireAction('promote')">ترقية مشرف 🎖️</button>
-    <br>
-    <button onclick="closePanel()" style="margin-top:10px; border:none; background:none; cursor:pointer;">إلغاء</button>
+<div id="adminPanel">
+    <h4 id="targetName">اسم العضو</h4>
+    <button class="adm-btn" style="background:red" onclick="fire('kick')">طرد نهائي ⛔</button>
+    <button class="adm-btn" style="background:orange" onclick="fire('mute')">كتم مؤقت 🔇</button>
+    <button class="adm-btn" style="background:green" onclick="fire('up')">ترقية مشرف 🎖️</button>
+    <button onclick="document.getElementById('adminPanel').style.display='none'" style="margin-top:10px; background:none; border:none; cursor:pointer;">إغلاق</button>
 </div>
 
 <script>
-    // إعدادات Firebase
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // 1. تحديد هويتك
-    let myName = localStorage.getItem('master_name') || prompt("ادخل اسمك:");
-    if (myName) localStorage.setItem('master_name', myName);
+    let myName = localStorage.getItem('rg_name') || prompt("ادخل اسمك:");
+    if(myName) localStorage.setItem('rg_name', myName);
 
-    // الرتبة: إذا كان اسمك "ماستر" تأخذ صلاحيات كاملة
-    let myRank = (myName === "ماستر" || myName === "MASTER RG") ? "صاحب الشات" : "عضو";
-    document.getElementById('myStatus').innerText = "رتبتك: " + myRank;
+    // نظام الرتب: غير "ماستر" لاسمك الحقيقي لتفعيل الصلاحيات
+    let myRank = (myName === "ماستر" || myName === "MASTER RG") ? "صاحب الشات" : "عضو ملكي";
+    let muted = false;
+    let target = "";
 
-    let selectedUser = "";
+    function send() {
+        if(muted) return alert("أنت مكتوم!");
+        let t = document.getElementById('mInput').value.trim();
+        if(!t) return;
+        db.ref('shilah_pro/msgs').push({ u: myName, t: t, r: myRank });
+        document.getElementById('mInput').value = "";
+    }
 
-    // 2. عرض المتصلين + ميزة الضغط للتحكم
-    db.ref('presence').on('value', snap => {
-        const list = document.getElementById('userList');
-        list.innerHTML = "";
-        snap.forEach(userSnap => {
-            const user = userSnap.val();
-            const div = document.createElement('div');
-            div.style.padding = "10px";
-            div.style.cursor = "pointer";
-            div.style.borderBottom = "1px solid #f9f9f9";
-            div.innerHTML = `<b>${user.n}</b> <small>(${user.r})</small>`;
-            
-            // إذا كنت أنت صاحب الشات، عند الضغط على أي اسم تظهر لوحة التحكم
+    db.ref('shilah_pro/msgs').limitToLast(30).on('child_added', snap => {
+        let m = snap.val();
+        let div = document.createElement('div');
+        div.className = "msg-box";
+        div.innerHTML = `
+            <div class="rank-bar" style="${m.r === 'صاحب الشات' ? '' : 'background:#555'}">${m.r}</div><br>
+            <b style="font-size:11px; color:#888;">${m.u}</b><br>
+            <div class="msg-text">${m.t}</div>
+        `;
+        document.getElementById('messages').appendChild(div);
+        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+    });
+
+    db.ref('online_shilah/'+myName).set({ n: myName, r: myRank });
+    db.ref('online_shilah/'+myName).onDisconnect().remove();
+
+    db.ref('online_shilah').on('value', snap => {
+        let list = document.getElementById('uList'); list.innerHTML = "";
+        snap.forEach(u => {
+            let user = u.val();
+            let div = document.createElement('div');
+            div.className = "u-item";
+            div.innerHTML = `<span>●</span> ${user.n} <small>(${user.r})</small>`;
             div.onclick = () => {
-                if (myRank === "صاحب الشات" && user.n !== myName) {
-                    selectedUser = user.n;
-                    document.getElementById('targetUser').innerText = "التحكم بـ: " + user.n;
-                    document.getElementById('adminPanel').style.display = "block";
+                if(myRank === "صاحب الشات" && user.n !== myName) {
+                    target = user.n;
+                    document.getElementById('targetName').innerText = user.n;
+                    document.getElementById('adminPanel').style.display = 'block';
                 }
             };
             list.appendChild(div);
         });
     });
 
-    // 3. تنفيذ "الصلاحيات" فعلياً في قاعدة البيانات
-    function fireAction(actionType) {
-        if (actionType === 'kick') {
-            db.ref('commands/' + selectedUser).set({ action: 'kick', by: myName });
-        } else if (actionType === 'mute') {
-            db.ref('commands/' + selectedUser).set({ action: 'mute', by: myName });
-        } else if (actionType === 'promote') {
-            db.ref('presence/' + selectedUser + '/r').set('مشرف');
-        }
-        closePanel();
+    // تنفيذ الصلاحيات
+    function fire(type) {
+        if(type === 'kick') db.ref('actions/'+target).set('kick');
+        if(type === 'mute') db.ref('actions/'+target).set('mute');
+        if(type === 'up') db.ref('online_shilah/'+target+'/r').set('مشرف');
+        document.getElementById('adminPanel').style.display = 'none';
     }
 
-    // 4. نظام "الاستجابة للأوامر" (هنا يحدث الطرد الفعلي)
-    db.ref('commands/' + myName).on('value', snap => {
-        const cmd = snap.val();
-        if (cmd && cmd.action === 'kick') {
-            alert("تم طردك من قبل صاحب الشات!");
-            document.body.innerHTML = "<h1 style='text-align:center; margin-top:100px;'>أنت مطرود من هذا الشات ⛔</h1>";
-            db.ref('presence/' + myName).remove();
+    // الاستجابة للأوامر
+    db.ref('actions/'+myName).on('value', snap => {
+        if(snap.val() === 'kick') {
+            alert("تم طردك!");
+            document.body.innerHTML = "<h1>مطرووووود ⛔</h1>";
         }
+        if(snap.val() === 'mute') muted = true;
     });
-
-    function closePanel() { document.getElementById('adminPanel').style.display = "none"; }
-
-    // تسجيل الدخول في المتصلين
-    db.ref('presence/' + myName).set({ n: myName, r: myRank });
-    db.ref('presence/' + myName).onDisconnect().remove();
 
 </script>
 </body>
