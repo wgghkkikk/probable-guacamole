@@ -3,90 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MASTER RG - ROYAL SYSTEM</title>
+    <title>MASTER RG - ROYAL WHITE EDITION</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --owner-bg: linear-gradient(45deg, #ff0000, #550000, #ff0000);
-            --admin-bg: linear-gradient(45deg, #7000ff, #000033, #7000ff);
-            --gold: #ffd700;
+            --royal-bg: #ffffff; /* بياض ملكي */
+            --owner-theme: linear-gradient(45deg, #ff0000, #990000, #ff0000);
+            --gold-accent: #d4af37;
+            --text-main: #2c3e50;
         }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        /* الهيدر مع زر التحديث */
+        body { 
+            margin: 0; background: var(--royal-bg); color: var(--text-main); 
+            font-family: 'Cairo', sans-serif; overflow: hidden; height: 100vh; display: flex; 
+        }
+
+        /* القائمة الجانبية (المتصلين) */
+        #sidebar {
+            width: 260px; background: #fdfdfd; border-left: 1px solid #eee;
+            display: flex; flex-direction: column; transition: 0.3s;
+        }
+
+        /* الهيدر الأبيض النظيف */
         header { 
-            padding: 10px 20px; background: #0a0a0a; border-bottom: 2px solid #1a1a1a;
+            padding: 12px 20px; border-bottom: 1px solid #f0f0f0; background: #fff;
             display: flex; justify-content: space-between; align-items: center;
         }
+
+        /* زر التحديث المتحرك */
         .refresh-btn { 
-            cursor: pointer; text-align: center; color: var(--gold); 
-            transition: 0.3s; display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; display: flex; flex-direction: column; align-items: center;
+            color: var(--gold-accent); transition: 0.3s;
         }
-        .refresh-btn:active { transform: rotate(180deg); }
-        .refresh-btn i { font-size: 24px; }
+        .refresh-btn:hover { transform: rotate(90deg); }
 
-        /* شريط الرتبة المتحرك (مثل طلبك) */
+        /* بار الرتبة المتحرك (الثيم اللي طلبته) */
         .rank-bar {
-            position: relative; width: 220px; height: 35px; 
-            margin: 5px auto; border-radius: 50px; overflow: hidden;
+            position: relative; width: 200px; height: 32px; 
+            margin: 10px auto; border-radius: 8px; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 14px; text-shadow: 0 0 5px #000;
-            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; font-weight: 900; font-size: 13px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        /* الثيم المتحرك داخل الرتبة */
-        .rank-bar::before {
+        /* الثيم المتحرك داخل البار */
+        .rank-bar::after {
             content: ""; position: absolute; inset: 0;
-            background: var(--owner-bg); background-size: 200% 200%;
-            animation: move-bg 3s linear infinite; z-index: -1;
+            background: var(--owner-theme); background-size: 200% 200%;
+            animation: move-theme 3s linear infinite; z-index: -1;
         }
-        @keyframes move-bg { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+        @keyframes move-theme { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
-        /* ساحة الدردشة بالمنتصف */
-        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-        .msg-container { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .msg-content { 
-            max-width: 85%; padding: 12px 20px; border-radius: 15px; 
-            background: rgba(255,255,255,0.03); border: 1px solid #1a1a1a;
-            font-size: 16px; position: relative;
+        /* ساحة الدردشة */
+        #chat-content { flex: 1; display: flex; flex-direction: column; background: #fff; }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 25px; }
+        
+        .msg-box { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .msg-text { 
+            max-width: 80%; padding: 12px 20px; border-radius: 15px; 
+            background: #f8f9fa; border: 1px solid #ececec; font-size: 16px; 
+            color: #333; line-height: 1.6;
         }
-        .owner-glow { box-shadow: 0 0 15px rgba(255,0,0,0.4); border-color: #ff0000 !important; }
+        .owner-style { border: 2px solid #ff0000; background: #fff5f5; }
 
-        /* قائمة المتصلين الجانبية */
-        #side-list {
-            position: fixed; right: -280px; top: 0; bottom: 0; width: 260px;
-            background: #050505; border-left: 2px solid var(--gold); transition: 0.4s; z-index: 1000;
-        }
-        #side-list.active { right: 0; }
+        /* منطقة الإدخال */
+        .input-area { padding: 15px 25px; border-top: 1px solid #eee; display: flex; gap: 12px; background: #fff; }
+        #mInput { flex: 1; border: 1px solid #ddd; padding: 12px; border-radius: 12px; outline: none; background: #fbfbfb; }
+        .send-btn { background: var(--text-main); color: #fff; border: none; padding: 0 25px; border-radius: 12px; cursor: pointer; font-weight: bold; }
 
-        /* الإدخال */
-        .input-box { padding: 15px; background: #0a0a0a; display: flex; gap: 10px; border-top: 1px solid #1a1a1a; }
-        #mInp { flex: 1; background: #151515; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; }
-        .send-btn { background: var(--gold); border: none; padding: 0 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<header>
-    <div style="font-size: 20px; font-weight: 900; color: var(--gold);">MASTER RG 👑</div>
-    <div class="refresh-btn" onclick="location.reload()">
-        <span style="font-size:20px;">🔄</span>
-        <span style="font-size:10px;">تحديث</span>
-    </div>
-    <button onclick="document.getElementById('side-list').classList.toggle('active')" style="background:none; border:1px solid var(--gold); color:var(--gold); border-radius:5px; padding:5px 10px;">👥</button>
-</header>
-
-<div id="side-list">
-    <h4 style="text-align:center; color:var(--gold); border-bottom:1px solid #222; padding:15px;">المتواجدون الآن</h4>
-    <div id="users"></div>
+<div id="sidebar">
+    <div style="padding:20px; border-bottom:1px solid #eee; font-weight:900; color:var(--gold-accent);">المتواجدون 🌍</div>
+    <div id="uList" style="flex:1; overflow-y:auto;"></div>
 </div>
 
-<div id="chat-window"></div>
+<div id="chat-content">
+    <header>
+        <div style="font-size: 22px; font-weight: 900; color: var(--text-main);">MASTER RG 👑</div>
+        <div class="refresh-btn" onclick="location.reload()">
+            <span style="font-size:22px;">🔄</span>
+            <span style="font-size:9px; font-weight:bold;">تحديث</span>
+        </div>
+    </header>
 
-<div class="input-box">
-    <input type="text" id="mInp" placeholder="سولف يا ملك الفخامة...">
-    <button onclick="sendMsg()" class="send-btn">إرسال</button>
+    <div id="messages"></div>
+
+    <div class="input-area">
+        <input type="text" id="mInput" placeholder="اكتب رسالتك الملكية هنا...">
+        <button onclick="send()" class="send-btn">إرسال</button>
+    </div>
 </div>
 
 <script>
@@ -96,54 +105,53 @@
 
     let myName = localStorage.getItem('rg_name') || "";
     if(!myName) {
-        myName = prompt("ادخل اسمك:");
+        myName = prompt("أهلاً بك في الشات الملكي، ادخل اسمك:");
         if(myName) localStorage.setItem('rg_name', myName); else location.reload();
     }
 
-    // تحديد الرتبة - عدل "ماستر" لاسمك الحقيقي
-    let role = (myName === "ماستر" || myName === "MASTER RG") ? "صاحب الشات" : "عضو مميز";
+    let myRank = (myName === "ماستر" || myName === "MASTER RG") ? "صاحب الشات" : "عضو ملكي";
 
-    function sendMsg() {
-        let t = document.getElementById('mInp').value.trim();
+    function send() {
+        let t = document.getElementById('mInput').value.trim();
         if(!t) return;
-        db.ref('rooms/main').push({
-            u: myName,
-            t: t,
-            r: role,
-            time: Date.now()
+        db.ref('royal_rooms/main').push({
+            u: myName, t: t, r: myRank, time: Date.now()
         });
-        document.getElementById('mInp').value = "";
+        document.getElementById('mInput').value = "";
     }
 
     function load() {
-        db.ref('rooms/main').limitToLast(40).on('child_added', snap => {
+        db.ref('royal_rooms/main').limitToLast(40).on('child_added', snap => {
             let m = snap.val();
             let isOwner = m.r === "صاحب الشات";
             let div = document.createElement('div');
-            div.className = "msg-container";
+            div.className = "msg-box";
             div.innerHTML = `
-                <div class="rank-bar" style="${isOwner ? '' : 'background: #333;'}">
+                <div class="rank-bar" style="${isOwner ? '' : 'background:#2c3e50; border:none;'}">
                     ${isOwner ? '👑 صاحب الشات 👑' : m.r}
                 </div>
-                <div style="color:var(--gold); font-size:12px; margin-bottom:5px;">${m.u}</div>
-                <div class="msg-content ${isOwner ? 'owner-glow' : ''}">
+                <div style="font-weight:bold; font-size:13px; margin-bottom:5px; color:#888;">${m.u}</div>
+                <div class="msg-text ${isOwner ? 'owner-style' : ''}">
                     ${m.t}
                 </div>
             `;
-            document.getElementById('chat-window').appendChild(div);
-            document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+            document.getElementById('messages').appendChild(div);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
         });
     }
 
-    // نظام التواجد
-    db.ref('online/'+myName).set({ n: myName, r: role });
-    db.ref('online/'+myName).onDisconnect().remove();
-    db.ref('online').on('value', snap => {
-        let list = document.getElementById('users');
+    // نظام المتصلين
+    db.ref('online_users/'+myName).set({ n: myName, r: myRank });
+    db.ref('online_users/'+myName).onDisconnect().remove();
+    db.ref('online_users').on('value', snap => {
+        let list = document.getElementById('uList');
         list.innerHTML = "";
         snap.forEach(u => {
             let user = u.val();
-            list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111; font-size:13px;">🟢 ${user.n} <small style="color:var(--gold)">(${user.r})</small></div>`;
+            list.innerHTML += `<div style="padding:12px 20px; border-bottom:1px solid #f9f9f9; font-size:14px;">
+                <span style="color:green;">●</span> ${user.n} 
+                <small style="display:block; font-size:10px; color:#aaa;">${user.r}</small>
+            </div>`;
         });
     });
 
