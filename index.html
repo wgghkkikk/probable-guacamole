@@ -3,125 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إمبراطورية الماستر RG - Professional</title>
+    <title>Master RG Empire</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root {
             --neon-blue: #00f2ff;
             --neon-pink: #ff004c;
-            --admin-color: #ffcc00;
-            --vip-color: #00ff88;
             --dark-bg: #050505;
         }
 
-        body { 
-            background: var(--dark-bg); 
-            color: #fff; 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh;
-        }
+        body { background: var(--dark-bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        header { background: #111; padding: 10px; text-align: center; border-bottom: 2px solid var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
 
-        header {
-            background: #111;
-            padding: 10px;
-            text-align: center;
-            border-bottom: 2px solid var(--neon-blue);
-            box-shadow: 0 0 10px var(--neon-blue);
-            font-weight: bold;
-        }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
 
-        /* تقسيم الصفحة */
-        .main-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
+        /* الأطراف الجانبية */
+        .side-panel { width: 220px; background: rgba(15, 15, 15, 0.95); border-left: 1px solid #222; border-right: 1px solid #222; padding: 10px; display: flex; flex-direction: column; gap: 15px; }
 
-        /* القائمة اليمنى واليسرى */
-        .side-panel {
-            width: 200px;
-            background: rgba(20, 20, 20, 0.9);
-            border-left: 1px solid #222;
-            border-right: 1px solid #222;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            font-size: 0.9rem;
-        }
+        /* الملف الشخصي */
+        .profile-card { border-radius: 10px; overflow: hidden; background: #222; margin-bottom: 10px; border: 1px solid var(--neon-blue); }
+        .cover-img { width: 100%; height: 60px; background: linear-gradient(45deg, var(--neon-pink), var(--neon-blue)); object-fit: cover; }
+        .user-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #fff; margin: -25px auto 5px; display: block; background: #444; }
+        .profile-info { text-align: center; padding-bottom: 10px; }
 
-        /* منطقة الشات (الوسط) */
-        #chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #000;
-        }
+        /* منطقة الشات */
+        #chat-area { flex: 1; display: flex; flex-direction: column; background: #000; }
+        #chat-box { flex: 1; padding: 15px; overflow-y: auto; }
 
-        #chat-box {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        /* رتب المتصلين */
-        .role-title { color: #888; font-size: 0.75rem; margin-bottom: 5px; border-bottom: 1px solid #222; padding-bottom: 3px; }
-        .user-item { margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: #555; }
-        .online { background: #00ff00; box-shadow: 0 0 5px #00ff00; }
-
-        /* ستايل الرسائل */
-        .msg { background: #111; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-right: 3px solid var(--neon-pink); }
-        .msg b { color: var(--neon-blue); }
+        /* الرسائل واليوتيوب */
+        .msg { background: #111; padding: 10px; border-radius: 10px; margin-bottom: 15px; border-right: 3px solid var(--neon-blue); position: relative; }
+        .msg b { color: var(--neon-pink); display: block; margin-bottom: 5px; }
+        .msg-actions { margin-top: 8px; display: flex; gap: 5px; }
+        .msg-actions button { font-size: 10px; padding: 2px 8px; background: #333; color: #ccc; border-radius: 5px; border: 1px solid #444; cursor: pointer; }
+        iframe { width: 100%; height: 200px; border-radius: 10px; margin-top: 10px; }
 
         /* منطقة الإدخال */
-        .input-area { padding: 15px; background: #111; display: flex; gap: 10px; }
-        input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #333; background: #000; color: #fff; outline: none; }
-        button { background: var(--neon-blue); border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .input-area { padding: 15px; background: #111; display: flex; gap: 10px; border-top: 1px solid #333; }
+        #mInput { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #333; background: #000; color: #fff; outline: none; }
+        button#sendBtn { background: var(--neon-blue); border: none; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
 
-        @media (max-width: 768px) { .side-panel { display: none; } } /* إخفاء الجوانب في الموبايل لسهولة العرض */
+        .role-title { color: #888; font-size: 12px; border-bottom: 1px solid #333; margin-bottom: 10px; }
+        .user-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #00ff00; }
+
+        @media (max-width: 768px) { .side-panel { display: none; } }
     </style>
 </head>
 <body>
 
-<header>MASTER CHAT SYSTEM v3.0</header>
+<header>MASTER RG CHAT v4.0</header>
 
 <div class="main-container">
     <div class="side-panel">
-        <div>
-            <div class="role-title">المميزات</div>
-            <button style="width:100%; margin-bottom:5px; font-size:12px;" onclick="location.reload()">تحديث الشات</button>
-            <button style="width:100%; font-size:12px;" onclick="alert('قريباً: تغيير الألوان')">المتجر</button>
+        <div class="profile-card">
+            <img src="https://via.placeholder.com/200x60" class="cover-img" alt="Cover">
+            <img src="https://via.placeholder.com/50" class="user-avatar" alt="Avatar">
+            <div class="profile-info">
+                <input type="text" id="uName" style="width: 80%; background: transparent; border: none; color: #fff; text-align: center; font-weight: bold;" value="الماستر_RG">
+                <div style="font-size: 10px; color: #888;">أدمن السيرفر</div>
+            </div>
         </div>
+        
+        <div class="role-title">المميزات</div>
+        <button style="width:100%; font-size:12px; padding:8px; cursor:pointer;" onclick="location.reload()">تحديث النظام</button>
+        <button style="width:100%; font-size:12px; padding:8px; cursor:pointer;" onclick="alert('سيتم إضافة الطلبات قريباً')">طلبات الصداقة</button>
     </div>
 
     <div id="chat-area">
         <div id="chat-box"></div>
         <div class="input-area">
-            <input type="text" id="uName" style="width: 70px;" placeholder="الاسم" value="عضو">
-            <input type="text" id="mInput" placeholder="اكتب رسالتك هنا...">
-            <button onclick="send()">إرسال</button>
+            <input type="text" id="mInput" placeholder="اكتب رسالة أو رابط يوتيوب...">
+            <button id="sendBtn" onclick="send()">إرسال</button>
         </div>
     </div>
 
     <div class="side-panel">
-        <div>
-            <div class="role-title">الإدارة</div>
-            <div class="user-item"><span class="dot online"></span> <span style="color:var(--admin-color)">الماستر RG</span></div>
-        </div>
-        <div>
-            <div class="role-title">المميزين</div>
-            <div class="user-item"><span class="dot online"></span> <span style="color:var(--vip-color)">زائر ملكي</span></div>
-        </div>
-        <div>
-            <div class="role-title">الأعضاء</div>
-            <div class="user-item"><span class="dot"></span> <span>عضو 1</span></div>
-            <div class="user-item"><span class="dot"></span> <span>عضو 2</span></div>
-        </div>
+        <div class="role-title">المتواجدون الآن</div>
+        <div class="user-item"><span class="dot"></span> <span style="color: gold;">الماستر RG</span></div>
+        <div class="user-item"><span class="dot" style="background: gray;"></span> <span>زائر 102</span></div>
     </div>
 </div>
 
@@ -129,6 +89,17 @@
     const firebaseConfig = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+
+    // دالة فحص وتحويل روابط يوتيوب
+    function formatText(text) {
+        const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+        const match = text.match(youtubeRegex);
+        if (match) {
+            const videoId = match[1];
+            return text.replace(youtubeRegex, `<br><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`);
+        }
+        return text;
+    }
 
     function send() {
         const txt = document.getElementById('mInput').value;
@@ -143,7 +114,15 @@
         const m = snap.val();
         const div = document.createElement('div');
         div.className = 'msg';
-        div.innerHTML = `<b>${m.user}:</b> ${m.text}`;
+        div.innerHTML = `
+            <b>${m.user}</b>
+            <div>${formatText(m.text)}</div>
+            <div class="msg-actions">
+                <button onclick="alert('تم إرسال طلب صداقة لـ ${m.user}')">صداقة</button>
+                <button onclick="alert('فتح محادثة خاصة مع ${m.user}')">خاص</button>
+                <button style="color:red" onclick="alert('تم إرسال بلاغ ضد ${m.user}')">إبلاغ</button>
+            </div>
+        `;
         document.getElementById('chat-box').appendChild(div);
         document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
     });
