@@ -2,190 +2,117 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>شات البرنس | لوحة التحكم الكبرى</title>
+    <title>شات البرنس | النسخة السينمائية</title>
     <style>
-        :root { --gold: #ff9800; --bg: #050505; --panel: #161616; --red: #ff0000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', sans-serif; }
-        body { background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* --- الهيدر --- */
-        header { background: #000; padding: 10px 20px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-        .nav-btns { display: flex; gap: 10px; }
-        .btn-top { background: #222; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-
-        /* --- الهيكل الرئيسي --- */
-        .main-container { display: flex; flex: 1; overflow: hidden; position: relative; }
-
-        /* --- القائمة الجانبية (قابلة للغلق) --- */
-        .sidebar { 
-            width: 260px; background: var(--panel); border-left: 1px solid #333; 
-            transition: 0.3s; overflow: hidden; display: flex; flex-direction: column;
+        :root { --main: #00d2ff; --gold: #ffd700; --glass: rgba(255, 255, 255, 0.1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { 
+            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
+            background-size: 400% 400%; animation: gradient 15s ease infinite;
+            color: #fff; height: 100vh; overflow: hidden; display: flex; 
         }
-        .sidebar.closed { width: 0; border: none; }
 
-        /* --- ساحة الشات --- */
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: #000; position: relative; }
-        #chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
 
-        /* --- مشغل اليوتيوب العائم --- */
-        #video-player {
-            position: absolute; top: 20px; left: 20px; width: 320px; background: #000; 
-            border: 2px solid var(--gold); border-radius: 10px; display: none; z-index: 2000;
+        /* --- القائمة الجانبية الزجاجية --- */
+        #sidebar { 
+            width: 280px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
+            border-left: 1px solid var(--glass); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
         }
-        #video-player.minimized { width: 150px; height: 40px; overflow: hidden; }
-        .video-header { background: #222; padding: 5px 10px; display: flex; justify-content: space-between; align-items: center; cursor: move; }
-        .video-controls span { cursor: pointer; margin-left: 8px; font-weight: bold; }
-        .video-body iframe { width: 100%; height: 180px; }
+        #sidebar.closed { width: 0; opacity: 0; pointer-events: none; }
 
-        /* --- نظام الغرف --- */
-        .rooms-bar { background: #111; padding: 8px; border-bottom: 1px solid #333; display: flex; gap: 10px; overflow-x: auto; }
-        .room-tag { background: #222; padding: 4px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; border: 1px solid #444; white-space: nowrap; }
-        .room-tag.active { border-color: var(--gold); color: var(--gold); }
+        /* --- ساحة الشات الرئيسية --- */
+        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
+        
+        header { 
+            padding: 15px 25px; background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(5px); display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--glass);
+        }
+
+        #chat-screen { 
+            flex: 1; padding: 25px; overflow-y: auto; 
+            scroll-behavior: smooth; display: flex; flex-direction: column; gap: 20px;
+        }
+
+        /* --- فقاعات الدردشة المطورة --- */
+        .msg-row { display: flex; gap: 12px; align-items: flex-end; animation: fadeInUp 0.4s ease; }
+        .u-img { width: 45px; height: 45px; border-radius: 12px; border: 2px solid var(--main); }
+        .u-bubble { 
+            background: var(--glass); padding: 12px 18px; border-radius: 20px 20px 0 20px;
+            border: 1px solid rgba(255,255,255,0.2); max-width: 70%;
+        }
+        .u-name { font-weight: bold; font-size: 12px; color: var(--main); display: block; margin-bottom: 5px; }
+
+        /* --- لوحة التحكم (Dock) --- */
+        .control-dock {
+            position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8); padding: 10px 20px; border-radius: 50px;
+            display: flex; gap: 20px; border: 1px solid var(--main); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .dock-icon { cursor: pointer; font-size: 20px; transition: 0.3s; }
+        .dock-icon:hover { transform: scale(1.3) translateY(-5px); color: var(--main); }
 
         /* --- منطقة الكتابة --- */
-        .input-bar { padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px; }
-        #mainInput { flex: 1; padding: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; outline: none; }
-        .btn-send { background: var(--gold); border: none; padding: 0 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .input-container { padding: 20px; display: flex; gap: 15px; background: rgba(0,0,0,0.4); }
+        #msgInp { 
+            flex: 1; padding: 15px; background: rgba(255,255,255,0.1); border: 1px solid var(--glass);
+            border-radius: 30px; color: #fff; outline: none; font-size: 16px;
+        }
 
-        /* الرسائل */
-        .msg-container { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px; }
-        .msg-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--gold); }
-        .msg-bubble { background: #1a1a1a; padding: 10px; border-radius: 12px; max-width: 80%; }
-        .msg-user { color: var(--red); font-weight: bold; font-size: 12px; display: block; }
+        /* --- مشغل فيديو مودرن --- */
+        #vidPlayer {
+            position: absolute; top: 80px; left: 20px; width: 350px; background: #000;
+            border-radius: 15px; border: 1px solid var(--main); overflow: hidden; display: none;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .vid-head { background: #111; padding: 8px 15px; display: flex; justify-content: space-between; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <header>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <button class="btn-top" onclick="toggleSidebar()">☰ القائمة</button>
-            <span style="color:var(--gold); font-weight:bold;">👑 مـاستر البرنس</span>
-        </div>
-        <div class="nav-btns">
-            <button class="btn-top" onclick="addNewRoom()">➕ إضافة غرفة</button>
-            <button class="btn-top" onclick="toggleProfile()">👤 ملفي</button>
-        </div>
-    </header>
-
-    <div class="main-container">
-        <div class="sidebar" id="sidebar">
-            <div style="padding:15px; text-align:center; background:#222; color:var(--gold); font-size:12px;">المتواجدون</div>
-            <div id="user-list" style="padding:10px;">
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                    <img id="side-avatar" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:40px; border-radius:50%; border:1px solid var(--gold);">
-                    <b id="side-name" style="color:red;">المدير</b>
+    <div id="sidebar">
+        <div style="padding: 30px 20px;">
+            <h2 style="color: var(--main); border-bottom: 2px solid var(--main); padding-bottom: 10px;">المتصلون</h2>
+            <div id="users" style="margin-top: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <div style="width: 10px; height: 10px; background: #00ff00; border-radius: 50%;"></div>
+                    <span>البرنس (الماستر)</span>
                 </div>
             </div>
-        </div>
-
-        <div class="chat-area">
-            <div class="rooms-bar" id="roomsList">
-                <div class="room-tag active">العامة</div>
-                <div class="room-tag">المسابقات</div>
-            </div>
-
-            <div id="chat-messages">
-                <div style="color:var(--gold); text-align:center; font-size:11px;">نظام البث والتحكم جاهز..</div>
-            </div>
-
-            <div id="video-player">
-                <div class="video-header">
-                    <span style="font-size:10px; color:var(--gold)">📺 مشغل البث</span>
-                    <div class="video-controls">
-                        <span onclick="minimizeVideo()">-</span>
-                        <span onclick="closeVideo()" style="color:red">X</span>
-                    </div>
-                </div>
-                <div class="video-body" id="videoBody">
-                    </div>
-            </div>
-
-            <div class="input-bar">
-                <input type="text" id="mainInput" placeholder="اكتب رسالة أو رابط يوتيوب...">
-                <button class="btn-send" onclick="send()">إرسال</button>
+            
+            <h3 style="margin-top: 40px; color: var(--gold);">الغرف</h3>
+            <div id="rooms-list" style="margin-top: 15px; display: grid; gap: 10px;">
+                <button onclick="changeRoom('العامة')" style="background: var(--glass); color: #fff; border: none; padding: 10px; border-radius: 10px; cursor: pointer;">الغرفة العامة</button>
             </div>
         </div>
     </div>
 
-    <script>
-        let myPhoto = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    <div class="main-chat">
+        <header>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <span onclick="toggleSidebar()" style="cursor:pointer; font-size: 24px;">☰</span>
+                <h2 style="color: #fff; letter-spacing: 2px;">شات <span style="color: var(--main);">البرنس</span></h2>
+            </div>
+            <div id="current-room" style="background: var(--main); color: #000; padding: 2px 15px; border-radius: 20px; font-weight: bold; font-size: 12px;">غرفة: العامة</div>
+        </header>
 
-        // 1. فتح وإغلاق القائمة الجانبية
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('closed');
-        }
+        <div id="chat-screen">
+            <div class="msg-row">
+                <div class="u-bubble" style="background: rgba(0,210,255,0.1);">مرحباً بك يا ماستر، التحكم الكامل بين يديك.</div>
+            </div>
+        </div>
 
-        // 2. تشغيل رابط اليوتيوب
-        function checkYoutube(text) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = text.match(regExp);
-            if (match && match[2].length == 11) {
-                const videoId = match[2];
-                showVideo(videoId);
-                return true;
-            }
-            return false;
-        }
-
-        function showVideo(id) {
-            const player = document.getElementById('video-player');
-            const body = document.getElementById('videoBody');
-            player.style.display = 'block';
-            player.classList.remove('minimized');
-            body.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
-        }
-
-        function closeVideo() { 
-            document.getElementById('video-player').style.display = 'none'; 
-            document.getElementById('videoBody').innerHTML = '';
-        }
-
-        function minimizeVideo() {
-            document.getElementById('video-player').classList.toggle('minimized');
-        }
-
-        // 3. إضافة غرف من واجهة الشات
-        function addNewRoom() {
-            const roomName = prompt("أدخل اسم الغرفة الجديدة:");
-            if(roomName) {
-                const roomsList = document.getElementById('roomsList');
-                const newRoom = document.createElement('div');
-                newRoom.className = 'room-tag';
-                newRoom.innerText = roomName;
-                newRoom.onclick = function() {
-                    document.querySelectorAll('.room-tag').forEach(r => r.classList.remove('active'));
-                    this.classList.add('active');
-                };
-                roomsList.appendChild(newRoom);
-            }
-        }
-
-        // إرسال الرسالة
-        function send() {
-            const inp = document.getElementById('mainInput');
-            const box = document.getElementById('chat-messages');
-            if(!inp.value.trim()) return;
-
-            // إذا كان الرابط يوتيوب لا نرسله كرسالة بل نشغله
-            if(checkYoutube(inp.value)) {
-                inp.value = '';
-                return;
-            }
-
-            const html = `
-                <div class="msg-container">
-                    <img src="${myPhoto}" class="msg-avatar">
-                    <div class="msg-bubble">
-                        <span class="msg-user">الماستر</span>
-                        <div style="color:#fff;">${inp.value}</div>
-                    </div>
-                </div>`;
-            box.innerHTML += html;
-            inp.value = '';
-            box.scrollTop = box.scrollHeight;
-        }
-
-        document.getElementById('mainInput').onkeypress = (e) => { if(e.key === 'Enter') send(); };
-    </script>
-</body>
-</html>
+        <div id="vidPlayer">
+            <div class="vid-head">
+                <span style="font-size: 12px;">📺 فيديو مباشر</span>
+                <div>
+                    <span onclick="minVid()" style="cursor:pointer; margin-left:10px;">-</span>
+                    <span onclick="closeVid()" style="cursor:pointer; color:red;">X</span>
+                </div>
+            </div>
+            <div id="vidBody
