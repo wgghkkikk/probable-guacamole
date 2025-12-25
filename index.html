@@ -3,187 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع دردشة جماعية</title>
+    <title>تصميم شات شيلة</title>
     <style>
-        /* التنسيق العام */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-        body { background-color: #e5e5e5; display: flex; justify-content: center; align-items: center; height: 100vh; }
-
-        .main-wrapper {
-            width: 95%;
-            max-width: 1000px;
-            height: 85vh;
-            display: flex;
-            background: #fff;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        :root {
+            --main-bg: #1a1a1a;
+            --sidebar-bg: #2a2a2a;
+            --header-gradient: linear-gradient(to bottom, #444, #111);
+            --accent-gold: #ff9800;
+            --text-color: #e0e0e0;
         }
 
-        /* قائمة المتواجدين (الجانب الأيمن) */
-        .users-sidebar {
-            width: 250px;
-            background: #f9f9f9;
-            border-left: 1px solid #ddd;
+        body {
+            background-color: #000;
+            color: var(--text-color);
+            margin: 0;
+            font-family: 'Tahoma', sans-serif;
+            height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        .sidebar-header {
-            background: #444;
-            color: #fff;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .user-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-        }
-
-        .user-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            background: #2ecc71;
-            border-radius: 50%;
-            margin-left: 10px;
-        }
-
-        /* منطقة الدردشة (الوسط) */
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-header {
-            background: #f1f1f1;
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
+        /* شريط العنوان العلوي */
+        .top-nav {
+            background: var(--header-gradient);
+            padding: 10px 20px;
+            border-bottom: 2px solid var(--accent-gold);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        #chat-messages {
+        .logo { color: var(--accent-gold); font-weight: bold; font-size: 1.2rem; }
+
+        /* حاوية الشات الرئيسية */
+        .chat-wrapper {
+            display: flex;
             flex: 1;
-            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* قائمة الأسماء (يمين) */
+        .user-list-sidebar {
+            width: 220px;
+            background: var(--sidebar-bg);
+            border-left: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-title {
+            background: #333;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+            border-bottom: 1px solid #555;
+            color: var(--accent-gold);
+        }
+
+        .users-container { flex: 1; overflow-y: auto; }
+        
+        .user-row {
+            padding: 8px 12px;
+            border-bottom: 1px solid #383838;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .user-row:hover { background: #3d3d3d; }
+        .user-row .icon { margin-left: 10px; color: #2ecc71; }
+
+        /* منطقة المحادثة */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #111;
+        }
+
+        #messages-area {
+            flex: 1;
+            padding: 15px;
             overflow-y: auto;
-            background: #fff;
+            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
         }
 
-        .msg-entry {
-            margin-bottom: 15px;
-            font-size: 15px;
+        .msg-line {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            border-bottom: 1px dotted #333;
+            padding-bottom: 4px;
         }
 
-        .username { font-weight: bold; color: #d35400; margin-left: 5px; }
-        .timestamp { font-size: 11px; color: #999; margin-right: 10px; }
+        .name-tag { color: var(--accent-gold); font-weight: bold; margin-left: 5px; cursor: pointer; }
 
         /* منطقة الكتابة (الأسفل) */
-        .input-bar {
+        .input-section {
+            background: #222;
             padding: 15px;
-            background: #f1f1f1;
-            border-top: 1px solid #ddd;
+            border-top: 2px solid #444;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tool-btn {
+            background: #333;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 2px 8px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .typing-area {
             display: flex;
             gap: 10px;
         }
 
-        input[type="text"] {
+        #userMsg {
             flex: 1;
+            background: #000;
+            border: 1px solid var(--accent-gold);
+            color: #fff;
             padding: 10px;
-            border: 1px solid #ccc;
             border-radius: 4px;
             outline: none;
         }
 
-        .send-btn {
-            background: #27ae60;
-            color: white;
+        .btn-send {
+            background: var(--accent-gold);
             border: none;
-            padding: 0 20px;
+            padding: 0 25px;
+            font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
         }
 
-        .send-btn:hover { background: #219150; }
     </style>
 </head>
 <body>
 
-<div class="main-wrapper">
-    <div class="users-sidebar">
-        <div class="sidebar-header">المتواجدون (3)</div>
-        <div class="user-list">
-            <div class="user-item"><span class="status-dot"></span> أحمد (مدير)</div>
-            <div class="user-item"><span class="status-dot"></span> سارة</div>
-            <div class="user-item"><span class="status-dot"></span> يوسف</div>
-        </div>
+    <div class="top-nav">
+        <div class="logo">شات شيلة - أهلاً بك</div>
+        <div class="options">إعدادات | خروج</div>
     </div>
 
-    <div class="chat-area">
-        <div class="chat-header">
-            <span>غرفة الدردشة العامة</span>
-            <span style="color: #27ae60; font-size: 13px;">إعلانات: أهلاً بكم في موقعنا!</span>
-        </div>
-
-        <div id="chat-messages">
-            <div class="msg-entry">
-                <span class="timestamp">12:30 م</span>
-                <span class="username" style="color: #c0392b;">[الإدارة]:</span>
-                <span class="msg-text">مرحباً بالجميع في شات الموقع الرسمي.</span>
+    <div class="chat-wrapper">
+        <div class="user-list-sidebar">
+            <div class="sidebar-title">المتواجدون (25)</div>
+            <div class="users-container">
+                <div class="user-row"><span class="icon">●</span> <span style="color:#ff0000">[Admin] كينج</span></div>
+                <div class="user-row"><span class="icon">●</span> زائر 502</div>
+                <div class="user-row"><span class="icon">●</span> بنت السعودية</div>
+                <div class="user-row"><span class="icon" style="color:#888">●</span> فاعل خير (خامل)</div>
             </div>
         </div>
 
-        <div class="input-bar">
-            <input type="text" id="msgInput" placeholder="اكتب رسالتك هنا..." autofocus>
-            <button class="send-btn" id="sendBtn">إرسال</button>
+        <div class="chat-main">
+            <div id="messages-area">
+                <div class="msg-line">
+                    <span style="color: #999; font-size: 11px;">[12:00]</span>
+                    <span class="name-tag">نظام الشات:</span>
+                    <span style="color: #00ff00;">مرحباً بك في شات شيلة، يرجى الالتزام بالقوانين.</span>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <div class="controls">
+                    <button class="tool-btn">B</button>
+                    <button class="tool-btn" style="color:red">Color</button>
+                    <button class="tool-btn">Emoji</button>
+                </div>
+                <div class="typing-area">
+                    <input type="text" id="userMsg" placeholder="اكتب رسالتك هنا..." autofocus>
+                    <button class="btn-send" onclick="send()">إرسال</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const msgInput = document.getElementById('msgInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const chatMessages = document.getElementById('chat-messages');
+    <script>
+        function send() {
+            const input = document.getElementById('userMsg');
+            const area = document.getElementById('messages-area');
+            if(input.value.trim() === "") return;
 
-    function addNewMessage() {
-        const text = msgInput.value.trim();
-        if (text === "") return;
+            const time = new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
+            
+            const newLine = `
+                <div class="msg-line">
+                    <span style="color: #999; font-size: 11px;">[${time}]</span>
+                    <span class="name-tag">زائر:</span>
+                    <span>${input.value}</span>
+                </div>
+            `;
+            
+            area.insertAdjacentHTML('beforeend', newLine);
+            input.value = "";
+            area.scrollTop = area.scrollHeight;
+        }
 
-        const now = new Date();
-        const timeStr = now.getHours() + ":" + now.getMinutes() + (now.getHours() >= 12 ? " م" : " ص");
-
-        const messageHTML = `
-            <div class="msg-entry">
-                <span class="timestamp">${timeStr}</span>
-                <span class="username">زائر الجديد:</span>
-                <span class="msg-text">${text}</span>
-            </div>
-        `;
-
-        chatMessages.insertAdjacentHTML('beforeend', messageHTML);
-        msgInput.value = "";
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    sendBtn.addEventListener('click', addNewMessage);
-    msgInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') addNewMessage();
-    });
-</script>
-
+        document.getElementById('userMsg').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') send();
+        });
+    </script>
 </body>
 </html>
