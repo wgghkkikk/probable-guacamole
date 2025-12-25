@@ -1,20 +1,158 @@
-<div class="box">
-    <h4 style="color:var(--neon); margin-top:0;">تخصيص الألوان</h4>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <span>لون الاسم:</span>
-        <input type="color" id="cName" value="#00f2ff">
-    </div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <span>لون الرسالة:</span>
-        <input type="color" id="cBubble" value="#1a1a1a">
-    </div>
-    <div style="margin-top:10px;">
-        <span style="display:block; margin-bottom:5px;">النمط المتحرك 🌈:</span>
-        <select id="cAnim" style="width:100%; background:#000; color:#fff; border:1px solid #444; padding:8px; border-radius:5px; cursor:pointer;">
-            <option value="">بدون حركة (عادي)</option>
-            <option value="anim-rainbow">🌈 قوس قزح</option>
-            <option value="anim-gold">✨ ذهبي ملكي</option>
-            <option value="anim-fire">🔥 لهب متحرك</option>
-        </select>
-    </div>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Master RG - Font Control</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&family=Tajawal:wght@700&family=Amiri&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon: #00f2ff; --bg: #000; }
+        * { box-sizing: border-box; }
+        
+        /* الأنماط المتحركة */
+        .anim-rainbow { animation: rainbow 3s infinite linear; font-weight: bold; }
+        @keyframes rainbow { 0%{color:red} 20%{color:yellow} 40%{color:green} 60%{color:cyan} 80%{color:blue} 100%{color:magenta} }
+        .anim-gold { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shine 2s linear infinite; font-weight: bold; }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        html, body { height: 100%; margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; width: 100%; }
+        header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 10px; z-index: 1000; }
+        
+        #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 85px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+
+        .msg-box { display: flex; gap: 10px; align-items: flex-end; max-width: 90%; align-self: flex-start; }
+        .msg-img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--neon); }
+        .msg-content { padding: 10px 15px; border-radius: 18px 18px 18px 2px; border: 1px solid rgba(255,255,255,0.1); }
+
+        .sidebar { position: fixed; top: 55px; bottom: 85px; width: 260px; background: #0a0a0a; z-index: 5000; transition: 0.3s; padding: 15px; border: 1px solid #222; display: none; overflow-y: auto; }
+        .box { background: #151515; border: 1px solid #333; padding: 12px; border-radius: 12px; margin-bottom: 10px; }
+
+        .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: #111; border-top: 2px solid var(--neon); display: flex; align-items: center; padding: 0 10px; gap: 8px; z-index: 9999; }
+        #msgInp { flex: 1; height: 50px; border-radius: 25px; padding: 0 15px; background: #000; color: #fff; border: 1px solid #333; outline: none; }
+        
+        /* ستايلات شريط التحكم */
+        .slider-label { display: flex; justify-content: space-between; font-size: 12px; margin-top: 10px; }
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: var(--neon); }
+    </style>
+</head>
+<body>
+
+<header>
+    <button onclick="toggle('right')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:5px 10px; border-radius:5px;">المتصلين</button>
+    <b style="color:var(--neon)">إمبراطورية RG</b>
+    <button onclick="toggle('left')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:5px 10px; border-radius:5px;">الألوان & الخط</button>
+</header>
+
+<div id="chat-container"></div>
+
+<div id="right-s" class="sidebar" style="right:0;">
+    <h3 style="color:var(--neon)">المتواجدون</h3>
+    <div class="anim-rainbow">👑 الماستر RG</div>
 </div>
+
+<div id="left-s" class="sidebar" style="left:0;">
+    <div class="box">
+        <h4 style="color:var(--neon); margin:0 0 10px 0;">الملف الشخصي</h4>
+        <input type="text" id="newName" placeholder="تغيير الاسم..." style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:8px;">
+        <input type="file" onchange="loadImg(this)" style="margin-top:10px; font-size:10px;">
+    </div>
+
+    <div class="box">
+        <h4 style="color:var(--neon); margin:0 0 10px 0;">تخصيص الخط والألوان</h4>
+        <div class="slider-label"><span>حجم الخط:</span><span id="szVal">18</span></div>
+        <input type="range" id="fontSize" min="14" max="35" value="18" oninput="document.getElementById('szVal').innerText=this.value">
+        
+        <div style="margin-top:10px;">
+            <span>نوع الخط:</span>
+            <select id="fontFamily" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:5px; margin-top:5px;">
+                <option value="sans-serif">خط عادي</option>
+                <option value="'Cairo', sans-serif">خط عريض (Cairo)</option>
+                <option value="'Tajawal', sans-serif">خط ناعم (Tajawal)</option>
+                <option value="'Amiri', serif">خط كوفي (Amiri)</option>
+            </select>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+            <span>لون الاسم:</span>
+            <input type="color" id="cName" value="#00f2ff">
+        </div>
+        <div>
+            <span>النمط المتحرك:</span>
+            <select id="cAnim" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:5px; margin-top:5px;">
+                <option value="">بدون حركة</option>
+                <option value="anim-rainbow">قوس قزح</option>
+                <option value="anim-gold">ذهبي ملكي</option>
+            </select>
+        </div>
+    </div>
+    <button onclick="saveAll()" style="width:100%; background:var(--neon); border:none; padding:12px; font-weight:bold; border-radius:8px;">حفظ وتطبيق</button>
+</div>
+
+<div class="input-footer">
+    <input type="text" id="msgInp" placeholder="اكتب رسالتك...">
+    <button onclick="send()" style="background:var(--neon); border:none; width:70px; height:50px; border-radius:25px; font-weight:bold;">إرسال</button>
+</div>
+
+<script>
+    const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(config);
+    const db = firebase.database();
+
+    let my = {
+        n: localStorage.getItem('rg-n') || "الماستر_RG",
+        i: localStorage.getItem('rg-i') || "https://via.placeholder.com/40",
+        nc: localStorage.getItem('rg-nc') || "#00f2ff",
+        as: localStorage.getItem('rg-as') || "",
+        fs: localStorage.getItem('rg-fs') || "18",
+        ff: localStorage.getItem('rg-ff') || "sans-serif"
+    };
+
+    function loadImg(i) { if(i.files[0]) { let r=new FileReader(); r.onload=(e)=>{my.i=e.target.result}; r.readAsDataURL(i.files[0]); } }
+
+    function saveAll() {
+        my.n = document.getElementById('newName').value || my.n;
+        my.nc = document.getElementById('cName').value;
+        my.as = document.getElementById('cAnim').value;
+        my.fs = document.getElementById('fontSize').value;
+        my.ff = document.getElementById('fontFamily').value;
+        
+        localStorage.setItem('rg-n', my.n); localStorage.setItem('rg-i', my.i);
+        localStorage.setItem('rg-nc', my.nc); localStorage.setItem('rg-as', my.as);
+        localStorage.setItem('rg-fs', my.fs); localStorage.setItem('rg-ff', my.ff);
+        alert("تم تحديث ستايلك الشخصي!");
+    }
+
+    function toggle(id) {
+        let el = document.getElementById(id+'-s');
+        let active = el.style.display==='block';
+        document.querySelectorAll('.sidebar').forEach(s=>s.style.display='none');
+        if(!active) el.style.display='block';
+    }
+
+    function send() {
+        let t = document.getElementById('msgInp').value;
+        if(t.trim()) {
+            db.ref('messages').push({ u:my.n, t:t, i:my.i, nc:my.nc, as:my.as, fs:my.fs, ff:my.ff });
+            document.getElementById('msgInp').value = '';
+        }
+    }
+
+    db.ref('messages').limitToLast(20).on('child_added', (snap) => {
+        let m = snap.val();
+        let div = document.createElement('div');
+        div.className = 'msg-box';
+        div.innerHTML = `
+            <div class="msg-content" style="background:#151515; border-color:${m.nc}44; font-family:${m.ff}">
+                <span class="msg-user ${m.as}" style="${m.as?'':'color:'+m.nc}; font-size:14px;">${m.u}</span>
+                <div style="color:#fff; font-size:${m.fs}px;">${m.t}</div>
+            </div>
+            <img src="${m.i}" class="msg-img">
+        `;
+        document.getElementById('chat-container').appendChild(div);
+        document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+    });
+</script>
+</body>
+</html>
