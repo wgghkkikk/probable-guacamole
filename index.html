@@ -3,193 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إصدار الماستر الاحترافي 2026</title>
+    <title>لوحة تحكم الماستر v5</title>
     <style>
-        :root { --main-glow: #00f2ff; --admin-color: #ff004c; --bg-color: #050505; }
+        :root { --glow: #00f2ff; --bg: #050505; --card: #111; --admin: #ff004c; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', sans-serif; }
         
-        body { background: var(--bg-color); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: 0.5s; }
+        body { background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- الهيدر المتوهج --- */
+        /* --- الهيدر الاحترافي --- */
         header { 
-            height: 60px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--main-glow);
+            height: 60px; background: #000; border-bottom: 2px solid var(--glow);
             display: flex; justify-content: space-between; align-items: center; padding: 0 15px;
-            box-shadow: 0 0 15px var(--main-glow); z-index: 1001;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); z-index: 1000;
         }
 
-        /* --- منطقة الرسائل (مستقلة لكل غرفة) --- */
-        #chat-area { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        /* --- توزيع الواجهة --- */
+        .main-wrapper { flex: 1; display: flex; overflow: hidden; position: relative; }
 
-        /* --- تأثيرات التوهج (Glow Effects) --- */
-        .neon-text { text-shadow: 0 0 10px var(--main-glow), 0 0 20px var(--main-glow); color: #fff; font-weight: bold; }
-        .admin-glow { text-shadow: 0 0 10px var(--admin-color); color: var(--admin-color); font-weight: bold; animation: pulse 1.5s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-
-        /* --- الملف الشخصي (Popup) --- */
-        #profile-modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 320px; background: #111; border: 2px solid var(--main-glow);
-            border-radius: 15px; padding: 20px; display: none; z-index: 9999; text-align: center;
+        /* --- شريط الغرف الجانبي (دائم في الكمبيوتر، مخفي في الموبايل) --- */
+        #rooms-sidebar { 
+            width: 80px; background: #000; border-left: 1px solid #222; 
+            display: flex; flex-direction: column; align-items: center; padding: 15px 0; gap: 15px;
+            transition: 0.3s;
         }
-        .profile-img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--main-glow); margin-bottom: 10px; }
 
-        /* --- متجر الثيمات --- */
-        #themes-panel {
-            position: absolute; top: 70px; right: 10px; background: #000; border: 1px solid #444;
-            padding: 10px; border-radius: 10px; display: none; z-index: 2000;
+        /* --- منطقة الشات --- */
+        #chat-section { flex: 1; display: flex; flex-direction: column; background: radial-gradient(circle at center, #111, #000); }
+        #messages-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+
+        /* --- تصميم الرسالة المتوهجة --- */
+        .msg-neon { 
+            background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px;
+            border-right: 4px solid var(--glow); max-width: 85%; align-self: flex-start;
+            animation: slideIn 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        .theme-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: inline-block; margin: 5px; border: 1px solid #fff; }
+        .u-rank { font-weight: bold; font-size: 13px; text-shadow: 0 0 10px var(--admin); color: var(--admin); }
 
-        /* --- مشغل اليوتيوب المطور --- */
-        #yt-wrap {
-            position: absolute; top: 80px; left: 10px; width: 300px; background: #000;
-            border: 2px solid var(--main-glow); border-radius: 10px; display: none; z-index: 5000;
+        /* --- مشغل يوتيوب العائم --- */
+        #video-player {
+            position: absolute; top: 10px; left: 10px; width: 320px; background: #000;
+            border: 2px solid var(--glow); border-radius: 10px; display: none; z-index: 5000;
         }
-        .vid-header { background: #222; padding: 5px; display: flex; justify-content: space-between; cursor: move; }
+        .vid-head { background: #222; padding: 5px 10px; display: flex; justify-content: space-between; font-size: 11px; cursor: move; }
 
-        /* --- شريط الكتابة --- */
+        /* --- النوافذ (بروفايل، ثيمات، غرف) --- */
+        .modal-overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8); 
+            display: none; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .modal-box { 
+            background: #111; border: 2px solid var(--glow); width: 90%; max-width: 350px;
+            padding: 20px; border-radius: 20px; text-align: center; box-shadow: 0 0 30px var(--glow);
+        }
+
+        /* --- أيقونة الغرفة --- */
+        .room-btn { 
+            width: 55px; height: 55px; background: #1a1a1a; border: 1px solid #333; 
+            border-radius: 15px; cursor: pointer; display: flex; align-items: center; 
+            justify-content: center; font-size: 10px; text-align: center; color: #666;
+        }
+        .room-btn.active { border-color: var(--glow); color: var(--glow); box-shadow: 0 0 10px var(--glow); }
+
+        /* --- شريط الإدخال --- */
         .input-bar { padding: 10px; background: #000; display: flex; gap: 10px; border-top: 1px solid #222; }
-        #msg-input { flex: 1; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 25px; outline: none; }
-        .btn-send { background: var(--main-glow); color: #000; border: none; padding: 0 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        #main-input { flex: 1; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 30px; outline: none; }
+        .send-btn { background: var(--glow); color: #000; border: none; padding: 0 20px; border-radius: 30px; font-weight: bold; cursor: pointer; }
 
-        /* --- الفوتر --- */
-        footer { height: 50px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; }
-        .footer-btn { cursor: pointer; font-size: 11px; text-align: center; color: #888; }
-        .footer-btn:hover { color: var(--main-glow); }
+        /* --- الموبايل --- */
+        @media (max-width: 768px) {
+            #rooms-sidebar { width: 60px; }
+            #video-player { width: 95%; left: 2.5%; }
+        }
 
-        /* الغرف */
-        #rooms-overlay { position: fixed; inset: 0; background: #000; z-index: 9000; display: none; padding: 20px; overflow-y: auto; }
-        .room-item { background: #1a1a1a; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-right: 5px solid var(--main-glow); display: flex; justify-content: space-between; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 
     <header>
-        <div onclick="toggleElement('rooms-overlay')" style="cursor:pointer;">🏢<br>الغرف</div>
-        <div class="neon-text">PRINCE MASTER</div>
-        <div onclick="toggleElement('themes-panel')" style="cursor:pointer;">🎨<br>الثيمات</div>
+        <div onclick="openModal('modal-rooms')" style="cursor:pointer; color:var(--glow)">➕<br>غرفة</div>
+        <h2 id="logo" style="text-shadow: 0 0 10px var(--glow);">MASTER PRO</h2>
+        <div onclick="openModal('modal-profile')" style="cursor:pointer; color:var(--glow)">👤<br>ملفي</div>
     </header>
 
-    <div id="themes-panel">
-        <div class="theme-dot" style="background: #00f2ff;" onclick="changeColor('#00f2ff')"></div>
-        <div class="theme-dot" style="background: #ff00ff;" onclick="changeColor('#ff00ff')"></div>
-        <div class="theme-dot" style="background: #ffcc00;" onclick="changeColor('#ffcc00')"></div>
-        <div class="theme-dot" style="background: #00ff00;" onclick="changeColor('#00ff00')"></div>
-    </div>
-
-    <div id="rooms-overlay">
-        <h2 style="text-align:center; margin-bottom:20px;">اختر الغرفة</h2>
-        <div id="rooms-list">
-            </div>
-        <button onclick="addRoom()" style="width:100%; padding:15px; background:var(--main-glow); border:none; margin-top:20px; font-weight:bold;">➕ إنشاء غرفة جديدة</button>
-        <button onclick="toggleElement('rooms-overlay')" style="width:100%; padding:15px; background:red; border:none; margin-top:10px; color:#fff;">إغلاق</button>
-    </div>
-
-    <div id="profile-modal">
-        <img id="p-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-img">
-        <h3 id="p-name" class="admin-glow">الماستر</h3>
-        <p style="font-size:12px; color:#666; margin-bottom:15px;">رتبة: مدير الشات</p>
-        <input type="text" id="name-change" placeholder="تغيير الاسم" style="width:100%; padding:8px; margin-bottom:5px; background:#000; border:1px solid #333; color:#fff;">
-        <input type="file" id="img-change" style="font-size:10px; margin-bottom:10px;">
-        <button onclick="saveProfile()" style="width:100%; padding:10px; background:var(--main-glow); border:none; font-weight:bold;">حفظ التعديلات</button>
-        <button onclick="toggleElement('profile-modal')" style="width:100%; padding:10px; background:#333; color:#fff; border:none; margin-top:5px;">إلغاء</button>
-    </div>
-
-    <div id="yt-wrap">
-        <div class="vid-header">
-            <span style="font-size:10px;">📺 مشغل اليوتيوب</span>
-            <div><span onclick="minVid()">-</span> <span onclick="closeVid()" style="color:red; margin-right:10px;">X</span></div>
+    <div class="main-wrapper">
+        <div id="rooms-sidebar">
+            <div class="room-btn active" onclick="switchRoom('العامة', this)">غرفة<br>عامة</div>
         </div>
-        <div id="vid-body"></div>
+
+        <div id="chat-section">
+            <div id="messages-container">
+                <div style="text-align:center; color:#444; font-size:11px; margin-top:50px;">-- بوابتك كأدمن مفعلة --</div>
+            </div>
+
+            <div id="video-player">
+                <div class="vid-head">
+                    <span>📺 بث مباشر</span>
+                    <div>
+                        <span onclick="minVid()" style="cursor:pointer; margin-left:10px;">-</span>
+                        <span onclick="closeVid()" style="cursor:pointer; color:red;">X</span>
+                    </div>
+                </div>
+                <div id="vid-body"></div>
+            </div>
+
+            <div class="input-bar">
+                <input type="text" id="main-input" placeholder="اكتب هنا أو ضع رابط يوتيوب...">
+                <button class="send-btn" onclick="handleSend()">إرسال</button>
+            </div>
+        </div>
     </div>
 
-    <div id="chat-area"></div>
-
-    <div class="input-bar">
-        <input type="text" id="msg-input" placeholder="اكتب هنا أو ضع رابط فيديو...">
-        <button class="btn-send" onclick="send()">إرسال</button>
-    </div>
-
-    <footer>
-        <div class="footer-btn" onclick="toggleElement('rooms-overlay')">👥 الغرف</div>
-        <div class="footer-btn" onclick="toggleElement('profile-modal')">👤 ملفي</div>
-        <div class="footer-btn" onclick="location.reload()">🔄 تحديث</div>
-    </footer>
-
-    <script>
-        let currentRoom = "العامة";
-        let roomsData = { "العامة": [] }; // هنا يتم تخزين رسائل كل غرفة وحدها
-        let myData = { name: "الماستر", photo: "https://cdn-icons-png.flaticon.com/512/149/149071.png" };
-
-        function toggleElement(id) {
-            const el = document.getElementById(id);
-            el.style.display = (el.style.display === 'block' || el.style.display === 'grid') ? 'none' : 'block';
-        }
-
-        function changeColor(color) {
-            document.documentElement.style.setProperty('--main-glow', color);
-            toggleElement('themes-panel');
-        }
-
-        // نظام الغرف المنفصلة
-        function addRoom() {
-            const name = prompt("اسم الغرفة الجديدة:");
-            if(name && !roomsData[name]) {
-                roomsData[name] = [];
-                updateRoomsList();
-            }
-        }
-
-        function updateRoomsList() {
-            const list = document.getElementById('rooms-list');
-            list.innerHTML = "";
-            for (let room in roomsData) {
-                list.innerHTML += `
-                    <div class="room-item">
-                        <span><b>${room}</b></span>
-                        <button onclick="switchRoom('${room}')" style="padding:5px 15px; background:var(--main-glow); border:none; border-radius:5px; cursor:pointer;">دخول</button>
-                    </div>`;
-            }
-        }
-
-        function switchRoom(name) {
-            currentRoom = name;
-            document.getElementById('chat-area').innerHTML = ""; // تنظيف الشاشة
-            roomsData[name].forEach(msg => renderMessage(msg)); // تحميل رسائل الغرفة المختارة
-            toggleElement('rooms-overlay');
-            alert("أنت الآن في غرفة: " + name);
-        }
-
-        function renderMessage(msgHtml) {
-            document.getElementById('chat-area').innerHTML += msgHtml;
-            document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
-        }
-
-        function send() {
-            const inp = document.getElementById('msg-input');
-            if(!inp.value.trim()) return;
-
-            // كشف يوتيوب
-            if(inp.value.includes('youtube.com') || inp.value.includes('youtu.be')) {
-                const id = inp.value.split('v=')[1] || inp.value.split('/').pop();
-                document.getElementById('yt-wrap').style.display = 'block';
-                document.getElementById('vid-body').innerHTML = `<iframe width="100%" height="180" src="https://www.youtube.com/embed/${id.split('&')[0]}?autoplay=1" frameborder="0"></iframe>`;
-                inp.value = ''; return;
-            }
-
-            const msgHtml = `
-                <div style="margin-bottom:10px;">
-                    <span class="admin-glow" style="font-size:12px;">${myData.name}:</span>
-                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; border-right:3px solid var(--main-glow);">${inp.value}</div>
-                </div>`;
-            
-            roomsData[currentRoom].push(msgHtml); // حفظ الرسالة في الغرفة الحالية فقط
-            renderMessage(msgHtml);
-            inp.value = '';
-        }
-
-        function saveProfile() {
-            const newName = document.getElementById('name-change').value;
-            if(newName) {
-                myData.
+    <div id="modal-profile
