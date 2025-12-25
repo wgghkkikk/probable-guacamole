@@ -3,52 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Master RG - Neon RGB</title>
+    <title>Master RG - Animated Styles</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --neon: #00f2ff; --bg: #000; }
         * { box-sizing: border-box; }
         
-        /* تأثير قوس قزح للاسم */
-        @keyframes rainbow {
-            0% { color: #ff0000; } 20% { color: #ffff00; } 40% { color: #00ff00; }
-            60% { color: #00ffff; } 80% { color: #0000ff; } 100% { color: #ff00ff; }
-        }
-        .rainbow-text { animation: rainbow 3s infinite linear; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.3); }
+        /* الأنماط المتحركة */
+        .style-rainbow { animation: rainbow 3s infinite linear; font-weight: bold; }
+        @keyframes rainbow { 0% {color: red;} 20% {color: yellow;} 40% {color: green;} 60% {color: cyan;} 80% {color: blue;} 100% {color: magenta;} }
 
-        html, body { height: 100%; margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; width: 100%; }
+        .style-gold { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shine 2s linear infinite; font-weight: bold; }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .style-fire { animation: fire 1s infinite alternate; font-weight: bold; text-shadow: 0 0 5px #ff4500, 0 0 10px #ff4500; color: #ffcc00; }
+        @keyframes fire { from { opacity: 0.8; } to { opacity: 1; text-shadow: 0 0 20px #ff4500; } }
+
+        .style-neon { animation: neon-glow 1.5s ease-in-out infinite alternate; color: #fff; text-shadow: 0 0 7px #00f2ff, 0 0 10px #00f2ff, 0 0 21px #00f2ff; }
+        @keyframes neon-glow { from { text-shadow: 0 0 5px #00f2ff; } to { text-shadow: 0 0 20px #00f2ff, 0 0 30px #00f2ff; } }
+
+        html, body { height: 100%; margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; width: 100%; }
         header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 10px; z-index: 1000; }
         
         #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 75px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-
-        /* الستارات */
         .sidebar { position: fixed; top: 55px; bottom: 75px; width: 260px; background: #0a0a0a; z-index: 5000; transition: 0.3s; padding: 15px; border: 1px solid #222; display: none; overflow-y: auto; }
-        .sidebar.active { display: block; }
+        .box { background: #151515; border: 1px solid #333; padding: 12px; border-radius: 12px; margin-bottom: 10px; }
 
-        /* حاويات الخيارات */
-        .box { background: #151515; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .box h4 { margin: 0 0 10px 0; color: var(--neon); font-size: 14px; border-bottom: 1px solid #222; padding-bottom: 5px; }
-
-        /* أدوات الألوان */
-        .color-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        input[type="color"] { border: none; width: 35px; height: 35px; cursor: pointer; background: none; }
-        input[type="text"] { width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 8px; border-radius: 5px; outline: none; }
-
-        /* أزرار الرسالة */
+        /* ستايل الرسايل */
         .msg-box { display: flex; gap: 10px; margin-bottom: 5px; }
         .msg-img { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); object-fit: cover; }
-        .msg-content { padding: 10px; border-radius: 12px; flex: 1; border: 1px solid rgba(255,255,255,0.1); }
+        .msg-content { padding: 8px 12px; border-radius: 12px; flex: 1; border: 1px solid #222; }
 
         .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #111; border-top: 2px solid var(--neon); display: flex; align-items: center; padding: 0 10px; gap: 8px; z-index: 9999; }
-        #sendBtn { background: var(--neon); border: none; height: 45px; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        input[type="text"] { flex: 1; height: 45px; border-radius: 25px; padding: 0 15px; background: #000; color: #fff; border: 1px solid #333; outline: none; }
     </style>
 </head>
 <body>
 
 <header>
     <button onclick="toggle('right')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:5px 10px; border-radius:5px;">المتصلين</button>
-    <b class="rainbow-text">إمبراطورية RG</b>
+    <b style="color:var(--neon)">MASTER RG</b>
     <button onclick="toggle('left')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:5px 10px; border-radius:5px;">الألوان & الملف</button>
 </header>
 
@@ -56,41 +51,40 @@
 
 <div id="right-s" class="sidebar" style="right:0;">
     <h3 style="color:var(--neon)">المتواجدون</h3>
-    <div class="rainbow-text">👑 الماستر RG</div>
+    <div>👑 الماستر RG</div>
 </div>
 
 <div id="left-s" class="sidebar" style="left:0;">
     <div class="box">
         <h4>الملف الشخصي</h4>
-        <div style="text-align:center;">
-            <img src="" id="myImg" style="width:60px; height:60px; border-radius:50%; border:2px solid var(--neon); margin-bottom:10px;">
-            <input type="text" id="newName" placeholder="تغيير الاسم...">
-            <input type="file" id="fileInp" accept="image/*" onchange="loadImg(this)" style="font-size:10px; margin-top:10px;">
-        </div>
+        <input type="text" id="newName" placeholder="الاسم...">
+        <input type="file" id="fileInp" accept="image/*" onchange="loadImg(this)" style="margin-top:10px; font-size:10px;">
     </div>
 
     <div class="box">
         <h4>تخصيص الألوان</h4>
-        <div class="color-item">
-            <span>لون الاسم:</span>
+        <div style="margin-bottom:10px;">
+            <span>اللون الثابت:</span>
             <input type="color" id="cName" value="#00f2ff">
         </div>
-        <div class="color-item">
-            <span>لون الرسالة:</span>
-            <input type="color" id="cBubble" value="#1a1a1a">
-        </div>
-        <div class="color-item">
-            <span>اسم متحرك 🌈:</span>
-            <input type="checkbox" id="cRainbow">
+        <div>
+            <span>النمط المتحرك:</span>
+            <select id="animStyle" style="width:100%; background:#000; color:#fff; border:1px solid #444; padding:5px; border-radius:5px;">
+                <option value="">بدون حركة</option>
+                <option value="style-rainbow">🌈 قوس قزح</option>
+                <option value="style-gold">✨ ذهبي يلمع</option>
+                <option value="style-fire">🔥 لهب متحرك</option>
+                <option value="style-neon">⚡ نيون متوهج</option>
+            </select>
         </div>
     </div>
 
-    <button onclick="saveAll()" style="width:100%; background:var(--neon); color:#000; border:none; padding:12px; font-weight:bold; border-radius:8px; cursor:pointer;">حفظ وتطبيق</button>
+    <button onclick="saveAll()" style="width:100%; background:var(--neon); border:none; padding:10px; font-weight:bold; border-radius:5px;">حفظ وتطبيق</button>
 </div>
 
 <div class="input-footer">
-    <input type="text" id="msgInp" placeholder="اكتب شيئاً..." style="flex:1; height:45px; border-radius:25px; padding:0 15px; background:#000; color:#fff; border:1px solid #333;">
-    <button id="sendBtn" onclick="send()">إرسال</button>
+    <input type="text" id="msgInp" placeholder="اكتب هنا...">
+    <button onclick="send()" style="background:var(--neon); border:none; padding:10px 20px; border-radius:25px; font-weight:bold;">إرسال</button>
 </div>
 
 <script>
@@ -99,43 +93,23 @@
     const db = firebase.database();
 
     let myData = {
-        name: localStorage.getItem('rg-n') || "الماستر_RG",
-        img: localStorage.getItem('rg-i') || "https://via.placeholder.com/60",
-        nc: localStorage.getItem('rg-nc') || "#00f2ff",
-        bc: localStorage.getItem('rg-bc') || "#1a1a1a",
-        rb: localStorage.getItem('rg-rb') === 'true'
+        n: localStorage.getItem('rg-n') || "الماستر",
+        i: localStorage.getItem('rg-i') || "https://via.placeholder.com/60",
+        c: localStorage.getItem('rg-c') || "#00f2ff",
+        s: localStorage.getItem('rg-s') || ""
     };
 
-    function updateUI() {
-        document.getElementById('myImg').src = myData.img;
-        document.getElementById('cName').value = myData.nc;
-        document.getElementById('cBubble').value = myData.bc;
-        document.getElementById('cRainbow').checked = myData.rb;
-    }
-    updateUI();
-
-    function loadImg(input) {
-        if (input.files && input.files[0]) {
-            const r = new FileReader();
-            r.onload = (e) => { myData.img = e.target.result; };
-            r.readAsDataURL(input.files[0]);
-        }
-    }
+    function loadImg(input) { if (input.files && input.files[0]) { const r = new FileReader(); r.onload = (e) => { myData.i = e.target.result; }; r.readAsDataURL(input.files[0]); } }
 
     function saveAll() {
-        myData.name = document.getElementById('newName').value || myData.name;
-        myData.nc = document.getElementById('cName').value;
-        myData.bc = document.getElementById('cBubble').value;
-        myData.rb = document.getElementById('cRainbow').checked;
-        
-        localStorage.setItem('rg-n', myData.name);
-        localStorage.setItem('rg-i', myData.img);
-        localStorage.setItem('rg-nc', myData.nc);
-        localStorage.setItem('rg-bc', myData.bc);
-        localStorage.setItem('rg-rb', myData.rb);
-        
-        updateUI();
-        alert("تم الحفظ بنجاح!");
+        myData.n = document.getElementById('newName').value || myData.n;
+        myData.c = document.getElementById('cName').value;
+        myData.s = document.getElementById('animStyle').value;
+        localStorage.setItem('rg-n', myData.n);
+        localStorage.setItem('rg-i', myData.i);
+        localStorage.setItem('rg-c', myData.c);
+        localStorage.setItem('rg-s', myData.s);
+        alert("تم تحديث ستايل الإمبراطورية!");
     }
 
     function toggle(id) {
@@ -148,22 +122,19 @@
     function send() {
         const t = document.getElementById('msgInp').value;
         if(t.trim()) {
-            db.ref('messages').push({ u: myData.name, t: t, i: myData.img, nc: myData.nc, bc: myData.bc, rb: myData.rb });
+            db.ref('messages').push({ u: myData.n, t: t, i: myData.i, c: myData.c, s: myData.s });
             document.getElementById('msgInp').value = '';
         }
     }
 
-    db.ref('messages').limitToLast(25).on('child_added', (snap) => {
+    db.ref('messages').limitToLast(20).on('child_added', (snap) => {
         const m = snap.val();
         const div = document.createElement('div');
         div.className = 'msg-box';
-        const nClass = m.rb ? 'rainbow-text' : '';
-        const nStyle = m.rb ? '' : `color:${m.nc}`;
-        
         div.innerHTML = `
             <img src="${m.i}" class="msg-img">
-            <div class="msg-content" style="background:${m.bc}; border-color:${m.nc}55">
-                <span class="${nClass}" style="${nStyle}; font-size:12px;">${m.u}</span>
+            <div class="msg-content">
+                <span class="${m.s}" style="${m.s ? '' : 'color:'+m.c}">${m.u}</span>
                 <div style="margin-top:4px;">${m.t}</div>
             </div>
         `;
