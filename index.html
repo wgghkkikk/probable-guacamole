@@ -3,93 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>MASTER RG - SUPREME EMPIRE</title>
+    <title>MASTER RG - NOTEBOOK</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Reem+Kufi&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --gold: #ffd700; --royal: #7000ff; --bg: #030303; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* الهيدر الأسطوري */
-        header { height: 75px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-shadow: 0 0 25px rgba(0,242,255,0.2); z-index: 1000; }
-        .logo-text { font-size: 24px; font-weight: 900; background: linear-gradient(45deg, var(--gold), #fff, var(--neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
-
-        /* البروفايل العملاق */
-        #profile-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .profile-card { width: 90%; max-width: 400px; background: #111; border-radius: 30px; border: 2px solid var(--neon); overflow: hidden; position: relative; }
-        .p-cover { width: 100%; height: 140px; background: linear-gradient(to bottom, var(--royal), #000); position: relative; background-size: cover; }
-        .p-avatar { width: 100px; height: 100px; border-radius: 50%; border: 5px solid #111; position: absolute; bottom: -50px; right: 20px; object-fit: cover; box-shadow: 0 0 20px var(--neon); }
-        .p-info { padding: 60px 20px 20px; }
-        .p-rank { display: inline-block; padding: 4px 12px; border-radius: 20px; background: var(--gold); color: #000; font-weight: bold; font-size: 12px; margin-top: 10px; }
-
-        /* الرومات */
-        .nav-rooms { display: flex; overflow-x: auto; padding: 15px; gap: 12px; background: #080808; scrollbar-width: none; }
-        .nav-rooms::-webkit-scrollbar { display: none; }
-        .btn-room { background: #151515; color: #fff; padding: 10px 25px; border-radius: 50px; border: 1px solid #333; cursor: pointer; transition: 0.4s; font-weight: bold; white-space: nowrap; }
-        .btn-room.active { background: var(--neon); color: #000; border-color: var(--neon); box-shadow: 0 0 15px var(--neon); }
-
-        /* الدردشة */
-        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: url('https://www.transparenttextures.com/patterns/dark-matter.png'); }
-        .msg-block { max-width: 85%; align-self: flex-start; animation: pop 0.3s ease; }
-        .msg-block.me { align-self: flex-end; }
-        @keyframes pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        :root { --ink: #1a2a6c; --paper: #fdfcf0; --margin: #ff6b6b; --pencil: #555; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        .bubble { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 18px; border-radius: 20px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; }
-        .me .bubble { background: linear-gradient(135deg, #004455, #002233); border-color: var(--neon); }
-        .user-tag { font-size: 13px; font-weight: bold; color: var(--neon); margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-        .quote-box { background: rgba(0,0,0,0.4); padding: 8px; border-right: 4px solid var(--gold); border-radius: 8px; margin-bottom: 8px; font-size: 12px; }
+        body { 
+            margin: 0; 
+            background: #d4d0c8; /* لون الخشب أو المكتب */
+            display: flex; 
+            justify-content: center; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* حاوية الدفتر */
+        .notebook { 
+            width: 95%; 
+            max-width: 500px; 
+            background: var(--paper); 
+            height: 98vh; 
+            margin-top: 1vh;
+            position: relative; 
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.3);
+            border-left: 40px solid #eee; /* مكان السيم */
+            display: flex;
+            flex-direction: column;
+            border-radius: 5px;
+        }
+
+        /* السيم الجانبي */
+        .notebook::before {
+            content: "";
+            position: absolute;
+            left: -30px; top: 0; bottom: 0; width: 20px;
+            background-image: radial-gradient(circle, #333 5px, transparent 6px);
+            background-size: 100% 40px;
+            z-index: 10;
+        }
+
+        header { 
+            padding: 15px 20px; 
+            border-bottom: 2px solid var(--margin); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+
+        .notebook-title { font-family: 'Reem Kufi', sans-serif; font-size: 22px; color: var(--ink); font-weight: bold; }
+
+        /* منطقة الرومات */
+        .rooms { 
+            display: flex; overflow-x: auto; padding: 10px; gap: 8px; 
+            border-bottom: 1px solid #ddd; background: rgba(0,0,0,0.02);
+        }
+        .r-tag { 
+            padding: 5px 12px; border: 1px solid var(--pencil); 
+            border-radius: 20px; font-size: 12px; white-space: nowrap; 
+            color: var(--pencil); cursor: pointer;
+        }
+        .r-tag.active { background: var(--ink); color: #fff; }
+
+        /* الورقة المخططة */
+        #chatBox { 
+            flex: 1; overflow-y: auto; padding: 20px;
+            background-image: linear-gradient(#e1e1e1 1px, transparent 1px);
+            background-size: 100% 30px; /* تخطيط الورق */
+            line-height: 30px;
+        }
+
+        .msg-line { margin-bottom: 15px; position: relative; }
+        .u-name { font-weight: bold; color: var(--margin); font-size: 13px; margin-left: 5px; }
+        .bubble { color: var(--ink); font-size: 15px; display: inline; border-bottom: 1px dashed #ccc; }
+        
+        /* الاقتباس */
+        .quote { 
+            background: #fff59d; padding: 5px 10px; border-radius: 4px; 
+            font-size: 11px; margin-bottom: 5px; border-right: 3px solid #fbc02d;
+            display: block; line-height: 1.4;
+        }
 
         /* الإدخال */
-        .input-bar { background: #0a0a0a; padding: 15px 20px; display: flex; align-items: center; gap: 15px; border-top: 1px solid #222; }
-        #reply-bar { background: var(--royal); padding: 10px 20px; display: none; justify-content: space-between; font-size: 12px; }
-        #mainInput { flex: 1; background: #151515; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 20px; }
-        .btn-act { background: var(--neon); border: none; width: 55px; height: 55px; border-radius: 20px; color: #000; font-size: 22px; cursor: pointer; transition: 0.3s; }
-        .btn-act:hover { transform: rotate(15deg) scale(1.1); }
+        .footer { 
+            padding: 15px; background: #fff; border-top: 1px solid #ddd;
+            display: flex; align-items: center; gap: 10px;
+        }
+        #mInp { 
+            flex: 1; border: none; border-bottom: 2px solid var(--pencil); 
+            padding: 10px; outline: none; background: transparent; color: var(--ink);
+        }
+        .btn-write { 
+            background: var(--ink); color: #fff; border: none; 
+            padding: 10px 18px; border-radius: 5px; cursor: pointer;
+        }
+
+        /* الملف الشخصي */
+        #profile {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            z-index: 1000; display: none; align-items: center; justify-content: center;
+        }
+        .p-card {
+            background: #fff; width: 300px; padding: 20px; border-radius: 10px;
+            text-align: center; border: 5px solid var(--paper);
+        }
     </style>
 </head>
 <body>
 
-<div id="profile-modal">
-    <div class="profile-card">
-        <div class="p-cover" id="myCover"></div>
-        <img src="" class="p-avatar" id="myAvatar">
-        <div class="p-info">
-            <h2 id="myName" style="margin:0"></h2>
-            <div class="p-rank" id="myRank">MASTER 👑</div>
-            <div style="margin-top:20px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button onclick="editP('avatar')" class="btn-room">تغيير الصورة</button>
-                <button onclick="editP('cover')" class="btn-room">تغيير الغلاف</button>
-            </div>
-            <button onclick="closeP()" style="width:100%; margin-top:15px; background:none; border:none; color:#777;">إغلاق الشاشة</button>
-        </div>
+<div class="notebook">
+    <header>
+        <div class="notebook-title" onclick="openP()">دفتر MASTER RG 📖</div>
+        <div id="on-val" style="font-size:10px; color:var(--pencil)">...</div>
+    </header>
+
+    <div class="rooms">
+        <div class="r-tag active" onclick="join('main', this)">👑 العرش</div>
+        <div class="r-tag" onclick="join('vip', this)">💎 الديوان</div>
+        <div class="r-tag" onclick="join('game', this)">🎮 المسابقات</div>
+        <div class="r-tag" onclick="join('elite', this)">🤝 النخبة</div>
+    </div>
+
+    <div id="chatBox"></div>
+
+    <div id="rep-preview" style="display:none; padding:5px 15px; font-size:11px; color:var(--margin)">
+        رد على: <span id="rep-u"></span> <button onclick="cancelRep()" style="border:none; background:none; color:red">✖</button>
+    </div>
+
+    <div class="footer">
+        <button onclick="openP()" style="background:none; border:none; font-size:20px;">👤</button>
+        <input type="text" id="mInp" placeholder="اكتب بقلمك هنا...">
+        <button onclick="send()" class="btn-write">ارسال</button>
     </div>
 </div>
 
-<header>
-    <div class="logo-text" onclick="openP()">MASTER RG</div>
-    <div id="status-tag" style="font-size:12px; color:var(--neon)">1 متصل</div>
-</header>
-
-<div class="nav-rooms" id="roomsMenu">
-    <button class="btn-room active" onclick="join('main', this)">👑 العرش</button>
-    <button class="btn-room" onclick="join('vip', this)">💎 الديوان</button>
-    <button class="btn-room" onclick="join('game', this)">🎮 المسابقات</button>
-    <button class="btn-room" onclick="join('elite', this)">🤝 النخبة</button>
-</div>
-
-<div id="reply-bar">
-    <span id="replyTxt"></span>
-    <button onclick="noReply()" style="background:none; border:none; color:#fff;">✕</button>
-</div>
-
-<div id="chat-window"></div>
-
-<div class="input-bar">
-    <button onclick="openP()" style="background:none; border:none; font-size:28px;">👑</button>
-    <input type="text" id="mainInput" placeholder="سولف ويه البوت أو اكتب 'سؤال'..">
-    <button onclick="fire()" class="btn-act">➤</button>
+<div id="profile">
+    <div class="p-card">
+        <img id="p-img" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--ink)">
+        <h3 id="p-name"></h3>
+        <button onclick="editP()" style="width:100%; padding:8px; margin-bottom:10px; background:var(--ink); color:#fff; border:none; border-radius:5px;">تعديل الصور</button>
+        <button onclick="closeP()" style="border:none; background:none; color:var(--pencil)">إغلاق</button>
+    </div>
 </div>
 
 <script>
@@ -99,72 +155,66 @@
 
     let my = {
         n: localStorage.getItem('rg_n') || "",
-        p: localStorage.getItem('rg_p') || "https://ui-avatars.com/api/?name=User&background=random",
-        c: localStorage.getItem('rg_c') || "https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?w=500",
-        xp: parseInt(localStorage.getItem('rg_xp')) || 0
+        p: localStorage.getItem('rg_p') || "https://ui-avatars.com/api/?name=User",
+        xp: 0
     };
 
     if(!my.n) {
-        let n = prompt("يا ملك، ادخل اسمك:");
+        let n = prompt("ادخل اسمك في الدفتر:");
         if(n) { localStorage.setItem('rg_n', n); location.reload(); }
     }
 
     let curRoom = "main", replyData = null;
 
-    function join(id, btn) {
+    function join(id, el) {
         curRoom = id;
-        document.querySelectorAll('.btn-room').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        document.querySelectorAll('.r-tag').forEach(t=>t.classList.remove('active'));
+        el.classList.add('active');
         load();
     }
 
-    function fire() {
-        let t = document.getElementById('mainInput').value.trim();
+    function send() {
+        let t = document.getElementById('mInp').value.trim();
         if(!t) return;
         
-        let data = { u: my.n, t: t, p: my.p, xp: my.xp, reply: replyData, time: Date.now() };
-        db.ref('rooms/'+curRoom).push(data);
+        db.ref('rooms/'+curRoom).push({ u: my.n, t: t, p: my.p, rep: replyData });
         
-        // ذكاء البوت الفزعة
+        // بوت الفزعة العراقي
         const brain = {
-            "هلو": "يا مية هلا بنور عيوني، انرت الإمبراطورية 👑",
-            "شلونك": "بخير يا ذهب، أنت شلونك بشرني؟",
-            "هههه": "دوم هالضحكة يا رب 😂",
-            "كفو": "كفو منك ومن شاربك، أنت السبع والله",
-            "منور": "نورك عاكس يا غالي 🌹",
-            "ضوجة": "افا، ليش الضوجة؟ اكتب 'سؤال' وخلينا نتسلى!"
+            "هلو": "هلا وغلا، نورت الدفتر يا وردة 🌹",
+            "شلونك": "بخير يا بعد روحي، أنت شلونك؟",
+            "هههه": "دوم الضحكة يارب 😂",
+            "منور": "نورك العاكس يا ملك",
+            "كفو": "كفو من شاربك الطيب"
         };
         for(let key in brain) {
             if(t.includes(key)) {
-                setTimeout(()=> db.ref('rooms/'+curRoom).push({ u: "🤖 BOT", t: brain[key], bot: true, p: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png" }), 800);
+                setTimeout(()=> db.ref('rooms/'+curRoom).push({ u: "🤖 BOT", t: brain[key], bot: true, p: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png" }), 700);
                 break;
             }
         }
         
-        noReply();
-        document.getElementById('mainInput').value = "";
+        cancelRep();
+        document.getElementById('mInp').value = "";
     }
 
     function load() {
         db.ref('rooms/'+curRoom).off();
-        const box = document.getElementById('chat-window');
+        const box = document.getElementById('chatBox');
         box.innerHTML = "";
         db.ref('rooms/'+curRoom).limitToLast(40).on('child_added', snap => {
             let m = snap.val();
             let isMe = m.u === my.n;
-            let rank = m.xp > 500 ? "الملك 👑" : (m.xp > 200 ? "VIP 💎" : "عضو 🤝");
             let div = document.createElement('div');
-            div.className = `msg-block ${isMe ? 'me' : ''}`;
+            div.className = "msg-line";
             div.innerHTML = `
-                <div class="user-tag" onclick="setRep('${m.u}','${m.t}')">
-                    <img src="${m.p}" style="width:25px; height:25px; border-radius:50%">
-                    ${m.u} <small style="color:var(--gold); font-size:10px;">${m.bot?'':'['+rank+']'}</small>
-                </div>
+                <span class="u-name" onclick="setRep('${m.u}','${m.t}')">${m.u}:</span>
                 <div class="bubble" onclick="setRep('${m.u}','${m.t}')">
-                    ${m.reply ? `<div class="quote-box"><b>${m.reply.u}:</b> ${m.reply.t}</div>` : ''}
+                    ${m.rep ? `<span class="quote">رد على ${m.rep.u}: ${m.rep.t}</span>` : ''}
                     ${m.t}
-                    ${isMe ? `<br><span style="font-size:10px; color:red;" onclick="db.ref('rooms/${curRoom}/${snap.key}').remove()">حذف</span>` : ''}
-                </div>`;
+                </div>
+                ${isMe ? `<span style="color:red; font-size:10px; cursor:pointer;" onclick="db.ref('rooms/${curRoom}/${snap.key}').remove()"> [حذف]</span>` : ''}
+            `;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         });
@@ -172,33 +222,25 @@
 
     function setRep(u, t) {
         replyData = { u, t };
-        document.getElementById('replyTxt').innerText = "رد على " + u;
-        document.getElementById('reply-bar').style.display = 'flex';
+        document.getElementById('rep-u').innerText = u;
+        document.getElementById('rep-preview').style.display = 'block';
     }
 
-    function noReply() { replyData = null; document.getElementById('reply-bar').style.display = 'none'; }
+    function cancelRep() { replyData = null; document.getElementById('rep-preview').style.display = 'none'; }
 
     function openP() {
-        document.getElementById('myName').innerText = my.n;
-        document.getElementById('myAvatar').src = my.p;
-        document.getElementById('myCover').style.backgroundImage = `url(${my.c})`;
-        document.getElementById('myRank').innerText = my.xp > 500 ? "الإمبراطور الماستر 👑" : "عضو ملكي 💎";
-        document.getElementById('profile-modal').style.display = 'flex';
+        document.getElementById('p-name').innerText = my.n;
+        document.getElementById('p-img').src = my.p;
+        document.getElementById('profile').style.display = 'flex';
     }
-
-    function editP(type) {
-        let val = prompt(type === 'avatar' ? "رابط الصورة الشخصية:" : "رابط الغلاف:");
-        if(val) {
-            if(type==='avatar') { my.p = val; localStorage.setItem('rg_p', val); }
-            else { my.c = val; localStorage.setItem('rg_c', val); }
-            openP();
-        }
+    function closeP() { document.getElementById('profile').style.display = 'none'; }
+    function editP() {
+        let n = prompt("رابط الصورة الشخصية:");
+        if(n) { my.p = n; localStorage.setItem('rg_p', n); openP(); }
     }
-
-    function closeP() { document.getElementById('profile-modal').style.display = 'none'; }
 
     db.ref('on/'+my.n).set(true); db.ref('on/'+my.n).onDisconnect().remove();
-    db.ref('on').on('value', snap => { document.getElementById('status-tag').innerText = snap.numChildren() + " متصل الآن"; });
+    db.ref('on').on('value', snap => { document.getElementById('on-val').innerText = snap.numChildren() + " حضور"; });
 
     load();
 </script>
