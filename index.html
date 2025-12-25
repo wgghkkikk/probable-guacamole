@@ -3,72 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إمبراطورية الماستر RG - نظام الصور المباشر</title>
+    <title>إمبراطورية الماستر RG</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --neon: #00f2ff; --pink: #ff004c; --bg: #050505; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
         
-        .main { display: flex; flex: 1; overflow: hidden; }
-        .side { width: 220px; background: #111; padding: 10px; border: 1px solid #222; }
-        #chat { flex: 1; display: flex; flex-direction: column; background: #000; }
+        /* الهيدر مع أزرار الستارة */
+        header { background: #111; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); }
+        .menu-btn { background: var(--neon); color: #000; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        .main-container { display: flex; flex: 1; position: relative; overflow: hidden; }
+
+        /* الستارة اليمنى (متصلين) */
+        #right-sidebar { width: 200px; background: #0a0a0a; border-left: 1px solid #222; transition: 0.3s; overflow-y: auto; padding: 15px; }
+        #right-sidebar.closed { margin-right: -200px; }
+
+        /* الستارة اليسرى (مميزات) */
+        #left-sidebar { width: 220px; background: #0a0a0a; border-right: 1px solid #222; transition: 0.3s; overflow-y: auto; padding: 15px; }
+        #left-sidebar.closed { margin-left: -220px; }
+
+        /* منطقة الشات */
+        #chat-area { flex: 1; display: flex; flex-direction: column; background: #000; transition: 0.3s; }
         #msgs { flex: 1; padding: 15px; overflow-y: auto; }
 
-        /* البروفايل */
-        .profile-btn { background: #1a1a1a; padding: 10px; border: 1px solid var(--neon); border-radius: 10px; cursor: pointer; text-align: center; }
-        .profile-btn img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-
-        /* نافذة التعديل */
-        #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #151515; border: 2px solid var(--neon); padding: 20px; border-radius: 15px; z-index: 2000; width: 280px; text-align: center; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+        /* البروفايل داخل الستارة */
+        .profile-card { background: #111; border: 1px solid var(--neon); padding: 10px; border-radius: 10px; text-align: center; }
+        .p-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--neon); object-fit: cover; }
 
         /* الرسايل */
         .msg-row { display: flex; gap: 10px; margin-bottom: 15px; }
-        .msg-img { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); }
-        .msg-text { background: #111; border: 1px solid #222; padding: 10px; border-radius: 10px; flex: 1; }
-        
-        /* أزرار التحكم */
-        .tools { margin-top: 5px; display: flex; gap: 5px; }
-        .btn-s { background: #222; border: 1px solid #444; color: #888; font-size: 10px; padding: 2px 5px; cursor: pointer; border-radius: 3px; }
+        .msg-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); }
+        .msg-body { background: #111; border: 1px solid #222; padding: 10px; border-radius: 10px; flex: 1; }
 
-        input[type="file"] { margin: 10px 0; font-size: 12px; color: #ccc; }
+        /* الإدخال */
+        .input-box { padding: 15px; background: #111; display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; background: #000; color: #fff; border: 1px solid #333; padding: 10px; border-radius: 20px; }
+        #sendBtn { background: var(--neon); border: none; padding: 0 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+
+        #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; border: 2px solid var(--neon); padding: 20px; border-radius: 15px; z-index: 2000; width: 280px; text-align: center; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1500; }
     </style>
 </head>
 <body>
 
-<div class="overlay" id="overlay" onclick="closeM()"></div>
+<header>
+    <button class="menu-btn" onclick="toggleSidebar('right')">المتصلين ☰</button>
+    <span style="color:var(--neon); font-weight:bold;">MASTER RG EMPIRE</span>
+    <button class="menu-btn" onclick="toggleSidebar('left')">☰ المميزات</button>
+</header>
 
-<div class="main">
-    <div class="side" style="border-left: 1px solid #222;">
-        <div class="profile-btn" onclick="openM()">
-            <img src="https://via.placeholder.com/50" id="myIcon">
-            <div id="myName" style="margin-top:5px; font-weight:bold;">الماستر RG</div>
+<div class="main-container">
+    <div id="right-sidebar">
+        <h4 style="color:var(--neon); border-bottom:1px solid #222;">المتواجدون</h4>
+        <div style="color:gold;">👑 الماستر RG</div>
+        <div style="color:#777; font-size:12px; margin-top:10px;">👤 زائر 001</div>
+    </div>
+
+    <div id="chat-area">
+        <div id="msgs"></div>
+        <div class="input-box">
+            <input type="text" id="mInput" placeholder="اكتب رسالتك...">
+            <button id="sendBtn" onclick="send()">إرسال</button>
+        </div>
+    </div>
+
+    <div id="left-sidebar">
+        <div class="profile-card" onclick="openEdit()">
+            <img src="https://via.placeholder.com/60" id="myIcon" class="p-img">
+            <div id="myName" style="font-weight:bold; margin-top:5px;">الماستر RG</div>
+            <div style="color:var(--pink); font-size:14px;">❤️ <span id="likes">0</span></div>
             <small style="color:var(--neon)">تعديل البروفايل</small>
         </div>
-    </div>
-
-    <div id="chat">
-        <div id="msgs"></div>
-        <div style="padding:15px; background:#111; display:flex; gap:10px;">
-            <input type="text" id="mInput" style="flex:1; padding:10px; border-radius:20px; border:1px solid #333; background:#000; color:#fff;" placeholder="اكتب هنا...">
-            <button onclick="send()" style="background:var(--neon); border:none; padding:0 20px; border-radius:20px; font-weight:bold; cursor:pointer;">إرسال</button>
-        </div>
-    </div>
-
-    <div class="side">
-        <div style="color:var(--neon); font-size:12px; border-bottom:1px solid #222; margin-bottom:10px;">المتصلون</div>
-        <div>👑 الماستر RG</div>
+        <h4 style="color:var(--pink); margin-top:20px; border-bottom:1px solid #222;">المميزات</h4>
+        <button style="width:100%; margin-bottom:5px;" onclick="location.reload()">تحديث</button>
+        <button style="width:100%;" onclick="alert('قريباً: تغيير الخلفية')">المتجر</button>
     </div>
 </div>
 
+<div class="overlay" id="overlay" onclick="closeEdit()"></div>
 <div id="modal">
-    <h3>إعدادات البروفايل</h3>
-    <input type="text" id="editName" placeholder="الاسم الجديد" style="width:90%; padding:5px; margin-bottom:10px;">
-    <p style="font-size:12px;">اختر صورة من جهازك:</p>
-    <input type="file" id="fileInput" accept="image/*" onchange="previewImg(this)">
-    <br>
-    <button onclick="save()" style="background:var(--neon); border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">حفظ</button>
+    <h3>تعديل البروفايل</h3>
+    <input type="text" id="editName" placeholder="الاسم الجديد" style="width:90%; margin-bottom:10px;">
+    <p style="font-size:11px;">ارفع صورتك:</p>
+    <input type="file" id="imgFile" accept="image/*" onchange="processImg(this)">
+    <button onclick="saveProfile()" style="background:var(--neon); border:none; padding:10px 20px; border-radius:5px; margin-top:10px; cursor:pointer;">حفظ</button>
 </div>
 
 <script>
@@ -76,38 +96,44 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let myImgData = localStorage.getItem('user-pic') || "https://via.placeholder.com/50";
-    let myNameData = localStorage.getItem('user-name') || "الماستر_RG";
+    function toggleSidebar(side) {
+        if(side === 'right') document.getElementById('right-sidebar').classList.toggle('closed');
+        if(side === 'left') document.getElementById('left-sidebar').classList.toggle('closed');
+    }
 
-    document.getElementById('myIcon').src = myImgData;
-    document.getElementById('myName').innerText = myNameData;
+    let user = { 
+        name: localStorage.getItem('rg-n') || "الماستر_RG", 
+        img: localStorage.getItem('rg-i') || "https://via.placeholder.com/60" 
+    };
 
-    function openM() { document.getElementById('modal').style.display='block'; document.getElementById('overlay').style.display='block'; }
-    function closeM() { document.getElementById('modal').style.display='none'; document.getElementById('overlay').style.display='none'; }
+    document.getElementById('myIcon').src = user.img;
+    document.getElementById('myName').innerText = user.name;
 
-    // تحويل الصورة المرفوعة إلى كود Base64
-    function previewImg(input) {
+    function openEdit() { document.getElementById('modal').style.display='block'; document.getElementById('overlay').style.display='block'; }
+    function closeEdit() { document.getElementById('modal').style.display='none'; document.getElementById('overlay').style.display='none'; }
+
+    function processImg(input) {
         const file = input.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) { myImgData = e.target.result; };
+            reader.onload = (e) => { user.img = e.target.result; };
             reader.readAsDataURL(file);
         }
     }
 
-    function save() {
-        myNameData = document.getElementById('editName').value || myNameData;
-        localStorage.setItem('user-pic', myImgData);
-        localStorage.setItem('user-name', myNameData);
-        document.getElementById('myIcon').src = myImgData;
-        document.getElementById('myName').innerText = myNameData;
-        closeM();
+    function saveProfile() {
+        user.name = document.getElementById('editName').value || user.name;
+        localStorage.setItem('rg-n', user.name);
+        localStorage.setItem('rg-i', user.img);
+        document.getElementById('myIcon').src = user.img;
+        document.getElementById('myName').innerText = user.name;
+        closeEdit();
     }
 
     function send() {
-        const txt = document.getElementById('mInput').value;
-        if(txt) {
-            db.ref('messages').push({ user: myNameData, text: txt, img: myImgData, time: new Date().toLocaleTimeString() });
+        const t = document.getElementById('mInput').value;
+        if(t) {
+            db.ref('messages').push({ u: user.name, t: t, i: user.img, time: new Date().toLocaleTimeString() });
             document.getElementById('mInput').value = '';
         }
     }
@@ -118,13 +144,13 @@
         const div = document.createElement('div');
         div.className = 'msg-row';
         div.innerHTML = `
-            <img src="${m.img}" class="msg-img">
-            <div class="msg-text">
-                <b style="color:var(--neon); font-size:12px;">${m.user}</b>
-                <div style="margin-top:3px;">${m.text}</div>
-                <div class="tools">
-                    <button class="btn-s" onclick="db.ref('messages/${id}').remove(); location.reload();">حذف</button>
-                    <button class="btn-s" onclick="alert('❤️ أعجبني')">إعجاب</button>
+            <img src="${m.i}" class="msg-avatar">
+            <div class="msg-body">
+                <b style="color:var(--neon); font-size:12px;">${m.u}</b>
+                <div style="margin-top:4px;">${m.t}</div>
+                <div style="margin-top:5px; font-size:10px;">
+                    <button onclick="db.ref('messages/${id}').remove(); location.reload();">حذف</button>
+                    <button onclick="document.getElementById('likes').innerText++">❤️</button>
                 </div>
             </div>
         `;
@@ -132,6 +158,5 @@
         document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
     });
 </script>
-
 </body>
 </html>
