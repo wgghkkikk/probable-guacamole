@@ -7,24 +7,109 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #000; color: #00f2ff; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; margin: 0; }
-        #chat { flex: 1; padding: 20px; overflow-y: auto; }
-        .input-area { padding: 20px; display: flex; gap: 10px; background: #111; }
-        input { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #00f2ff; background: #000; color: #fff; outline: none; }
-        button { background: #00f2ff; color: #000; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-        .msg { background: #111; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-right: 3px solid #ff004c; }
+        /* تصميم النيون والهاكر */
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-pink: #ff004c;
+            --dark-bg: #0a0a0a;
+        }
+        body { 
+            background: var(--dark-bg); 
+            color: #fff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden;
+        }
+        header {
+            background: #111;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        #chat { 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            background: radial-gradient(circle, #111 0%, #000 100%);
+        }
+        .msg { 
+            background: rgba(255, 255, 255, 0.05); 
+            padding: 12px; 
+            border-radius: 15px; 
+            margin-bottom: 12px; 
+            border-right: 4px solid var(--neon-pink);
+            animation: fadeIn 0.3s ease;
+            max-width: 80%;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .user-name { color: var(--neon-blue); font-weight: bold; display: block; margin-bottom: 5px; font-size: 0.8rem; }
+        
+        .input-area { 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column;
+            gap: 10px; 
+            background: #111; 
+            border-top: 1px solid #333;
+        }
+        .controls { display: flex; gap: 10px; }
+        
+        input { 
+            flex: 1; 
+            padding: 12px 20px; 
+            border-radius: 25px; 
+            border: 1px solid #444; 
+            background: #1a1a1a; 
+            color: #fff; 
+            outline: none; 
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+        
+        #uName { width: 100px; border-color: var(--neon-pink); }
+
+        button { 
+            background: var(--neon-blue); 
+            color: #000; 
+            border: none; 
+            padding: 10px 25px; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s;
+        }
+        button:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--neon-blue); }
+
+        /* ستايل السكرول بار */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 10px; }
     </style>
 </head>
 <body>
-    <h3 style="text-align:center;">نظام دردشة الماستر RG</h3>
+
+    <header>MASTER CHAT SERVER v2.0</header>
+    
     <div id="chat"></div>
+
     <div class="input-area">
-        <input type="text" id="msgInput" placeholder="اكتب رسالة...">
-        <button onclick="send()">إرسال</button>
+        <div class="controls">
+            <input type="text" id="uName" placeholder="اسمك.." value="عضو">
+            <input type="text" id="msgInput" placeholder="اكتب رسالة مشفرة...">
+            <button onclick="send()">إرسال</button>
+        </div>
     </div>
 
 <script>
-    // هذا الرابط المأخوذ من صورتك الأخيرة لضمان العمل
+    // إعدادات مشروعك masterchat-f2da9
     const firebaseConfig = {
         databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com"
     };
@@ -34,16 +119,25 @@
 
     function send() {
         const val = document.getElementById('msgInput').value;
+        const name = document.getElementById('uName').value;
         if(val) {
-            db.ref('messages').push({ text: val });
+            db.ref('messages').push({ 
+                user: name,
+                text: val,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
             document.getElementById('msgInput').value = '';
         }
     }
 
     db.ref('messages').on('child_added', (snap) => {
+        const data = snap.val();
         const div = document.createElement('div');
         div.className = 'msg';
-        div.innerHTML = `<b>زائر:</b> ${snap.val().text}`;
+        div.innerHTML = `
+            <span class="user-name">@${data.user} • ${data.time || ''}</span>
+            <div class="text">${data.text}</div>
+        `;
         document.getElementById('chat').appendChild(div);
         document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
     });
