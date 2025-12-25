@@ -2,79 +2,90 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>شات علوش الملكي 👑</title>
+    <title>شات علوش - MASTER</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { margin: 0; background: #121212; color: white; font-family: sans-serif; }
-        #chat-area { height: 90vh; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; }
+        #chat-area { height: 88vh; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 5px; }
         
-        /* تصميم الرسالة */
-        .msg-box { background: #1e1e1e; padding: 10px; border-radius: 8px; border-right: 4px solid #444; }
-        .master-msg { border-right: 4px solid #ffd700; background: #252210; } /* تمييز رسائل علوش */
+        /* رسائل علوش (الماستر) */
+        .msg-master { 
+            background: rgba(255, 215, 0, 0.1); 
+            border: 1px solid #ffd700; padding: 10px; border-radius: 10px;
+        }
+        /* رسائل الأعضاء */
+        .msg-member { background: #1a1a1a; border: 1px solid #333; padding: 10px; border-radius: 10px; }
         
-        .rank-tag { font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px; margin-left: 5px; }
-        .master-tag { background: #ffd700; color: black; }
-        .member-tag { background: #444; color: #ccc; }
+        .badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 8px; font-weight: bold; }
+        .badge-master { background: #ffd700; color: #000; }
+        .badge-member { background: #555; color: #fff; }
 
         /* خانة الكتابة */
-        .input-box { height: 10vh; background: #1e1e1e; display: flex; padding: 10px; gap: 10px; border-top: 1px solid #333; }
-        input { flex: 1; background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; outline: none; }
-        button { background: #ffd700; border: none; padding: 0 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .footer { height: 12vh; background: #111; display: flex; padding: 15px; gap: 10px; border-top: 1px solid #ffd700; }
+        input { flex: 1; background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; outline: none; }
+        button { background: #ffd700; color: black; border: none; padding: 0 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="chat-area"></div>
-<div class="input-box">
-    <input type="text" id="mInput" placeholder="اكتب هنا يا ماستر...">
+<div class="footer">
+    <input type="text" id="mInput" placeholder="اكتب هنا يا إمبراطور..." onkeypress="if(event.key==='Enter') sendMsg()">
     <button onclick="sendMsg()">إرسال</button>
 </div>
 
 <script>
-    // ربط مشروعك masterchat-f2da9 من الصورة
+    // ربط مشروعك masterchat-f2da9
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let myName = "علوش"; // الاسم اللي سجلناه بالسيرفر
+    let myName = "علوش"; 
     let myRank = "عضو";
 
-    // فحص الصلاحية من فرع master
+    // فحص الصلاحية من السيرفر
     db.ref('master').on('value', snap => {
         if(snap.val() === myName) {
             myRank = "الماستر";
-            console.log("تم تفعيل الصلاحيات الملكية 👑");
+            console.log("صلاحيات الماستر مفعلة ✅");
         }
     });
 
     function sendMsg() {
-        let text = document.getElementById('mInput').value;
+        let input = document.getElementById('mInput');
+        let text = input.value.trim();
         if(!text) return;
 
+        // إرسال البيانات بشكل كامل للسيرفر
         db.ref('messages').push({
-            name: myName,
-            msg: text,
-            rank: myRank
+            user: myName,
+            text: text,
+            rank: myRank // هنا نرسل رتبتك الحالية (الماستر أو عضو)
         });
-        document.getElementById('mInput').value = "";
+        input.value = "";
     }
 
-    // عرض الرسائل وحل مشكلة undefined
-    db.ref('messages').limitToLast(30).on('child_added', snap => {
-        let d = snap.val();
+    // عرض الرسائل بشكل احترافي
+    db.ref('messages').limitToLast(40).on('child_added', snap => {
+        let data = snap.val();
         let area = document.getElementById('chat-area');
         
-        let div = document.createElement('div');
-        div.className = "msg-box " + (d.rank === "الماستر" ? "master-msg" : "");
-        
-        // هنا حل مشكلة undefined بالتأكد من وجود البيانات
-        let rankClass = d.rank === "الماستر" ? "master-tag" : "member-tag";
-        let rankText = d.rank || "عضو";
-        let userName = d.name || "زائر";
-        let userMsg = d.msg || "";
+        // منع ظهور undefined أو زائر للرسائل الجديدة
+        let name = data.user || "مجهول";
+        let msg = data.text || "";
+        let rank = data.rank || "عضو";
 
-        div.innerHTML = `<span class="rank-tag ${rankClass}">${rankText}</span> <b>${userName}:</b> ${userMsg}`;
+        let isMaster = (rank === "الماستر" || name === "علوش");
+        let div = document.createElement('div');
+        div.className = isMaster ? "msg-master" : "msg-member";
+
+        div.innerHTML = `
+            <span class="badge ${isMaster ? 'badge-master' : 'badge-member'}">${isMaster ? 'الماستر' : 'عضو'}</span>
+            <b style="color: ${isMaster ? '#ffd700' : '#00c8ff'}">${name}:</b> 
+            <span>${msg}</span>
+        `;
+        
         area.appendChild(div);
         area.scrollTop = area.scrollHeight;
     });
