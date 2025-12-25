@@ -3,95 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>MASTER RG - Rank System</title>
+    <title>MASTER RG - Full System</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --gold: #ffd700; --admin: #ff0055; --mod: #00ff88; --bg: #000; }
+        :root { --neon: #00f2ff; --gold: #ffd700; --red: #ff4444; --bg: #000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
 
-        /* الألوان حسب الرتبة */
-        .rank-الماستر { color: var(--gold) !important; text-shadow: 0 0 5px var(--gold); }
-        .rank-أدمن { color: var(--admin) !important; }
-        .rank-مشرف { color: var(--mod) !important; }
-        .rank-مميز { color: #bb86fc !important; }
-        .rank-عضو { color: #888 !important; }
-
+        /* الصفحات */
         .page { position: fixed; inset: 0; background: var(--bg); display: none; z-index: 10; }
-        .page.active { display: block; }
+        .page.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        header { height: 60px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; }
-        .lobby-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; padding-top: 20px; overflow-y: auto; height: calc(100vh - 60px); }
-        .room-card { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; cursor: pointer; }
+        header { height: 60px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 100; }
+        .lobby-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; padding-top: 10px; overflow-y: auto; height: calc(100vh - 60px); }
+        .room-card { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; cursor: pointer; transition: 0.3s; }
+        .room-card:active { transform: scale(0.95); border-color: var(--neon); }
 
         .chat-area { position: absolute; top: 60px; left: 0; right: 0; bottom: 80px; overflow-y: auto; padding: 10px; background: #050505; }
-        .msg { display: flex; margin-bottom: 12px; cursor: pointer; }
-        .msg img { width: 42px; height: 42px; border-radius: 8px; border: 2px solid #333; margin-left: 10px; object-fit: cover; }
-        .user-n { font-size: 13px; font-weight: bold; margin-bottom: 2px; }
+        .msg { display: flex; margin-bottom: 15px; animation: slideUp 0.2s; }
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .msg img { width: 42px; height: 42px; border-radius: 10px; border: 2.5px solid #222; margin-left: 10px; object-fit: cover; }
+        .user-n { font-size: 13px; font-weight: bold; margin-bottom: 3px; display: flex; align-items: center; gap: 5px; }
+        .user-t { background: #1a1a1a; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 0; line-height: 1.4; max-width: 85%; }
 
-        /* نافذة التحكم بالرتب */
-        #user-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: #111; border: 2px solid var(--neon); padding: 20px; border-radius: 20px; z-index: 5000; width: 85%; max-width: 320px; text-align: center; transition: 0.2s; }
-        #user-modal.active { transform: translate(-50%, -50%) scale(1); }
-        .rank-btn { width: 100%; padding: 8px; margin: 4px 0; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
-
-        .footer { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: #111; display: flex; align-items: center; padding: 15px; }
-        #msgInp { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; text-align: right; }
-        .sidebar { position: fixed; top: 0; bottom: 0; right: -320px; width: 300px; background: #0a0a0a; z-index: 2000; padding: 20px; transition: 0.3s ease; border-left: 2px solid var(--neon); }
+        /* القائمة الجانبية (المتصلين والبروفايل) */
+        .sidebar { position: fixed; top: 0; bottom: 0; right: -300px; width: 280px; background: #0a0a0a; z-index: 2000; padding: 20px; transition: 0.3s; border-left: 2px solid var(--neon); overflow-y: auto; }
         .sidebar.active { right: 0; }
+        .online-count { background: #111; padding: 10px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #222; }
+        .user-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #1a1a1a; font-size: 13px; }
+        .dot { width: 8px; height: 8px; background: #0f0; border-radius: 50%; margin-left: 10px; box-shadow: 0 0 5px #0f0; }
+
+        .footer { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: #111; display: flex; align-items: center; padding: 15px; border-top: 1px solid #222; }
+        #msgInp { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 12px; text-align: right; font-family: 'Cairo'; }
+        .send-btn { background: var(--neon); color: #000; border: none; padding: 10px 20px; border-radius: 12px; font-weight: bold; margin-right: 10px; cursor: pointer; }
+
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1500; display: none; }
     </style>
 </head>
 <body>
 
-<div id="user-modal">
-    <h3 id="target-user" style="margin-bottom: 15px;">إدارة العضو</h3>
-    <div id="admin-tools">
-        <button class="rank-btn" style="background:var(--admin);" onclick="setRank('أدمن')">ترقية لـ أدمن 🛡️</button>
-        <button class="rank-btn" style="background:var(--mod);" onclick="setRank('مشرف')">ترقية لـ مشرف ⭐</button>
-        <button class="rank-btn" style="background:#bb86fc;" onclick="setRank('مميز')">عضو مميز 💎</button>
-        <button class="rank-btn" style="background:#888;" onclick="setRank('عضو')">تنزيل لـ عضو 👤</button>
-        <hr>
-        <button class="rank-btn" style="background:red; color:white;" onclick="kickUser()">طرد نهائي ⛔</button>
-    </div>
-    <button onclick="closeModal()" style="margin-top:10px; background:none; border:none; color:#fff;">إغلاق</button>
-</div>
-
 <div id="lobby-page" class="page active">
     <header>
-        <div style="width:50px"></div>
+        <button onclick="toggleSidebar()" style="background:var(--neon); border:none; padding:7px 12px; border-radius:8px; font-weight:bold;">القائمة</button>
         <b style="color:var(--neon); font-size: 18px;">MASTER RG 👑</b>
-        <button onclick="toggleSidebar()" style="background:var(--neon); border:none; padding:7px 12px; border-radius:8px; font-weight:bold;">الملف</button>
+        <div style="width:60px"></div>
     </header>
     <div class="lobby-container">
-        <div class="room-card" onclick="openRoom('main', '👑 العرش')">🏛<b>العرش</b></div>
-        <div class="room-card" onclick="openRoom('vip', '💎 الديوان')">💎<b>الديوان</b></div>
-        <div class="room-card" onclick="openRoom('game', '🏆 المسابقات')">🏆<b>المسابقات</b></div>
-        <div class="room-card" onclick="openRoom('elite', '🤝 النخبة')">🤝<b>النخبة</b></div>
-        <div class="room-card" onclick="openRoom('poem', '🎸 الشعر')">🎸<b>الشعر</b></div>
-        <div class="room-card" onclick="openRoom('cafe', '☕ المقهى')">☕<b>المقهى</b></div>
+        <div class="room-card" onclick="openRoom('main', '👑 العرش')"><i>🏛</i><br><b>العرش</b></div>
+        <div class="room-card" onclick="openRoom('game', '🏆 المسابقات')"><i>🏆</i><br><b>المسابقات</b></div>
+        <div class="room-card" onclick="openRoom('vip', '💎 الديوان')"><i>💎</i><br><b>الديوان</b></div>
+        <div class="room-card" onclick="openRoom('elite', '🤝 النخبة')"><i>🤝</i><br><b>النخبة</b></div>
+        <div class="room-card" onclick="openRoom('poem', '🎸 الشعر')"><i>🎸</i><br><b>الشعر</b></div>
+        <div class="room-card" onclick="openRoom('cafe', '☕ المقهى')"><i>☕</i><br><b>المقهى</b></div>
     </div>
 </div>
 
 <div id="chat-page" class="page">
     <header>
-        <button onclick="goBack()" style="background:none; border:none; color:var(--neon); font-size:20px;">➔</button>
+        <button onclick="goBack()" style="background:none; border:none; color:var(--neon); font-size:22px;">➔</button>
         <b id="room-name-display" style="color:var(--gold);"></b>
-        <div style="width:50px"></div>
+        <button onclick="toggleSidebar()" id="online-btn" style="background:#222; border:none; color:#fff; padding:5px 10px; border-radius:8px; font-size:11px;">0 متصل</button>
     </header>
     <div id="chat-messages" class="chat-area"></div>
     <div class="footer">
-        <input type="text" id="msgInp" placeholder="اكتب شيئاً...">
-        <button onclick="sendMsg()" style="background:var(--neon); padding:10px 15px; border:none; border-radius:10px; font-weight:bold; margin-right:5px;">إرسال</button>
+        <input type="text" id="msgInp" placeholder="اكتب هنا...">
+        <button onclick="sendMsg()" class="send-btn">إرسال</button>
     </div>
 </div>
 
-<div id="overlay" onclick="toggleSidebar(); closeModal();"></div>
+<div id="overlay" onclick="toggleSidebar()"></div>
 <div id="sidebar" class="sidebar">
-    <h4 style="color:var(--neon)">الملف الشخصي</h4>
-    <p id="my-rank-display" style="font-size: 12px; color: var(--gold);"></p>
-    <button onclick="localStorage.clear(); location.reload();" style="width:100%; padding:10px; background:red; border:none; color:white; border-radius:8px; font-family:'Cairo';">تسجيل الخروج</button>
+    <div class="online-count">
+        <h4 style="margin:0; color:var(--neon)">👤 ملفي الشخصي</h4>
+        <div style="margin-top:10px; font-size:12px;">الاسم: <span id="my-name-val" style="color:var(--gold)"></span></div>
+        <input type="file" accept="image/*" onchange="upImg(this)" style="font-size:10px; margin-top:10px; width:100%;">
+        <button onclick="localStorage.clear(); location.reload();" style="width:100%; margin-top:10px; background:red; border:none; color:white; padding:5px; border-radius:5px; font-family:'Cairo';">خروج</button>
+    </div>
+    
+    <h4 style="color:var(--gold); border-bottom:1px solid #333; padding-bottom:5px;">🟢 المتواجدون الآن</h4>
+    <div id="user-list-box"></div>
 </div>
 
 <script>
@@ -101,44 +94,85 @@
 
     let my = {
         n: localStorage.getItem('rg-n') || "زائر_" + Math.floor(Math.random()*999),
-        r: localStorage.getItem('rg-r') || "عضو", // الرتبة الافتراضية
-        i: localStorage.getItem('rg-i') || "https://ui-avatars.com/api/?background=333&color=fff&name=U"
+        i: localStorage.getItem('rg-i') || "https://ui-avatars.com/api/?background=333&color=fff&name=U",
+        r: "عضو"
     };
-
-    // الماستر الحقيقي يحصل على رتبة الماستر تلقائياً
     if(my.n.includes("الماستر")) my.r = "الماستر";
+    if(!localStorage.getItem('rg-n')) { 
+        let name = prompt("ادخل اسمك المستعار:");
+        if(name) { localStorage.setItem('rg-n', name); location.reload(); }
+    }
+    document.getElementById('my-name-val').innerText = my.n;
 
     let currentRoom = "";
-    let selectedUser = "";
 
+    // نظام المتصلين (Presence)
+    function setOnline() {
+        let ref = db.ref('online_users/' + my.n);
+        ref.set({ n: my.n, i: my.i });
+        ref.onDisconnect().remove();
+    }
+    setOnline();
+
+    db.ref('online_users').on('value', snap => {
+        let box = document.getElementById('user-list-box');
+        box.innerHTML = "";
+        let count = 0;
+        snap.forEach(u => {
+            count++;
+            let user = u.val();
+            box.innerHTML += `<div class="user-row"><div class="dot"></div> ${user.n}</div>`;
+        });
+        document.getElementById('online-btn').innerText = count + " متصل";
+    });
+
+    // فتح الروم
     function openRoom(roomId, roomName) {
-        if(roomId === 'vip' && my.r !== 'الماستر' && my.r !== 'أدمن') return alert("هذا الديوان للملوك والأدمنية فقط!");
         currentRoom = roomId;
         document.getElementById('room-name-display').innerText = roomName;
         document.getElementById('lobby-page').classList.remove('active');
         document.getElementById('chat-page').classList.add('active');
         document.getElementById('chat-messages').innerHTML = "";
         loadMessages();
+        
+        // رسالة ترحيب من بوت الحماية
+        setTimeout(() => {
+            addBotMsg("RG-Guard 🛡️", `أهلاً بك يا ${my.n} في ${roomName}. يرجى الالتزام بالقوانين.`, "main");
+        }, 1000);
     }
 
     function sendMsg() {
         let t = document.getElementById('msgInp').value;
-        if(t.trim()) {
-            db.ref('rooms/' + currentRoom).push({ u: my.n, r: my.r, i: my.i, t: t });
-            document.getElementById('msgInp').value = '';
+        if(!t.trim()) return;
+
+        // بوت الحماية: منع الكلمات السيئة (مثال)
+        let badWords = ["تجاوز1", "تجاوز2"]; // أضف الكلمات هنا
+        if(badWords.some(word => t.includes(word))) {
+            alert("ممنوع التجاوز! بوت الحماية يراقبك 🛡️");
+            return;
+        }
+
+        db.ref('rooms/' + currentRoom).push({ u: my.n, i: my.i, t: t, r: my.r });
+        document.getElementById('msgInp').value = '';
+
+        // بوت المسابقات: إذا كنا في روم المسابقات
+        if(currentRoom === 'game' && t === "سؤال") {
+            addBotMsg("RG-Games 🏆", "ما هو أكبر كوكب في المجموعة الشمسية؟", "game");
+        }
+        if(currentRoom === 'game' && t === "المشتري") {
+            addBotMsg("RG-Games 🏆", `صح! أحسنت يا ${my.n}، حصلت على نقطة.`, "game");
         }
     }
 
     function loadMessages() {
         db.ref('rooms/' + currentRoom).off();
-        db.ref('rooms/' + currentRoom).limitToLast(40).on('child_added', snap => {
+        db.ref('rooms/' + currentRoom).limitToLast(30).on('child_added', snap => {
             let m = snap.val();
             let div = document.createElement('div');
             div.className = 'msg';
-            div.onclick = () => openControl(m.u);
-            div.innerHTML = `<img src="${m.i}" style="border-color:${getRankColor(m.r)}">
+            div.innerHTML = `<img src="${m.i}">
                 <div>
-                    <div class="user-n rank-${m.r}">${m.u} [${m.r}]</div>
+                    <div class="user-n" style="color:${m.r==='الماستر'?'var(--gold)':'var(--neon)'}">${m.u} ${m.r==='الماستر'?'👑':''}</div>
                     <div class="user-t">${m.t}</div>
                 </div>`;
             document.getElementById('chat-messages').appendChild(div);
@@ -146,40 +180,30 @@
         });
     }
 
-    function getRankColor(r) {
-        if(r==='الماستر') return '#ffd700';
-        if(r==='أدمن') return '#ff0055';
-        if(r==='مشرف') return '#00ff88';
-        return '#333';
+    function addBotMsg(botName, text, room) {
+        if(currentRoom === room) {
+            let div = document.createElement('div');
+            div.className = 'msg';
+            div.innerHTML = `<img src="https://ui-avatars.com/api/?name=BOT&background=000&color=fff">
+                <div>
+                    <div class="user-n" style="color:var(--red)">${botName}</div>
+                    <div class="user-t" style="background:#300; border:1px solid var(--red)">${text}</div>
+                </div>`;
+            document.getElementById('chat-messages').appendChild(div);
+            document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+        }
     }
 
-    function openControl(userName) {
-        if(my.r !== 'الماستر') return; // فقط الماستر يغير الرتب
-        if(userName === my.n) return;
-        selectedUser = userName;
-        document.getElementById('target-user').innerText = "إدارة: " + userName;
-        document.getElementById('user-modal').classList.add('active');
-        document.getElementById('overlay').style.display = 'block';
+    function upImg(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) { localStorage.setItem('rg-i', e.target.result); location.reload(); };
+            reader.readAsDataURL(input.files[0]);
+        }
     }
 
-    function setRank(newRank) {
-        db.ref('rooms/' + currentRoom).push({ u: "📢 النظام", t: `تمت ترقية [${selectedUser}] إلى رتبة [${newRank}]` });
-        closeModal();
-    }
-
-    function goBack() { 
-        document.getElementById('chat-page').classList.remove('active');
-        document.getElementById('lobby-page').classList.add('active');
-    }
-
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').style.display = 'block'; }
-    function closeModal() { document.getElementById('user-modal').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
-    
-    // حفظ الاسم لأول مرة إذا لم يكن موجوداً
-    if(!localStorage.getItem('rg-n')) {
-        let name = prompt("ادخل اسمك:");
-        if(name) { localStorage.setItem('rg-n', name); location.reload(); }
-    }
+    function goBack() { document.getElementById('chat-page').classList.remove('active'); document.getElementById('lobby-page').classList.add('active'); }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
 </script>
 </body>
 </html>
