@@ -3,60 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Master RG - Control Panel</title>
+    <title>MASTER RG - Admin Control</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; }
+        :root { --neon: #00f2ff; --gold: #ffd700; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
-        header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; box-shadow: 0 0 10px var(--neon); }
-        #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 80px; overflow-y: auto; padding: 0; }
-        .msg-line { display: flex; padding: 12px 15px; border-bottom: 1px solid #1a1a1a; background: rgba(255,255,255,0.01); align-items: flex-start; }
-        .msg-img { width: 50px; height: 50px; border-radius: 8px; border: 2px solid var(--neon); margin-left: 15px; object-fit: cover; flex-shrink: 0; }
-        .msg-body { flex: 1; cursor: pointer; }
-        .msg-user-row { display: flex; align-items: center; gap: 8px; }
+        
+        header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; }
+        #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 80px; overflow-y: auto; padding: 0; background: rgba(0,0,0,0.8); }
+
+        /* ستايل الأسطر */
+        .msg-line { display: flex; padding: 12px 15px; border-bottom: 1px solid #1a1a1a; align-items: flex-start; }
+        .msg-img { width: 50px; height: 50px; border-radius: 8px; border: 1.5px solid var(--neon); margin-left: 12px; object-fit: cover; flex-shrink: 0; }
+        .msg-body { flex: 1; }
+        .msg-user-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
         .rank-badge { font-size: 11px; padding: 1px 6px; border-radius: 4px; font-weight: bold; }
+        .msg-text { color: #fff; line-height: 1.5; word-break: break-word; }
         .del-btn { color: #ff4444; font-size: 20px; cursor: pointer; margin-right: 15px; align-self: center; }
-        .sidebar { position: fixed; top: 55px; bottom: 80px; width: 280px; background: rgba(10, 10, 10, 0.98); z-index: 5000; padding: 15px; border: 1px solid #222; display: none; overflow-y: auto; }
+
+        /* القوائم الجانبية (يمين ويسار) */
+        .sidebar { position: fixed; top: 55px; bottom: 80px; width: 280px; background: #0a0a0a; z-index: 5000; padding: 15px; border: 1px solid #222; display: none; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .box { background: #111; border: 1px solid #333; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
-        .admin-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #222; font-size: 13px; }
-        .btn-sm { padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; font-family: 'Cairo'; font-size: 11px; }
-        .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: #000; border-top: 1px solid var(--neon); display: flex; align-items: center; padding: 0 15px; gap: 10px; }
-        #msgInp { flex: 1; height: 50px; background: #111; color: #fff; border: 1px solid #333; padding: 0 15px; font-size: 18px; outline: none; border-radius: 8px; }
+        
+        /* لوحة التحكم داخل القائمة */
+        .admin-only { display: none; border: 1px solid var(--gold); padding: 10px; border-radius: 8px; background: rgba(255, 215, 0, 0.05); }
+
+        .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: #111; border-top: 1px solid var(--neon); display: flex; align-items: center; padding: 0 15px; gap: 10px; }
+        #msgInp { flex: 1; height: 50px; background: #000; color: #fff; border: 1px solid #444; padding: 0 15px; font-size: 18px; outline: none; border-radius: 8px; }
+        button.main-btn { background: var(--neon); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
-    <button onclick="toggle('left')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:6px; border-radius:8px;">الاعدادات</button>
-    <b style="color:var(--neon)">MASTER RG 👑</b>
-    <button id="adminBtn" onclick="toggle('admin')" style="background:var(--neon); color:#000; border:none; padding:6px 12px; border-radius:8px; font-weight:bold; display:none;">لوحة التحكم</button>
+    <button onclick="toggle('right')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:6px 12px; border-radius:5px; cursor:pointer;">المتواجدون</button>
+    <b style="color:var(--neon); font-size: 20px;">MASTER RG 👑</b>
+    <button onclick="toggle('left')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:6px 12px; border-radius:5px; cursor:pointer;">الملف / التحكم</button>
 </header>
 
 <div id="chat-container"></div>
 
-<div id="admin-s" class="sidebar" style="right:0;">
-    <h3 style="color:var(--neon); border-bottom:1px solid #333; padding-bottom:10px;">إدارة الإمبراطورية</h3>
-    <button onclick="clearChat()" style="width:100%; background:#ff4444; color:white; border:none; padding:10px; border-radius:5px; font-weight:bold; margin-bottom:15px;">🗑 مسح الشات للكل</button>
-    <div class="box">
-        <h4 style="margin:0 0 10px 0;">قائمة الأعضاء</h4>
-        <div id="usersList">جارِ التحميل...</div>
-    </div>
+<div id="right-s" class="sidebar" style="right:0;">
+    <h3 style="color:var(--neon)">المتواجدون الآن</h3>
+    <div id="active-users">👑 الماستر RG</div>
 </div>
 
 <div id="left-s" class="sidebar" style="left:0;">
     <div class="box">
-        <h4>الملف الشخصي</h4>
+        <h4 style="margin:0 0 10px 0; color:var(--neon)">الملف الشخصي</h4>
         <input type="text" id="newName" placeholder="الاسم..." style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:10px; margin-bottom:10px;">
-        <input type="text" id="newStatus" placeholder="الحالة..." style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:10px;">
-        <button onclick="saveAll()" style="width:100%; background:var(--neon); color:#000; border:none; padding:12px; margin-top:15px; font-weight:bold; border-radius:8px;">حفظ</button>
+        <input type="text" id="newStatus" placeholder="الحالة المزاجية..." style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:10px;">
+        <button onclick="saveAll()" class="main-btn" style="width:100%; margin-top:10px;">حفظ التغييرات</button>
+    </div>
+
+    <div id="admin-panel" class="admin-only">
+        <h4 style="margin:0 0 10px 0; color:var(--gold)">👑 لوحة تحكم الماستر</h4>
+        <button onclick="clearChat()" style="width:100%; background:#ff4444; color:white; border:none; padding:10px; border-radius:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">🗑 مسح الشات بالكامل</button>
+        <div style="font-size:12px; color:#aaa; line-height:1.4;">
+            * لترقية شخص: اطلب منه وضع <b style="color:var(--gold)">#RG</b> في نهاية اسمه.
+        </div>
     </div>
 </div>
 
 <div class="input-footer">
-    <input type="text" id="msgInp" placeholder="اكتب رسالتك...">
-    <button onclick="send()" style="background:var(--neon); border:none; width:80px; height:50px; border-radius:10px; font-weight:bold;">إرسال</button>
+    <input type="text" id="msgInp" placeholder="اكتب رسالتك الآن...">
+    <button onclick="send()" class="main-btn">إرسال</button>
 </div>
 
 <script>
@@ -66,18 +79,27 @@
 
     let my = { 
         n: localStorage.getItem('rg-n') || "الماستر_RG", 
-        nc: localStorage.getItem('rg-nc') || "#00f2ff",
-        st: localStorage.getItem('rg-st') || "إمبراطور RG"
+        st: localStorage.getItem('rg-st') || "إمبراطور RG",
+        nc: localStorage.getItem('rg-nc') || "#00f2ff"
     };
 
-    // إظهار لوحة التحكم للمستر فقط
-    if(my.n.includes("الماستر")) document.getElementById('adminBtn').style.display = 'block';
+    // تعبئة البيانات في الحقول
+    document.getElementById('newName').value = my.n;
+    document.getElementById('newStatus').value = my.st;
+
+    // إظهار لوحة التحكم إذا كان الاسم يحتوي على "الماستر"
+    if (my.n.includes("الماستر")) {
+        document.getElementById('admin-panel').style.display = 'block';
+    }
 
     function saveAll() {
-        my.n = document.getElementById('newName').value || my.n;
-        my.st = document.getElementById('newStatus').value || my.st;
-        localStorage.setItem('rg-n', my.n); localStorage.setItem('rg-st', my.st);
-        location.reload();
+        let name = document.getElementById('newName').value;
+        let status = document.getElementById('newStatus').value;
+        if(name) {
+            localStorage.setItem('rg-n', name);
+            localStorage.setItem('rg-st', status);
+            location.reload(); // إعادة التحميل لتطبيق الصلاحيات
+        }
     }
 
     function toggle(id) {
@@ -85,59 +107,62 @@
         let isVis = el.style.display === 'block';
         document.querySelectorAll('.sidebar').forEach(s => s.style.display = 'none');
         el.style.display = isVis ? 'none' : 'block';
-        if(id === 'admin') loadUsers();
+    }
+
+    function clearChat() {
+        if(confirm("هل أنت متأكد من مسح كافة الرسائل من الإمبراطورية؟")) {
+            db.ref('messages').remove();
+        }
+    }
+
+    function deleteMsg(id) {
+        db.ref('messages/' + id).remove();
     }
 
     function send() {
         let t = document.getElementById('msgInp').value;
         if(t.trim()) {
-            db.ref('messages').push({ u:my.n, t:t, nc:my.nc, st:my.st, time: Date.now() });
+            db.ref('messages').push({
+                u: my.n,
+                t: t,
+                st: my.st,
+                nc: my.nc,
+                time: Date.now()
+            });
             document.getElementById('msgInp').value = '';
         }
     }
 
-    // إدارة الأعضاء
-    function loadUsers() {
-        db.ref('messages').limitToLast(50).once('value', (snap) => {
-            let list = document.getElementById('usersList');
-            let users = [];
-            snap.forEach(msg => { if(!users.includes(msg.val().u)) users.push(msg.val().u); });
-            list.innerHTML = users.map(u => `
-                <div class="admin-item">
-                    <span>${u}</span>
-                    <div>
-                        <button class="btn-sm" style="background:gold;" onclick="promote('${u}')">ترقية</button>
-                        <button class="btn-sm" style="background:red; color:white;" onclick="banUser('${u}')">حظر</button>
-                    </div>
-                </div>
-            `).join('');
-        });
-    }
-
-    function promote(user) {
-        let key = prompt("أدخل كلمة السر للأدمن اللي راح تطيها لـ " + user);
-        if(key) alert("تم! اطلب من " + user + " كتابة هذه الكلمة بنهاية اسمه.");
-    }
-
-    function clearChat() { if(confirm("هل تريد مسح كل الرسائل؟")) db.ref('messages').remove(); }
-
-    function deleteMsg(id) { db.ref('messages/' + id).remove(); }
-
-    db.ref('messages').on('child_added', (snap) => {
+    db.ref('messages').limitToLast(50).on('child_added', (snap) => {
         let m = snap.val(); let id = snap.key;
-        let isAdmin = m.u.includes("#") || m.u.includes("الماستر");
         let div = document.createElement('div');
-        div.className = 'msg-line'; div.id = "msg-"+id;
-        
-        let rank = m.u.includes("الماستر") ? `<span class="rank-badge" style="background:cyan; color:#000;">👑 MASTER</span>` : (m.u.includes("#") ? `<span class="rank-badge" style="background:gold; color:#000;">⭐ مشرف</span>` : `<span class="rank-badge" style="background:#444;">عضو</span>`);
-        let canDelete = my.n.includes("الماستر") || (my.n.includes("#") && !m.u.includes("الماستر"));
+        div.className = 'msg-line';
+        div.id = "msg-" + id;
+
+        // تحديد الرتبة
+        let rank = "";
+        let canDelete = false;
+
+        if (m.u.includes("الماستر")) {
+            rank = `<span class="rank-badge" style="background:var(--neon); color:#000;">👑 MASTER</span>`;
+            if (my.n.includes("الماستر")) canDelete = true;
+        } else if (m.u.includes("#RG")) {
+            rank = `<span class="rank-badge" style="background:var(--gold); color:#000;">⭐ مشرف</span>`;
+            if (my.n.includes("الماستر") || my.n.includes("#RG")) canDelete = true;
+        } else {
+            rank = `<span class="rank-badge" style="background:#444; color:#fff;">عضو</span>`;
+            if (my.n.includes("الماستر") || my.n.includes("#RG") || m.u === my.n) canDelete = true;
+        }
 
         div.innerHTML = `
-            <img src="https://ui-avatars.com/api/?name=${m.u}&background=random" class="msg-img">
+            <img src="https://ui-avatars.com/api/?name=${m.u}&background=random&color=fff" class="msg-img">
             <div class="msg-body">
-                <div class="msg-user-row"><span style="color:${m.nc}">${m.u.split('#')[0]}</span> ${rank}</div>
-                <span style="font-size:11px; color:#666;">${m.st}</span>
-                <div style="font-size:18px;">${m.t}</div>
+                <div class="msg-user-row">
+                    <b style="color:${m.nc}">${m.u.replace('#RG','')}</b>
+                    ${rank}
+                </div>
+                <div style="font-size:11px; color:#666; margin-bottom:5px;">${m.st}</div>
+                <div class="msg-text" style="font-size:19px;">${m.t}</div>
             </div>
             ${canDelete ? `<span class="del-btn" onclick="deleteMsg('${id}')">🗑️</span>` : ''}
         `;
@@ -145,7 +170,9 @@
         document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
     });
 
-    db.ref('messages').on('child_removed', (snap) => { document.getElementById("msg-"+snap.key)?.remove(); });
+    db.ref('messages').on('child_removed', (snap) => {
+        document.getElementById("msg-" + snap.key)?.remove();
+    });
 </script>
 </body>
 </html>
