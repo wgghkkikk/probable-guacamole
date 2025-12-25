@@ -2,37 +2,46 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>شات علوش الإمبراطور 👑</title>
+    <title>إمبراطورية علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { margin: 0; background: #050505; color: white; font-family: sans-serif; }
-        #chat-area { height: 82vh; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        body { margin: 0; background: #050505; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
-        /* شريط الأدوات الخاص بعلوش */
-        #master-tools { 
-            display: none; background: #111; padding: 10px; text-align: center; 
-            border-bottom: 2px solid #ffd700; position: sticky; top: 0; z-index: 100;
+        /* لوحة تحكم علوش */
+        #master-panel { 
+            display: none; background: #111; padding: 10px; border-bottom: 2px solid #ffd700; 
+            position: sticky; top: 0; z-index: 1000; text-align: center; gap: 10px;
         }
-        .clear-btn { background: #ff3333; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn { border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; margin: 0 5px; }
+        .btn-clear { background: #ff3333; color: white; }
+        .btn-lock { background: #555; color: white; }
+        .is-locked { background: #ff9800 !important; }
 
-        /* تصميم رسائل الماستر علوش */
-        .msg-master { border: 1px solid #ffd700; background: rgba(255, 215, 0, 0.05); padding: 12px; border-radius: 10px; box-shadow: 0 0 10px rgba(255, 215, 0, 0.1); }
-        .msg-member { background: #1a1a1a; padding: 10px; border-radius: 10px; border-right: 4px solid #444; }
+        #chat-area { height: 75vh; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
         
-        .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-left: 10px; }
-        .badge-master { background: #ffd700; color: #000; }
-        .badge-member { background: #555; color: #fff; }
+        /* تصميم رسائل الماستر علوش */
+        .msg-master { 
+            border: 1px solid #ffd700; background: linear-gradient(90deg, rgba(255,215,0,0.1), transparent); 
+            padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
+            border-right: 6px solid #ffd700;
+        }
+        .msg-member { background: #1a1a1a; padding: 12px; border-radius: 12px; border-right: 4px solid #444; }
+        
+        .badge { font-size: 10px; padding: 3px 8px; border-radius: 5px; font-weight: bold; margin-left: 10px; text-transform: uppercase; }
+        .badge-master { background: #ffd700; color: #000; box-shadow: 0 0 10px #ffd700; }
+        .badge-member { background: #444; color: #fff; }
 
-        .footer { height: 18vh; background: #111; display: flex; padding: 15px; gap: 10px; border-top: 2px solid #ffd700; }
-        input { flex: 1; background: #1a1a1a; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; outline: none; }
-        button#sendBtn { background: #ffd700; color: #000; border: none; padding: 0 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .footer { height: 15vh; background: #111; display: flex; padding: 15px; gap: 10px; border-top: 1px solid #333; }
+        input { flex: 1; background: #222; border: 1px solid #444; color: white; padding: 15px; border-radius: 10px; outline: none; font-size: 16px; }
+        button#sendBtn { background: #ffd700; color: #000; border: none; padding: 0 30px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="master-tools">
-    <button class="clear-btn" onclick="clearAllData()">تنظيف الشات بالكامل (حذف undefined) 🧹</button>
+<div id="master-panel">
+    <button class="btn btn-clear" onclick="clearChat()">مسح الشات 🧹</button>
+    <button id="lockBtn" class="btn btn-lock" onclick="toggleLock()">قفل الشات 🔒</button>
 </div>
 
 <div id="chat-area"></div>
@@ -43,7 +52,6 @@
 </div>
 
 <script>
-    // إعدادات قاعدة البيانات الخاصة بك
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
@@ -52,44 +60,55 @@
     if (!myName) { location.reload(); }
 
     let myRank = "عضو";
+    let isChatLocked = false;
 
-    // تفعيل رتبة الماستر وإظهار زر التنظيف
+    // تفعيل وضع الإمبراطور
     if (myName.trim() === "علوش") {
         myRank = "الماستر";
-        document.getElementById('master-tools').style.display = 'block';
+        document.getElementById('master-panel').style.display = 'block';
     }
 
+    // مراقبة حالة القفل
+    db.ref('chat_status').on('value', snap => {
+        isChatLocked = snap.val()?.locked || false;
+        let lockBtn = document.getElementById('lockBtn');
+        if(isChatLocked) {
+            lockBtn.innerText = "الشات مقفل 🔓";
+            lockBtn.classList.add('is-locked');
+            if(myRank !== "الماستر") {
+                document.getElementById('mInput').placeholder = "الشات مقفل من قبل الماستر...";
+                document.getElementById('mInput').disabled = true;
+            }
+        } else {
+            lockBtn.innerText = "قفل الشات 🔒";
+            lockBtn.classList.remove('is-locked');
+            document.getElementById('mInput').disabled = false;
+            document.getElementById('mInput').placeholder = "تكلم يا ملك...";
+        }
+    });
+
     function send() {
+        if(isChatLocked && myRank !== "الماستر") return;
         let input = document.getElementById('mInput');
         let text = input.value.trim();
         if(!text) return;
-        db.ref('messages').push({
-            sender: myName,
-            content: text,
-            role: myRank
-        });
+        db.ref('messages').push({ sender: myName, content: text, role: myRank });
         input.value = "";
     }
 
-    // وظيفة المسح الشامل لكل الرسائل القديمة
-    function clearAllData() {
-        if(confirm("يا ملك علوش، هل أنت متأكد من مسح جميع الرسائل القديمة؟")) {
-            db.ref('messages').remove();
-            alert("تم تنظيف الإمبراطورية بنجاح! الشات الآن نظيف 🧹");
-            location.reload();
-        }
+    function clearChat() {
+        if(confirm("مسح كل الرسائل؟")) { db.ref('messages').remove(); }
     }
 
-    // عرض الرسائل ومنع ظهور undefined
+    function toggleLock() {
+        db.ref('chat_status').set({ locked: !isChatLocked });
+    }
+
     db.ref('messages').limitToLast(50).on('child_added', snap => {
         let data = snap.val();
-        let area = document.getElementById('chat-area');
-        
-        // إذا البيانات قديمة أو خربانة (undefined) لا تعرضها
         if(!data.sender || !data.content) return;
 
         let isMaster = (data.role === "الماستر" || data.sender === "علوش");
-        
         let div = document.createElement('div');
         div.className = isMaster ? "msg-master" : "msg-member";
         div.innerHTML = `
@@ -97,13 +116,12 @@
             <b style="color:${isMaster ? '#ffd700' : '#00c8ff'}">${data.sender}:</b> 
             <span>${data.content}</span>
         `;
-        area.appendChild(div);
-        area.scrollTop = area.scrollHeight;
+        document.getElementById('chat-area').appendChild(div);
+        document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
     });
 
-    // تحديث الشاشة فوراً عند المسح
     db.ref('messages').on('value', snap => {
-        if(!snap.exists()) { document.getElementById('chat-area').innerHTML = ""; }
+        if(!snap.exists()) document.getElementById('chat-area').innerHTML = "";
     });
 </script>
 </body>
