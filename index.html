@@ -3,58 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>MASTER RG - Security Bot</title>
+    <title>MASTER RG - Touch Edition</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --neon: #00f2ff; --bot: #ff00ff; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
-        header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; }
-        #chat-container { position: absolute; top: 85px; left: 0; right: 0; bottom: 80px; overflow-y: auto; scroll-behavior: smooth; }
-        #announcement { position: absolute; top: 55px; left: 0; right: 0; height: 30px; background: var(--bot); color: #fff; font-size: 13px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .msg-line { display: flex; padding: 12px; border-bottom: 1px solid #1a1a1a; }
-        .bot-msg { background: rgba(255, 0, 255, 0.05); border-right: 4px solid var(--bot); }
-        .msg-img { width: 50px; height: 50px; border-radius: 8px; border: 1.5px solid var(--neon); margin-left: 12px; }
-        .sidebar { position: fixed; top: 55px; bottom: 80px; width: 280px; background: #0a0a0a; z-index: 5000; padding: 15px; border: 1px solid #222; display: none; overflow-y: auto; }
-        .box { background: #111; border: 1px solid #333; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
-        .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: #111; border-top: 1px solid var(--neon); display: flex; align-items: center; padding: 0 15px; gap: 10px; }
-        #msgInp { flex: 1; height: 50px; background: #000; color: #fff; border: 1px solid #444; padding: 0 15px; font-size: 18px; outline: none; border-radius: 8px; }
+        
+        header { height: 50px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; }
+        
+        /* منطقة الشات الرئيسية */
+        #chat-container { position: absolute; top: 50px; left: 0; right: 0; bottom: 75px; overflow-y: auto; background: #000; z-index: 1; }
+
+        .msg-line { display: flex; padding: 12px 15px; border-bottom: 1px solid #111; width: 100%; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .msg-img { width: 48px; height: 48px; border-radius: 10px; border: 1.5px solid var(--neon); margin-left: 12px; object-fit: cover; }
+        .msg-body { flex: 1; }
+        .msg-user { font-size: 14px; color: var(--neon); font-weight: bold; }
+        .msg-text { font-size: 19px; color: #fff; line-height: 1.4; margin-top: 3px; }
+
+        /* القوائم الجانبية بنظام الأوف لاير */
+        .sidebar { 
+            position: fixed; top: 50px; bottom: 75px; width: 280px; background: rgba(15, 15, 15, 0.98); 
+            z-index: 2000; padding: 20px; border: 1px solid #333; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(15px);
+            box-shadow: 0 0 30px rgba(0,0,0,1);
+        }
+        #right-s { right: -300px; border-radius: 20px 0 0 20px; } 
+        #left-s { left: -300px; border-radius: 0 20px 20px 0; }
+        
+        /* كلاسات التفعيل */
+        .sidebar.active { right: 0 !important; left: auto !important; }
+        #left-s.active { left: 0 !important; right: auto !important; }
+
+        .box { background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        
+        .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #111; border-top: 1px solid var(--neon); display: flex; align-items: center; padding: 0 15px; gap: 10px; z-index: 1000; }
+        #msgInp { flex: 1; height: 50px; background: #000; color: #fff; border: 1px solid #333; padding: 0 15px; font-size: 18px; outline: none; border-radius: 10px; }
+        .btn-send { background: var(--neon); color: #000; border: none; padding: 0 20px; height: 50px; font-weight: bold; border-radius: 10px; }
+
+        /* تظليل الخلفية عند فتح القائمة */
+        #overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1500; display: none; }
     </style>
 </head>
 <body>
 
+<div id="overlay" onclick="closeSidebars()"></div>
+
 <header>
-    <button onclick="toggle('right')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:6px 12px; border-radius:5px;">المتواجدون</button>
-    <b style="color:var(--neon)">RG SYSTEM 🤖</b>
-    <button onclick="toggle('left')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:6px 12px; border-radius:5px;">الإعدادات</button>
+    <button onclick="toggleSidebar('right')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:6px 15px; border-radius:8px; font-weight:bold;">النشطين</button>
+    <b style="color:var(--neon); font-size: 20px; letter-spacing: 1px;">MASTER RG 👑</b>
+    <button onclick="toggleSidebar('left')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:6px 15px; border-radius:8px; font-weight:bold;">التحكم</button>
 </header>
 
-<div id="announcement">🛡️ بوت الحماية RG نشط الآن</div>
-
-<div id="chat-container"></div>
-
-<div id="left-s" class="sidebar" style="left:0;">
-    <div class="box">
-        <h4>الملف الشخصي</h4>
-        <input type="text" id="newName" style="width:90%; background:#000; color:#fff; border:1px solid #333; padding:8px;">
-        <button onclick="saveProfile()" style="width:100%; background:var(--neon); color:black; border:none; padding:10px; margin-top:10px; font-weight:bold;">حفظ</button>
+<div id="chat-container" onclick="closeSidebars()">
     </div>
-    <div id="admin-panel" style="display:none;" class="box">
-        <h4 style="color:gold">👑 لوحة الماستر</h4>
-        <button onclick="clearChat()" style="width:100%; background:red; color:white; border:none; padding:8px; margin-bottom:10px;">مسح الشات</button>
-        <p style="font-size:11px;">البوت يحمي الشات من: السبام، الروابط، الكلمات السيئة.</p>
-    </div>
+
+<div id="right-s" class="sidebar">
+    <h3 style="color:var(--neon); border-bottom:1px solid #333; padding-bottom:10px;">👑 المتواجدون</h3>
+    <div id="user-list">جارِ التحديث...</div>
 </div>
 
-<div id="right-s" class="sidebar" style="right:0;">
-    <h3>متصل الآن</h3>
-    <div id="online-list">👑 الماستر RG</div>
+<div id="left-s" class="sidebar">
+    <div class="box">
+        <h4 style="margin:0 0 10px 0; color:var(--neon);">الملف الشخصي</h4>
+        <input type="text" id="newName" placeholder="غير اسمك..." style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:12px; border-radius:8px;">
+        <button onclick="saveProfile()" class="btn-send" style="width:100%; margin-top:15px; height:45px;">حفظ البيانات</button>
+    </div>
+    
+    <div id="admin-panel" style="display:none;" class="box">
+        <h4 style="color:gold;">🛠 لوحة الماستر</h4>
+        <button onclick="clearChat()" style="width:100%; background:#ff4444; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold;">مسح سجل الدردشة</button>
+    </div>
 </div>
 
 <div class="input-footer">
-    <input type="text" id="msgInp" placeholder="اكتب رسالتك...">
-    <button onclick="send()" style="background:var(--neon); border:none; padding:10px 20px; font-weight:bold; border-radius:8px;">إرسال</button>
+    <input type="text" id="msgInp" placeholder="اكتب أمرك يا ماستر..." onfocus="closeSidebars()">
+    <button onclick="send()" class="btn-send">إرسال</button>
 </div>
 
 <script>
@@ -62,22 +90,25 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let myName = localStorage.getItem('rg-n') || "زائر_" + Math.floor(Math.random()*1000);
-    let myID = localStorage.getItem('rg-id') || ("id_" + Date.now());
-    localStorage.setItem('rg-id', myID);
-    
-    let lastMsgTime = 0;
-    let spamCount = 0;
-
+    let myName = localStorage.getItem('rg-n') || "الماستر_RG";
     document.getElementById('newName').value = myName;
     if(myName.includes("الماستر")) document.getElementById('admin-panel').style.display = 'block';
 
-    const badWords = ["كلب", "حيوان", "غبي"]; // كدر تزيد الكلمات هنا
+    function toggleSidebar(side) {
+        let el = document.getElementById(side + '-s');
+        let overlay = document.getElementById('overlay');
+        let isActive = el.classList.contains('active');
+        
+        closeSidebars();
+        if(!isActive) {
+            el.classList.add('active');
+            overlay.style.display = 'block';
+        }
+    }
 
-    function toggle(id) {
-        document.querySelectorAll('.sidebar').forEach(s => s.style.display = 'none');
-        let el = document.getElementById(id+'-s');
-        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+    function closeSidebars() {
+        document.querySelectorAll('.sidebar').forEach(s => s.classList.remove('active'));
+        document.getElementById('overlay').style.display = 'none';
     }
 
     function saveProfile() {
@@ -85,69 +116,28 @@
         location.reload();
     }
 
-    function botReply(text) {
-        db.ref('messages').push({ u: "🤖 بوت الحماية", t: text, isBot: true, time: Date.now() });
-    }
-
     function send() {
-        let t = document.getElementById('msgInp').value.trim();
-        if(!t) return;
-
-        // 1. فحص الحظر
-        db.ref('bans/' + myID).once('value', snap => {
-            if(snap.val()) return alert("أنت محظور من الإمبراطورية!");
-
-            // 2. فحص السبام (السرعة)
-            let now = Date.now();
-            if(now - lastMsgTime < 2000) {
-                spamCount++;
-                if(spamCount > 3) {
-                    botReply("⚠️ تحذير لـ " + myName + ": توقف عن السبام!");
-                    return;
-                }
-            } else { spamCount = 0; }
-            lastMsgTime = now;
-
-            // 3. فحص الروابط
-            if(t.includes("http") || t.includes("www")) {
-                botReply("🚫 ممنوع نشر الروابط يا " + myName);
-                return;
-            }
-
-            // 4. فحص الكلمات السيئة
-            let hasBad = badWords.some(word => t.includes(word));
-            if(hasBad) {
-                botReply("❌ " + myName + "، عيب هاي الألفاظ!");
-                return;
-            }
-
-            // إذا كل شيء تمام، ترسل الرسالة
-            db.ref('messages').push({ u: myName, t: t, uid: myID, time: Date.now() });
+        let t = document.getElementById('msgInp').value;
+        if(t.trim()) {
+            db.ref('messages').push({ u: myName, t: t, time: Date.now() });
             document.getElementById('msgInp').value = '';
-
-            // رد آلي بسيط
-            if(t === "السلام عليكم") botReply("وعليكم السلام يا هلا بك في إمبراطورية RG");
-            if(t === "بوت") botReply("نعم يا " + myName + "، أنا في الخدمة!");
-        });
+        }
     }
 
-    function clearChat() { if(confirm("مسح الشات؟")) db.ref('messages').remove(); }
+    function clearChat() { if(confirm("هل تمسح الإمبراطورية؟")) db.ref('messages').remove(); }
 
-    db.ref('messages').limitToLast(30).on('child_added', snap => {
+    db.ref('messages').limitToLast(40).on('child_added', snap => {
         let m = snap.val();
         let div = document.createElement('div');
-        div.className = 'msg-line' + (m.isBot ? ' bot-msg' : '');
+        div.className = 'msg-line';
         div.id = snap.key;
-        
-        let color = m.isBot ? 'var(--bot)' : 'var(--neon)';
-        
         div.innerHTML = `
-            <img src="https://ui-avatars.com/api/?name=${m.u}&background=${m.isBot?'ff00ff':'00f2ff'}" class="msg-img">
+            <img src="https://ui-avatars.com/api/?name=${m.u}&background=random&color=fff&bold=true" class="msg-img">
             <div class="msg-body">
-                <b style="color:${color}">${m.u}</b>
-                <div style="font-size:18px;">${m.t}</div>
+                <span class="msg-user">${m.u}</span>
+                <div class="msg-text">${m.t}</div>
             </div>
-            ${myName.includes("الماستر") ? `<button onclick="db.ref('messages/${snap.key}').remove()" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>` : ''}
+            ${myName.includes("الماستر") ? `<button onclick="db.ref('messages/${snap.key}').remove()" style="background:none; border:none; color:#ff4444; font-size:20px; cursor:pointer;">🗑</button>` : ''}
         `;
         document.getElementById('chat-container').appendChild(div);
         document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
@@ -156,7 +146,6 @@
     db.ref('messages').on('child_removed', snap => {
         document.getElementById(snap.key)?.remove();
     });
-
 </script>
 </body>
 </html>
