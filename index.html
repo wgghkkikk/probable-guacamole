@@ -2,128 +2,97 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>إمبراطورية الماستر - البث الحقيقي</title>
-    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.9.min.js"></script>
+    <title>إمبراطورية الماستر v3.0</title>
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
     <style>
         :root { --glow: #00f2ff; --master: #ff004c; }
-        body { background: #000; color: #fff; margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; }
-        header { height: 60px; border-bottom: 2px solid var(--glow); text-align: center; line-height: 60px; color: var(--glow); font-weight: bold; font-size: 22px; text-shadow: 0 0 15px var(--glow); }
+        body { background: #000; color: #fff; margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: 'Tahoma', sans-serif; overflow: hidden; }
+        header { height: 50px; border-bottom: 2px solid var(--glow); text-align: center; line-height: 50px; color: var(--glow); font-weight: bold; box-shadow: 0 0 15px var(--glow); }
         .wrapper { display: flex; flex: 1; overflow: hidden; }
         
-        /* الجهة اليمنى: الغرف والأدوات */
-        #right { width: 240px; background: #050505; border-left: 1px solid #222; padding: 15px; display: flex; flex-direction: column; }
+        /* اليمين: أدوات وغرف */
+        #right { width: 220px; background: #050505; border-left: 1px solid #222; padding: 15px; }
+        /* اليسار: متصلين وبروفايل */
+        #left { width: 220px; background: #050505; border-right: 1px solid #222; padding: 15px; }
+        /* الوسط: الدردشة */
+        #center { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; }
         
-        /* الجهة اليسرى: المتصلين */
-        #left { width: 240px; background: #050505; border-right: 1px solid #222; padding: 15px; }
-        
-        /* الوسط: الشات */
-        #center { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; position: relative; }
         #msgs { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        
-        .btn { background: var(--glow); color: #000; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; width: 100%; }
-        .room-btn { background: #111; color: #fff; border: 1px solid #333; padding: 8px; margin-top: 5px; border-radius: 5px; cursor: pointer; text-align: right; width: 100%; }
-        .room-btn:hover { border-color: var(--glow); }
-
-        /* رتبة الماستر */
-        .user-card { background: #111; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #222; }
-        .rank { background: var(--master); font-size: 11px; padding: 3px 10px; border-radius: 20px; animation: pulse 1s infinite; display: inline-block; box-shadow: 0 0 10px var(--master); }
-        .name { color: var(--glow); font-weight: bold; display: block; margin-top: 10px; font-size: 18px; text-shadow: 0 0 5px var(--glow); animation: move 2s infinite ease-in-out; }
-        
-        @keyframes pulse { 50% { opacity: 0.6; transform: scale(1.05); } }
-        @keyframes move { 50% { transform: translateX(7px); } }
-
-        .msg-line { background: rgba(255,255,255,0.07); padding: 12px; border-radius: 10px; border-right: 4px solid var(--glow); max-width: 90%; align-self: flex-start; }
         .input-bar { padding: 15px; background: #000; display: flex; gap: 10px; border-top: 1px solid #222; }
-        #msgInput { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 30px; outline: none; }
+        input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 20px; outline: none; }
         
-        .icons { margin-top: 15px; font-size: 20px; display: flex; justify-content: center; gap: 15px; border-top: 1px solid #222; padding-top: 10px; }
-        .icon { cursor: pointer; transition: 0.3s; }
-        .icon:hover { transform: scale(1.3); filter: drop-shadow(0 0 5px var(--glow)); }
+        .btn { background: var(--glow); color: #000; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
+        .rank { background: var(--master); font-size: 10px; padding: 2px 8px; border-radius: 10px; animation: pulse 1s infinite; display: inline-block; }
+        .name { color: var(--glow); font-weight: bold; display: block; animation: move 2s infinite; margin-top: 5px; text-shadow: 0 0 5px var(--glow); }
+        
+        @keyframes pulse { 50% { opacity: 0.5; } }
+        @keyframes move { 50% { transform: translateX(5px); } }
+        
+        .msg-line { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border-right: 4px solid var(--glow); margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-<header>MASTER SYSTEM - البث المباشر</header>
+<header>MASTER REAL-TIME CHAT</header>
 
 <div class="wrapper">
     <div id="right">
-        <div style="color:var(--glow); font-size:14px; margin-bottom:10px; font-weight:bold;">📁 الغرف النشطة</div>
-        <button class="btn" onclick="addNewRoom()">+ إنشاء غرفة جديدة</button>
-        <div id="rooms-list">
-            <button class="room-btn" style="border-color:var(--glow)"># الغرفة العامة</button>
-        </div>
+        <div style="color:var(--glow); font-size:12px; margin-bottom:10px;">📂 الغرف</div>
+        <button class="btn" onclick="addRoom()">+ إضافة غرفة</button>
+        <div id="room-list"></div>
     </div>
 
     <div id="center">
         <div id="msgs"></div>
         <div class="input-bar">
-            <input type="text" id="msgInput" placeholder="اكتب رسالتك هنا يا ماستر...">
-            <button class="btn" style="width:100px; margin-bottom:0;" onclick="send()">إرسال</button>
+            <input type="text" id="minp" placeholder="اكتب هنا وستصل لكل الأجهزة...">
+            <button class="btn" style="width:auto; margin:0;" onclick="sendMsg()">إرسال</button>
         </div>
     </div>
 
     <div id="left">
-        <div style="color:var(--glow); font-size:14px; text-align:center; margin-bottom:15px; font-weight:bold;">👤 الإدارة والمتصلون</div>
-        <div class="user-card">
+        <div style="color:var(--glow); font-size:12px; text-align:center; margin-bottom:15px;">👤 المتصلون</div>
+        <div style="background:#111; padding:15px; border-radius:10px; text-align:center; border:1px solid #222;">
             <span class="rank">صاحب الشات</span>
             <span class="name">الماستر</span>
-            <div class="icons">
-                <span class="icon" title="خاص">📩</span>
-                <span class="icon" title="صداقة">🤝</span>
-                <span class="icon" title="إعجاب" onclick="this.style.color='red'">❤️</span>
-            </div>
+            <div style="margin-top:10px; letter-spacing: 5px;">📩 🤝 ❤️</div>
         </div>
     </div>
 </div>
 
 <script>
-    // محرك الربط العالمي
-    const pubnub = new PubNub({
+    // استخدام مفاتيح عالمية لضمان الربط
+    const pn = new PubNub({
         publishKey: 'pub-c-db838685-3004-4363-9524-7667858c0394',
         subscribeKey: 'sub-c-576a166e-c14d-11eb-a010-02da5302672a',
-        uuid: "Master_" + Math.floor(Math.random() * 9999)
+        uuid: "MasterDevice_" + Math.random()
     });
 
-    pubnub.subscribe({ channels: ['master_pro_chat'] });
+    pn.subscribe({ channels: ['master_final_v3'] });
 
-    pubnub.addListener({
+    pn.addListener({
         message: function(s) {
-            let m = document.getElementById('msgs');
-            m.innerHTML += `<div class="msg-line"><b style="color:var(--master)">[الماستر]:</b> ${s.message.text}</div>`;
-            m.scrollTop = m.scrollHeight;
+            document.getElementById('msgs').innerHTML += `<div class="msg-line"><b style="color:var(--master)">[الماستر]:</b> ${s.message.text}</div>`;
+            document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
         }
     });
 
-    function send() {
-        let i = document.getElementById('msgInput');
-        if(i.value.trim() !== "") {
-            pubnub.publish({ channel: 'master_pro_chat', message: { text: i.value } });
+    function sendMsg() {
+        const i = document.getElementById('minp');
+        if(i.value.trim()) {
+            pn.publish({ channel: 'master_final_v3', message: { text: i.value } });
             i.value = '';
         }
     }
 
-    // خاصية حفظ الغرف لكي لا تختفي
-    function loadRooms() {
-        let savedRooms = JSON.parse(localStorage.getItem('chatRooms')) || [];
-        savedRooms.forEach(room => {
-            document.getElementById('rooms-list').innerHTML += `<button class="room-btn"># ${room}</button>`;
-        });
-    }
-
-    function addNewRoom() {
-        let n = prompt("ادخل اسم الغرفة الجديدة:");
+    function addRoom() {
+        let n = prompt("اسم الغرفة:");
         if(n) {
-            let savedRooms = JSON.parse(localStorage.getItem('chatRooms')) || [];
-            savedRooms.push(n);
-            localStorage.setItem('chatRooms', JSON.stringify(savedRooms));
-            document.getElementById('rooms-list').innerHTML += `<button class="room-btn"># ${n}</button>`;
+            document.getElementById('room-list').innerHTML += `<button class="btn" style="background:#111; color:#fff; border:1px solid #333;"># ${n}</button>`;
         }
     }
 
-    // تشغيل عند الفتح
-    window.onload = loadRooms;
-    document.getElementById('msgInput').onkeypress = (e) => { if(e.key === 'Enter') send(); };
+    document.getElementById('minp').onkeypress = (e) => { if(e.key === 'Enter') sendMsg(); };
 </script>
-
 </body>
-</html>
+</html
