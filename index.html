@@ -6,37 +6,40 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; }
-        #chat-area { height: 88vh; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 5px; }
+        body { margin: 0; background: #0a0a0a; color: white; font-family: sans-serif; }
+        #chat-area { height: 85vh; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         
         /* رسائل علوش (الماستر) */
-        .msg-master { 
-            background: rgba(255, 215, 0, 0.1); 
-            border: 1px solid #ffd700; padding: 10px; border-radius: 10px;
-        }
+        .msg-master { background: rgba(255, 215, 0, 0.05); border: 1px solid #ffd700; padding: 12px; border-radius: 12px; position: relative; }
         /* رسائل الأعضاء */
-        .msg-member { background: #1a1a1a; border: 1px solid #333; padding: 10px; border-radius: 10px; }
+        .msg-member { background: #161616; border: 1px solid #222; padding: 10px; border-radius: 10px; }
         
-        .badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 8px; font-weight: bold; }
-        .badge-master { background: #ffd700; color: #000; }
-        .badge-member { background: #555; color: #fff; }
+        .rank-badge { font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: bold; margin-left: 10px; text-transform: uppercase; }
+        .is-master { background: #ffd700; color: #000; box-shadow: 0 0 10px #ffd700; }
+        .is-member { background: #444; color: #eee; }
 
-        /* خانة الكتابة */
-        .footer { height: 12vh; background: #111; display: flex; padding: 15px; gap: 10px; border-top: 1px solid #ffd700; }
-        input { flex: 1; background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; outline: none; }
-        button { background: #ffd700; color: black; border: none; padding: 0 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .user-name { font-weight: bold; margin-left: 5px; }
+        .master-name { color: #ffd700; text-shadow: 0 0 5px rgba(255,215,0,0.5); }
+        .member-name { color: #00c8ff; }
+
+        /* منطقة الإرسال */
+        .input-zone { height: 15vh; background: #111; display: flex; padding: 20px; gap: 10px; border-top: 2px solid #ffd700; }
+        #mInput { flex: 1; background: #1a1a1a; border: 1px solid #333; color: white; padding: 12px; border-radius: 10px; outline: none; font-size: 16px; }
+        #mInput:focus { border-color: #ffd700; }
+        button { background: #ffd700; color: #000; border: none; padding: 0 30px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #ffea00; transform: scale(1.05); }
     </style>
 </head>
 <body>
 
 <div id="chat-area"></div>
-<div class="footer">
-    <input type="text" id="mInput" placeholder="اكتب هنا يا إمبراطور..." onkeypress="if(event.key==='Enter') sendMsg()">
+<div class="input-zone">
+    <input type="text" id="mInput" placeholder="تكلم يا إمبراطور علوش..." onkeypress="if(event.key==='Enter') sendMsg()">
     <button onclick="sendMsg()">إرسال</button>
 </div>
 
 <script>
-    // ربط مشروعك masterchat-f2da9
+    // ربط مشروعك الفعلي masterchat-f2da9
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
@@ -44,11 +47,11 @@
     let myName = "علوش"; 
     let myRank = "عضو";
 
-    // فحص الصلاحية من السيرفر
+    // تفعيل الصلاحية من السيرفر (master: علوش)
     db.ref('master').on('value', snap => {
         if(snap.val() === myName) {
             myRank = "الماستر";
-            console.log("صلاحيات الماستر مفعلة ✅");
+            console.log("صلاحيات علوش مفعلة 👑");
         }
     });
 
@@ -57,33 +60,35 @@
         let text = input.value.trim();
         if(!text) return;
 
-        // إرسال البيانات بشكل كامل للسيرفر
+        // إرسال البيانات بأسماء حقول موحدة لمنع مجهول/undefined
         db.ref('messages').push({
-            user: myName,
-            text: text,
-            rank: myRank // هنا نرسل رتبتك الحالية (الماستر أو عضو)
+            sender: myName,
+            content: text,
+            role: myRank
         });
         input.value = "";
     }
 
-    // عرض الرسائل بشكل احترافي
-    db.ref('messages').limitToLast(40).on('child_added', snap => {
+    // عرض الرسائل ومعالجة البيانات القديمة
+    db.ref('messages').limitToLast(50).on('child_added', snap => {
         let data = snap.val();
         let area = document.getElementById('chat-area');
         
-        // منع ظهور undefined أو زائر للرسائل الجديدة
-        let name = data.user || "مجهول";
-        let msg = data.text || "";
-        let rank = data.rank || "عضو";
+        // ذكاء اصطناعي بسيط: إذا كان الحقل الجديد مفقود، جرب الحقول القديمة
+        let name = data.sender || data.user || data.name || "عضو مجهول";
+        let msg = data.content || data.text || data.msg || "";
+        let rank = data.role || data.rank || "عضو";
 
-        let isMaster = (rank === "الماستر" || name === "علوش");
+        // تمييز علوش حتى لو السيرفر أخطأ في الرتبة
+        let isHeTheMaster = (name === "علوش" || rank === "الماستر");
+        
         let div = document.createElement('div');
-        div.className = isMaster ? "msg-master" : "msg-member";
+        div.className = isHeTheMaster ? "msg-master" : "msg-member";
 
         div.innerHTML = `
-            <span class="badge ${isMaster ? 'badge-master' : 'badge-member'}">${isMaster ? 'الماستر' : 'عضو'}</span>
-            <b style="color: ${isMaster ? '#ffd700' : '#00c8ff'}">${name}:</b> 
-            <span>${msg}</span>
+            <span class="rank-badge ${isHeTheMaster ? 'is-master' : 'is-member'}">${isHeTheMaster ? 'الماستر' : 'عضو'}</span>
+            <span class="user-name ${isHeTheMaster ? 'master-name' : 'member-name'}">${name}:</span> 
+            <span class="msg-text">${msg}</span>
         `;
         
         area.appendChild(div);
