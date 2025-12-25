@@ -2,117 +2,228 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>إمبراطورية علوش المحمية 👑</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CH-ALLOSH | إمبراطورية علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { margin: 0; background: #050505; color: white; font-family: sans-serif; }
-        #master-panel { display: none; background: #111; padding: 10px; border-bottom: 2px solid #ffd700; text-align: center; }
-        .btn { border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; margin: 5px; color: white; }
-        .btn-clear { background: #ff3333; }
-        .btn-lock { background: #555; }
-        .is-locked { background: #ff9800 !important; }
-        #chat-area { height: 75vh; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg-master { border-right: 5px solid #ffd700; background: rgba(255, 215, 0, 0.05); padding: 10px; border-radius: 8px; }
-        .msg-member { background: #1a1a1a; padding: 10px; border-radius: 8px; border-right: 4px solid #444; }
-        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 10px; }
-        .badge-master { background: #ffd700; color: #000; }
-        .badge-member { background: #555; color: #fff; }
-        .footer { height: 15vh; background: #111; display: flex; padding: 15px; gap: 10px; border-top: 1px solid #333; }
-        input { flex: 1; background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; outline: none; }
-        button#sendBtn { background: #ffd700; color: #000; border: none; padding: 0 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        :root {
+            --gold: #ffd700;
+            --dark-bg: #0a0a0b;
+            --msg-bg: #161618;
+            --text-color: #e0e0e0;
+        }
+
+        body { 
+            margin: 0; 
+            background-color: var(--dark-bg); 
+            color: var(--text-color); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* لوحة التحكم */
+        #master-panel { 
+            display: none; 
+            background: rgba(255, 215, 0, 0.1); 
+            border-bottom: 1px solid var(--gold); 
+            padding: 10px; 
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn { 
+            border: 1px solid var(--gold); 
+            padding: 6px 15px; 
+            border-radius: 20px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin: 5px; 
+            background: transparent;
+            color: var(--gold);
+            transition: 0.3s;
+        }
+
+        .btn:hover { background: var(--gold); color: black; }
+
+        /* منطقة الدردشة */
+        #chat-area { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px;
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0b 100%);
+        }
+
+        /* رسالة الماستر */
+        .msg-master { 
+            align-self: flex-start;
+            max-width: 80%;
+            background: linear-gradient(135deg, #1e1e1e, #111);
+            border-right: 4px solid var(--gold);
+            padding: 12px 18px;
+            border-radius: 15px 15px 15px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* رسالة العضو */
+        .msg-member { 
+            align-self: flex-start;
+            max-width: 80%;
+            background: var(--msg-bg);
+            padding: 12px 18px;
+            border-radius: 15px 15px 15px 0;
+            border-right: 4px solid #444;
+        }
+
+        .badge { 
+            font-size: 9px; 
+            padding: 2px 7px; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .badge-master { background: var(--gold); color: #000; text-shadow: none; }
+        .badge-member { background: #333; color: #bbb; }
+
+        .sender-name { font-weight: bold; font-size: 14px; display: block; margin-bottom: 4px; }
+        .master-name { color: var(--gold); }
+        .member-name { color: #5bc0de; }
+
+        /* منطقة الكتابة */
+        .footer { 
+            padding: 20px; 
+            background: #111; 
+            display: flex; 
+            gap: 12px;
+            border-top: 1px solid #222;
+        }
+
+        input { 
+            flex: 1; 
+            background: #1e1e1e; 
+            border: 1px solid #333; 
+            color: white; 
+            padding: 12px 20px; 
+            border-radius: 25px; 
+            outline: none;
+            font-size: 15px;
+        }
+
+        input:focus { border-color: var(--gold); }
+
+        #sendBtn { 
+            background: var(--gold); 
+            color: #000; 
+            border: none; 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            font-weight: bold; 
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ستايل المطرود */
+        .kicked-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; background: black; color: red;
+        }
     </style>
 </head>
 <body>
 
 <div id="master-panel">
-    <button class="btn btn-clear" onclick="clearChat()">مسح الشات 🧹</button>
-    <button id="lockBtn" class="btn btn-lock" onclick="toggleLock()">قفل الشات 🔒</button>
+    <button class="btn" onclick="clearChat()">🧹 تنظيف الإمبراطورية</button>
+    <button id="lockBtn" class="btn" onclick="toggleLock()">🔒 قفل الشات</button>
 </div>
 
 <div id="chat-area"></div>
 
 <div class="footer">
-    <input type="text" id="mInput" placeholder="تكلم يا ملك..." onkeypress="if(event.key==='Enter') send()">
-    <button id="sendBtn" onclick="send()">إرسال</button>
+    <input type="text" id="mInput" placeholder="اكتب رسالتك يا ملك..." onkeypress="if(event.key==='Enter') send()">
+    <button id="sendBtn" onclick="send()">⏎</button>
 </div>
 
 <script>
-    // إعدادات قاعدة البيانات
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // 1. طلب الاسم
     let myName = prompt("أدخل اسمك يا ملك:"); 
     if (!myName) { location.reload(); }
 
     let myRank = "عضو";
     let isChatLocked = false;
 
-    // 2. نظام حماية الماستر (كلمة السر)
+    // التحقق من الماستر
     if (myName.trim() === "علوش") {
-        let pass = prompt("أدخل كلمة سر الماستر:");
-        if (pass === "Allosh#King@2025") {
+        let pass = prompt("كلمة سر الماستر:");
+        if (pass === "Allosh#King@2025") { 
             myRank = "الماستر";
             document.getElementById('master-panel').style.display = 'block';
-            alert("تم تفعيل الصلاحيات الملكية 👑");
         } else {
-            alert("كلمة سر خطأ!");
-            myName = "علوش (مزيف)";
+            alert("باسورد غلط!");
+            myName = "زائر_" + Math.floor(Math.random()*100);
         }
     }
 
-    // مراقبة قفل الشات
-    db.ref('chat_status').on('value', snap => {
-        isChatLocked = snap.val()?.locked || false;
-        let lockBtn = document.getElementById('lockBtn');
-        if(isChatLocked) {
-            lockBtn.innerText = "الشات مقفل 🔓";
-            lockBtn.classList.add('is-locked');
-            if(myRank !== "الماستر") {
-                document.getElementById('mInput').disabled = true;
-                document.getElementById('mInput').placeholder = "الشات مقفل حالياً...";
-            }
-        } else {
-            lockBtn.innerText = "قفل الشات 🔒";
-            lockBtn.classList.remove('is-locked');
-            document.getElementById('mInput').disabled = false;
+    // نظام الطرد والقفل
+    db.ref('kicked/' + myName).on('value', snap => {
+        if(snap.exists()) {
+            document.body.innerHTML = "<div class='kicked-screen'><h1>🚫 تم طردك نهائياً</h1><p>بواسطة الماستر علوش</p></div>";
         }
     });
 
+    db.ref('chat_status').on('value', snap => {
+        isChatLocked = snap.val()?.locked || false;
+        document.getElementById('mInput').disabled = (isChatLocked && myRank !== "الماستر");
+        document.getElementById('lockBtn').innerText = isChatLocked ? "🔓 فتح الشات" : "🔒 قفل الشات";
+    });
+
     function send() {
-        if(isChatLocked && myRank !== "الماستر") return;
         let input = document.getElementById('mInput');
         let text = input.value.trim();
-        if(!text) return;
+        if(!text || (isChatLocked && myRank !== "الماستر")) return;
         db.ref('messages').push({ sender: myName, content: text, role: myRank });
         input.value = "";
     }
 
-    function clearChat() {
-        if(confirm("مسح كل الرسائل؟")) { db.ref('messages').remove(); }
+    function clearChat() { if(confirm("حذف كل شيء؟")) db.ref('messages').remove(); }
+    function toggleLock() { db.ref('chat_status').set({ locked: !isChatLocked }); }
+    
+    function kickUser(name) {
+        if(myRank === "الماستر" && name !== myName) {
+            if(confirm("طرد " + name + "؟")) db.ref('kicked/' + name).set(true);
+        }
     }
 
-    function toggleLock() {
-        db.ref('chat_status').set({ locked: !isChatLocked });
-    }
-
-    // عرض الرسائل
     db.ref('messages').limitToLast(50).on('child_added', snap => {
         let data = snap.val();
-        if(!data.sender || !data.content) return;
-        let isM = (data.role === "الماستر");
+        let isM = data.role === "الماستر";
         let div = document.createElement('div');
         div.className = isM ? "msg-master" : "msg-member";
-        div.innerHTML = `<span class="badge ${isM ? 'badge-master' : 'badge-member'}">${isM ? 'الماستر' : 'عضو'}</span><b style="color:${isM ? '#ffd700' : '#00c8ff'}">${data.sender}:</b> ${data.content}`;
+        div.onclick = () => kickUser(data.sender);
+        div.innerHTML = `
+            <span class="badge ${isM?'badge-master':'badge-member'}">${isM?'الماستر':'عضو'}</span>
+            <span class="sender-name ${isM?'master-name':'member-name'}">${data.sender}</span>
+            <div class="content">${data.content}</div>
+        `;
         document.getElementById('chat-area').appendChild(div);
         document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
     });
 
-    db.ref('messages').on('value', snap => {
-        if(!snap.exists()) document.getElementById('chat-area').innerHTML = "";
-    });
+    db.ref('messages').on('value', snap => { if(!snap.exists()) document.getElementById('chat-area').innerHTML = ""; });
 </script>
 </body>
 </html>
