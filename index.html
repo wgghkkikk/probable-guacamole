@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>MASTER RG - FIXED</title>
+    <title>MASTER RG - MEGA BOT</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
@@ -11,63 +11,42 @@
         :root { --neon: #00f2ff; --gold: #ffd700; --bg: #000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Cairo', sans-serif; }
         body { margin: 0; background: #000; color: #fff; overflow: hidden; position: fixed; width: 100%; height: 100%; }
-        
-        /* الهيدر ثابت */
-        header { height: 60px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: relative; z-index: 1000; }
-        
-        /* الصفحات */
-        .page { position: absolute; top: 60px; bottom: 0; left: 0; right: 0; background: #000; z-index: 10; overflow-y: auto; }
-        #lobby-page { display: block; }
-        #chat-page { display: none; }
-
+        header { height: 60px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; position: relative; }
+        .page { position: absolute; top: 60px; bottom: 0; left: 0; right: 0; background: #000; display: none; }
         .lobby-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
-        .room-card { background: #111; padding: 30px 10px; border-radius: 15px; border: 1px solid #333; text-align: center; color: var(--neon); cursor: pointer; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .room-card:active { background: #222; transform: scale(0.95); }
-
-        .chat-messages { position: absolute; top: 0; bottom: 80px; width: 100%; overflow-y: auto; padding: 15px; background: #050505; }
-        .msg { display: flex; margin-bottom: 12px; }
-        .msg img { width: 40px; height: 40px; border-radius: 8px; margin-left: 10px; }
-        .bubble { background: #1a1a1a; padding: 10px 15px; border-radius: 15px; max-width: 80%; border: 0.5px solid #222; }
-        
-        .input-bar { position: absolute; bottom: 0; width: 100%; height: 80px; background: #111; display: flex; align-items: center; padding: 0 15px; border-top: 1px solid #333; }
-        #mInp { flex: 1; background: #000; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 10px; text-align: right; font-size: 14px; }
-        .s-btn { background: var(--neon); border: none; padding: 10px 20px; border-radius: 10px; margin-right: 10px; font-weight: bold; color: #000; }
-
-        .sidebar { position: fixed; top: 0; bottom: 0; right: -280px; width: 260px; background: #0a0a0a; z-index: 2000; transition: 0.3s; border-left: 2px solid var(--neon); padding: 20px; }
-        .sidebar.active { right: 0; }
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
+        .room-card { background: #111; padding: 30px 10px; border-radius: 15px; border: 1px solid #333; text-align: center; color: var(--neon); cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .chat-msgs { position: absolute; top: 0; bottom: 80px; width: 100%; overflow-y: auto; padding: 15px; background: #050505; }
+        .msg { display: flex; margin-bottom: 12px; animation: slide 0.3s ease; }
+        @keyframes slide { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .bubble { background: #1a1a1a; padding: 10px 15px; border-radius: 15px; max-width: 80%; border: 0.5px solid #333; }
+        .input-bar { position: absolute; bottom: 0; width: 100%; height: 80px; background: #111; display: flex; align-items: center; padding: 0 15px; }
+        #mInp { flex: 1; background: #000; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 12px; text-align: right; }
+        .s-btn { background: var(--neon); border: none; padding: 10px 20px; border-radius: 12px; margin-right: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <header>
-    <button onclick="toggleSide()" style="background:none; border:none; color:var(--neon); font-size:24px;">☰</button>
     <b style="color:var(--gold)">MASTER RG 👑</b>
-    <div id="on-count" style="font-size:10px; color:var(--neon)">متصل..</div>
+    <div id="on-count" style="font-size:11px; color:var(--neon)">متصل..</div>
 </header>
 
-<div id="lobby-page" class="page">
+<div id="lobby-page" class="page" style="display: block;">
     <div class="lobby-grid">
-        <div class="room-card" onclick="joinRoom('main', '🏛 العرش')">👑 العرش</div>
-        <div class="room-card" onclick="joinRoom('game', '🏆 المسابقات')">🎮 المسابقات</div>
-        <div class="room-card" onclick="joinRoom('vip', '💎 الديوان')">💎 الديوان</div>
-        <div class="room-card" onclick="joinRoom('elite', '🤝 النخبة')">🤝 النخبة</div>
+        <div class="room-card" onclick="go('main')">👑 العرش</div>
+        <div class="room-card" onclick="go('game')">🎮 المسابقات</div>
+        <div class="room-card" onclick="go('vip')">💎 الديوان</div>
+        <div class="room-card" onclick="go('elite')">🤝 النخبة</div>
     </div>
 </div>
 
 <div id="chat-page" class="page">
-    <div id="msgs" class="chat-messages"></div>
+    <div id="msgs" class="chat-msgs"></div>
     <div class="input-bar">
-        <input type="text" id="mInp" placeholder="سولف ويه البوت...">
+        <input type="text" id="mInp" placeholder="سولف ويه البوت المتفاعل...">
         <button onclick="send()" class="s-btn">إرسال</button>
-        <button onclick="leave()" style="background:#333; border:none; padding:10px; border-radius:10px; margin-right:5px; color:#fff">🔙</button>
+        <button onclick="home()" style="background:#333; border:none; padding:10px; border-radius:10px; margin-right:5px; color:#fff">🏠</button>
     </div>
-</div>
-
-<div id="overlay" onclick="toggleSide()"></div>
-<div id="sidebar" class="sidebar">
-    <h3 style="color:var(--neon)">المتواجدون</h3>
-    <div id="user-list"></div>
 </div>
 
 <script>
@@ -75,73 +54,64 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let my = { n: localStorage.getItem('rg_n') || "" };
-    if(!my.n) { let n = prompt("ادخل اسمك المستعار:"); if(n){ localStorage.setItem('rg_n', n); location.reload(); } }
+    let myN = localStorage.getItem('rg_n') || "";
+    if(!myN) { myN = prompt("اسمك المستعار؟"); if(myN) localStorage.setItem('rg_n', myN); else location.reload(); }
 
-    const botTalk = {
-        "هلو": "هلا وغلا، نورت الإمبراطورية 👑",
-        "شلونك": "بخير يا بعد روحي، أنت شلونك؟",
-        "منور": "نورك هذا العاكس يا طيب 🌹",
-        "هههه": "دوم الضحكة، فدوة لهالضحكة 😂",
-        "كفو": "كفو منك ومن أصلك الطيب ذيب!",
-        "ضوجة": "افا، اكتب 'سؤال' وخلينا نتسلى!",
-        "بوت": "نعم عيوني، كول اللي ببالك وأنا أرد عليك."
-    };
+    // 🔥 مخ البوت المتفاعل
+    const botBrain = [
+        { key: ["هلو", "هلا", "سلام"], res: ["يا هلا وغلا بنور عيوني 🌹", "هلوات يا طيب، نورت الشات كله", "أطلق هلو من أطلق عضو!"] },
+        { key: ["شلونك", "اخبارك"], res: ["بخير يا بعد روحي، أنت شلونك؟", "الحمد لله، من شفت اسمك صرت تمام", "بخير وعافية يا وردة"] },
+        { key: ["هههه", "خخخ"], res: ["دوم الضحكة الحلوة يارب 😂", "فدوة لهالضحكة، انرتنا", "عسى دوم متبسم!"] },
+        { key: ["منور", "نورت"], res: ["نورك هذا عاكس يا ذهب", "أنت أصل النور والجمال", "الشات منور بوجودك يا غالي"] },
+        { key: ["كفو", "سبع"], res: ["كفو منك ومن أصلك الطيب ذيب!", "أنت السبع والله يا بطل", "تستاهل لقب الكفو"] },
+        { key: ["ضوجة", "ملل"], res: ["ليش الضوجة؟ سولف ويانا وانسى الهم 💙", "اكتب 'سؤال' وخلينا نتسلى"، "الضوجة تموت بوجود الماستر!"] }
+    ];
 
-    function presence() {
-        db.ref('online/'+my.n).set({n:my.n}); db.ref('online/'+my.n).onDisconnect().remove();
-        db.ref('online').on('value', snap => {
-            let box = document.getElementById('user-list'); box.innerHTML = "";
-            let c = 0; snap.forEach(u => { c++; box.innerHTML += `<div style="padding:8px; border-bottom:1px solid #222;">🟢 ${u.val().n}</div>`; });
-            document.getElementById('on-count').innerText = c + " متصل";
-        });
-    }
-    presence();
-
-    let curRoom = "";
-    function joinRoom(id, title) {
+    function go(id) {
         curRoom = id;
         document.getElementById('lobby-page').style.display = 'none';
         document.getElementById('chat-page').style.display = 'block';
-        loadMsgs();
+        load();
     }
 
+    function home() {
+        document.getElementById('chat-page').style.display = 'none';
+        document.getElementById('lobby-page').style.display = 'block';
+    }
+
+    let curRoom = "";
     function send() {
         let t = document.getElementById('mInp').value.trim(); if(!t) return;
-        db.ref('rooms/'+curRoom).push({ u: my.n, t: t });
+        db.ref('rooms/'+curRoom).push({ u: myN, t: t });
         
-        for(let key in botTalk) {
-            if(t.includes(key)) {
+        // ذكاء الرد
+        botBrain.forEach(item => {
+            if(item.key.some(k => t.toLowerCase().includes(k))) {
+                let r = item.res[Math.floor(Math.random()*item.res.length)];
                 setTimeout(() => {
-                    db.ref('rooms/'+curRoom).push({ u: "🤖 BOT", t: botTalk[key], bot: true });
+                    db.ref('rooms/'+curRoom).push({ u: "🤖 BOT", t: r, bot: true });
                 }, 800);
-                break;
             }
-        }
+        });
         document.getElementById('mInp').value = "";
     }
 
-    function loadMsgs() {
+    function load() {
         db.ref('rooms/'+curRoom).off();
         let box = document.getElementById('msgs'); box.innerHTML = "";
         db.ref('rooms/'+curRoom).limitToLast(30).on('child_added', snap => {
             let m = snap.val();
             let div = document.createElement('div'); div.className = 'msg';
-            div.innerHTML = `<img src="https://ui-avatars.com/api/?name=${m.u}&background=333&color=fff">
-                <div class="bubble"><b style="color:${m.bot?'var(--gold)':'var(--neon)'}">${m.u}</b><br>${m.t}</div>`;
+            div.innerHTML = `<div class="bubble"><b style="color:${m.bot?'var(--gold)':'var(--neon)'}">${m.u}</b><br>${m.t}</div>`;
             box.appendChild(div); box.scrollTop = box.scrollHeight;
         });
     }
 
-    function leave() { 
-        document.getElementById('chat-page').style.display = 'none'; 
-        document.getElementById('lobby-page').style.display = 'block'; 
-    }
-    
-    function toggleSide() { 
-        let s = document.getElementById('sidebar'); s.classList.toggle('active');
-        document.getElementById('overlay').style.display = s.classList.contains('active') ? 'block' : 'none';
-    }
+    // المتصلين
+    db.ref('online/'+myN).set(true); db.ref('online/'+myN).onDisconnect().remove();
+    db.ref('online').on('value', snap => {
+        document.getElementById('on-count').innerText = snap.numChildren() + " متصل";
+    });
 </script>
 </body>
 </html>
