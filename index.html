@@ -3,35 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>MASTER RG - Identity System</title>
+    <title>MASTER RG - Quick Entry</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --gold: #ffd700; --pink: #ff69b4; }
+        :root { --neon: #00f2ff; --gold: #ffd700; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
         
-        /* شاشة الدخول المحدثة */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .login-box { background: #111; padding: 25px; border-radius: 15px; border: 1px solid var(--neon); width: 100%; max-width: 350px; }
+        /* شاشة الدخول المبسطة */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-box { background: #111; padding: 30px 20px; border-radius: 20px; border: 1px solid var(--neon); width: 100%; max-width: 320px; text-align: center; box-shadow: 0 0 20px rgba(0,242,255,0.1); }
         
         header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; }
         #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 75px; overflow-y: auto; background: #050505; }
 
-        .msg-line { display: flex; padding: 12px; border-bottom: 1px solid #111; align-items: flex-start; }
-        .msg-img { width: 50px; height: 50px; border-radius: 10px; border: 2px solid var(--neon); margin-left: 12px; object-fit: cover; }
+        .msg-line { display: flex; padding: 10px; border-bottom: 1px solid #111; align-items: flex-start; }
+        .msg-img { width: 45px; height: 45px; border-radius: 8px; border: 1.5px solid var(--neon); margin-left: 10px; object-fit: cover; }
         .msg-body { flex: 1; }
-        .msg-info { font-size: 11px; color: #888; margin-top: 2px; }
-        .msg-user { font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
-        
+        .msg-user { font-size: 14px; font-weight: bold; color: var(--neon); display: flex; align-items: center; gap: 5px; }
+        .msg-text { font-size: 17px; color: #fff; margin-top: 3px; word-break: break-word; }
+
         .sidebar { position: fixed; top: 0; bottom: 0; right: -320px; width: 300px; background: #0a0a0a; z-index: 2000; padding: 20px; transition: 0.3s ease; border-left: 2px solid var(--neon); }
         .sidebar.active { right: 0; }
         .box { background: #161616; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
 
-        input, select { width: 100%; background: #000; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; margin-top: 8px; font-family: 'Cairo'; }
-        .btn { background: var(--neon); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; font-family: 'Cairo'; }
-        .btn-guest { background: #333; color: #fff; margin-top: 5px; }
+        input { width: 100%; background: #000; color: #fff; border: 1px solid #444; padding: 12px; border-radius: 10px; margin-top: 10px; font-family: 'Cairo'; text-align: center; font-size: 16px; }
+        .btn { background: var(--neon); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; font-family: 'Cairo'; font-size: 16px; }
         
         #overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1500; display: none; }
     </style>
@@ -40,24 +39,13 @@
 
 <div id="login-screen">
     <div class="login-box">
-        <h2 style="color:var(--neon); margin:0 0 20px 0;">دخول الإمبراطورية</h2>
+        <h2 style="color:var(--neon); margin:0 0 10px 0;">إمبراطورية RG</h2>
+        <p style="font-size:14px; color:#aaa;">أهلاً بك.. ادخل اسمك المستعار</p>
         
-        <input type="text" id="regName" placeholder="الاسم المستعار">
-        <div style="display:flex; gap:10px;">
-            <input type="number" id="regAge" placeholder="العمر" style="flex:1;">
-            <select id="regGender" style="flex:1;">
-                <option value="ذكر">ذكر 👨</option>
-                <option value="أنثى">أنثى 👩</option>
-            </select>
-        </div>
-
-        <div id="auth-fields">
-            <input type="text" id="logEmail" placeholder="البريد (اختياري)">
-            <input type="password" id="logPass" placeholder="كلمة السر (اختياري)">
-        </div>
-
-        <button onclick="entry('member')" class="btn">دخول كعضو مسجل</button>
-        <button onclick="entry('guest')" class="btn btn-guest">دخول كزائر</button>
+        <input type="text" id="regName" placeholder="اكتب اسمك هنا...">
+        <button onclick="entry()" class="btn">دخول الدردشة 🚀</button>
+        
+        <p style="font-size:11px; color:#555; margin-top:15px;">بضغطك على دخول أنت توافق على قوانين الإمبراطورية</p>
     </div>
 </div>
 
@@ -66,28 +54,27 @@
 <header>
     <div style="width:50px"></div>
     <b style="color:var(--neon); font-size: 18px;">MASTER RG 👑</b>
-    <button onclick="openSidebar()" style="background:var(--neon); border:none; padding:7px 12px; border-radius:8px; font-weight:bold;">القائمة</button>
+    <button onclick="openSidebar()" style="background:var(--neon); border:none; padding:7px 12px; border-radius:8px; font-weight:bold;">الملف</button>
 </header>
 
 <div id="chat-container" onclick="closeSidebar()"></div>
 
 <div id="sidebar" class="sidebar">
     <div class="box">
-        <h4 style="margin:0;">👤 بطاقة الهوية</h4>
-        <div id="myCard" style="font-size:13px; margin-top:10px; color:#aaa;"></div>
-        <input type="file" id="imgInput" accept="image/*" onchange="handleImage(this)" style="font-size:11px;">
-        <button onclick="localStorage.clear(); location.reload();" class="btn" style="background:#ff4444; color:white;">تسجيل خروج</button>
+        <h4 style="margin:0; color:var(--neon)">👤 الملف الشخصي</h4>
+        <div id="myCard" style="font-size:14px; margin-top:10px;"></div>
+        <button onclick="localStorage.clear(); location.reload();" class="btn" style="background:#ff4444; color:white; margin-top:20px;">تسجيل خروج</button>
     </div>
-
+    
     <div id="admin-panel" style="display:none;" class="box">
         <h4 style="color:var(--gold);">🛠 تحكم الماستر</h4>
         <button onclick="db.ref('messages').remove()" class="btn" style="background:red; color:white;">تصفير الشات</button>
     </div>
 </div>
 
-<div class="input-footer">
-    <input type="text" id="msgInp" placeholder="اكتب رسالتك..." onfocus="closeSidebar()">
-    <button onclick="sendMsg()" class="btn" style="width:70px; margin-top:0;">إرسال</button>
+<div class="input-footer" style="position: fixed; bottom: 0; width: 100%; height: 75px; background: #111; display: flex; align-items: center; padding: 10px; border-top: 1px solid var(--neon);">
+    <input type="text" id="msgInp" placeholder="اكتب رسالتك..." style="margin-top:0; flex:1; text-align:right;" onfocus="closeSidebar()">
+    <button onclick="sendMsg()" class="btn" style="width:80px; margin:0 10px 0 0; padding:10px;">إرسال</button>
 </div>
 
 <script>
@@ -97,84 +84,53 @@
 
     let my = {
         n: localStorage.getItem('rg-n') || "",
-        a: localStorage.getItem('rg-a') || "",
-        g: localStorage.getItem('rg-g') || "ذكر",
-        i: localStorage.getItem('rg-i') || "https://ui-avatars.com/api/?name=User",
+        i: localStorage.getItem('rg-i') || "https://ui-avatars.com/api/?background=00f2ff&color=000&name=U",
         logged: localStorage.getItem('rg-logged') || "false"
     };
 
     if(my.logged === "true") {
         document.getElementById('login-screen').style.display = 'none';
-        updateMyCard();
+        updateUI();
     }
 
-    function entry(type) {
+    function entry() {
         let name = document.getElementById('regName').value;
-        let age = document.getElementById('regAge').value;
-        let gender = document.getElementById('regGender').value;
-
-        if(!name || !age) return alert("اكمل بياناتك يا بطل!");
-
+        if(!name || name.trim().length < 2) return alert("الرجاء كتابة اسم مستعار!");
+        
         localStorage.setItem('rg-n', name);
-        localStorage.setItem('rg-a', age);
-        localStorage.setItem('rg-g', gender);
         localStorage.setItem('rg-logged', "true");
         location.reload();
     }
 
-    function updateMyCard() {
-        document.getElementById('myCard').innerHTML = `الاسم: ${my.n}<br>العمر: ${my.a}<br>الجنس: ${my.g}`;
+    function updateUI() {
+        document.getElementById('myCard').innerHTML = `<b>الاسم الحالي:</b> ${my.n}`;
         if(my.n.includes("الماستر")) document.getElementById('admin-panel').style.display = 'block';
-    }
-
-    function handleImage(input) {
-        if (input.files && input.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function(e) { 
-                localStorage.setItem('rg-i', e.target.result);
-                alert("تم حفظ الصورة!");
-                location.reload();
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
     }
 
     function sendMsg() {
         let t = document.getElementById('msgInp').value;
         if(t.trim()) {
-            db.ref('messages').push({ u: my.n, a: my.a, g: my.g, i: my.i, t: t, time: Date.now() });
+            db.ref('messages').push({ u: my.n, i: my.i, t: t, time: Date.now() });
             document.getElementById('msgInp').value = '';
         }
     }
 
     db.ref('messages').limitToLast(40).on('child_added', snap => {
         let m = snap.val();
-        let isMaster = m.u.includes("الماستر");
-        let genderIcon = m.g === "ذكر" ? "👨" : "👩";
-        let userColor = m.g === "ذكر" ? "var(--neon)" : "var(--pink)";
-
         let div = document.createElement('div');
-        div.className = 'msg-line';
-        div.id = snap.key;
-        div.innerHTML = `
-            <img src="${m.i}" class="msg-img" style="border-color:${userColor}">
+        div.className = 'msg-line'; div.id = snap.key;
+        div.innerHTML = `<img src="${m.i}" class="msg-img">
             <div class="msg-body">
-                <div class="msg-user" style="color:${userColor}">
-                    ${genderIcon} ${m.u} ${isMaster ? '<span style="background:var(--gold); color:#000; font-size:9px; padding:2px 4px; border-radius:3px; margin-right:5px;">MASTER</span>' : ''}
-                </div>
-                <div class="msg-info">العمر: ${m.a} سنة</div>
+                <div class="msg-user">${m.u} ${m.u.includes("الماستر")?'👑':''}</div>
                 <div class="msg-text">${m.t}</div>
-            </div>
-            ${my.n.includes("الماستر") ? `<button onclick="db.ref('messages/${snap.key}').remove()" style="background:none; border:none; color:red; font-size:18px;">🗑</button>` : ''}
-        `;
+            </div>`;
         document.getElementById('chat-container').appendChild(div);
         document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
     });
 
-    db.ref('messages').on('child_removed', snap => { document.getElementById(snap.key)?.remove(); });
-
     function openSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
+    db.ref('messages').on('child_removed', snap => { document.getElementById(snap.key)?.remove(); });
 </script>
 </body>
 </html>
