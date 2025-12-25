@@ -2,63 +2,78 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>إمبراطورية الماستر RG</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --neon: #00f2ff; --pink: #ff004c; --bg: #050505; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+        * { box-sizing: border-box; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         
-        /* الهيدر مع أزرار الستارة */
-        header { background: #111; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); }
-        .menu-btn { background: var(--neon); color: #000; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        header { background: #111; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); z-index: 2001; }
+        .menu-btn { background: var(--neon); color: #000; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px; }
 
-        .main-container { display: flex; flex: 1; position: relative; overflow: hidden; }
+        .main-container { flex: 1; position: relative; display: flex; overflow: hidden; }
 
-        /* الستارة اليمنى (متصلين) */
-        #right-sidebar { width: 200px; background: #0a0a0a; border-left: 1px solid #222; transition: 0.3s; overflow-y: auto; padding: 15px; }
-        #right-sidebar.closed { margin-right: -200px; }
+        /* الستارات - تعديل القياسات للموبايل */
+        .sidebar { 
+            position: absolute; top: 0; bottom: 0; width: 260px; 
+            background: #0a0a0a; z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        
+        #right-sidebar { right: -260px; border-left: 1px solid #222; }
+        #right-sidebar.open { right: 0; }
 
-        /* الستارة اليسرى (مميزات) */
-        #left-sidebar { width: 220px; background: #0a0a0a; border-right: 1px solid #222; transition: 0.3s; overflow-y: auto; padding: 15px; }
-        #left-sidebar.closed { margin-left: -220px; }
+        #left-sidebar { left: -260px; border-right: 1px solid #222; }
+        #left-sidebar.open { left: 0; }
 
         /* منطقة الشات */
-        #chat-area { flex: 1; display: flex; flex-direction: column; background: #000; transition: 0.3s; }
-        #msgs { flex: 1; padding: 15px; overflow-y: auto; }
+        #chat-area { flex: 1; display: flex; flex-direction: column; background: #000; width: 100%; }
+        #msgs { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; }
 
-        /* البروفايل داخل الستارة */
-        .profile-card { background: #111; border: 1px solid var(--neon); padding: 10px; border-radius: 10px; text-align: center; }
-        .p-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--neon); object-fit: cover; }
+        /* الفقاعات */
+        .msg-row { display: flex; gap: 10px; margin-bottom: 15px; max-width: 90%; }
+        .msg-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); flex-shrink: 0; }
+        .msg-body { background: #151515; border: 1px solid #222; padding: 10px; border-radius: 12px; font-size: 14px; line-height: 1.4; }
 
-        /* الرسايل */
-        .msg-row { display: flex; gap: 10px; margin-bottom: 15px; }
-        .msg-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); }
-        .msg-body { background: #111; border: 1px solid #222; padding: 10px; border-radius: 10px; flex: 1; }
+        /* الإدخال السفلي */
+        .input-box { padding: 10px; background: #111; display: flex; gap: 8px; border-top: 1px solid #222; }
+        input[type="text"] { flex: 1; background: #000; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 25px; outline: none; font-size: 16px; }
+        #sendBtn { background: var(--neon); border: none; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
 
-        /* الإدخال */
-        .input-box { padding: 15px; background: #111; display: flex; gap: 10px; }
-        input[type="text"] { flex: 1; background: #000; color: #fff; border: 1px solid #333; padding: 10px; border-radius: 20px; }
-        #sendBtn { background: var(--neon); border: none; padding: 0 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        /* البروفايل */
+        .profile-card { background: #111; border: 1px solid var(--neon); padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+        .p-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--neon); object-fit: cover; }
 
-        #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; border: 2px solid var(--neon); padding: 20px; border-radius: 15px; z-index: 2000; width: 280px; text-align: center; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1500; }
+        /* طبقة التعتيم عند فتح المنيو */
+        #overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1999; }
+
+        /* تحسينات للشاشات الكبيرة (كمبيوتر) */
+        @media (min-width: 900px) {
+            #right-sidebar { right: 0; position: relative; }
+            #left-sidebar { left: 0; position: relative; }
+            #overlay { display: none !important; }
+            .menu-btn { display: none; }
+        }
     </style>
 </head>
 <body>
 
+<div id="overlay" onclick="closeAll()"></div>
+
 <header>
-    <button class="menu-btn" onclick="toggleSidebar('right')">المتصلين ☰</button>
-    <span style="color:var(--neon); font-weight:bold;">MASTER RG EMPIRE</span>
-    <button class="menu-btn" onclick="toggleSidebar('left')">☰ المميزات</button>
+    <button class="menu-btn" onclick="toggleS('right')">المتصلين</button>
+    <span style="color:var(--neon); font-size: 14px; font-weight:bold;">إمبراطورية الماستر</span>
+    <button class="menu-btn" onclick="toggleS('left')">الملف</button>
 </header>
 
 <div class="main-container">
-    <div id="right-sidebar">
-        <h4 style="color:var(--neon); border-bottom:1px solid #222;">المتواجدون</h4>
-        <div style="color:gold;">👑 الماستر RG</div>
-        <div style="color:#777; font-size:12px; margin-top:10px;">👤 زائر 001</div>
+    <div id="right-sidebar" class="sidebar">
+        <h3 style="color:var(--neon); border-bottom:1px solid #222; padding-bottom:5px;">المتصلون</h3>
+        <div style="color:gold; padding:5px;">👑 الماستر RG</div>
+        <div style="color:#888; padding:5px;">👤 عضو متفاعل</div>
     </div>
 
     <div id="chat-area">
@@ -69,91 +84,54 @@
         </div>
     </div>
 
-    <div id="left-sidebar">
+    <div id="left-sidebar" class="sidebar">
         <div class="profile-card" onclick="openEdit()">
-            <img src="https://via.placeholder.com/60" id="myIcon" class="p-img">
-            <div id="myName" style="font-weight:bold; margin-top:5px;">الماستر RG</div>
-            <div style="color:var(--pink); font-size:14px;">❤️ <span id="likes">0</span></div>
-            <small style="color:var(--neon)">تعديل البروفايل</small>
+            <img src="https://via.placeholder.com/80" id="myIcon" class="p-img">
+            <div id="myName" style="font-weight:bold; margin-top:10px; font-size:18px;">الماستر RG</div>
+            <div style="color:var(--pink); margin-top:5px;">❤️ <span id="likes">0</span></div>
         </div>
-        <h4 style="color:var(--pink); margin-top:20px; border-bottom:1px solid #222;">المميزات</h4>
-        <button style="width:100%; margin-bottom:5px;" onclick="location.reload()">تحديث</button>
-        <button style="width:100%;" onclick="alert('قريباً: تغيير الخلفية')">المتجر</button>
+        <button style="width:100%; padding:10px; background:#222; color:#fff; border:1px solid #444; border-radius:5px;" onclick="location.reload()">تحديث الشات</button>
     </div>
 </div>
 
-<div class="overlay" id="overlay" onclick="closeEdit()"></div>
-<div id="modal">
-    <h3>تعديل البروفايل</h3>
-    <input type="text" id="editName" placeholder="الاسم الجديد" style="width:90%; margin-bottom:10px;">
-    <p style="font-size:11px;">ارفع صورتك:</p>
-    <input type="file" id="imgFile" accept="image/*" onchange="processImg(this)">
-    <button onclick="saveProfile()" style="background:var(--neon); border:none; padding:10px 20px; border-radius:5px; margin-top:10px; cursor:pointer;">حفظ</button>
-</div>
-
 <script>
+    // --- نفس إعدادات الفايربيز والبرمجة السابقة ---
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    function toggleSidebar(side) {
-        if(side === 'right') document.getElementById('right-sidebar').classList.toggle('closed');
-        if(side === 'left') document.getElementById('left-sidebar').classList.toggle('closed');
+    function toggleS(side) {
+        closeAll();
+        document.getElementById(side + '-sidebar').classList.add('open');
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closeAll() {
+        document.getElementById('right-sidebar').classList.remove('open');
+        document.getElementById('left-sidebar').classList.remove('open');
+        document.getElementById('overlay').style.display = 'none';
     }
 
     let user = { 
         name: localStorage.getItem('rg-n') || "الماستر_RG", 
-        img: localStorage.getItem('rg-i') || "https://via.placeholder.com/60" 
+        img: localStorage.getItem('rg-i') || "https://via.placeholder.com/80" 
     };
-
     document.getElementById('myIcon').src = user.img;
     document.getElementById('myName').innerText = user.name;
-
-    function openEdit() { document.getElementById('modal').style.display='block'; document.getElementById('overlay').style.display='block'; }
-    function closeEdit() { document.getElementById('modal').style.display='none'; document.getElementById('overlay').style.display='none'; }
-
-    function processImg(input) {
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => { user.img = e.target.result; };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function saveProfile() {
-        user.name = document.getElementById('editName').value || user.name;
-        localStorage.setItem('rg-n', user.name);
-        localStorage.setItem('rg-i', user.img);
-        document.getElementById('myIcon').src = user.img;
-        document.getElementById('myName').innerText = user.name;
-        closeEdit();
-    }
 
     function send() {
         const t = document.getElementById('mInput').value;
         if(t) {
-            db.ref('messages').push({ u: user.name, t: t, i: user.img, time: new Date().toLocaleTimeString() });
+            db.ref('messages').push({ u: user.name, t: t, i: user.img });
             document.getElementById('mInput').value = '';
         }
     }
 
     db.ref('messages').on('child_added', (snap) => {
         const m = snap.val();
-        const id = snap.key;
         const div = document.createElement('div');
         div.className = 'msg-row';
-        div.innerHTML = `
-            <img src="${m.i}" class="msg-avatar">
-            <div class="msg-body">
-                <b style="color:var(--neon); font-size:12px;">${m.u}</b>
-                <div style="margin-top:4px;">${m.t}</div>
-                <div style="margin-top:5px; font-size:10px;">
-                    <button onclick="db.ref('messages/${id}').remove(); location.reload();">حذف</button>
-                    <button onclick="document.getElementById('likes').innerText++">❤️</button>
-                </div>
-            </div>
-        `;
+        div.innerHTML = `<img src="${m.i}" class="msg-avatar"><div class="msg-body"><b>${m.u}</b><br>${m.t}</div>`;
         document.getElementById('msgs').appendChild(div);
         document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
     });
