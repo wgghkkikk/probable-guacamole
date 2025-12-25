@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>MASTER RG - The Empire Ultimate</title>
+    <title>MASTER RG - YouTube Ready</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
@@ -12,57 +12,37 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { margin: 0; background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
 
-        /* الصفحات */
         .page { position: fixed; inset: 0; background: var(--bg); display: none; z-index: 10; }
-        .page.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .page.active { display: block; }
 
         header { height: 60px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 100; }
-        .lobby-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; overflow-y: auto; height: calc(100vh - 60px); }
-        .room-card { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; cursor: pointer; transition: 0.3s; }
-        .room-card:active { transform: scale(0.95); border-color: var(--neon); }
-
-        /* الرسائل */
         .chat-area { position: absolute; top: 60px; left: 0; right: 0; bottom: 80px; overflow-y: auto; padding: 10px; background: #050505; }
-        .msg { display: flex; margin-bottom: 12px; }
-        .msg img { width: 42px; height: 42px; border-radius: 10px; border: 2px solid #222; margin-left: 10px; object-fit: cover; }
-        .rank-badge { font-size: 9px; padding: 1px 4px; border-radius: 4px; margin-left: 5px; vertical-align: middle; background: #333; }
-        .user-n { font-size: 13px; font-weight: bold; margin-bottom: 2px; }
-        .user-t { background: #1a1a1a; padding: 8px 12px; border-radius: 12px; border-top-right-radius: 0; line-height: 1.4; max-width: 85%; }
-
-        /* القائمة الجانبية */
-        .sidebar { position: fixed; top: 0; bottom: 0; right: -300px; width: 280px; background: #0a0a0a; z-index: 2000; padding: 20px; transition: 0.3s; border-left: 2px solid var(--neon); overflow-y: auto; }
-        .sidebar.active { right: 0; }
-        .box-section { background: #111; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #222; }
-
-        /* الحائط الاجتماعي */
-        #social-container { padding: 10px; }
-        .post { background: #111; border-radius: 12px; margin-bottom: 15px; border: 1px solid #222; overflow: hidden; }
-        .post img { width: 100%; max-height: 250px; object-fit: cover; }
-
-        .footer { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: #111; display: flex; align-items: center; padding: 15px; border-top: 1px solid #222; }
-        #msgInp { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 12px; text-align: right; }
-        .send-btn { background: var(--neon); color: #000; border: none; padding: 10px 15px; border-radius: 10px; margin-right: 8px; font-weight: bold; }
         
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1500; display: none; }
+        /* تصميم الرسائل واليوتيوب */
+        .msg { display: flex; margin-bottom: 15px; }
+        .msg img { width: 40px; height: 40px; border-radius: 8px; border: 2px solid #333; margin-left: 10px; object-fit: cover; }
+        .user-n { font-size: 13px; font-weight: bold; margin-bottom: 2px; }
+        .user-t { background: #1a1a1a; padding: 10px; border-radius: 12px; line-height: 1.4; max-width: 85%; overflow: hidden; }
+        
+        .yt-frame { width: 100%; aspect-ratio: 16/9; margin-top: 10px; border-radius: 8px; border: 1px solid var(--neon); }
+
+        .footer { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: #111; display: flex; align-items: center; padding: 15px; }
+        #msgInp { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 12px; text-align: right; }
+        .send-btn { background: var(--neon); color: #000; border: none; padding: 10px 15px; border-radius: 10px; margin-right: 8px; font-weight: bold; cursor: pointer; }
+
+        .lobby-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; overflow-y: auto; height: calc(100vh - 60px); }
+        .room-card { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="lobby-page" class="page active">
-    <header>
-        <button onclick="toggleSidebar()" style="background:var(--neon); border:none; padding:7px 12px; border-radius:8px; font-weight:bold;">القائمة ☰</button>
-        <b style="color:var(--neon); font-size: 18px;">MASTER RG 👑</b>
-        <div style="width:60px"></div>
-    </header>
+    <header><b style="color:var(--neon); font-size: 18px;">MASTER RG 👑</b></header>
     <div class="lobby-container">
         <div class="room-card" onclick="openRoom('main', '👑 العرش')">🏛<br><b>العرش</b></div>
         <div class="room-card" onclick="openRoom('game', '🏆 المسابقات')">🏆<br><b>المسابقات</b></div>
         <div class="room-card" onclick="openRoom('vip', '💎 الديوان')">💎<br><b>الديوان</b></div>
         <div class="room-card" onclick="openRoom('elite', '🤝 النخبة')">🤝<br><b>النخبة</b></div>
-        <div class="room-card" onclick="openRoom('poem', '🎸 الشعر')">🎸<br><b>الشعر</b></div>
-        <div class="room-card" onclick="openRoom('cafe', '☕ المقهى')">☕<br><b>المقهى</b></div>
-        <div class="room-card" style="grid-column: span 2; border-color:var(--gold)" onclick="showSocial()">📸 <b>حائط الإمبراطورية الاجتماعي</b></div>
     </div>
 </div>
 
@@ -70,35 +50,13 @@
     <header>
         <button onclick="goBack()" style="background:none; border:none; color:var(--neon); font-size:22px;">➔</button>
         <b id="room-name-display" style="color:var(--gold);"></b>
-        <button onclick="toggleSidebar()" id="online-btn" style="background:#222; border:none; color:#fff; padding:5px 10px; border-radius:8px; font-size:11px;">0 متصل</button>
+        <div style="width:30px"></div>
     </header>
     <div id="chat-messages" class="chat-area"></div>
     <div class="footer">
-        <input type="text" id="msgInp" placeholder="اكتب هنا...">
+        <input type="text" id="msgInp" placeholder="اكتب رسالة أو رابط يوتيوب...">
         <button onclick="sendMsg()" class="send-btn">إرسال</button>
     </div>
-</div>
-
-<div id="social-page" class="page">
-    <header>
-        <button onclick="goBack()" style="background:none; border:none; color:var(--neon); font-size:22px;">➔</button>
-        <b style="color:var(--gold);">حائط الإمبراطورية 📸</b>
-        <button onclick="newPost()" style="background:var(--neon); border:none; padding:5px 10px; border-radius:8px; font-size:11px;">نشر +</button>
-    </header>
-    <div id="social-container" style="overflow-y:auto; height:calc(100vh - 60px);"></div>
-</div>
-
-<div id="overlay" onclick="toggleSidebar()"></div>
-<div id="sidebar" class="sidebar">
-    <div class="box-section">
-        <h4 style="margin:0; color:var(--neon)">👤 الملف الشخصي</h4>
-        <div style="font-size:13px; margin-top:10px;">الاسم: <span id="my-n-ui" style="color:var(--gold)"></span></div>
-        <div style="font-size:11px; color:var(--neon)">المستوى: <span id="my-lv-ui">1</span></div>
-        <input type="file" accept="image/*" onchange="upImg(this)" style="font-size:10px; margin-top:10px; width:100%;">
-        <button onclick="localStorage.clear(); location.reload();" style="width:100%; margin-top:10px; background:red; border:none; color:white; padding:5px; border-radius:8px; font-family:'Cairo';">خروج</button>
-    </div>
-    <h4 style="color:var(--gold); border-bottom:1px solid #333; padding-bottom:5px;">🟢 المتواجدون</h4>
-    <div id="user-list-box"></div>
 </div>
 
 <script>
@@ -107,40 +65,16 @@
     const db = firebase.database();
 
     let my = {
-        n: localStorage.getItem('rg-n') || "",
-        i: localStorage.getItem('rg-i') || "https://ui-avatars.com/api/?background=333&color=fff&name=U",
-        xp: parseInt(localStorage.getItem('rg-xp')) || 0,
-        r: "عضو"
+        n: localStorage.getItem('rg-n') || "زائر_" + Math.floor(Math.random()*999),
+        i: "https://ui-avatars.com/api/?background=333&color=fff&name=U"
     };
 
-    if(!my.n) {
-        let name = prompt("ادخل اسمك المستعار:");
-        if(name) { localStorage.setItem('rg-n', name); location.reload(); }
+    if(!localStorage.getItem('rg-n')) {
+        let n = prompt("ادخل اسمك:");
+        if(n) { localStorage.setItem('rg-n', n); location.reload(); }
     }
-    if(my.n.includes("الماستر")) my.r = "الماستر";
-    document.getElementById('my-n-ui').innerText = my.n;
-    document.getElementById('my-lv-ui').innerText = Math.floor(my.xp / 50) + 1;
 
     let currentRoom = "";
-
-    // نظام المتصلين
-    function setOnline() {
-        let ref = db.ref('online_users/' + my.n);
-        ref.set({ n: my.n, i: my.i });
-        ref.onDisconnect().remove();
-    }
-    setOnline();
-
-    db.ref('online_users').on('value', snap => {
-        let box = document.getElementById('user-list-box');
-        box.innerHTML = "";
-        let count = 0;
-        snap.forEach(u => {
-            count++;
-            box.innerHTML += `<div style="padding:5px; font-size:13px; border-bottom:1px solid #1a1a1a;">🟢 ${u.val().n}</div>`;
-        });
-        document.getElementById('online-btn').innerText = count + " متصل";
-    });
 
     function openRoom(roomId, roomName) {
         currentRoom = roomId;
@@ -150,67 +84,45 @@
         loadMessages();
     }
 
-    function showSocial() {
-        document.getElementById('lobby-page').classList.remove('active');
-        document.getElementById('social-page').classList.add('active');
-        loadPosts();
+    function goBack() { 
+        document.getElementById('chat-page').classList.remove('active');
+        document.getElementById('lobby-page').classList.add('active');
+    }
+
+    // وظيفة لتحويل رابط يوتيوب إلى فيديو
+    function getYoutubeId(url) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
     }
 
     function sendMsg() {
         let t = document.getElementById('msgInp').value;
         if(!t.trim()) return;
-        db.ref('rooms/' + currentRoom).push({ u: my.n, i: my.i, t: t, r: my.r, lv: Math.floor(my.xp/50)+1 });
-        my.xp += 5; localStorage.setItem('rg-xp', my.xp);
+        db.ref('rooms/' + currentRoom).push({ u: my.n, t: t, i: my.i });
         document.getElementById('msgInp').value = '';
     }
 
     function loadMessages() {
         db.ref('rooms/' + currentRoom).off();
-        let chatBox = document.getElementById('chat-messages');
-        chatBox.innerHTML = "";
+        let box = document.getElementById('chat-messages');
+        box.innerHTML = "";
         db.ref('rooms/' + currentRoom).limitToLast(30).on('child_added', snap => {
             let m = snap.val();
+            let ytId = getYoutubeId(m.t);
             let div = document.createElement('div');
             div.className = 'msg';
-            div.innerHTML = `<img src="${m.i}"><div><div class="user-n" style="color:${m.r==='الماستر'?'var(--gold)':'var(--neon)'}">${m.u} <span class="rank-badge">Lv.${m.lv||1}</span></div><div class="user-t">${m.t}</div></div>`;
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            
+            let msgContent = `<div class="user-t">${m.t}`;
+            if(ytId) {
+                msgContent += `<iframe class="yt-frame" src="https://www.youtube.com/embed/${ytId}" frameborder="0" allowfullscreen></iframe>`;
+            }
+            msgContent += `</div>`;
+
+            div.innerHTML = `<img src="${m.i}"><div><div class="user-n">${m.u}</div>${msgContent}</div>`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
         });
-    }
-
-    function newPost() {
-        let txt = prompt("اكتب منشورك:");
-        let img = prompt("رابط صورة (اختياري):");
-        if(txt) db.ref('posts').push({ u: my.n, t: txt, img: img });
-    }
-
-    function loadPosts() {
-        db.ref('posts').on('value', snap => {
-            let box = document.getElementById('social-container');
-            box.innerHTML = "";
-            snap.forEach(post => {
-                let p = post.val();
-                box.innerHTML += `<div class="post">${p.img?`<img src="${p.img}">`:''}<div style="padding:10px;"><b style="color:var(--neon)">${p.u}</b><p style="margin:5px 0;">${p.t}</p></div></div>`;
-            });
-        });
-    }
-
-    function upImg(input) {
-        if (input.files && input.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function(e) { localStorage.setItem('rg-i', e.target.result); location.reload(); };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    function goBack() { 
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('lobby-page').classList.add('active');
-    }
-
-    function toggleSidebar() { 
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none';
     }
 </script>
 </body>
