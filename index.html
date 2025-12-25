@@ -3,73 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>إمبراطورية الماستر RG</title>
+    <title>Master RG - Neon RGB</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --neon: #00f2ff; --pink: #ff004c; --gold: #ffcc00; --bg: #000; }
+        :root { --neon: #00f2ff; --bg: #000; }
         * { box-sizing: border-box; }
-        html, body { height: 100%; margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; width: 100%; }
         
-        header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 10px; position: absolute; top: 0; width: 100%; z-index: 1000; }
-        .btn-m { background: #222; color: var(--neon); border: 1px solid var(--neon); padding: 6px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        /* تأثير قوس قزح للاسم */
+        @keyframes rainbow {
+            0% { color: #ff0000; } 20% { color: #ffff00; } 40% { color: #00ff00; }
+            60% { color: #00ffff; } 80% { color: #0000ff; } 100% { color: #ff00ff; }
+        }
+        .rainbow-text { animation: rainbow 3s infinite linear; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.3); }
 
-        #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 75px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-
-        /* ستايل الرسالة المطور */
-        .msg-box { display: flex; gap: 10px; align-items: flex-start; }
-        .msg-img { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); object-fit: cover; }
-        .msg-content { background: #151515; padding: 10px; border-radius: 12px; border-right: 3px solid var(--neon); flex: 1; position: relative; }
-        .msg-user { color: var(--neon); font-weight: bold; font-size: 13px; display: block; margin-bottom: 4px; }
-        .msg-tools { display: flex; gap: 10px; margin-top: 8px; border-top: 1px solid #222; padding-top: 5px; }
-        .tool-btn { background: none; border: none; color: #666; font-size: 11px; cursor: pointer; padding: 0; }
-        .tool-btn:hover { color: #fff; }
-
-        /* خانة الكتابة */
-        .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #111; border-top: 2px solid var(--neon); display: flex; align-items: center; padding: 0 10px; gap: 8px; z-index: 9999; }
-        input { flex: 1; background: #000; color: #fff; border: 1px solid #444; height: 45px; padding: 0 15px; border-radius: 25px; font-size: 16px; outline: none; }
-        #sendBtn { background: var(--neon); border: none; height: 45px; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; color: #000; }
+        html, body { height: 100%; margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; width: 100%; }
+        header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 10px; z-index: 1000; }
+        
+        #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 75px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
 
         /* الستارات */
-        .sidebar { position: fixed; top: 55px; bottom: 75px; width: 250px; background: #0a0a0a; z-index: 5000; transition: 0.3s; padding: 15px; border: 1px solid #222; display: none; overflow-y: auto; }
+        .sidebar { position: fixed; top: 55px; bottom: 75px; width: 260px; background: #0a0a0a; z-index: 5000; transition: 0.3s; padding: 15px; border: 1px solid #222; display: none; overflow-y: auto; }
         .sidebar.active { display: block; }
-        #right-s { right: 0; }
-        #left-s { left: 0; }
 
-        /* البروفايل داخل الستارة */
-        .profile-edit { text-align: center; border-bottom: 1px solid #222; padding-bottom: 15px; margin-bottom: 15px; }
-        .p-img-large { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--neon); object-fit: cover; margin-bottom: 10px; }
+        /* حاويات الخيارات */
+        .box { background: #151515; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .box h4 { margin: 0 0 10px 0; color: var(--neon); font-size: 14px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+
+        /* أدوات الألوان */
+        .color-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        input[type="color"] { border: none; width: 35px; height: 35px; cursor: pointer; background: none; }
+        input[type="text"] { width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 8px; border-radius: 5px; outline: none; }
+
+        /* أزرار الرسالة */
+        .msg-box { display: flex; gap: 10px; margin-bottom: 5px; }
+        .msg-img { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); object-fit: cover; }
+        .msg-content { padding: 10px; border-radius: 12px; flex: 1; border: 1px solid rgba(255,255,255,0.1); }
+
+        .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #111; border-top: 2px solid var(--neon); display: flex; align-items: center; padding: 0 10px; gap: 8px; z-index: 9999; }
+        #sendBtn { background: var(--neon); border: none; height: 45px; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
-    <button class="btn-m" onclick="toggle('right')">المتصلين</button>
-    <b style="color:var(--neon)">MASTER RG</b>
-    <button class="btn-m" onclick="toggle('left')">الملف</button>
+    <button onclick="toggle('right')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:5px 10px; border-radius:5px;">المتصلين</button>
+    <b class="rainbow-text">إمبراطورية RG</b>
+    <button onclick="toggle('left')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:5px 10px; border-radius:5px;">الألوان & الملف</button>
 </header>
 
 <div id="chat-container"></div>
 
-<div id="right-s" class="sidebar">
-    <h3 style="color:var(--neon); font-size: 16px;">المتواجدون</h3>
-    <div style="color:var(--gold)">👑 الماستر RG</div>
+<div id="right-s" class="sidebar" style="right:0;">
+    <h3 style="color:var(--neon)">المتواجدون</h3>
+    <div class="rainbow-text">👑 الماستر RG</div>
 </div>
 
-<div id="left-s" class="sidebar">
-    <div class="profile-edit">
-        <img src="https://via.placeholder.com/80" id="myViewImg" class="p-img-large">
-        <h4 id="myViewName" style="margin: 5px 0;">الماستر RG</h4>
-        <input type="text" id="newName" placeholder="غير اسمك..." style="width:100%; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333; padding:5px;">
-        <p style="font-size:11px;">اختر صورة من الاستوديو:</p>
-        <input type="file" id="imgFile" accept="image/*" onchange="updatePhoto(this)" style="font-size:10px; color:#666;">
-        <button class="btn-m" onclick="saveProfile()" style="width:100%; margin-top:10px;">حفظ التعديلات</button>
+<div id="left-s" class="sidebar" style="left:0;">
+    <div class="box">
+        <h4>الملف الشخصي</h4>
+        <div style="text-align:center;">
+            <img src="" id="myImg" style="width:60px; height:60px; border-radius:50%; border:2px solid var(--neon); margin-bottom:10px;">
+            <input type="text" id="newName" placeholder="تغيير الاسم...">
+            <input type="file" id="fileInp" accept="image/*" onchange="loadImg(this)" style="font-size:10px; margin-top:10px;">
+        </div>
     </div>
-    <button class="btn-m" onclick="location.reload()" style="width:100%">تحديث الشات</button>
+
+    <div class="box">
+        <h4>تخصيص الألوان</h4>
+        <div class="color-item">
+            <span>لون الاسم:</span>
+            <input type="color" id="cName" value="#00f2ff">
+        </div>
+        <div class="color-item">
+            <span>لون الرسالة:</span>
+            <input type="color" id="cBubble" value="#1a1a1a">
+        </div>
+        <div class="color-item">
+            <span>اسم متحرك 🌈:</span>
+            <input type="checkbox" id="cRainbow">
+        </div>
+    </div>
+
+    <button onclick="saveAll()" style="width:100%; background:var(--neon); color:#000; border:none; padding:12px; font-weight:bold; border-radius:8px; cursor:pointer;">حفظ وتطبيق</button>
 </div>
 
 <div class="input-footer">
-    <input type="text" id="msgInp" placeholder="اكتب رسالتك..." autocomplete="off">
+    <input type="text" id="msgInp" placeholder="اكتب شيئاً..." style="flex:1; height:45px; border-radius:25px; padding:0 15px; background:#000; color:#fff; border:1px solid #333;">
     <button id="sendBtn" onclick="send()">إرسال</button>
 </div>
 
@@ -79,74 +99,77 @@
     const db = firebase.database();
 
     let myData = {
-        name: localStorage.getItem('rg-name') || "الماستر_RG",
-        img: localStorage.getItem('rg-img') || "https://via.placeholder.com/80"
+        name: localStorage.getItem('rg-n') || "الماستر_RG",
+        img: localStorage.getItem('rg-i') || "https://via.placeholder.com/60",
+        nc: localStorage.getItem('rg-nc') || "#00f2ff",
+        bc: localStorage.getItem('rg-bc') || "#1a1a1a",
+        rb: localStorage.getItem('rg-rb') === 'true'
     };
 
-    function refreshProfileUI() {
-        document.getElementById('myViewImg').src = myData.img;
-        document.getElementById('myViewName').innerText = myData.name;
+    function updateUI() {
+        document.getElementById('myImg').src = myData.img;
+        document.getElementById('cName').value = myData.nc;
+        document.getElementById('cBubble').value = myData.bc;
+        document.getElementById('cRainbow').checked = myData.rb;
     }
-    refreshProfileUI();
+    updateUI();
 
-    function updatePhoto(input) {
+    function loadImg(input) {
         if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => { myData.img = e.target.result; };
-            reader.readAsDataURL(input.files[0]);
+            const r = new FileReader();
+            r.onload = (e) => { myData.img = e.target.result; };
+            r.readAsDataURL(input.files[0]);
         }
     }
 
-    function saveProfile() {
-        const n = document.getElementById('newName').value;
-        if(n) myData.name = n;
-        localStorage.setItem('rg-name', myData.name);
-        localStorage.setItem('rg-img', myData.img);
-        refreshProfileUI();
-        alert("تم الحفظ!");
+    function saveAll() {
+        myData.name = document.getElementById('newName').value || myData.name;
+        myData.nc = document.getElementById('cName').value;
+        myData.bc = document.getElementById('cBubble').value;
+        myData.rb = document.getElementById('cRainbow').checked;
+        
+        localStorage.setItem('rg-n', myData.name);
+        localStorage.setItem('rg-i', myData.img);
+        localStorage.setItem('rg-nc', myData.nc);
+        localStorage.setItem('rg-bc', myData.bc);
+        localStorage.setItem('rg-rb', myData.rb);
+        
+        updateUI();
+        alert("تم الحفظ بنجاح!");
     }
 
     function toggle(id) {
         const el = document.getElementById(id + '-s');
-        const isVisible = el.style.display === 'block';
-        document.getElementById('right-s').style.display = 'none';
-        document.getElementById('left-s').style.display = 'none';
-        if (!isVisible) el.style.display = 'block';
+        const active = el.style.display === 'block';
+        document.querySelectorAll('.sidebar').forEach(s => s.style.display = 'none');
+        if (!active) el.style.display = 'block';
     }
 
     function send() {
         const t = document.getElementById('msgInp').value;
         if(t.trim()) {
-            db.ref('messages').push({ u: myData.name, t: t, i: myData.img });
+            db.ref('messages').push({ u: myData.name, t: t, i: myData.img, nc: myData.nc, bc: myData.bc, rb: myData.rb });
             document.getElementById('msgInp').value = '';
         }
     }
 
-    db.ref('messages').limitToLast(30).on('child_added', (snap) => {
+    db.ref('messages').limitToLast(25).on('child_added', (snap) => {
         const m = snap.val();
-        const id = snap.key;
         const div = document.createElement('div');
         div.className = 'msg-box';
+        const nClass = m.rb ? 'rainbow-text' : '';
+        const nStyle = m.rb ? '' : `color:${m.nc}`;
+        
         div.innerHTML = `
-            <img src="${m.i || 'https://via.placeholder.com/40'}" class="msg-img">
-            <div class="msg-content">
-                <span class="msg-user">${m.u}</span>
-                <div>${m.t}</div>
-                <div class="msg-tools">
-                    <button class="tool-btn" onclick="quote('${m.u}')">💬 اقتباس</button>
-                    <button class="tool-btn" onclick="deleteMsg('${id}')">🗑️ حذف</button>
-                    <button class="tool-btn" style="color:var(--pink)">❤️</button>
-                </div>
+            <img src="${m.i}" class="msg-img">
+            <div class="msg-content" style="background:${m.bc}; border-color:${m.nc}55">
+                <span class="${nClass}" style="${nStyle}; font-size:12px;">${m.u}</span>
+                <div style="margin-top:4px;">${m.t}</div>
             </div>
         `;
-        const c = document.getElementById('chat-container');
-        c.appendChild(div);
-        c.scrollTop = c.scrollHeight;
+        document.getElementById('chat-container').appendChild(div);
+        document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
     });
-
-    function deleteMsg(id) { if(confirm("حذف الرسالة؟")) db.ref('messages/'+id).remove(); location.reload(); }
-    function quote(user) { document.getElementById('msgInp').value = `@${user} : `; document.getElementById('msgInp').focus(); }
 </script>
-
 </body>
 </html>
