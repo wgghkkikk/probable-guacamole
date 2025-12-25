@@ -3,47 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إمبراطورية الماستر | الإصدار النهائي</title>
+    <title>إمبراطورية الماستر | الإصدار المطور</title>
     <style>
         :root { --glow: #00f2ff; --bg: #050505; --panel: #000; --master-clr: #ff004c; --admin-clr: #ffcc00; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', sans-serif; }
         body { background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* الهيدر */
         header { height: 55px; background: #000; border-bottom: 2px solid var(--glow); display: flex; justify-content: center; align-items: center; box-shadow: 0 0 15px var(--glow); z-index: 1000; }
 
-        /* التوزيع الرئيسي */
         .wrapper { flex: 1; display: flex; overflow: hidden; }
 
-        /* --- الجهة اليسرى: لوحة التحكم والأدوات --- */
-        #left-panel { width: 250px; background: var(--panel); border-left: 1px solid #222; display: flex; flex-direction: column; padding: 15px; gap: 15px; overflow-y: auto; }
-        .section-title { font-size: 12px; color: var(--glow); border-bottom: 1px solid #222; padding-bottom: 5px; margin-bottom: 5px; }
+        /* --- الجهة اليمنى: لوحة التحكم (تم النقل هنا) --- */
+        #right-panel { width: 250px; background: var(--panel); border-right: 1px solid #222; display: flex; flex-direction: column; padding: 15px; gap: 15px; overflow-y: auto; }
+        
+        /* --- الجهة اليسرى: المتصلين والبروفايل (تم النقل هنا) --- */
+        #left-panel { width: 250px; background: var(--panel); border-left: 1px solid #222; display: flex; flex-direction: column; padding: 10px; overflow-y: auto; }
+
+        .section-title { font-size: 12px; color: var(--glow); border-bottom: 1px solid #222; padding-bottom: 5px; margin-bottom: 10px; text-align: center; }
         .tool-btn { width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 8px; cursor: pointer; margin-bottom: 5px; font-size: 12px; transition: 0.3s; }
         .tool-btn:hover { border-color: var(--glow); box-shadow: 0 0 10px var(--glow); }
 
-        /* --- الجهة اليمنى: المتصلين والرتب --- */
-        #right-panel { width: 200px; background: var(--panel); border-right: 1px solid #222; display: flex; flex-direction: column; padding: 10px; overflow-y: auto; }
-        .user-item { display: flex; flex-direction: column; align-items: center; padding: 10px; border-bottom: 1px solid #111; margin-bottom: 10px; }
-        .user-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--glow); margin-bottom: 5px; }
-
-        /* الرتب المتحركة والمتوهجة */
-        .rank { font-size: 10px; font-weight: bold; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; margin-bottom: 3px; }
-        .rank-master { background: var(--master-clr); box-shadow: 0 0 10px var(--master-clr); animation: pulse 1.5s infinite; }
-        .rank-admin { background: var(--admin-clr); color: #000; box-shadow: 0 0 10px var(--admin-clr); }
-        .rank-vip { border: 1px solid #00ff00; color: #00ff00; }
-        .rank-member { color: #888; }
+        /* تصميم كرت المتصل */
+        .user-card { background: #0a0a0a; border: 1px solid #222; border-radius: 12px; padding: 10px; margin-bottom: 15px; position: relative; text-align: center; }
+        .user-avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--glow); margin-bottom: 5px; }
         
-        /* حركة التوهج */
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        @keyframes moveText { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
-        .moving-name { animation: moveText 2s infinite ease-in-out; color: var(--glow); font-weight: bold; text-shadow: 0 0 10px var(--glow); }
+        /* أزرار التفاعل بالبروفايل */
+        .profile-actions { display: flex; justify-content: space-around; margin-top: 10px; border-top: 1px solid #222; padding-top: 8px; }
+        .p-icon { cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .p-icon:hover { transform: scale(1.2); filter: drop-shadow(0 0 5px var(--glow)); }
 
-        /* --- المنتصف: الشات --- */
-        #chat-center { flex: 1; display: flex; flex-direction: column; background: #080808; position: relative; }
-        #msgs-flow { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px; border-right: 4px solid var(--glow); }
+        /* الرتب والتحريك */
+        .rank { font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 10px; margin-bottom: 5px; display: inline-block; }
+        .rank-master { background: var(--master-clr); box-shadow: 0 0 10px var(--master-clr); animation: pulse 1.5s infinite; }
+        .moving-name { animation: moveText 2s infinite ease-in-out; color: var(--glow); font-weight: bold; text-shadow: 0 0 10px var(--glow); display: block; }
 
-        /* شريط الكتابة */
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        @keyframes moveText { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
+
+        /* المنتصف: الشات */
+        #chat-center { flex: 1; display: flex; flex-direction: column; background: #080808; }
+        #msgs-flow { flex: 1; padding: 20px; overflow-y: auto; }
+        .msg { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px; border-right: 4px solid var(--glow); margin-bottom: 10px; }
+
         .input-bar { padding: 15px; background: #000; border-top: 1px solid #222; display: flex; gap: 10px; }
         #main-input { flex: 1; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 25px; outline: none; }
     </style>
@@ -55,24 +56,23 @@
 </header>
 
 <div class="wrapper">
-    <div id="left-panel">
+    <div id="right-panel">
         <div class="section-title">إدارة الغرف</div>
-        <button class="tool-btn" onclick="addRoom()">➕ إضافة غرفة جديدة</button>
+        <button class="tool-btn" onclick="addRoom()">➕ إضافة غرفة</button>
         <div id="rooms-area">
             <button class="tool-btn" style="border-color:var(--glow)"># الغرفة العامة</button>
         </div>
 
-        <div class="section-title">ساحة النشر</div>
-        <input type="text" id="post-text" placeholder="اكتب منشورك هنا..." style="width:100%; padding:8px; background:#000; border:1px solid #333; color:#fff; font-size:12px; border-radius:5px;">
-        <button class="tool-btn" onclick="sendPost()">🚀 نشر الآن</button>
-        <div id="mini-feed" style="max-height: 150px; overflow-y:auto; font-size:11px; color:#666;"></div>
+        <div class="section-title">نشر منشور</div>
+        <input type="text" id="post-text" placeholder="ماذا يدور في ذهنك؟" style="width:100%; padding:8px; background:#000; border:1px solid #333; color:#fff; border-radius:5px; margin-bottom:5px;">
+        <button class="tool-btn" onclick="sendPost()">🚀 نشر</button>
+        <div id="mini-feed" style="max-height: 120px; overflow-y:auto; font-size:11px;"></div>
 
-        <div class="section-title">الألوان والخطوط</div>
-        <button class="tool-btn" onclick="changeTheme()">🎨 تغيير لون الشات</button>
-        <select id="font-select" class="tool-btn" onchange="changeFont(this.value)">
+        <div class="section-title">التصميم</div>
+        <button class="tool-btn" onclick="changeTheme()">🎨 ثيم الشات</button>
+        <select class="tool-btn" onchange="document.body.style.fontFamily = this.value">
             <option value="Tahoma">خط تاهوما</option>
             <option value="Arial">خط اريال</option>
-            <option value="Courier New">خط برمجي</option>
             <option value="cursive">خط مائل</option>
         </select>
     </div>
@@ -80,89 +80,80 @@
     <div id="chat-center">
         <div id="msgs-flow"></div>
         <div class="input-bar">
-            <input type="text" id="main-input" placeholder="اكتب رسالتك هنا...">
+            <input type="text" id="main-input" placeholder="اكتب رسالتك...">
             <button class="tool-btn" style="width:auto; margin:0; background:var(--glow); color:#000; font-weight:bold;" onclick="sendChat()">إرسال</button>
         </div>
     </div>
 
-    <div id="right-panel">
-        <div class="section-title">المتواجدون الآن</div>
+    <div id="left-panel">
+        <div class="section-title">الأعضاء المتصلين</div>
         
-        <div class="user-item">
-            <div class="rank rank-master">صاحب الشات</div>
-            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="user-avatar" style="border-color:var(--master-clr)">
-            <div class="moving-name" id="my-name-display">الماستر</div>
-            <small style="color:#00ff00; font-size:9px;">● متصل</small>
+        <div class="user-card">
+            <span class="rank rank-master">صاحب الشات</span>
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="user-avatar">
+            <span class="moving-name">الماستر</span>
+            
+            <div class="profile-actions">
+                <span class="p-icon" title="خاص" onclick="alert('فتح محادثة خاصة')">📩</span>
+                <span class="p-icon" title="طلب صداقة" onclick="alert('تم إرسال طلب صداقة')">🤝</span>
+                <span class="p-icon" title="إعجاب" onclick="likeUser(this)">❤️ <small>0</small></span>
+            </div>
         </div>
 
-        <div class="user-item">
-            <div class="rank rank-admin">أدمن</div>
+        <div class="user-card">
+            <span class="rank" style="background:var(--admin-clr); color:#000;">أدمن</span>
             <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="user-avatar" style="border-color:var(--admin-clr)">
-            <div style="font-size:12px;">مساعد النظام</div>
-            <small style="color:#00ff00; font-size:9px;">● متصل</small>
+            <span style="display:block; font-size:13px;">مساعد الماستر</span>
+            
+            <div class="profile-actions">
+                <span class="p-icon">📩</span>
+                <span class="p-icon">🤝</span>
+                <span class="p-icon" onclick="likeUser(this)">❤️ <small>0</small></span>
+            </div>
         </div>
-
-        <div class="user-item" style="opacity: 0.6;">
-            <div class="rank rank-member">عضو</div>
-            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="user-avatar" style="border:none">
-            <div style="font-size:12px;">زائر جديد</div>
-            <small style="color:#555; font-size:9px;">○ غير متصل</small>
+        
+        <div class="section-title" style="color:#444">غير متصل</div>
+        <div class="user-card" style="opacity:0.5">
+            <span class="rank" style="background:#333">عضو</span>
+            <div style="font-size:12px;">زائر قديم</div>
         </div>
     </div>
 </div>
 
 <script>
-    let myName = "الماستر";
-
-    // 1. نظام الشات
     function sendChat() {
         const inp = document.getElementById('main-input');
         if(!inp.value.trim()) return;
-        const html = `
-            <div class="msg">
-                <span style="color:var(--master-clr); font-weight:bold;">[صاحب الشات] ${myName}:</span>
-                <span style="margin-right:10px;">${inp.value}</span>
-            </div>`;
+        const html = `<div class="msg"><b style="color:var(--master-clr)">[صاحب الشات] الماستر:</b> ${inp.value}</div>`;
         document.getElementById('msgs-flow').innerHTML += html;
         inp.value = '';
         document.getElementById('msgs-flow').scrollTop = document.getElementById('msgs-flow').scrollHeight;
     }
 
-    // 2. نظام المنشورات (جهة اليسار)
     function sendPost() {
         const inp = document.getElementById('post-text');
         if(!inp.value.trim()) return;
-        const post = `<div style="padding:5px; border-bottom:1px solid #222;">📝 ${inp.value}</div>`;
-        document.getElementById('mini-feed').innerHTML = post + document.getElementById('mini-feed').innerHTML;
+        document.getElementById('mini-feed').innerHTML = `<div style="padding:5px; border-bottom:1px solid #222;">📝 ${inp.value}</div>` + document.getElementById('mini-feed').innerHTML;
         inp.value = '';
     }
 
-    // 3. إضافة غرفة (جهة اليسار)
     function addRoom() {
-        const name = prompt("اسم الغرفة الجديدة:");
-        if(name) {
-            const btn = document.createElement('button');
-            btn.className = "tool-btn";
-            btn.innerText = "# " + name;
-            document.getElementById('rooms-area').appendChild(btn);
-        }
+        const n = prompt("اسم الغرفة:");
+        if(n) document.getElementById('rooms-area').innerHTML += `<button class="tool-btn"># ${n}</button>`;
     }
 
-    // 4. التحكم بالألوان والخطوط
     function changeTheme() {
-        const colors = ['#00f2ff', '#ff00ff', '#00ff00', '#ffff00', '#ffffff'];
-        const random = colors[Math.floor(Math.random() * colors.length)];
-        document.documentElement.style.setProperty('--glow', random);
+        const c = ['#00f2ff', '#ff00ff', '#00ff00', '#ffff00', '#ff004c'];
+        document.documentElement.style.setProperty('--glow', c[Math.floor(Math.random()*c.length)]);
     }
 
-    function changeFont(font) {
-        document.body.style.setProperty('font-family', font, 'important');
-        const allTexts = document.querySelectorAll('*');
-        allTexts.forEach(el => el.style.fontFamily = font);
+    function likeUser(el) {
+        let s = el.querySelector('small');
+        s.innerText = parseInt(s.innerText) + 1;
+        el.style.color = "red";
     }
 
-    // تشغيل الإرسال بالإنتر
-    document.getElementById('main-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChat(); });
+    document.getElementById('main-input').onkeypress = (e) => { if(e.key === 'Enter') sendChat(); };
 </script>
 
 </body>
