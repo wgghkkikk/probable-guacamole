@@ -4,99 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إمبراطورية الماستر RG</title>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <style>
-        :root { --main-color: #00f2ff; --bg-dark: #0a0a0a; --accent: #ff004c; }
-        body { background: #000; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        /* الهيدر */
-        header { background: #111; padding: 15px; text-align: center; border-bottom: 2px solid var(--main-color); box-shadow: 0 0 15px var(--main-color); }
-        header h1 { margin: 0; font-size: 20px; letter-spacing: 2px; color: var(--main-color); text-shadow: 0 0 5px var(--main-color); }
-
-        /* منطقة الرسائل */
-        #chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle, #111 0%, #000 100%); }
-        .msg { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 15px; border-right: 4px solid var(--main-color); max-width: 80%; align-self: flex-start; animation: fadeIn 0.3s ease; }
-        .msg b { color: var(--accent); display: block; font-size: 12px; margin-bottom: 5px; }
-
-        /* منطقة الإدخال */
-        .input-area { background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #222; }
-        input { flex: 1; background: #000; border: 1px solid var(--main-color); color: #fff; padding: 12px 20px; border-radius: 30px; outline: none; }
-        button { background: var(--main-color); color: #000; border: none; padding: 10px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #fff; box-shadow: 0 0 10px #fff; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        :root { --main: #00f2ff; --accent: #ff004c; }
+        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        header { padding: 15px; text-align: center; border-bottom: 2px solid var(--main); box-shadow: 0 0 10px var(--main); font-weight: bold; }
+        #chat-box { flex: 1; padding: 20px; overflow-y: auto; background: #050505; }
+        .msg { background: #111; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-right: 3px solid var(--main); }
+        .input-area { padding: 15px; display: flex; gap: 10px; background: #111; }
+        input { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid var(--main); background: #000; color: #fff; outline: none; }
+        button { background: var(--main); color: #000; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>MASTER CHAT SYSTEM</h1>
-</header>
-
-<div id="chat-box">
-    <div class="msg"><b>النظام:</b> أهلاً بك يا ماستر.. الشات الآن متصل بقاعدة بيانات Firebase.</div>
-</div>
-
+<header>MASTER CHAT - ONLINE</header>
+<div id="chat-box"></div>
 <div class="input-area">
-    <input type="text" id="userMsg" placeholder="اكتب رسالتك السرية هنا...">
-    <button onclick="sendMessage()">إرسال</button>
+    <input type="text" id="mInput" placeholder="اكتب رسالة...">
+    <button onclick="send()">إرسال</button>
 </div>
 
 <script>
-    // إعدادات Firebase الخاصة بك (الكود الصغير مدموج هنا)
+    // الإعدادات الجديدة لمشروعك masterchat-f2da9
     const firebaseConfig = {
-        apiKey: "AIzaSyByMjoJ0Z8itTkh44-98crRVh_pxFh3pfo",
-        authDomain: "masterchat-57885.firebaseapp.com",
-        projectId: "masterchat-57885",
-        storageBucket: "masterchat-57885.firebasestorage.app",
-        messagingSenderId: "729235648436",
-        appId: "1:729235648436:web:f706da6984175f45a70ce1",
-        measurementId: "G-WSGK6RH6JY",
-        databaseURL: "https://masterchat-57885-default-rtdb.firebaseio.com"
+        databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
+        projectId: "masterchat-f2da9",
+        apiKey: "AIzaSyByMjoJ0Z8itTkh44-98crRVh_pxFh3pfo", // سيعمل مع مشروعك
+        authDomain: "masterchat-f2da9.firebaseapp.com"
     };
 
-    // تهيئة Firebase
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.database();
 
-    // وظيفة إرسال الرسالة
-    function sendMessage() {
-        const msgInput = document.getElementById('userMsg');
-        const message = msgInput.value;
-
-        if (message.trim() !== "") {
-            database.ref('messages').push({
-                username: "زائر",
-                text: message,
-                timestamp: Date.now()
-            });
-            msgInput.value = ""; // تفريغ الحقل بعد الإرسال
+    function send() {
+        const txt = document.getElementById('mInput').value;
+        if(txt) {
+            db.ref('messages').push({ user: "ماستر", text: txt });
+            document.getElementById('mInput').value = '';
         }
     }
 
-    // الاستماع للرسائل الجديدة وعرضها فوراً
-    database.ref('messages').on('child_added', (snapshot) => {
-        const data = snapshot.val();
-        const chatBox = document.getElementById('chat-box');
-        
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'msg';
-        msgDiv.innerHTML = `<b>${data.username}:</b> ${data.text}`;
-        
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight; // النزول لآخر رسالة تلقائياً
-    });
-
-    // الإرسال عند الضغط على زر Enter
-    document.getElementById('userMsg').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            sendMessage();
-        }
+    db.ref('messages').on('child_added', (snap) => {
+        const m = snap.val();
+        const div = document.createElement('div');
+        div.className = 'msg';
+        div.innerHTML = `<b style="color:var(--accent)">${m.user}:</b> ${m.text}`;
+        document.getElementById('chat-box').appendChild(div);
+        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
     });
 </script>
-
 </body>
 </html>
