@@ -2,107 +2,85 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
-    <title>Master RG - Chat Fix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Master RG Empire</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --neon: #00f2ff; --bg: #050505; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --neon: #00f2ff; --bg: #000; }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
         
-        /* جعل الطول يتكيف مع الموبايل */
-        html, body { 
-            height: 100%; 
-            height: -webkit-fill-available; 
-            margin: 0; padding: 0; overflow: hidden; 
-            background: var(--bg); color: #fff; font-family: sans-serif;
-        }
-
-        body { display: flex; flex-direction: column; }
-        
+        /* الهيدر */
         header { 
-            height: 60px; background: #111; border-bottom: 2px solid var(--neon);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000;
+            height: 55px; background: #111; border-bottom: 2px solid var(--neon);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 10px;
+            position: fixed; top: 0; width: 100%; z-index: 1000;
         }
 
-        .m-btn { background: var(--neon); border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-
-        .main-content { flex: 1; position: relative; display: flex; overflow: hidden; }
-
-        /* الشات */
-        #chat-window { 
-            display: flex; flex-direction: column; width: 100%; height: 100%; background: #000; 
-        }
-
-        #msgs { 
-            flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 20px;
+        /* حاوية الشات */
+        #chat-container { 
+            position: absolute; top: 55px; bottom: 70px; /* ترك مساحة للهيدر والخانة */
+            width: 100%; overflow-y: auto; padding: 15px;
             display: flex; flex-direction: column; gap: 10px;
         }
 
-        /* خانة الكتابة - ملتصقة بالأسفل تماماً */
-        .input-bar { 
-            background: #111; padding: 10px 15px; 
-            display: flex; gap: 10px; align-items: center;
-            border-top: 1px solid #222;
-            padding-bottom: env(safe-area-inset-bottom); /* لدعم هواتف الآيفون الجديدة */
+        /* خانة الكتابة - الحل القوي */
+        .input-footer { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            height: 70px; background: #111; border-top: 1px solid #222;
+            display: flex; align-items: center; padding: 0 10px; gap: 10px; z-index: 9999;
         }
 
         input { 
             flex: 1; background: #000; color: #fff; border: 1px solid #333; 
-            padding: 12px 15px; border-radius: 25px; outline: none; font-size: 16px;
+            height: 45px; padding: 0 15px; border-radius: 25px; font-size: 16px; outline: none;
         }
 
-        #send { background: var(--neon); border: none; padding: 10px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        #sendBtn { background: var(--neon); border: none; height: 45px; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
 
-        /* الستارات */
-        .side { 
-            position: absolute; top: 0; bottom: 0; width: 280px; background: #0a0a0a; 
-            z-index: 2000; transition: 0.3s ease; padding: 20px; 
+        /* الستارات بالموبايل */
+        .side-bar { 
+            position: fixed; top: 55px; bottom: 70px; width: 250px; 
+            background: #0a0a0a; z-index: 5000; transition: 0.3s; padding: 15px; border: 1px solid #222;
         }
-        #right-s { right: -280px; border-left: 1px solid #222; }
-        #right-s.open { right: 0; }
-        #left-s { left: -280px; border-right: 1px solid #222; }
-        #left-s.open { left: 0; }
+        #right-side { right: -260px; }
+        #right-side.active { right: 0; }
+        #left-side { left: -260px; }
+        #left-side.active { left: 0; }
 
-        .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1500; }
+        .btn-m { background: var(--neon); border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; }
 
-        @media (min-width: 900px) {
-            #right-s { right: 0 !important; position: relative; }
-            #left-s { left: 0 !important; position: relative; }
-            .m-btn { display: none; }
-        }
+        /* ستايل الرسالة */
+        .msg { background: #151515; padding: 10px; border-radius: 10px; border-right: 3px solid var(--neon); }
     </style>
 </head>
 <body>
 
-<div class="overlay" id="over" onclick="cls()"></div>
-
 <header>
-    <button class="m-btn" onclick="shw('right')">المتصلين</button>
-    <div style="color:var(--neon); font-weight:bold;">MASTER RG</div>
-    <button class="m-btn" onclick="shw('left')">الملف</button>
+    <button class="btn-m" onclick="toggle('right')">المتصلين</button>
+    <span style="color:var(--neon); font-weight:bold;">MASTER RG</span>
+    <button class="btn-m" onclick="toggle('left')">الملف</button>
 </header>
 
-<div class="main-content">
-    <div id="right-s" class="side">
-        <h3 style="color:var(--neon)">المتواجدون</h3>
-        <div style="color:gold">👑 الماستر RG</div>
-    </div>
+<div id="chat-container"></div>
 
-    <div id="chat-window">
-        <div id="msgs"></div>
-        <div class="input-bar">
-            <input type="text" id="mInp" placeholder="اكتب هنا..." autocomplete="off">
-            <button id="send" onclick="send()">إرسال</button>
-        </div>
-    </div>
+<div id="right-side" class="side-bar">
+    <h3 style="color:var(--neon)">المتواجدون</h3>
+    <div style="color:gold">👑 الماستر RG</div>
+</div>
 
-    <div id="left-s" class="side">
-        <div style="text-align:center; background:#1a1a1a; padding:15px; border-radius:10px; border:1px solid var(--neon);">
-            <img src="https://via.placeholder.com/60" id="myPic" style="width:60px; border-radius:50%; border:2px solid var(--neon);">
-            <div id="myName" style="font-weight:bold; margin-top:10px;">الماستر RG</div>
-        </div>
+<div id="left-side" class="side-bar">
+    <div style="text-align:center;">
+        <img src="https://via.placeholder.com/60" id="userImg" style="width:60px; border-radius:50%; border:2px solid var(--neon);">
+        <h4 id="userName">الماستر RG</h4>
+        <button class="btn-m" onclick="location.reload()">تحديث</button>
     </div>
+</div>
+
+<div class="input-footer">
+    <input type="text" id="msgInp" placeholder="اكتب رسالتك هنا..." autocomplete="off">
+    <button id="sendBtn" onclick="send()">إرسال</button>
 </div>
 
 <script>
@@ -110,34 +88,38 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    function shw(s) { document.getElementById(s+'-s').classList.add('open'); document.getElementById('over').style.display='block'; }
-    function cls() { document.getElementById('right-s').classList.remove('open'); document.getElementById('left-s').classList.remove('open'); document.getElementById('over').style.display='none'; }
+    function toggle(id) {
+        const el = document.getElementById(id + '-side');
+        const isActive = el.classList.contains('active');
+        document.getElementById('right-side').classList.remove('active');
+        document.getElementById('left-side').classList.remove('active');
+        if (!isActive) el.classList.add('active');
+    }
 
     function send() {
-        const t = document.getElementById('mInp').value;
+        const t = document.getElementById('msgInp').value;
         const n = localStorage.getItem('rg-n') || "الماستر_RG";
-        const i = localStorage.getItem('rg-i') || "https://via.placeholder.com/60";
         if(t.trim()) {
-            db.ref('messages').push({ u: n, t: t, i: i });
-            document.getElementById('mInp').value = '';
+            db.ref('messages').push({ u: n, t: t });
+            document.getElementById('msgInp').value = '';
         }
     }
 
     db.ref('messages').on('child_added', (snap) => {
         const m = snap.val();
         const div = document.createElement('div');
-        div.style.background = "#151515";
-        div.style.padding = "10px";
-        div.style.borderRadius = "10px";
-        div.innerHTML = `<b style="color:var(--neon)">${m.u}:</b> <span style="word-break: break-all;">${m.t}</span>`;
-        document.getElementById('msgs').appendChild(div);
-        document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
+        div.className = 'msg';
+        div.innerHTML = `<b style="color:var(--neon)">${m.u}:</b> <span>${m.t}</span>`;
+        const container = document.getElementById('chat-container');
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
     });
 
-    // سكرول تلقائي عند فتح الكيبورد
+    // حل مشكلة الكيبورد في الموبايل
     window.addEventListener('resize', () => {
-        document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
+        document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
     });
 </script>
+
 </body>
 </html>
