@@ -1,61 +1,110 @@
-<style>
-    .master-panel {
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        background: #1a1a1a; border: 2px solid #d4af37; padding: 20px;
-        border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.8);
-        display: none; z-index: 10000; text-align: center; color: white; width: 250px;
-    }
-    .master-btn {
-        width: 100%; padding: 10px; margin: 5px 0; border: none; border-radius: 8px;
-        cursor: pointer; font-weight: bold; color: white;
-    }
-    .btn-kick { background: #e74c3c; } /* أحمر للطرد */
-    .btn-mute { background: #f1c40f; color: #000; } /* أصفر للكتم */
-</style>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>شات علوش الملكي 👑</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f0f0f0; }
+        #chat-container { display: flex; height: 100vh; }
+        #user-list { width: 200px; background: #fff; border-left: 1px solid #ddd; padding: 10px; }
+        #chat-main { flex: 1; display: flex; flex-direction: column; }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; background: #fff; }
+        
+        /* خانة الكتابة اللي اختفت عندك */
+        .input-area { padding: 15px; background: #eee; display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; cursor: pointer; background: #333; color: white; border: none; border-radius: 5px; }
+
+        /* لوحة التحكم الملكية لـ علوش */
+        .master-panel {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #1a1a1a; border: 2px solid #d4af37; padding: 20px;
+            border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            display: none; z-index: 10000; text-align: center; color: white; width: 250px;
+        }
+        .btn-kick { background: #e74c3c; width: 100%; padding: 10px; border: none; color: white; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="chat-container">
+    <div id="user-list">
+        <b>المتصلون</b>
+        <div id="users"></div>
+    </div>
+    <div id="chat-main">
+        <div id="messages"></div>
+        <div class="input-area">
+            <input type="text" id="msgInput" placeholder="اكتب رسالتك...">
+            <button onclick="sendMsg()">إرسال</button>
+        </div>
+    </div>
+</div>
 
 <div id="master-panel" class="master-panel">
     <h3 id="target-name">اسم العضو</h3>
-    <button class="master-btn btn-kick" onclick="kickUser(currentSelectedUser)">طرد نهائي ⛔</button>
-    <button class="master-btn btn-mute" onclick="muteUser(currentSelectedUser)">كتم الصوت 🔇</button>
-    <button onclick="closePanel()" style="background:none; color:#888; border:none; cursor:pointer; margin-top:10px;">إغلاق</button>
+    <button class="btn-kick" onclick="confirmKick()">طرد نهائي ⛔</button>
+    <br><br>
+    <button onclick="closePanel()" style="background:none; color:#888; border:none; cursor:pointer;">إلغاء</button>
 </div>
 
 <script>
-    // --- المحرك البرمجي ---
+    // 1. الربط بمشروعك (تأكد أن الرابط هو رابط مشروعك masterchat-f2da9)
+    const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(config);
     const db = firebase.database();
-    let myName = "علوش"; 
-    let iAmTheMaster = false;
-    let currentSelectedUser = "";
 
-    // التأكد من أنك "علوش" المعتمد في السيرفر
-    db.ref('master').on('value', (snapshot) => {
-        if (snapshot.val() === myName) {
+    let myName = "علوش"; // لازم تدخل بهذا الاسم
+    let iAmTheMaster = false;
+    let selectedUser = "";
+
+    // 2. فحص الصلاحية من السيرفر
+    db.ref('master').on('value', (snap) => {
+        if (snap.val() === myName) {
             iAmTheMaster = true;
-            console.log("تم تفعيل صلاحيات الإمبراطور علوش 👑");
+            console.log("أهلاً يا ملك 👑");
         }
     });
 
-    // وظيفة تفتح اللوحة لما تضغط على اسم أي شخص
-    function openAdminMenu(user) {
-        if (iAmTheMaster) {
-            currentSelectedUser = user;
-            document.getElementById('target-name').innerText = user;
-            document.getElementById('master-panel').style.display = 'block';
-        }
+    // 3. عرض المستخدمين وإضافة ميزة الضغط عليهم
+    db.ref('online').on('value', snap => {
+        let uDiv = document.getElementById('users');
+        uDiv.innerHTML = "";
+        snap.forEach(child => {
+            let user = child.val();
+            let p = document.createElement('p');
+            p.innerText = "● " + user.name;
+            p.style.cursor = "pointer";
+            // هنا الميزة: لما تضغط على الاسم تفتح اللوحة
+            p.onclick = () => {
+                if(iAmTheMaster && user.name !== myName) {
+                    selectedUser = user.name;
+                    document.getElementById('target-name').innerText = selectedUser;
+                    document.getElementById('master-panel').style.display = 'block';
+                }
+            };
+            uDiv.appendChild(p);
+        });
+    });
+
+    function confirmKick() {
+        db.ref('actions/' + selectedUser).set({ type: 'KICK', time: Date.now() });
+        alert("تم طرد " + selectedUser);
+        closePanel();
     }
 
     function closePanel() { document.getElementById('master-panel').style.display = 'none'; }
 
-    // --- تنفيذ الأوامر في السيرفر ---
-    function kickUser(target) {
-        db.ref('actions/' + target).set({ type: 'KICK', admin: myName, time: Date.now() });
-        alert("تم طرد " + target);
-        closePanel();
-    }
-
-    function muteUser(target) {
-        db.ref('actions/' + target).set({ type: 'MUTE', admin: myName, time: Date.now() });
-        alert("تم كتم " + target);
-        closePanel();
+    // وظيفة الإرسال العادية
+    function sendMsg() {
+        let val = document.getElementById('msgInput').value;
+        if(!val) return;
+        db.ref('messages').push({ name: myName, text: val });
+        document.getElementById('msgInput').value = "";
     }
 </script>
+
+</body>
+</html>
