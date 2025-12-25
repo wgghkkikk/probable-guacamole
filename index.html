@@ -3,94 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Master RG - Classic Edition</title>
+    <title>Master RG - Imperial Edition</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --bg: #000; }
-        * { box-sizing: border-box; }
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
+        :root { --neon: #00f2ff; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
         
-        header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 10px; z-index: 1000; }
-        #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 85px; overflow-y: auto; padding: 5px; display: flex; flex-direction: column; gap: 2px; }
-
-        /* نظام الأسطر الكاملة - إلغاء الفقاعات */
-        .msg-line { 
-            display: flex; 
-            align-items: center; 
-            padding: 10px; 
-            background: rgba(255,255,255,0.03); 
-            border-bottom: 1px solid #222; 
-            width: 100%; 
-            position: relative;
+        /* خلفية النيون المتحركة */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, #000 25%, #050505 50%, #000 75%);
+            background-size: 400% 400%; animation: bgMove 10s infinite alternate; z-index: -1;
         }
-        .msg-img { width: 45px; height: 45px; border-radius: 5px; border: 1px solid var(--neon); margin-left: 12px; object-fit: cover; }
+        @keyframes bgMove { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+        header { height: 55px; background: rgba(17, 17, 17, 0.9); border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; box-shadow: 0 0 15px var(--neon); }
+        #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 80px; overflow-y: auto; padding: 0; }
+
+        .msg-line { display: flex; padding: 12px 15px; border-bottom: 1px solid #1a1a1a; background: rgba(255,255,255,0.01); align-items: flex-start; }
+        .msg-line:hover { background: rgba(0, 242, 255, 0.04); }
+
+        .msg-img { width: 55px; height: 55px; border-radius: 12px; border: 2px solid var(--neon); margin-left: 15px; object-fit: cover; flex-shrink: 0; box-shadow: 0 0 8px var(--neon); }
         
-        .msg-body { flex: 1; display: flex; flex-direction: column; cursor: pointer; }
-        .msg-user { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
-        .msg-text { color: #eee; line-height: 1.4; }
+        .msg-body { flex: 1; cursor: pointer; }
+        .msg-user-row { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+        .msg-user { font-size: 15px; font-weight: bold; }
+        .rank-badge { font-size: 12px; background: var(--neon); color: #000; padding: 1px 6px; border-radius: 4px; font-weight: 900; }
+        .msg-status { font-size: 11px; color: #666; display: block; margin-top: -3px; margin-bottom: 5px; }
+        .msg-text { color: #fff; line-height: 1.5; }
 
-        /* أزرار التحكم */
-        .del-btn { color: #ff4444; font-size: 18px; cursor: pointer; margin-right: 10px; opacity: 0.6; }
-        .del-btn:hover { opacity: 1; }
+        .del-btn { color: #ff4444; font-size: 20px; cursor: pointer; margin-right: 15px; align-self: center; }
 
-        /* ستايلات الرد */
-        .quote-style { background: #222; border-right: 3px solid var(--neon); padding: 5px; margin-bottom: 5px; font-size: 13px; color: #888; border-radius: 4px; }
-        #reply-bar { display: none; background: #1a1a1a; padding: 10px; border-top: 1px solid var(--neon); position: fixed; bottom: 80px; left: 0; right: 0; z-index: 999; justify-content: space-between; align-items: center; }
+        /* الاقتباس */
+        .quote-style { background: #111; border-right: 4px solid var(--neon); padding: 8px; margin-bottom: 8px; font-size: 14px; color: #888; border-radius: 4px; border: 1px solid #222; }
+        #reply-bar { display: none; background: #000; padding: 12px; border-top: 2px solid var(--neon); position: fixed; bottom: 80px; left: 0; right: 0; z-index: 999; justify-content: space-between; box-shadow: 0 -5px 15px rgba(0,242,255,0.2); }
 
-        /* الألوان المتحركة */
+        .sidebar { position: fixed; top: 55px; bottom: 80px; width: 280px; background: rgba(10, 10, 10, 0.95); z-index: 5000; padding: 20px; border: 1px solid #222; display: none; overflow-y: auto; backdrop-filter: blur(10px); }
+        .box { background: #111; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+
+        .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: #000; border-top: 1px solid var(--neon); display: flex; align-items: center; padding: 0 15px; gap: 10px; }
+        #msgInp { flex: 1; height: 50px; background: #111; color: #fff; border: 1px solid #333; padding: 0 20px; font-size: 18px; outline: none; border-radius: 10px; }
+        #msgInp:focus { border-color: var(--neon); box-shadow: 0 0 10px var(--neon); }
+
+        /* الأنماط الملكية */
         .anim-rainbow { animation: rainbow 3s infinite linear; }
-        @keyframes rainbow { 0%{color:red} 20%{color:yellow} 40%{color:green} 60%{color:cyan} 80%{color:blue} 100%{color:magenta} }
+        @keyframes rainbow { 0%{color:red} 25%{color:yellow} 50%{color:green} 75%{color:blue} 100%{color:magenta} }
         .anim-gold { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shine 2s linear infinite; }
         @keyframes shine { to { background-position: 200% center; } }
-
-        .sidebar { position: fixed; top: 55px; bottom: 80px; width: 260px; background: #0a0a0a; z-index: 5000; padding: 15px; border: 1px solid #222; display: none; overflow-y: auto; }
-        .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: #111; border-top: 2px solid var(--neon); display: flex; align-items: center; padding: 0 10px; gap: 8px; }
-        #msgInp { flex: 1; height: 50px; background: #000; color: #fff; border: 1px solid #333; padding: 0 15px; font-size: 18px; outline: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <button onclick="toggle('right')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:5px 10px; border-radius:5px;">المتصلين</button>
-    <b style="color:var(--neon)">إمبراطورية RG</b>
-    <button onclick="toggle('left')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:5px 10px; border-radius:5px;">الإعدادات</button>
+    <button onclick="toggle('right')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:6px 12px; border-radius:8px; cursor:pointer;">المتصلين</button>
+    <b style="color:var(--neon); font-size: 22px; text-shadow: 0 0 10px var(--neon);">MASTER RG 👑</b>
+    <button onclick="toggle('left')" style="background:none; border:1px solid var(--neon); color:var(--neon); padding:6px 12px; border-radius:8px; cursor:pointer;">الملف الشخصي</button>
 </header>
 
 <div id="reply-bar">
-    <span id="reply-text">الرد على: ...</span>
-    <button onclick="cancelReply()" style="background:red; color:white; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer;">X</button>
+    <div id="reply-text" style="color:var(--neon);">الرد على: ...</div>
+    <button onclick="cancelReply()" style="background:#ff4444; color:white; border:none; border-radius:5px; padding:5px 12px; cursor:pointer; font-weight:bold;">إلغاء</button>
 </div>
 
 <div id="chat-container"></div>
 
 <div id="left-s" class="sidebar" style="left:0;">
-    <h4>تخصيص الإمبراطورية</h4>
-    <input type="text" id="newName" placeholder="الاسم..." style="width:100%; padding:8px; background:#000; color:#fff; border:1px solid #333; margin-bottom:10px;">
-    <span>حجم الخط:</span>
-    <input type="range" id="fontSize" min="16" max="35" value="20" style="width:100%;">
-    <div style="margin-top:10px;">
-        <span>لون الاسم:</span> <input type="color" id="cName" value="#00f2ff">
+    <div class="box">
+        <h4 style="margin:0 0 10px 0; color:var(--neon);">الملف الشخصي</h4>
+        <input type="text" id="newName" placeholder="الاسم..." style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:10px; margin-bottom:10px;">
+        <input type="text" id="newStatus" placeholder="ما هي حالتك؟ (مثلاً: الماستر يحكم)" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:10px;">
+        <input type="file" onchange="loadImg(this)" style="margin-top:15px; font-size:11px; color:#888;">
     </div>
-    <div style="margin-top:10px;">
-        <span>النمط المتحرك:</span>
-        <select id="cAnim" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:5px;">
-            <option value="">بدون حركة</option>
-            <option value="anim-rainbow">قوس قزح 🌈</option>
-            <option value="anim-gold">ذهبي ✨</option>
-        </select>
+    <div class="box">
+        <h4 style="margin:0 0 10px 0; color:var(--neon);">المظهر الملكي</h4>
+        <span>حجم الخط:</span>
+        <input type="range" id="fontSize" min="16" max="35" value="22" style="width:100%;">
+        <div style="margin-top:15px;">
+            <span>النمط المتحرك:</span>
+            <select id="cAnim" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:10px; margin-top:5px;">
+                <option value="">عادي</option>
+                <option value="anim-rainbow">قوس قزح 🌈</option>
+                <option value="anim-gold">ذهبي ملكي ✨</option>
+            </select>
+        </div>
+        <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
+            <span>لون الاسم:</span> <input type="color" id="cName" value="#00f2ff">
+        </div>
     </div>
-    <button onclick="saveAll()" style="width:100%; background:var(--neon); border:none; padding:12px; margin-top:20px; font-weight:bold; cursor:pointer;">حفظ الإعدادات</button>
+    <button onclick="saveAll()" style="width:100%; background:var(--neon); color:#000; border:none; padding:15px; font-weight:bold; cursor:pointer; border-radius:10px; box-shadow: 0 0 10px var(--neon);">تطبيق التغييرات</button>
 </div>
 
 <div id="right-s" class="sidebar" style="right:0;">
-    <h3 style="color:var(--neon)">المتواجدون</h3>
-    <div style="color:gold;">👑 الماستر RG</div>
+    <h3 style="color:var(--neon); border-bottom:1px solid #222; padding-bottom:10px;">المتواجدون الآن</h3>
+    <div style="color:gold; font-size:18px; margin-top:10px;">👑 الماستر RG</div>
+    <div style="color:#aaa; font-size:14px; margin-top:5px;">⭐ باقي الإمبراطورية</div>
 </div>
 
 <div class="input-footer">
-    <input type="text" id="msgInp" placeholder="اكتب رسالتك الملكية...">
-    <button onclick="send()" style="background:var(--neon); border:none; width:80px; height:50px; font-weight:bold; cursor:pointer;">إرسال</button>
+    <input type="text" id="msgInp" placeholder="اكتب أمرك يا ماستر...">
+    <button onclick="send()" style="background:var(--neon); border:none; width:90px; height:50px; font-weight:bold; cursor:pointer; color:#000; border-radius:10px;">إرسال</button>
 </div>
 
 <script>
@@ -100,21 +113,25 @@
 
     let my = { 
         n: localStorage.getItem('rg-n') || "الماستر_RG", 
-        i: localStorage.getItem('rg-i') || "https://via.placeholder.com/45",
+        i: localStorage.getItem('rg-i') || "https://ui-avatars.com/api/?name=RG&background=00f2ff&color=000",
         nc: localStorage.getItem('rg-nc') || "#00f2ff",
-        fs: localStorage.getItem('rg-fs') || "20",
-        as: localStorage.getItem('rg-as') || ""
+        fs: localStorage.getItem('rg-fs') || "22",
+        as: localStorage.getItem('rg-as') || "",
+        st: localStorage.getItem('rg-st') || "إمبراطور RG"
     };
     let replyTo = null;
 
+    function loadImg(input) { if(input.files[0]) { let r=new FileReader(); r.onload=(e)=>{my.i=e.target.result; localStorage.setItem('rg-i', my.i);}; r.readAsDataURL(input.files[0]); } }
+
     function saveAll() {
         my.n = document.getElementById('newName').value || my.n;
+        my.st = document.getElementById('newStatus').value || my.st;
         my.nc = document.getElementById('cName').value;
         my.fs = document.getElementById('fontSize').value;
         my.as = document.getElementById('cAnim').value;
-        localStorage.setItem('rg-n', my.n); localStorage.setItem('rg-nc', my.nc);
-        localStorage.setItem('rg-fs', my.fs); localStorage.setItem('rg-as', my.as);
-        alert("تم الحفظ!");
+        localStorage.setItem('rg-n', my.n); localStorage.setItem('rg-st', my.st);
+        localStorage.setItem('rg-nc', my.nc); localStorage.setItem('rg-fs', my.fs); localStorage.setItem('rg-as', my.as);
+        alert("تم تحديث هويتك الملكية!");
     }
 
     function toggle(id) {
@@ -127,24 +144,24 @@
     function setReply(user, text) {
         replyTo = { user, text };
         document.getElementById('reply-bar').style.display = 'flex';
-        document.getElementById('reply-text').innerText = "الرد على " + user + ": " + text.substring(0, 20) + "...";
+        document.getElementById('reply-text').innerText = "رد ملكي على " + user + ": " + text.substring(0, 30);
         document.getElementById('msgInp').focus();
     }
 
     function cancelReply() { replyTo = null; document.getElementById('reply-bar').style.display = 'none'; }
 
-    function deleteMsg(id) { if(confirm("حذف الرسالة؟")) db.ref('messages/' + id).remove(); }
+    function deleteMsg(id) { if(confirm("حذف هذه الرسالة من التاريخ؟")) db.ref('messages/' + id).remove(); }
 
     function send() {
         let t = document.getElementById('msgInp').value;
         if(t.trim()) {
-            db.ref('messages').push({ u:my.n, t:t, i:my.i, nc:my.nc, fs:my.fs, as:my.as, reply: replyTo });
+            db.ref('messages').push({ u:my.n, t:t, i:my.i, nc:my.nc, fs:my.fs, as:my.as, st:my.st, reply: replyTo });
             document.getElementById('msgInp').value = '';
             cancelReply();
         }
     }
 
-    db.ref('messages').limitToLast(40).on('child_added', (snap) => {
+    db.ref('messages').limitToLast(50).on('child_added', (snap) => {
         let m = snap.val(); let id = snap.key;
         let div = document.createElement('div');
         div.className = 'msg-line';
@@ -152,11 +169,16 @@
         
         let quoteHtml = m.reply ? `<div class="quote-style"><b>${m.reply.user}:</b> ${m.reply.text}</div>` : '';
         let delBtn = (m.u === my.n) ? `<span class="del-btn" onclick="deleteMsg('${id}')">🗑️</span>` : '';
+        let badge = (m.u.includes("الماستر")) ? `<span class="rank-badge">👑 MASTER</span>` : `<span class="rank-badge" style="background:#555; color:#fff;">⭐ MEMBER</span>`;
 
         div.innerHTML = `
             <img src="${m.i}" class="msg-img">
             <div class="msg-body" onclick="setReply('${m.u}', '${m.t}')">
-                <span class="msg-user ${m.as}" style="${m.as?'':'color:'+m.nc}">${m.u}</span>
+                <div class="msg-user-row">
+                    <span class="msg-user ${m.as}" style="${m.as?'':'color:'+m.nc}">${m.u}</span>
+                    ${badge}
+                </div>
+                <span class="msg-status">${m.st || ''}</span>
                 ${quoteHtml}
                 <div class="msg-text" style="font-size:${m.fs}px;">${m.t}</div>
             </div>
