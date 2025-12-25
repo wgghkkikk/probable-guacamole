@@ -2,56 +2,43 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>إمبراطورية الماستر RG</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --neon: #00f2ff; --bg: #000; }
+        :root { --neon: #00f2ff; --pink: #ff004c; --gold: #ffcc00; --bg: #000; }
         * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; width: 100%; }
         
-        /* حل مشكلة الطول في الموبايل */
-        html, body { 
-            height: 100%; width: 100%; margin: 0; padding: 0; 
-            background: #000; color: #fff; font-family: sans-serif; 
-            overflow: hidden; position: fixed; /* يمنع اهتزاز الشاشة */
-        }
+        header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 10px; position: absolute; top: 0; width: 100%; z-index: 1000; }
+        .btn-m { background: #222; color: var(--neon); border: 1px solid var(--neon); padding: 6px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 13px; }
 
-        header { 
-            height: 50px; background: #111; border-bottom: 2px solid var(--neon);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 10px;
-            position: absolute; top: 0; width: 100%; z-index: 1000;
-        }
+        #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 75px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
 
-        /* حاوية الشات */
-        #chat-container { 
-            position: absolute; top: 50px; left: 0; right: 0;
-            /* سنحدد الـ bottom برمجياً بالأسفل */
-            overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;
-        }
+        /* ستايل الرسالة المطور */
+        .msg-box { display: flex; gap: 10px; align-items: flex-start; }
+        .msg-img { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); object-fit: cover; }
+        .msg-content { background: #151515; padding: 10px; border-radius: 12px; border-right: 3px solid var(--neon); flex: 1; position: relative; }
+        .msg-user { color: var(--neon); font-weight: bold; font-size: 13px; display: block; margin-bottom: 4px; }
+        .msg-tools { display: flex; gap: 10px; margin-top: 8px; border-top: 1px solid #222; padding-top: 5px; }
+        .tool-btn { background: none; border: none; color: #666; font-size: 11px; cursor: pointer; padding: 0; }
+        .tool-btn:hover { color: #fff; }
 
-        /* خانة الكتابة - جعلناها ترتفع أكثر */
-        .input-footer { 
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            height: 65px; background: #1a1a1a; border-top: 2px solid var(--neon);
-            display: flex; align-items: center; padding: 0 10px; gap: 8px; z-index: 9999;
-        }
+        /* خانة الكتابة */
+        .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #111; border-top: 2px solid var(--neon); display: flex; align-items: center; padding: 0 10px; gap: 8px; z-index: 9999; }
+        input { flex: 1; background: #000; color: #fff; border: 1px solid #444; height: 45px; padding: 0 15px; border-radius: 25px; font-size: 16px; outline: none; }
+        #sendBtn { background: var(--neon); border: none; height: 45px; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; color: #000; }
 
-        input { 
-            flex: 1; background: #000; color: #fff; border: 1px solid #444; 
-            height: 45px; padding: 0 15px; border-radius: 10px; font-size: 16px; outline: none;
-        }
-
-        #sendBtn { background: var(--neon); border: none; height: 45px; padding: 0 15px; border-radius: 10px; font-weight: bold; cursor: pointer; color: #000; }
-
-        .msg { background: #111; padding: 8px; border-radius: 8px; border-right: 3px solid var(--neon); word-wrap: break-word; }
-        
-        /* الستارات للموبايل */
-        .sidebar { position: fixed; top: 50px; bottom: 65px; width: 200px; background: #050505; z-index: 5000; transition: 0.3s; padding: 10px; border: 1px solid #222; display: none; }
+        /* الستارات */
+        .sidebar { position: fixed; top: 55px; bottom: 75px; width: 250px; background: #0a0a0a; z-index: 5000; transition: 0.3s; padding: 15px; border: 1px solid #222; display: none; overflow-y: auto; }
         .sidebar.active { display: block; }
         #right-s { right: 0; }
         #left-s { left: 0; }
-        .btn-m { background: #222; color: var(--neon); border: 1px solid var(--neon); padding: 5px 10px; border-radius: 5px; font-size: 12px; }
+
+        /* البروفايل داخل الستارة */
+        .profile-edit { text-align: center; border-bottom: 1px solid #222; padding-bottom: 15px; margin-bottom: 15px; }
+        .p-img-large { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--neon); object-fit: cover; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -65,15 +52,24 @@
 <div id="chat-container"></div>
 
 <div id="right-s" class="sidebar">
-    <div style="color:gold">👑 الماستر RG</div>
+    <h3 style="color:var(--neon); font-size: 16px;">المتواجدون</h3>
+    <div style="color:var(--gold)">👑 الماستر RG</div>
 </div>
 
 <div id="left-s" class="sidebar">
+    <div class="profile-edit">
+        <img src="https://via.placeholder.com/80" id="myViewImg" class="p-img-large">
+        <h4 id="myViewName" style="margin: 5px 0;">الماستر RG</h4>
+        <input type="text" id="newName" placeholder="غير اسمك..." style="width:100%; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333; padding:5px;">
+        <p style="font-size:11px;">اختر صورة من الاستوديو:</p>
+        <input type="file" id="imgFile" accept="image/*" onchange="updatePhoto(this)" style="font-size:10px; color:#666;">
+        <button class="btn-m" onclick="saveProfile()" style="width:100%; margin-top:10px;">حفظ التعديلات</button>
+    </div>
     <button class="btn-m" onclick="location.reload()" style="width:100%">تحديث الشات</button>
 </div>
 
-<div class="input-footer" id="footer">
-    <input type="text" id="msgInp" placeholder="اكتب هنا..." autocomplete="off">
+<div class="input-footer">
+    <input type="text" id="msgInp" placeholder="اكتب رسالتك..." autocomplete="off">
     <button id="sendBtn" onclick="send()">إرسال</button>
 </div>
 
@@ -82,15 +78,33 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // --- كود تصحيح الارتفاع للموبايل ---
-    function fixHeight() {
-        const vh = window.innerHeight;
-        const footerHeight = document.getElementById('footer').offsetHeight;
-        document.getElementById('chat-container').style.bottom = footerHeight + 'px';
+    let myData = {
+        name: localStorage.getItem('rg-name') || "الماستر_RG",
+        img: localStorage.getItem('rg-img') || "https://via.placeholder.com/80"
+    };
+
+    function refreshProfileUI() {
+        document.getElementById('myViewImg').src = myData.img;
+        document.getElementById('myViewName').innerText = myData.name;
     }
-    window.addEventListener('resize', fixHeight);
-    window.addEventListener('load', fixHeight);
-    fixHeight();
+    refreshProfileUI();
+
+    function updatePhoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => { myData.img = e.target.result; };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function saveProfile() {
+        const n = document.getElementById('newName').value;
+        if(n) myData.name = n;
+        localStorage.setItem('rg-name', myData.name);
+        localStorage.setItem('rg-img', myData.img);
+        refreshProfileUI();
+        alert("تم الحفظ!");
+    }
 
     function toggle(id) {
         const el = document.getElementById(id + '-s');
@@ -103,25 +117,35 @@
     function send() {
         const t = document.getElementById('msgInp').value;
         if(t.trim()) {
-            db.ref('messages').push({ u: localStorage.getItem('rg-n') || "الماستر", t: t });
+            db.ref('messages').push({ u: myData.name, t: t, i: myData.img });
             document.getElementById('msgInp').value = '';
-            // سكرول لآخر رسالة عند الإرسال
-            setTimeout(() => {
-                const c = document.getElementById('chat-container');
-                c.scrollTop = c.scrollHeight;
-            }, 200);
         }
     }
 
-    db.ref('messages').limitToLast(20).on('child_added', (snap) => {
+    db.ref('messages').limitToLast(30).on('child_added', (snap) => {
         const m = snap.val();
+        const id = snap.key;
         const div = document.createElement('div');
-        div.className = 'msg';
-        div.innerHTML = `<b style="color:var(--neon)">${m.u}:</b> ${m.t}`;
+        div.className = 'msg-box';
+        div.innerHTML = `
+            <img src="${m.i || 'https://via.placeholder.com/40'}" class="msg-img">
+            <div class="msg-content">
+                <span class="msg-user">${m.u}</span>
+                <div>${m.t}</div>
+                <div class="msg-tools">
+                    <button class="tool-btn" onclick="quote('${m.u}')">💬 اقتباس</button>
+                    <button class="tool-btn" onclick="deleteMsg('${id}')">🗑️ حذف</button>
+                    <button class="tool-btn" style="color:var(--pink)">❤️</button>
+                </div>
+            </div>
+        `;
         const c = document.getElementById('chat-container');
         c.appendChild(div);
         c.scrollTop = c.scrollHeight;
     });
+
+    function deleteMsg(id) { if(confirm("حذف الرسالة؟")) db.ref('messages/'+id).remove(); location.reload(); }
+    function quote(user) { document.getElementById('msgInp').value = `@${user} : `; document.getElementById('msgInp').focus(); }
 </script>
 
 </body>
