@@ -3,181 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الماستر الاحترافي</title>
+    <title>إصدار الماستر النهائي</title>
     <style>
-        :root { --glow: #00f2ff; --bg: #050505; --panel: #111; }
+        /* إعدادات الألوان المتوهجة */
+        :root { --main-neon: #00f2ff; --admin-neon: #ff004c; --bg: #080808; }
+        
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', sans-serif; }
         
         body { background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- الهيدر --- */
+        /* الهيدر العلوي */
         header { 
-            height: 60px; background: #000; border-bottom: 2px solid var(--glow);
+            height: 60px; background: #000; border-bottom: 2px solid var(--main-neon);
             display: flex; justify-content: space-between; align-items: center; padding: 0 15px;
-            box-shadow: 0 0 15px var(--glow); z-index: 1000;
+            box-shadow: 0 0 15px var(--main-neon); z-index: 1000;
         }
 
-        /* --- الهيكل الرئيسي --- */
-        .wrapper { flex: 1; display: flex; overflow: hidden; position: relative; }
+        /* تقسيم الشاشة */
+        .app-container { flex: 1; display: flex; overflow: hidden; position: relative; }
 
-        /* --- قائمة الغرف (التحكم الفعلي) --- */
-        #rooms-nav { 
+        /* قائمة الغرف الجانبية - ثابتة وواضحة */
+        #rooms-list { 
             width: 80px; background: #000; border-left: 1px solid #222; 
-            display: flex; flex-direction: column; align-items: center; padding: 15px 0; gap: 15px;
+            display: flex; flex-direction: column; align-items: center; padding: 10px 0; gap: 15px;
         }
-        .room-unit { 
+        .room-tab { 
             width: 55px; height: 55px; background: #111; border: 1px solid #333; 
-            border-radius: 12px; cursor: pointer; display: flex; align-items: center; 
-            justify-content: center; font-size: 10px; text-align: center; color: #777;
+            border-radius: 12px; cursor: pointer; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; font-size: 9px; color: #777; transition: 0.3s;
         }
-        .room-unit.active { border-color: var(--glow); color: var(--glow); box-shadow: 0 0 10px var(--glow); }
+        .room-tab.active { border-color: var(--main-neon); color: var(--main-neon); box-shadow: 0 0 10px var(--main-neon); }
 
-        /* --- ساحة الدردشة --- */
-        #chat-main { flex: 1; display: flex; flex-direction: column; position: relative; }
-        #msg-screen { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        /* منطقة الشات */
+        #chat-main { flex: 1; display: flex; flex-direction: column; background: #050505; }
+        #msg-box { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
 
-        /* --- الرتب والأدوات المتوهجة --- */
-        .msg-neon { 
-            background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px;
-            border-right: 4px solid var(--glow); animation: fadeIn 0.3s;
-        }
-        .master-rank { color: #ff004c; text-shadow: 0 0 8px #ff004c; font-weight: bold; }
-        .king-rank { color: #f1c40f; text-shadow: 0 0 8px #f1c40f; font-weight: bold; }
+        /* تنسيق الرسالة النيون */
+        .msg { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border-right: 4px solid var(--main-neon); max-width: 85%; }
+        .m-master { color: var(--admin-neon); text-shadow: 0 0 8px var(--admin-neon); font-weight: bold; font-size: 13px; }
+        .m-text { color: #eee; font-size: 14px; margin-top: 5px; }
 
-        /* --- النوافذ المنبثقة --- */
-        .modal { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; 
-            display: none; justify-content: center; align-items: center;
-        }
-        .modal-box { 
-            background: #111; border: 2px solid var(--glow); padding: 20px; 
-            border-radius: 15px; width: 300px; text-align: center;
-        }
+        /* النوافذ المنبثقة (Popups) */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: none; justify-content: center; align-items: center; }
+        .modal-content { background: #111; border: 2px solid var(--main-neon); padding: 25px; border-radius: 15px; width: 320px; text-align: center; }
 
-        /* --- شريط الإدخال --- */
-        .input-bar { padding: 10px; background: #000; display: flex; gap: 10px; border-top: 1px solid #222; }
-        #main-inp { flex: 1; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 25px; outline: none; }
-        .btn-send { background: var(--glow); border: none; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
-
-        /* --- مشغل يوتيوب --- */
-        #yt-box {
+        /* مشغل الفيديو العائم */
+        #yt-float {
             position: absolute; top: 10px; left: 10px; width: 300px; background: #000;
-            border: 2px solid var(--glow); border-radius: 10px; display: none; z-index: 5000;
+            border: 2px solid var(--main-neon); border-radius: 10px; display: none; z-index: 5000;
+        }
+
+        /* شريط الكتابة */
+        .input-bar { padding: 10px; background: #000; display: flex; gap: 10px; border-top: 1px solid #222; }
+        #user-input { flex: 1; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 25px; outline: none; }
+        .btn-send { background: var(--main-neon); border: none; padding: 0 25px; border-radius: 25px; font-weight: bold; cursor: pointer; color: #000; }
+
+        /* استجابة الموبايل */
+        @media (max-width: 768px) {
+            #rooms-list { width: 65px; }
+            #yt-float { width: 90%; left: 5%; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div onclick="openM('room-modal')" style="cursor:pointer; color:var(--glow)">➕<br>غرفة</div>
-        <h2 style="text-shadow: 0 0 10px var(--glow);">MASTER CONTROL</h2>
-        <div onclick="openM('profile-modal')" style="cursor:pointer; color:var(--glow)">👤<br>ملفي</div>
+        <div onclick="openM('room-m')" style="cursor:pointer; color:var(--main-neon); font-size:11px;">🏠<br>إضافة غرفة</div>
+        <h2 style="text-shadow: 0 0 10px var(--main-neon);">PRINCE CHAT</h2>
+        <div onclick="openM('profile-m')" style="cursor:pointer; color:var(--main-neon); font-size:11px;">👤<br>الملف</div>
     </header>
 
-    <div class="wrapper">
-        <div id="rooms-nav">
-            <div class="room-unit active" onclick="switchRoom('العامة', this)">غرفة<br>عامة</div>
+    <div class="app-container">
+        <div id="rooms-list">
+            <div class="room-tab active" onclick="changeRoom('العامة', this)"><b>العامة</b></div>
         </div>
 
         <div id="chat-main">
-            <div id="msg-screen"></div>
+            <div id="msg-box">
+                <div style="text-align:center; color:#333; font-size:11px; margin-top:50px;">-- أهلاً بك في نظام التحكم الكامل --</div>
+            </div>
 
-            <div id="yt-box">
-                <div style="background:#222; padding:5px; display:flex; justify-content:space-between; font-size:10px;">
-                    <span>📺 يوتيوب</span>
-                    <span onclick="document.getElementById('yt-box').style.display='none'" style="color:red; cursor:pointer;">X</span>
+            <div id="yt-float">
+                <div style="background:#222; padding:5px 10px; display:flex; justify-content:space-between; font-size:11px;">
+                    <span>📺 فيديو مباشر</span>
+                    <span onclick="closeYt()" style="color:red; cursor:pointer; font-weight:bold;">X</span>
                 </div>
-                <div id="yt-frame"></div>
+                <div id="yt-content"></div>
             </div>
 
             <div class="input-bar">
-                <input type="text" id="main-inp" placeholder="اكتب هنا...">
-                <button class="btn-send" onclick="send()">إرسال</button>
+                <input type="text" id="user-input" placeholder="اكتب رسالة أو رابط فيديو...">
+                <button class="btn-send" onclick="sendMsg()">إرسال</button>
             </div>
         </div>
     </div>
 
-    <div id="room-modal" class="modal">
-        <div class="modal-box">
+    <div id="room-m" class="modal">
+        <div class="modal-content">
             <h3>إنشاء غرفة جديدة</h3>
-            <input type="text" id="room-name" placeholder="اسم الغرفة" style="width:100%; padding:10px; margin:15px 0; background:#000; color:#fff; border:1px solid #333;">
-            <button onclick="addRoom()" style="width:100%; padding:10px; background:var(--glow); border:none; font-weight:bold;">تأكيد</button>
-            <button onclick="closeM('room-modal')" style="width:100%; padding:10px; background:#333; color:#fff; border:none; margin-top:5px;">إغلاق</button>
+            <input type="text" id="new-room-inp" placeholder="اسم الغرفة..." style="width:100%; padding:10px; margin:15px 0; background:#000; color:#fff; border:1px solid #333; border-radius:5px;">
+            <button onclick="saveRoom()" style="width:100%; padding:10px; background:var(--main-neon); border:none; font-weight:bold; border-radius:5px;">تأكيد</button>
+            <button onclick="closeM('room-m')" style="width:100%; padding:10px; background:#333; color:#fff; border:none; margin-top:5px; border-radius:5px;">إغلاق</button>
         </div>
     </div>
 
-    <div id="profile-modal" class="modal">
-        <div class="modal-box">
-            <h3 id="p-name" class="master-rank">الماستر</h3>
-            <input type="text" id="name-inp" placeholder="تغيير اسمك" style="width:100%; padding:10px; margin:15px 0; background:#000; color:#fff; border:1px solid #333;">
-            <button onclick="saveP()" style="width:100%; padding:10px; background:var(--glow); border:none; font-weight:bold;">حفظ</button>
-            <button onclick="closeM('profile-modal')" style="width:100%; padding:10px; background:#333; color:#fff; border:none; margin-top:5px;">إغلاق</button>
+    <div id="profile-m" class="modal">
+        <div class="modal-content">
+            <h3 class="m-master" id="display-name">البرنس</h3>
+            <p style="font-size:11px; color:#555; margin-bottom:15px;">رتبة: مدير السيرفر</p>
+            <input type="text" id="change-name-inp" placeholder="تغيير الاسم..." style="width:100%; padding:10px; margin-bottom:15px; background:#000; color:#fff; border:1px solid #333; border-radius:5px;">
+            <button onclick="saveProfile()" style="width:100%; padding:10px; background:var(--main-neon); border:none; font-weight:bold; border-radius:5px;">حفظ التعديلات</button>
+            <button onclick="closeM('profile-m')" style="width:100%; padding:10px; background:#333; color:#fff; border:none; margin-top:5px; border-radius:5px;">إغلاق</button>
         </div>
     </div>
 
     <script>
-        let currentR = "العامة";
-        let rooms = { "العامة": [] }; // هنا تخزن الرسائل فعلياً لكل غرفة
-        let myName = "الماستر";
+        // الذاكرة البرمجية للشات
+        let currentRoomName = "العامة";
+        let allRoomsData = { "العامة": [] }; // هنا يتم فصل كل غرفة عن الأخرى
+        let masterName = "البرنس";
 
         function openM(id) { document.getElementById(id).style.display = 'flex'; }
         function closeM(id) { document.getElementById(id).style.display = 'none'; }
 
-        // وظيفة الإرسال
-        function send() {
-            const inp = document.getElementById('main-inp');
+        // وظيفة الإرسال واليوتيوب
+        function sendMsg() {
+            const inp = document.getElementById('user-input');
             if(!inp.value.trim()) return;
 
             // كشف يوتيوب
-            if(inp.value.includes('youtube.com')) {
-                const id = inp.value.split('v=')[1];
-                document.getElementById('yt-box').style.display = 'block';
-                document.getElementById('yt-frame').innerHTML = `<iframe width="100%" height="180" src="https://www.youtube.com/embed/${id}" frameborder="0"></iframe>`;
+            if(inp.value.includes('youtube.com') || inp.value.includes('youtu.be')) {
+                const vidId = inp.value.split('v=')[1] || inp.value.split('/').pop();
+                document.getElementById('yt-float').style.display = 'block';
+                document.getElementById('yt-content').innerHTML = `<iframe width="100%" height="180" src="https://www.youtube.com/embed/${vidId.split('&')[0]}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
                 inp.value = ''; return;
             }
 
-            const html = `<div class="msg-neon"><span class="master-rank">${myName}:</span><br>${inp.value}</div>`;
-            rooms[currentR].push(html); // تخزين الرسالة في الغرفة الحالية فقط
-            render();
+            // الرسالة المتوهجة
+            const msgHtml = `
+                <div class="msg">
+                    <span class="m-master">${masterName}:</span>
+                    <div class="m-text">${inp.value}</div>
+                </div>`;
+            
+            allRoomsData[currentRoomName].push(msgHtml);
+            renderMessages();
             inp.value = '';
         }
 
-        // تبديل الغرفة (فتح شيء فعلي)
-        function switchRoom(name, el) {
-            currentR = name;
-            document.querySelectorAll('.room-unit').forEach(u => u.classList.remove('active'));
-            el.classList.add('active');
-            render(); // مسح الشاشة وتحميل رسائل الغرفة الجديدة
-        }
-
-        // إضافة غرفة جديدة فعالة
-        function addRoom() {
-            const name = document.getElementById('room-name').value;
-            if(name && !rooms[name]) {
-                rooms[name] = [];
+        // إنشاء غرفة جديدة حقيقية
+        function saveRoom() {
+            const name = document.getElementById('new-room-inp').value;
+            if(name && !allRoomsData[name]) {
+                allRoomsData[name] = [];
                 const btn = document.createElement('div');
-                btn.className = 'room-unit';
-                btn.innerText = name;
-                btn.onclick = function() { switchRoom(name, this); };
-                document.getElementById('rooms-nav').appendChild(btn);
-                closeM('room-modal');
+                btn.className = 'room-tab';
+                btn.innerHTML = `<b>${name}</b>`;
+                btn.onclick = function() { changeRoom(name, this); };
+                document.getElementById('rooms-list').appendChild(btn);
+                closeM('room-m');
+                document.getElementById('new-room-inp').value = '';
             }
         }
 
-        // عرض الرسائل
-        function render() {
-            const screen = document.getElementById('msg-screen');
-            screen.innerHTML = rooms[currentR].join(''); // عرض رسائل الغرفة الحالية فقط
-            screen.scrollTop = screen.scrollHeight;
+        // التبديل الفعلي بين الغرف
+        function changeRoom(name, element) {
+            currentRoomName = name;
+            // تغيير شكل الأزرار
+            document.querySelectorAll('.room-tab').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+            // تحميل رسائل الغرفة المختارة فقط
+            renderMessages();
         }
 
-        function saveP() {
-            const n = document.getElementById('name-inp').value;
-            if(n) { myName = n; document.getElementById('p-name').innerText = n; }
-            closeM('profile-modal');
+        // تحديث شاشة الشات
+        function renderMessages() {
+            const box = document.getElementById('msg-box');
+            box.innerHTML = allRoomsData[currentRoomName].join('');
+            box.scrollTop = box.scrollHeight;
         }
 
-        document.getElementById('main-inp').onkeypress = (e) => { if(e.key === 'Enter') send(); };
+        // تعديل البروفايل
+        function saveProfile() {
+            const n = document.getElementById('change-name-inp').value;
+            if(n) {
+                masterName = n;
+                document.getElementById('display-name').innerText = n;
+            }
+            closeM('profile-m');
+        }
+
+        function closeYt() { document.getElementById('yt-float').style.display = 'none'; document.getElementById('yt-content').innerHTML = ''; }
+
+        // تشغيل الإرسال بالإنتر
+        document.getElementById('user-input').onkeypress = (e) => { if(e.key === 'Enter') sendMsg(); };
     </script>
 </body>
 </html>
