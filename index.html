@@ -1,81 +1,190 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f0f2f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق دردشة احترافي</title>
+    <style>
+        /* تصميم الواجهة - CSS */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-.chat-container {
-    width: 400px;
-    height: 500px;
-    background: white;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-header {
-    background: #0084ff;
-    color: white;
-    padding: 15px;
-    text-align: center;
-}
+        .chat-container {
+            width: 100%;
+            max-width: 450px;
+            height: 80vh;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-.chat-box {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+        header {
+            background: #4a90e2;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
 
-.message {
-    padding: 10px 15px;
-    border-radius: 18px;
-    max-width: 70%;
-    font-size: 14px;
-}
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f7f9fb;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
-.sent {
-    background: #0084ff;
-    color: white;
-    align-self: flex-end;
-    border-bottom-right-radius: 2px;
-}
+        /* ستايل الرسائل */
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
 
-.received {
-    background: #e4e6eb;
-    color: black;
-    align-self: flex-start;
-    border-bottom-left-radius: 2px;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-.input-area {
-    padding: 15px;
-    border-top: 1px solid #ddd;
-    display: flex;
-    gap: 10px;
-}
+        .sent {
+            background: #4a90e2;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
 
-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
-}
+        .received {
+            background: #e9ecef;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
 
-button {
-    background: #0084ff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-}
+        /* منطقة الإدخال */
+        .input-area {
+            padding: 20px;
+            background: white;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4a90e2;
+        }
+
+        button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button:hover {
+            background: #357abd;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <header>غرفة الدردشة المباشرة</header>
+    
+    <div class="chat-box" id="chatBox">
+        <div class="message received">أهلاً بك! اكتب أي شيء لتجربة المحادثة.</div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">➤</button>
+    </div>
+</div>
+
+<script>
+    // برمجة التفاعل - JavaScript
+    const chatBox = document.getElementById('chatBox');
+    const messageInput = document.getElementById('messageInput');
+
+    function sendMessage() {
+        const text = messageInput.value.trim();
+        
+        if (text !== "") {
+            // إنشاء رسالة المستخدم (Sent)
+            createMessage(text, 'sent');
+            
+            // مسح الحقل
+            messageInput.value = "";
+
+            // محاكاة رد تلقائي بعد ثانية واحدة (لأغراض التجربة)
+            setTimeout(() => {
+                createMessage("وصلت رسالتك: " + text, 'received');
+            }, 1000);
+        }
+    }
+
+    function createMessage(text, type) {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', type);
+        msgDiv.textContent = text;
+        
+        chatBox.appendChild(msgDiv);
+        
+        // التمرير لأسفل تلقائياً
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // الإرسال عند الضغط على Enter
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+</script>
+
+</body>
+</html>
