@@ -2,183 +2,32 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة ملوك العراق</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شات ملوك العراق المطور</title>
     <style>
-        :root { --gold: #ffd700; --bg: #0b0c0d; --panel: #1c1f22; --green: #2ecc71; }
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-        body { background: var(--bg); color: white; height: 100vh; overflow: hidden; }
-
-        /* الهيدر العلوي */
-        .main-header { 
-            background: var(--panel); 
-            padding: 10px 15px; 
-            border-bottom: 2px solid var(--gold); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            z-index: 1000;
-        }
-        .header-icons { display: flex; gap: 15px; color: var(--gold); font-size: 20px; cursor: pointer; }
-
-        /* قائمة الأعضاء (الجهة اليمنى) */
-        #members-sidebar { 
-            position: fixed; 
-            right: -280px; 
-            top: 0; 
-            width: 260px; 
-            height: 100%; 
-            background: var(--panel); 
-            z-index: 3000; 
-            transition: 0.4s; 
-            border-left: 2px solid var(--gold); 
-            padding: 20px 10px;
-        }
-        #members-sidebar.open { right: 0; }
-        .sidebar-title { color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; font-size: 14px; text-align: center; }
-        
-        /* تصميم العضو في القائمة */
-        .user-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; }
-        .user-item:hover { background: #25282c; }
-        .user-img-small { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: auto; }
-        .online-dot { background: var(--green); box-shadow: 0 0 5px var(--green); }
-        .offline-dot { background: #555; }
-
-        /* واجهة الدردشة */
-        #chat-stream { height: calc(100vh - 120px); overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #000; }
-        .msg-row { display: flex; gap: 10px; align-items: flex-start; }
-        .msg-avatar { width: 40px; height: 40px; border-radius: 5px; border: 1px solid #333; }
-        .msg-bubble { background: var(--panel); padding: 8px 12px; border-radius: 8px; max-width: 80%; border: 1px solid #2a2d31; }
-        .sender-name { color: var(--green); font-size: 13px; font-weight: bold; margin-bottom: 3px; }
-
-        /* الفوتر */
-        .chat-footer { position: fixed; bottom: 0; width: 100%; background: #111; padding: 10px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #333; }
-        .chat-footer input { flex: 1; background: #000; border: 1px solid #444; border-radius: 5px; padding: 12px; color: #fff; outline: none; }
-
-        /* واجهة الملف الشخصي (منفصلة) */
-        #profile-modal { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000; 
-            align-items: center; justify-content: center; 
-        }
-        .prof-card { width: 90%; max-width: 340px; background: var(--panel); border-radius: 15px; border: 1px solid var(--gold); overflow: hidden; position: relative; }
-        .prof-cover { width: 100%; height: 100px; background: #333; object-fit: cover; cursor: pointer; }
-        .prof-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--gold); position: absolute; top: 60px; right: 20px; background: #000; cursor: pointer; }
-
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 2500; }
-        input[type="file"] { display: none; }
+        :root { --gold: #ffd700; --bg: #0b0b0b; --panel: #1a1a1a; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .header { background: var(--panel); padding: 15px; text-align: center; border-bottom: 2px solid var(--gold); font-weight: bold; font-size: 20px; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: #333; padding: 10px; border-radius: 8px; max-width: 80%; border-right: 3px solid var(--gold); }
+        .input-area { background: var(--panel); padding: 15px; display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; border-radius: 5px; border: none; }
+        button { background: var(--gold); color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
-<input type="file" id="upAv" accept="image/*" onchange="preview(this, 'profImg', 'chatImg')">
-<input type="file" id="upCov" accept="image/*" onchange="preview(this, 'covImg', null)">
-
-<div id="login" style="position:fixed; inset:0; background:#000; z-index:5000; display:flex; align-items:center; justify-content:center;">
-    <div style="text-align:center; background:var(--panel); padding:30px; border-radius:20px; border:1px solid var(--gold); width:85%; max-width:300px;">
-        <h2 style="color:var(--gold)">دخول المملكة</h2>
-        <input type="text" id="nick" style="width:100%; padding:15px; margin:20px 0; background:#000; border:1px solid #444; border-radius:10px; color:#fff; text-align:center;" placeholder="اسمك المستعار...">
-        <button onclick="start()" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:bold;">دخول</button>
+    <div class="header">👑 غرفة دردشة ملوك العراق 👑</div>
+    <div id="chat-box">
+        <div class="msg">أهلاً بك في النسخة المطورة! ابدأ الدردشة الآن..</div>
     </div>
-</div>
-
-<div class="main-header">
-    <div class="header-icons">
-        <span onclick="toggleSidebar()">☰</span>
-        <span onclick="openProfile()" style="font-size:16px;">👤 ملفي</span>
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا...">
+        <button onclick="sendMessage()">إرسال</button>
     </div>
-    <div style="color:var(--gold); font-weight:bold;">🌍 الغرفة العامة</div>
-    <div class="header-icons"><span>🔔</span><span>✉️</span></div>
-</div>
 
-<div id="chat-stream"></div>
-
-<div class="chat-footer">
-    <span style="font-size:22px; color:#888;">➕</span>
-    <input type="text" id="mInp" placeholder="اكتب رسالتك...">
-    <span onclick="sendMsg()" style="color:var(--gold); font-size:24px; cursor:pointer;">➤</span>
-</div>
-
-<div class="overlay" id="blur-bg" onclick="toggleSidebar()"></div>
-<div id="members-sidebar">
-    <div class="sidebar-title">الأعضاء المتصلين</div>
-    <div class="user-item">
-        <img src="https://i.pravatar.cc/100?u=1" class="user-img-small">
-        <span style="font-size:13px;">نورهان</span>
-        <div class="status-dot online-dot"></div>
-    </div>
-    <div class="user-item">
-        <img src="https://i.pravatar.cc/100?u=2" class="user-img-small">
-        <span style="font-size:13px;">علوش</span>
-        <div class="status-dot online-dot"></div>
-    </div>
-    <div class="sidebar-title" style="margin-top:20px;">غير متصل</div>
-    <div class="user-item" style="opacity:0.6;">
-        <img src="https://i.pravatar.cc/100?u=3" class="user-img-small">
-        <span style="font-size:13px;">كرار</span>
-        <div class="status-dot offline-dot"></div>
-    </div>
-</div>
-
-<div id="profile-modal" onclick="if(event.target==this) this.style.display='none'">
-    <div class="prof-card">
-        <img src="" id="covImg" class="prof-cover" onclick="document.getElementById('upCov').click()" style="background:#444">
-        <img src="https://i.pravatar.cc/150" id="profImg" class="prof-avatar" onclick="document.getElementById('upAv').click()">
-        <div style="padding:60px 20px 20px; text-align:right;">
-            <h3 id="pName" style="color:var(--gold)"></h3>
-            <p style="font-size:11px; color:#888;">متصل الآن ✅</p>
-            <p style="font-size:10px; color:#555; margin-top:10px;">اضغط على الصور للتغيير من الاستوديو</p>
-        </div>
-    </div>
-</div>
-
-<script>
-    let myNick = "";
-    let myImg = "https://i.pravatar.cc/150";
-
-    function start() {
-        let n = document.getElementById('nick').value.trim();
-        if(n.length < 2) return alert("الاسم قصير!");
-        myNick = n;
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('pName').innerText = myNick;
-    }
-
-    function toggleSidebar() {
-        document.getElementById('members-sidebar').classList.toggle('open');
-        let b = document.getElementById('blur-bg');
-        b.style.display = (b.style.display === 'block') ? 'none' : 'block';
-    }
-
-    function openProfile() { document.getElementById('profile-modal').style.display = 'flex'; }
-
-    function preview(input, id, global) {
-        if (input.files && input.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById(id).src = e.target.result;
-                if(global === 'chatImg') myImg = e.target.result;
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    function sendMsg() {
-        let inp = document.getElementById('mInp');
-        if(!inp.value.trim()) return;
-        let stream = document.getElementById('chat-stream');
-        stream.innerHTML += `
-            <div class="msg-row">
-                <img src="${myImg}" class="msg-avatar">
-                <div class="msg-bubble">
-                    <div class="sender-name">👑 ${myNick}</div>
-                    <div style="font-size:14px;">${inp.value}</div>
-                </div>
-            </div>`;
-        stream.scrollTop = stream.scrollHeight;
-        inp.value = "";
-    }
-</script>
-
-</body>
-</html>
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const box = document.getElementById('chat-box');
+            if(input.value.trim() !== "") {
+                const
