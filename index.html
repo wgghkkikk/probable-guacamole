@@ -2,136 +2,107 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إمبراطورية الماستر RG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Master RG Empire - Mobile Fix</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --neon: #00f2ff; --pink: #ff004c; --bg: #050505; }
+        :root { --neon: #00f2ff; --bg: #050505; }
         * { box-sizing: border-box; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        header { background: #111; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); z-index: 2001; }
-        .menu-btn { background: var(--neon); color: #000; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        header { background: #111; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); z-index: 1001; }
+        .m-btn { background: var(--neon); border: none; padding: 7px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; }
 
-        .main-container { flex: 1; position: relative; display: flex; overflow: hidden; }
+        .wrapper { flex: 1; display: flex; position: relative; overflow: hidden; }
 
-        /* الستارات - تعديل القياسات للموبايل */
-        .sidebar { 
-            position: absolute; top: 0; bottom: 0; width: 260px; 
-            background: #0a0a0a; z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 20px; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        /* الستارات - مخفية بالهاتف وتظهر كطبقة فوق */
+        .side { 
+            position: absolute; top: 0; bottom: 0; width: 250px; background: #0a0a0a; 
+            z-index: 2000; transition: 0.3s ease; padding: 20px; 
         }
-        
-        #right-sidebar { right: -260px; border-left: 1px solid #222; }
-        #right-sidebar.open { right: 0; }
+        #right-s { right: -250px; border-left: 1px solid #222; }
+        #right-s.open { right: 0; }
+        #left-s { left: -250px; border-right: 1px solid #222; }
+        #left-s.open { left: 0; }
 
-        #left-sidebar { left: -260px; border-right: 1px solid #222; }
-        #left-sidebar.open { left: 0; }
+        /* الشات */
+        #chat { flex: 1; display: flex; flex-direction: column; background: #000; width: 100%; position: relative; }
+        #msgs { flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 80px; }
 
-        /* منطقة الشات */
-        #chat-area { flex: 1; display: flex; flex-direction: column; background: #000; width: 100%; }
-        #msgs { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; }
+        /* خانة الكتابة - جعلناها ثابتة وبأعلى طبقة */
+        .input-holder { 
+            position: absolute; bottom: 0; left: 0; right: 0; 
+            background: #111; padding: 12px; display: flex; gap: 8px; 
+            border-top: 1px solid #222; z-index: 1000; 
+        }
+        input { flex: 1; background: #000; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 25px; outline: none; font-size: 16px; }
+        #send { background: var(--neon); border: none; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
 
-        /* الفقاعات */
-        .msg-row { display: flex; gap: 10px; margin-bottom: 15px; max-width: 90%; }
-        .msg-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); flex-shrink: 0; }
-        .msg-body { background: #151515; border: 1px solid #222; padding: 10px; border-radius: 12px; font-size: 14px; line-height: 1.4; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1500; }
 
-        /* الإدخال السفلي */
-        .input-box { padding: 10px; background: #111; display: flex; gap: 8px; border-top: 1px solid #222; }
-        input[type="text"] { flex: 1; background: #000; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 25px; outline: none; font-size: 16px; }
-        #sendBtn { background: var(--neon); border: none; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
-
-        /* البروفايل */
-        .profile-card { background: #111; border: 1px solid var(--neon); padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
-        .p-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--neon); object-fit: cover; }
-
-        /* طبقة التعتيم عند فتح المنيو */
-        #overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1999; }
-
-        /* تحسينات للشاشات الكبيرة (كمبيوتر) */
         @media (min-width: 900px) {
-            #right-sidebar { right: 0; position: relative; }
-            #left-sidebar { left: 0; position: relative; }
-            #overlay { display: none !important; }
-            .menu-btn { display: none; }
+            #right-s { right: 0; position: relative; }
+            #left-s { left: 0; position: relative; }
+            .m-btn { display: none; }
         }
     </style>
 </head>
 <body>
 
-<div id="overlay" onclick="closeAll()"></div>
+<div class="overlay" id="over" onclick="cls()"></div>
 
 <header>
-    <button class="menu-btn" onclick="toggleS('right')">المتصلين</button>
-    <span style="color:var(--neon); font-size: 14px; font-weight:bold;">إمبراطورية الماستر</span>
-    <button class="menu-btn" onclick="toggleS('left')">الملف</button>
+    <button class="m-btn" onclick="shw('right')">المتصلين</button>
+    <span style="color:var(--neon)">MASTER RG</span>
+    <button class="m-btn" onclick="shw('left')">الملف</button>
 </header>
 
-<div class="main-container">
-    <div id="right-sidebar" class="sidebar">
-        <h3 style="color:var(--neon); border-bottom:1px solid #222; padding-bottom:5px;">المتصلون</h3>
-        <div style="color:gold; padding:5px;">👑 الماستر RG</div>
-        <div style="color:#888; padding:5px;">👤 عضو متفاعل</div>
+<div class="wrapper">
+    <div id="right-s" class="side">
+        <h3 style="color:var(--neon)">المتواجدون</h3>
+        <div style="color:gold">👑 الماستر RG</div>
     </div>
 
-    <div id="chat-area">
+    <div id="chat">
         <div id="msgs"></div>
-        <div class="input-box">
-            <input type="text" id="mInput" placeholder="اكتب رسالتك...">
-            <button id="sendBtn" onclick="send()">إرسال</button>
+        <div class="input-holder">
+            <input type="text" id="mInp" placeholder="اكتب هنا...">
+            <button id="send" onclick="send()">إرسال</button>
         </div>
     </div>
 
-    <div id="left-sidebar" class="sidebar">
-        <div class="profile-card" onclick="openEdit()">
-            <img src="https://via.placeholder.com/80" id="myIcon" class="p-img">
-            <div id="myName" style="font-weight:bold; margin-top:10px; font-size:18px;">الماستر RG</div>
-            <div style="color:var(--pink); margin-top:5px;">❤️ <span id="likes">0</span></div>
+    <div id="left-s" class="side">
+        <div style="text-align:center; background:#1a1a1a; padding:15px; border-radius:10px; border:1px solid var(--neon);">
+            <img src="https://via.placeholder.com/60" id="myPic" style="width:60px; border-radius:50%; border:2px solid var(--neon);">
+            <div id="myName" style="font-weight:bold; margin-top:5px;">الماستر RG</div>
         </div>
-        <button style="width:100%; padding:10px; background:#222; color:#fff; border:1px solid #444; border-radius:5px;" onclick="location.reload()">تحديث الشات</button>
     </div>
 </div>
 
 <script>
-    // --- نفس إعدادات الفايربيز والبرمجة السابقة ---
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    function toggleS(side) {
-        closeAll();
-        document.getElementById(side + '-sidebar').classList.add('open');
-        document.getElementById('overlay').style.display = 'block';
-    }
-
-    function closeAll() {
-        document.getElementById('right-sidebar').classList.remove('open');
-        document.getElementById('left-sidebar').classList.remove('open');
-        document.getElementById('overlay').style.display = 'none';
-    }
-
-    let user = { 
-        name: localStorage.getItem('rg-n') || "الماستر_RG", 
-        img: localStorage.getItem('rg-i') || "https://via.placeholder.com/80" 
-    };
-    document.getElementById('myIcon').src = user.img;
-    document.getElementById('myName').innerText = user.name;
+    function shw(s) { document.getElementById(s+'-s').classList.add('open'); document.getElementById('over').style.display='block'; }
+    function cls() { document.getElementById('right-s').classList.remove('open'); document.getElementById('left-s').classList.remove('open'); document.getElementById('over').style.display='none'; }
 
     function send() {
-        const t = document.getElementById('mInput').value;
+        const t = document.getElementById('mInp').value;
+        const n = localStorage.getItem('rg-n') || "الماستر_RG";
+        const i = localStorage.getItem('rg-i') || "https://via.placeholder.com/60";
         if(t) {
-            db.ref('messages').push({ u: user.name, t: t, i: user.img });
-            document.getElementById('mInput').value = '';
+            db.ref('messages').push({ u: n, t: t, i: i });
+            document.getElementById('mInp').value = '';
         }
     }
 
     db.ref('messages').on('child_added', (snap) => {
         const m = snap.val();
         const div = document.createElement('div');
-        div.className = 'msg-row';
-        div.innerHTML = `<img src="${m.i}" class="msg-avatar"><div class="msg-body"><b>${m.u}</b><br>${m.t}</div>`;
+        div.style.marginBottom = "15px";
+        div.innerHTML = `<b style="color:var(--neon)">${m.u}:</b> <span>${m.t}</span>`;
         document.getElementById('msgs').appendChild(div);
         document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
     });
