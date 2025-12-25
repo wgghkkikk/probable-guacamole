@@ -1,32 +1,17 @@
-// عرض الرسائل ومعالجة البيانات
-db.ref('messages').limitToLast(50).on('child_added', snap => {
-    let data = snap.val();
-    let area = document.getElementById('chat-area');
-    
-    // 1. حل مشكلة الأسماء المجهولة (ذكاء اصطناعي بسيط)
-    let name = data.sender || data.user || data.name || "عضو مجهول";
-    let msg = data.content || data.text || data.msg || "";
-    let rank = data.role || data.rank || "عضو";
+// 1. طلب الاسم عند الدخول
+let myName = prompt("أدخل اسمك يا ملك:"); 
 
-    // 2. تمييز إذا كان المرسل هو أنت (الماستر علوش)
-    let isHeTheMaster = (name === "علوش" || rank === "الماستر");
-    
-    let div = document.createElement('div');
-    div.className = isHeTheMaster ? "msg-master" : "msg-member";
+// إذا ضغطت إلغاء أو ما كتبت اسم، راح يرجع يسألك
+if (!myName) {
+    location.reload(); 
+}
 
-    // 3. الربط مع وظيفة التحكم (لما تضغط على الرسالة)
-    div.onclick = () => {
-        if(myRank === "الماستر") {
-            openControl(name); // استدعاء الوظيفة اللي نسختها أنت
-        }
-    };
+let myRank = "عضو";
 
-    div.innerHTML = `
-        <span class="rank-badge ${isHeTheMaster ? 'is-master' : 'is-member'}">${isHeTheMaster ? 'الماستر' : 'عضو'}</span>
-        <span class="user-name ${isHeTheMaster ? 'master-name' : 'member-name'}">${name}:</span> 
-        <span class="msg-text">${msg}</span>
-    `;
-    
-    area.appendChild(div);
-    area.scrollTop = area.scrollHeight;
+// 2. فحص هل أنت "علوش" الماستر؟
+db.ref('master').on('value', snap => {
+    if(snap.val() === myName) {
+        myRank = "الماستر";
+        alert("أهلاً بك يا إمبراطور علوش 👑");
+    }
 });
