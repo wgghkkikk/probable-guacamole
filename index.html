@@ -3,93 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>شات الملوك VIP</title>
+    <title>شات الملوك</title>
     <style>
-        :root { --gold: #ffd700; --bg: #000; --panel: #1a1a1a; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* الهيدر العلوي */
-        .header { background: var(--panel); padding: 10px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-        .header-icons { display: flex; gap: 12px; }
-        .icon-btn { font-size: 18px; position: relative; cursor: pointer; background: #333; padding: 5px 8px; border-radius: 8px; }
-        .badge { position: absolute; top: -5px; right: -5px; background: red; color: white; font-size: 10px; padding: 2px 4px; border-radius: 50%; border: 1px solid white; }
-
-        /* منطقة المحتوى */
-        .main-container { flex: 1; display: flex; position: relative; overflow: hidden; }
-
-        /* منطقة الشات */
-        .chat-section { flex: 1; display: flex; flex-direction: column; background: #050505; }
-        #chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .msg { background: #1a1a1a; padding: 10px; border-radius: 12px; border-right: 3px solid var(--gold); max-width: 85%; font-size: 14px; }
-
-        /* قائمة المتصلين (مخفية وتظهر بالضغط) */
-        .sidebar { width: 150px; background: var(--panel); border-left: 1px solid var(--gold); padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .user { display: flex; align-items: center; gap: 8px; font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .user img { width: 25px; height: 25px; border-radius: 50%; border: 1px solid var(--gold); }
-
-        /* صندوق الإدخال */
-        .input-box { padding: 10px; background: var(--panel); display: flex; gap: 8px; border-top: 1px solid #333; }
-        input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid var(--gold); background: #000; color: white; outline: none; }
-        button { background: var(--gold); color: black; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; }
-
-        /* الملف الشخصي الصغير */
-        .mini-profile { background: #111; padding: 8px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #222; }
-        .p-imgs { position: relative; width: 45px; height: 45px; }
-        .c-img { width: 100%; height: 100%; border-radius: 5px; object-fit: cover; }
-        .a-img { width: 25px; height: 25px; border-radius: 50%; border: 2px solid var(--gold); position: absolute; bottom: 0; right: 0; }
-    </style>
-</head>
-<body>
-
-    <div class="header">
-        <span style="color: var(--gold); font-weight: bold;">👑 مملكة الملوك</span>
-        <div class="header-icons">
-            <div class="icon-btn">💬 <span class="badge">1</span></div>
-            <div class="icon-btn">🔔 <span class="badge">3</span></div>
-            <div class="icon-btn">👥 <span class="badge">0</span></div>
-        </div>
-    </div>
-
-    <div class="mini-profile">
-        <div class="p-imgs">
-            <img src="https://via.placeholder.com/50" class="c-img">
-            <img src="https://via.placeholder.com/30" class="a-img">
-        </div>
-        <div style="font-size: 14px; font-weight: bold; color: var(--gold);">الملك المحترف</div>
-    </div>
-
-    <div class="main-container">
-        <div class="chat-section">
-            <div id="chat-messages">
-                <div class="msg">تم تعديل التصميم يا ملك! الآن كل شيء في مكانه الصحيح.</div>
-            </div>
-            <div class="input-box">
-                <input type="text" id="mIn" placeholder="اكتب هنا...">
-                <button onclick="s()">إرسال</button>
-            </div>
-        </div>
-
-        <div class="sidebar">
-            <div style="color: var(--gold); font-size: 11px;">المتصلين (3)</div>
-            <div class="user"><img src="https://via.placeholder.com/20"><span>أحمد</span></div>
-            <div class="user"><img src="https://via.placeholder.com/20"><span>سارة</span></div>
-            <div class="user"><img src="https://via.placeholder.com/20"><span>علي</span></div>
-        </div>
-    </div>
-
-    <script>
-        function s() {
-            const i = document.getElementById('mIn');
-            const m = document.getElementById('chat-messages');
-            if(i.value.trim()!="") {
-                const d = document.createElement('div');
-                d.className = 'msg';
-                d.textContent = i.value;
-                m.appendChild(d);
-                i.value = "";
-                m.scrollTop = m.scrollHeight;
-            }
-        }
-    </script>
-</body>
-</html>
+        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .top-bar { background: #1a1a1a; padding: 10px; display: flex; justify-content: space-between; border-bottom: 2px solid #ffd700; }
+        .icons { display: flex; gap: 15px; font-size: 18px; }
+        .badge { background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; margin-right: 12px; }
+        .container { flex: 1; display: flex; overflow: hidden; }
+        .chat { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; }
+        #msgs { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: #222; padding: 10px; border-radius: 10px; border-right: 4px solid #ffd700; max-width: 80%; }
+        .side { width: 120px; background: #111; border-left: 1px solid #333; padding: 10px; }
+        .u { display: flex; align-items: center; gap: 5px; font-size: 12px; margin-bottom: 10px; }
+        .u img { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ffd700; }
+        .input-box { background: #1a1a1a; padding: 15px; display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #
