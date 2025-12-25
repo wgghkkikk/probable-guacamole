@@ -2,177 +2,114 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>إدارة شات البرنس | التحكم المطلق</title>
+    <title>لوحة تحكم الماستر | شات البرنس</title>
     <style>
-        :root {
-            --master-color: #ff0000; /* لون صاحب الموقع */
-            --admin-gold: #ff9800;
-            --bg-dark: #0a0a0a;
-            --panel-bg: #161616;
-            --border-color: #333;
-        }
-
+        :root { --gold: #ff9800; --bg: #0a0a0a; --panel: #1a1a1a; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', sans-serif; }
-        body { background: var(--bg-dark); color: #fff; height: 100vh; display: flex; overflow: hidden; }
+        body { background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- القائمة الجانبية للتحكم (لوحة التحكم الرئيسية) --- */
-        .admin-sidebar {
-            width: 70px; background: #000; border-left: 1px solid var(--border-color);
-            display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px;
+        /* الهيدر */
+        header { background: #000; padding: 10px 20px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; }
+
+        .app-body { display: flex; flex: 1; overflow: hidden; }
+
+        /* قائمة المتصلين (يمين) */
+        .sidebar { width: 250px; background: var(--panel); border-left: 1px solid #333; }
+        .user-item { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; display: flex; align-items: center; }
+        .user-item:hover { background: #252525; }
+
+        /* منطقة الشات */
+        .chat-main { flex: 1; display: flex; flex-direction: column; position: relative; }
+        #messages { flex: 1; padding: 20px; overflow-y: auto; background: #050505; }
+        .admin-txt { color: #00ff00; font-weight: bold; }
+
+        /* نافذة التحكم (التي تظهر بدل Alert) */
+        .admin-modal {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #222; border: 2px solid var(--gold); width: 350px;
+            padding: 20px; border-radius: 10px; display: none; z-index: 1000;
+            box-shadow: 0 0 50px #000;
         }
-        .admin-sidebar .icon { width: 40px; height: 40px; cursor: pointer; opacity: 0.7; transition: 0.3s; }
-        .admin-sidebar .icon:hover { opacity: 1; filter: drop-shadow(0 0 5px var(--admin-gold)); }
-
-        /* --- قائمة المتواجدين (اليمين) --- */
-        .users-list {
-            width: 250px; background: var(--panel-bg); border-left: 1px solid var(--border-color);
-            display: flex; flex-direction: column;
+        .modal-btn { 
+            width: 100%; padding: 10px; margin: 5px 0; border: none; border-radius: 5px;
+            cursor: pointer; font-weight: bold; color: #fff;
         }
-        .list-header { background: #222; padding: 15px; font-weight: bold; color: var(--admin-gold); text-align: center; border-bottom: 1px solid var(--admin-gold); }
-        .user-item {
-            padding: 10px; border-bottom: 1px solid #222; display: flex; align-items: center; cursor: pointer;
-        }
-        .user-item:hover { background: #282828; }
-        .rank-crown { width: 16px; margin-left: 8px; }
+        .btn-kick { background: #e74c3c; }
+        .btn-ban { background: #c0392b; }
+        .btn-rank { background: #2980b9; }
 
-        /* --- منطقة الشات المركزية --- */
-        .main-chat { flex: 1; display: flex; flex-direction: column; background: #050505; }
-        
-        /* الهيدر العلوي */
-        .chat-header {
-            background: #111; padding: 10px 20px; border-bottom: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
-        #chat-screen { flex: 1; padding: 20px; overflow-y: auto; background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png'); }
-
-        /* ستايل الرسائل الإدارية */
-        .admin-msg { color: #00ff00; font-weight: bold; background: rgba(0,255,0,0.05); padding: 5px; border-radius: 5px; margin: 5px 0; }
-        .msg-line { margin-bottom: 8px; border-bottom: 1px dotted #222; padding-bottom: 4px; }
-
-        /* --- منطقة الأوامر (أسفل) --- */
-        .command-center { background: #111; border-top: 2px solid var(--admin-gold); padding: 15px; }
-        .command-tabs { display: flex; gap: 10px; margin-bottom: 10px; }
-        .cmd-btn { background: #222; border: 1px solid #444; color: #fff; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-        .cmd-btn:hover { border-color: var(--admin-gold); }
-
-        .input-box { display: flex; gap: 10px; }
-        #chat-input { flex: 1; background: #000; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 5px; outline: none; }
-        .send-btn { background: var(--admin-gold); border: none; padding: 0 30px; font-weight: bold; cursor: pointer; border-radius: 5px; }
-
-        /* --- منيو الخيارات (تظهر عند النقر) --- */
-        .context-menu {
-            position: absolute; background: #222; border: 1px solid var(--admin-gold);
-            width: 200px; display: none; z-index: 999; box-shadow: 0 10px 30px #000;
-        }
-        .context-menu button {
-            width: 100%; padding: 10px; background: none; border: none; color: #fff; text-align: right;
-            cursor: pointer; border-bottom: 1px solid #333; font-size: 13px;
-        }
-        .context-menu button:hover { background: var(--admin-gold); color: #000; }
-
+        /* منطقة الكتابة */
+        .input-area { padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 5px; outline: none; }
+        .send-btn { background: var(--gold); padding: 0 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="admin-sidebar">
-        <img src="https://img.icons8.com/color/48/settings.png" class="icon" title="إعدادات الموقع" onclick="alert('فتح إعدادات السيرفر')">
-        <img src="https://img.icons8.com/color/48/shield.png" class="icon" title="سجل المحظورين" onclick="alert('عرض قائمة الباند')">
-        <img src="https://img.icons8.com/color/48/conference-call.png" class="icon" title="إدارة المراقبين" onclick="alert('تعديل رتب الطاقم')">
-        <img src="https://img.icons8.com/color/48/microphone.png" class="icon" title="إعلان صوتي" onclick="alert('تشغيل المايك')">
+<header>
+    <div style="color: var(--gold); font-weight: bold;">التحكم الكامل (الماستر)</div>
+    <div onclick="openSettings()" style="cursor:pointer">⚙️ إعدادات السيرفر</div>
+</header>
+
+<div class="app-body">
+    <div class="sidebar">
+        <div style="background:#222; padding:10px; text-align:center; color:var(--gold)">المتواجدون</div>
+        <div class="user-item" onclick="openAdminPanel('زائر 505')">👤 زائر 505</div>
+        <div class="user-item" onclick="openAdminPanel('أحمد')">👤 أحمد</div>
     </div>
 
-    <div class="users-list">
-        <div class="list-header">المتواجدون (4)</div>
-        <div class="user-item" onclick="showAdminActions(event, 'كينج الشات')">
-            <img src="https://img.icons8.com/color/48/crown.png" class="rank-crown">
-            <span style="color:red; font-weight:bold;">كينج الشات (أنت)</span>
-        </div>
-        <div class="user-item" onclick="showAdminActions(event, 'زائر مجهول')">
-            <span style="margin-left:24px;">زائر مجهول</span>
-        </div>
-        <div class="user-item" onclick="showAdminActions(event, 'بنت الأصول')">
-            <span style="margin-left:24px; color: #ff69b4;">بنت الأصول</span>
-        </div>
-    </div>
-
-    <div class="main-chat">
-        <div class="chat-header">
-            <div id="room-name">الغرفة العامة 🔓</div>
-            <div style="font-size: 12px; color: #888;">IP: 192.168.1.1 (عرض خاص بالمدير)</div>
+    <div class="chat-main">
+        <div id="messages">
+            <div style="color:#555; text-align:center">--- نظام التحكم جاهز ---</div>
         </div>
 
-        <div id="chat-screen">
-            <div class="admin-msg">[تنبيه النظام]: أهلاً بك يا مدير، لديك كامل الصلاحيات الآن.</div>
+        <div class="input-area">
+            <input type="text" id="msgInput" placeholder="اكتب رسالتك الإدارية...">
+            <button class="send-btn" onclick="send()">إرسال</button>
         </div>
 
-        <div class="command-center">
-            <div class="command-tabs">
-                <button class="cmd-btn" onclick="clearScreen()">🧹 مسح الشات</button>
-                <button class="cmd-btn" onclick="lockRoom()">🔒 قفل الغرفة</button>
-                <button class="cmd-btn" onclick="announcement()">📢 بنر إعلاني</button>
-                <button class="cmd-btn">✨ زخرفة الاسم</button>
-                <button class="cmd-btn">🎨 لون الكتابة</button>
-            </div>
-            <div class="input-box">
-                <input type="text" id="chat-input" placeholder="اكتب رسالتك القيادية هنا..." autofocus>
-                <button class="send-btn" onclick="send()">إرسال</button>
-            </div>
+        <div id="adminPanel" class="admin-modal">
+            <h3 id="targetName" style="text-align:center; color:var(--gold); margin-bottom:15px;">المستخدم</h3>
+            <button class="modal-btn btn-kick" onclick="action('طرد')">طرد من الغرفة</button>
+            <button class="modal-btn btn-ban" onclick="action('حظر')">حظر IP نهائي</button>
+            <button class="modal-btn btn-rank" onclick="action('ترقية')">إعطاء رتبة (أدمن)</button>
+            <button class="modal-btn" style="background:#444" onclick="closePanel()">إغلاق</button>
+        </div>
+
+        <div id="settingsPanel" class="admin-modal">
+            <h3 style="text-align:center; color:var(--gold); margin-bottom:15px;">إعدادات الموقع</h3>
+            <label>اسم الشات:</label>
+            <input type="text" value="شات البرنس" style="width:100%; margin-bottom:10px;">
+            <button class="modal-btn" style="background:#27ae60" onclick="alert('تم حفظ الإعدادات')">حفظ التغييرات</button>
+            <button class="modal-btn" style="background:#444" onclick="closeSettings()">إغلاق</button>
         </div>
     </div>
+</div>
 
-    <div id="adminMenu" class="context-menu">
-        <div style="background:#000; padding:5px; font-size:11px; color:var(--admin-gold); text-align:center;" id="target-name">اسم المستخدم</div>
-        <button onclick="adminAction('طرد')">⚠️ طرد (Kick)</button>
-        <button onclick="adminAction('حظر مؤقت')">⏳ حظر مؤقت</button>
-        <button onclick="adminAction('باند نهائي')">🚫 باند نهائي (IP)</button>
-        <button onclick="adminAction('سحب صلاحيات')">⭐ ترقية / تنزيل رتبة</button>
-        <button onclick="adminAction('رسالة خاصة')">✉️ رسالة إدارية خاصة</button>
-        <button onclick="adminAction('فحص IP')">🔍 فحص الـ IP والبلد</button>
-    </div>
+<script>
+    function openAdminPanel(name) {
+        document.getElementById('targetName').innerText = "التحكم بـ: " + name;
+        document.getElementById('adminPanel').style.display = 'block';
+    }
 
-    <script>
-        const chatScreen = document.getElementById('chat-screen');
-        const chatInput = document.getElementById('chat-input');
-        const adminMenu = document.getElementById('adminMenu');
+    function closePanel() { document.getElementById('adminPanel').style.display = 'none'; }
 
-        // وظيفة الإرسال (بصيغة المدير)
-        function send() {
-            const val = chatInput.value.trim();
-            if(!val) return;
-            const html = `
-                <div class="msg-line">
-                    <span style="color:red; font-weight:bold;">[المدير]:</span>
-                    <span style="color:#00ff00;">${val}</span>
-                </div>`;
-            chatScreen.insertAdjacentHTML('beforeend', html);
-            chatInput.value = '';
-            chatScreen.scrollTop = chatScreen.scrollHeight;
-        }
+    function openSettings() { document.getElementById('settingsPanel').style.display = 'block'; }
+    function closeSettings() { document.getElementById('settingsPanel').style.display = 'none'; }
 
-        // إظهار قائمة التحكم عند النقر على أي مستخدم
-        function showAdminActions(e, name) {
-            e.preventDefault();
-            window.selectedUser = name;
-            document.getElementById('target-name').innerText = name;
-            adminMenu.style.display = 'block';
-            adminMenu.style.top = e.pageY + 'px';
-            adminMenu.style.left = e.pageX + 'px';
-        }
+    function action(type) {
+        const msg = document.getElementById('messages');
+        msg.innerHTML += `<div style="color:red; font-size:12px;">[نظام]: تم تنفيذ ${type} بنجاح.</div>`;
+        closePanel();
+    }
 
-        // إغلاق قائمة التحكم
-        window.onclick = () => adminMenu.style.display = 'none';
+    function send() {
+        const inp = document.getElementById('msgInput');
+        if(!inp.value) return;
+        document.getElementById('messages').innerHTML += `<div><span class="admin-txt">[الماستر]:</span> ${inp.value}</div>`;
+        inp.value = '';
+    }
+</script>
 
-        // وظائف المدير
-        function clearScreen() { chatScreen.innerHTML = '<div class="admin-msg">تم مسح الشات بواسطة المدير.</div>'; }
-        
-        function lockRoom() {
-            const status = document.getElementById('room-name');
-            status.innerText = status.innerText.includes('🔓') ? 'الغرفة مغلقة 🔒' : 'الغرفة العامة 🔓';
-            alert('تم تغيير حالة الغرفة');
-        }
-
-        function announcement() {
-            const txt = prompt("أدخل نص الإعلان:");
-            if(txt) {
-                chatScreen
+</body>
+</html>
