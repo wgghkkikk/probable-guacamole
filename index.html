@@ -1,162 +1,30 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>شات البرنس | نسخة الماستر بالصور</title>
-    <style>
-        :root { --gold: #ff9800; --bg: #0b0b0b; --panel: #1a1a1a; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', sans-serif; }
-        body { background: var(--bg); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+/* تنسيق التوقيع والحالة */
+.msg-signature { 
+    display: block; 
+    font-size: 10px; 
+    color: var(--gold); 
+    margin-top: 5px; 
+    border-top: 1px solid #333; 
+    padding-top: 2px; 
+    font-style: italic;
+}
 
-        /* --- شاشة الدخول --- */
-        #login-screen { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .login-box { background: var(--panel); padding: 40px; border-radius: 15px; border: 2px solid var(--gold); text-align: center; width: 350px; }
-        .login-box input { width: 100%; padding: 12px; margin: 20px 0; background: #000; border: 1px solid #444; color: var(--gold); border-radius: 5px; text-align: center; }
+.status-select {
+    background: #000;
+    color: #00ff00;
+    border: 1px solid #444;
+    font-size: 10px;
+    border-radius: 3px;
+    margin-top: 5px;
+}
 
-        /* --- الهيدر --- */
-        header { background: #000; padding: 10px 20px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
-        
-        .main-app { display: flex; flex: 1; overflow: hidden; }
-
-        /* قائمة المتصلين (يمين) */
-        .sidebar { width: 260px; background: var(--panel); border-left: 1px solid #333; display: flex; flex-direction: column; }
-        .user-card { padding: 15px; border-bottom: 1px solid #222; display: flex; align-items: center; cursor: pointer; }
-        .user-card img { width: 35px; height: 35px; border-radius: 50%; margin-left: 10px; border: 1px solid var(--gold); object-fit: cover; }
-
-        /* منطقة الشات والرسائل */
-        .chat-view { flex: 1; display: flex; flex-direction: column; background: #050505; }
-        #chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        
-        .join-msg { background: rgba(255, 152, 0, 0.1); color: var(--gold); padding: 10px; text-align: center; border-radius: 10px; font-weight: bold; border: 1px dashed var(--gold); }
-
-        /* ستايل الرسالة مع الصورة */
-        .msg-container { display: flex; align-items: flex-start; gap: 10px; animation: fadeIn 0.3s ease; }
-        .msg-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
-        .msg-content { background: #1a1a1a; padding: 10px 15px; border-radius: 15px; border-bottom-right-radius: 2px; max-width: 70%; }
-        .msg-header { font-size: 12px; font-weight: bold; color: red; margin-bottom: 5px; display: block; }
-        .msg-text { color: #00ff00; font-size: 14px; line-height: 1.4; word-break: break-all; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- الملف الشخصي --- */
-        .profile-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; border: 2px solid var(--gold); width: 320px; padding: 25px; border-radius: 15px; display: none; z-index: 3000; text-align: center; }
-        .profile-modal img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--gold); margin-bottom: 15px; object-fit: cover; }
-        .upload-btn { background: var(--gold); color: #000; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 12px; display: inline-block; margin-bottom: 15px; font-weight: bold; }
-
-        /* منطقة الكتابة */
-        .input-area { padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px; }
-        #msgInput { flex: 1; padding: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 5px; outline: none; }
-        .btn-send { background: var(--gold); border: none; padding: 0 25px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-
-    </style>
-</head>
-<body>
-
-    <div id="login-screen">
-        <div class="login-box">
-            <h2 style="color:var(--gold); margin-bottom:10px;">شات البرنس</h2>
-            <p style="color:#888; font-size:12px;">لوحة تحكم الماستر</p>
-            <input type="text" id="userNameInput" placeholder="أدخل اسمك الشخصي">
-            <button class="btn-send" style="width:100%; height:45px;" onclick="initChat()">دخول الشات</button>
-        </div>
-    </div>
-
-    <header>
-        <div style="color:var(--gold); font-weight:bold;">👑 كنترول الماستر</div>
-        <div onclick="toggleProfile()" style="cursor:pointer">👤 إعدادات ملفي</div>
-    </header>
-
-    <div class="main-app">
-        <div class="sidebar">
-            <div style="padding:10px; background:#222; text-align:center; font-size:12px; color:var(--gold)">قائمة المتواجدين</div>
-            <div class="user-card" onclick="toggleProfile()">
-                <img id="side-avatar" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
-                <div>
-                    <div id="side-name" style="font-weight:bold; color:red;">المدير</div>
-                    <div style="font-size:10px; color:#00ff00;">متصل الآن</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="chat-view">
-            <div id="chat-box"></div>
-            <div class="input-area">
-                <input type="text" id="msgInput" placeholder="اكتب رسالتك القيادية هنا...">
-                <button class="btn-send" onclick="sendMessage()">إرسال</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="profileModal" class="profile-modal">
-        <h3 style="color:var(--gold); margin-bottom:15px;">ملفك الشخصي</h3>
-        <img id="profile-img-preview" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
-        <br>
-        <label class="upload-btn">
-            📁 اختر صورة من جهازك
-            <input type="file" id="imageUpload" hidden accept="image/*">
-        </label>
-        <div id="display-name" style="font-weight:bold; font-size:18px; margin-bottom:5px;">الاسم</div>
-        <p style="color:red; font-size:12px; margin-bottom:20px;">الرتبة: صاحب الموقع</p>
-        <button class="btn-send" style="width:100%;" onclick="toggleProfile()">حفظ وإغلاق</button>
-    </div>
-
-    <script>
-        let myName = "";
-        let myPhoto = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-
-        function initChat() {
-            const nameInp = document.getElementById('userNameInput').value;
-            if(!nameInp.trim()) return alert("يرجى كتابة الاسم");
-            
-            myName = nameInp;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('display-name').innerText = myName;
-            document.getElementById('side-name').innerText = myName;
-
-            const chatBox = document.getElementById('chat-box');
-            chatBox.innerHTML += `<div class="join-msg">✨ تم انضمام صاحب الشات : ( ${myName} ) ✨</div>`;
-        }
-
-        function sendMessage() {
-            const inp = document.getElementById('msgInput');
-            const box = document.getElementById('chat-box');
-            if(!inp.value.trim()) return;
-
-            // بناء هيكل الرسالة مع الصورة الشخصية
-            const msgHtml = `
-                <div class="msg-container">
-                    <img src="${myPhoto}" class="msg-avatar">
-                    <div class="msg-content">
-                        <span class="msg-header">${myName}</span>
-                        <span class="msg-text">${inp.value}</span>
-                    </div>
-                </div>
-            `;
-
-            box.innerHTML += msgHtml;
-            inp.value = '';
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function toggleProfile() {
-            const modal = document.getElementById('profileModal');
-            modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
-        }
-
-        // تحميل الصورة وحفظها في المتغير myPhoto لاستخدامها في الرسائل
-        document.getElementById('imageUpload').addEventListener('change', function(e) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                myPhoto = reader.result;
-                document.getElementById('profile-img-preview').src = myPhoto;
-                document.getElementById('side-avatar').src = myPhoto;
-            }
-            reader.readAsDataURL(e.target.files[0]);
-        });
-
-        document.getElementById('msgInput').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') sendMessage();
-        });
-    </script>
-</body>
-</html>
+/* تنبيه الرسائل الخاصة */
+.priv-notify {
+    background: #2980b9;
+    color: white;
+    padding: 5px;
+    font-size: 11px;
+    text-align: center;
+    border-radius: 5px;
+    margin: 5px 0;
+}
