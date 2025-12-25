@@ -3,40 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>MASTER RG - Final Edition</title>
+    <title>MASTER RG - Pro System</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --bot: #ff00ff; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --neon: #00f2ff; --gold: #ffd700; }
+        * { box-sizing: border-box; outline: none; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
         
         header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; }
         
-        #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 75px; overflow-y: auto; z-index: 1; }
+        #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 75px; overflow-y: auto; background: #050505; }
 
-        .msg-line { display: flex; padding: 12px; border-bottom: 1px solid #111; width: 100%; }
-        .bot-msg { background: rgba(255, 0, 255, 0.05); border-right: 4px solid var(--bot); }
-        .msg-img { width: 45px; height: 45px; border-radius: 8px; border: 1.5px solid var(--neon); margin-left: 12px; }
+        .msg-line { display: flex; padding: 12px; border-bottom: 1px solid #111; align-items: flex-start; }
+        .msg-img { width: 50px; height: 50px; border-radius: 10px; border: 2px solid var(--neon); margin-left: 12px; object-fit: cover; }
         .msg-body { flex: 1; }
-        .msg-user { font-size: 14px; color: var(--neon); font-weight: bold; }
-        .msg-text { font-size: 18px; color: #fff; line-height: 1.4; }
+        .msg-user { font-size: 14px; color: var(--neon); font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .rank-badge { font-size: 10px; background: var(--gold); color: #000; padding: 1px 5px; border-radius: 4px; }
+        .msg-text { font-size: 18px; color: #fff; margin-top: 4px; word-break: break-word; }
 
-        /* القائمة المدمجة */
-        .sidebar { 
-            position: fixed; top: 0; bottom: 0; right: -300px; width: 280px; 
-            background: rgba(15, 15, 15, 0.98); z-index: 2000; padding: 20px; 
-            border-left: 2px solid var(--neon); transition: 0.3s ease; backdrop-filter: blur(10px);
-        }
+        .sidebar { position: fixed; top: 0; bottom: 0; right: -320px; width: 300px; background: #0a0a0a; z-index: 2000; padding: 20px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-left: 2px solid var(--neon); overflow-y: auto; }
         .sidebar.active { right: 0; }
         
-        .box { background: #1a1a1a; border: 1px solid #333; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
+        .box { background: #161616; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
         .input-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #111; border-top: 1px solid var(--neon); display: flex; align-items: center; padding: 0 10px; gap: 8px; z-index: 1000; }
-        #msgInp { flex: 1; height: 48px; background: #000; color: #fff; border: 1px solid #333; padding: 0 15px; font-size: 16px; outline: none; border-radius: 8px; }
-        .btn-send { background: var(--neon); color: #000; border: none; padding: 0 15px; height: 48px; font-weight: bold; border-radius: 8px; }
         
-        #overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1500; display: none; }
+        input[type="text"], input[type="file"] { width: 100%; background: #000; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; margin-top: 5px; }
+        .btn { background: var(--neon); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        
+        .user-control-item { display: flex; justify-content: space-between; align-items: center; background: #222; padding: 8px; border-radius: 5px; margin-bottom: 5px; font-size: 13px; }
+        #overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1500; display: none; }
     </style>
 </head>
 <body>
@@ -44,42 +41,39 @@
 <div id="overlay" onclick="closeSidebar()"></div>
 
 <header>
-    <div style="width:40px;"></div> <b style="color:var(--neon); font-size: 22px;">MASTER RG 👑</b>
-    <button onclick="openSidebar()" style="background:var(--neon); border:none; color:#000; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer;">القائمة</button>
+    <div style="width:50px"></div>
+    <b style="color:var(--neon); font-size: 20px;">إمبراطورية RG 👑</b>
+    <button onclick="openSidebar()" style="background:var(--neon); border:none; padding:7px 15px; border-radius:8px; font-weight:bold;">القائمة</button>
 </header>
 
 <div id="chat-container" onclick="closeSidebar()"></div>
 
 <div id="sidebar" class="sidebar">
-    <h3 style="color:var(--neon); margin-top:0;">إدارة الإمبراطورية</h3>
+    <h3 style="color:var(--neon); margin-top:0;">الملف والتحكم</h3>
     
     <div class="box">
-        <h4 style="margin:0 0 8px 0;">👤 ملفي الشخصي</h4>
-        <input type="text" id="newName" placeholder="اسمي..." style="width:100%; background:#000; color:#fff; border:1px solid #444; padding:8px; border-radius:5px;">
-        <button onclick="saveProfile()" style="width:100%; background:var(--neon); border:none; padding:8px; margin-top:8px; font-weight:bold; border-radius:5px;">حفظ الاسم</button>
-    </div>
-
-    <div class="box">
-        <h4 style="margin:0 0 8px 0; color:var(--bot);">🤖 حماية RG</h4>
-        <p style="font-size:12px; margin:0;">البوت نشط ويراقب السبام والروابط.</p>
-    </div>
-
-    <div class="box">
-        <h4 style="margin:0 0 8px 0;">🟢 المتواجدون</h4>
-        <div id="user-list" style="font-size:14px;">👑 الماستر RG</div>
+        <h4 style="margin:0;">👤 تعديل البروفايل</h4>
+        <input type="text" id="newName" placeholder="الاسم الملكي...">
+        <p style="font-size: 11px; margin: 10px 0 5px;">اختر صورتك من الجهاز:</p>
+        <input type="file" id="imgInput" accept="image/*" onchange="handleImage(this)">
+        <button onclick="saveProfile()" class="btn">حفظ التغييرات</button>
     </div>
 
     <div id="admin-panel" style="display:none;" class="box">
-        <h4 style="color:red;">🛠 تحكم الماستر</h4>
-        <button onclick="clearChat()" style="width:100%; background:red; color:white; border:none; padding:8px; border-radius:5px;">مسح الشات</button>
+        <h4 style="color:var(--gold);">🛠 إدارة الأعضاء</h4>
+        <button onclick="db.ref('messages').remove()" style="background:red; color:white; margin-bottom:10px;" class="btn">مسح الشات بالكامل</button>
+        <div id="members-list"></div>
     </div>
 
-    <button onclick="closeSidebar()" style="width:100%; background:#333; color:#fff; border:none; padding:10px; border-radius:5px; margin-top:10px;">إغلاق القائمة</button>
+    <div class="box">
+        <h4 style="margin:0;">🟢 المتواجدون</h4>
+        <div id="online-list" style="font-size:13px; margin-top:10px;">👑 الماستر RG</div>
+    </div>
 </div>
 
 <div class="input-footer">
-    <input type="text" id="msgInp" placeholder="اكتب هنا..." onfocus="closeSidebar()">
-    <button onclick="sendMsg()" class="btn-send">إرسال</button>
+    <input type="text" id="msgInp" placeholder="اكتب رسالتك..." onfocus="closeSidebar()">
+    <button onclick="sendMsg()" class="btn" style="width:80px; margin-top:0;">إرسال</button>
 </div>
 
 <script>
@@ -87,48 +81,95 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let myN = localStorage.getItem('rg-n') || "زائر_" + Math.floor(Math.random()*99);
-    document.getElementById('newName').value = myN;
-    if(myN.includes("الماستر")) document.getElementById('admin-panel').style.display = 'block';
+    let myData = {
+        n: localStorage.getItem('rg-n') || "الماستر_RG",
+        i: localStorage.getItem('rg-i') || "https://ui-avatars.com/api/?name=RG",
+        r: localStorage.getItem('rg-r') || "member"
+    };
+
+    document.getElementById('newName').value = myData.n;
+    if(myData.n.includes("الماستر")) {
+        document.getElementById('admin-panel').style.display = 'block';
+        updateAdminList();
+    }
+
+    function handleImage(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                myData.i = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function saveProfile() {
+        localStorage.setItem('rg-n', document.getElementById('newName').value);
+        localStorage.setItem('rg-i', myData.i);
+        alert("تم تحديث هويتك الملكية!");
+        location.reload();
+    }
 
     function openSidebar() { 
         document.getElementById('sidebar').classList.add('active'); 
         document.getElementById('overlay').style.display = 'block';
+        if(myData.n.includes("الماستر")) updateAdminList();
     }
     function closeSidebar() { 
         document.getElementById('sidebar').classList.remove('active'); 
         document.getElementById('overlay').style.display = 'none';
     }
 
-    function saveProfile() {
-        localStorage.setItem('rg-n', document.getElementById('newName').value);
-        location.reload();
-    }
-
     function sendMsg() {
         let t = document.getElementById('msgInp').value;
         if(t.trim()) {
-            db.ref('messages').push({ u: myN, t: t, time: Date.now() });
+            db.ref('messages').push({
+                u: myData.n,
+                i: myData.i,
+                t: t,
+                r: myData.r,
+                time: Date.now()
+            });
             document.getElementById('msgInp').value = '';
-            // رد بوت بسيط
-            if(t.includes("بوت")) db.ref('messages').push({ u: "🤖 بوت الحماية", t: "نعم يا " + myN + "، أنا أراقب الإمبراطورية!", isBot: true });
         }
     }
 
-    function clearChat() { if(confirm("حذف كل الرسائل؟")) db.ref('messages').remove(); }
+    function updateAdminList() {
+        db.ref('messages').limitToLast(10).once('value', snap => {
+            let list = document.getElementById('members-list');
+            let users = {};
+            snap.forEach(m => { users[m.val().u] = m.val().u; });
+            list.innerHTML = Object.keys(users).map(u => `
+                <div class="user-control-item">
+                    <span>${u}</span>
+                    <button onclick="promote('${u}')" style="background:var(--gold); border:none; border-radius:4px; padding:2px 8px; cursor:pointer;">ترقية</button>
+                </div>
+            `).join('');
+        });
+    }
+
+    function promote(user) {
+        alert("تمت ترقية " + user + "! اطلب منه إضافة #RG لاسمِه ليصبح مشرفاً.");
+    }
 
     db.ref('messages').limitToLast(40).on('child_added', snap => {
         let m = snap.val();
+        let isMaster = m.u.includes("الماستر");
+        let isAdmin = m.u.includes("#RG");
+        
         let div = document.createElement('div');
-        div.className = 'msg-line' + (m.isBot ? ' bot-msg' : '');
+        div.className = 'msg-line';
         div.id = snap.key;
         div.innerHTML = `
-            <img src="https://ui-avatars.com/api/?name=${m.u}&background=random&color=fff" class="msg-img">
+            <img src="${m.i}" class="msg-img">
             <div class="msg-body">
-                <span class="msg-user" style="color:${m.isBot?'var(--bot)':'var(--neon)'}">${m.u}</span>
+                <div class="msg-user">
+                    ${m.u.replace('#RG','')} 
+                    ${isMaster ? '<span class="rank-badge">👑 MASTER</span>' : (isAdmin ? '<span class="rank-badge" style="background:#00f2ff">⭐ مشرف</span>' : '')}
+                </div>
                 <div class="msg-text">${m.t}</div>
             </div>
-            ${myN.includes("الماستر") ? `<button onclick="db.ref('messages/${snap.key}').remove()" style="background:none; border:none; color:red; cursor:pointer; font-size:18px;">🗑</button>` : ''}
+            ${myData.n.includes("الماستر") ? `<button onclick="db.ref('messages/${snap.key}').remove()" style="background:none; border:none; color:red; font-size:18px; cursor:pointer;">🗑</button>` : ''}
         `;
         document.getElementById('chat-container').appendChild(div);
         document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
