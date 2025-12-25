@@ -2,85 +2,87 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>إمبراطورية الماستر v3.0</title>
+    <title>شات الماستر v5 - البث المباشر</title>
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
     <style>
         :root { --glow: #00f2ff; --master: #ff004c; }
         body { background: #000; color: #fff; margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: 'Tahoma', sans-serif; overflow: hidden; }
         header { height: 50px; border-bottom: 2px solid var(--glow); text-align: center; line-height: 50px; color: var(--glow); font-weight: bold; box-shadow: 0 0 15px var(--glow); }
-        .wrapper { display: flex; flex: 1; overflow: hidden; }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
         
         /* اليمين: أدوات وغرف */
-        #right { width: 220px; background: #050505; border-left: 1px solid #222; padding: 15px; }
+        #right-sidebar { width: 220px; background: #050505; border-left: 1px solid #222; padding: 15px; }
         /* اليسار: متصلين وبروفايل */
-        #left { width: 220px; background: #050505; border-right: 1px solid #222; padding: 15px; }
+        #left-sidebar { width: 220px; background: #050505; border-right: 1px solid #222; padding: 15px; }
         /* الوسط: الدردشة */
-        #center { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; }
+        #chat-center { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; }
         
-        #msgs { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        #msgs-display { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .input-bar { padding: 15px; background: #000; display: flex; gap: 10px; border-top: 1px solid #222; }
         input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 20px; outline: none; }
         
         .btn { background: var(--glow); color: #000; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
-        .rank { background: var(--master); font-size: 10px; padding: 2px 8px; border-radius: 10px; animation: pulse 1s infinite; display: inline-block; }
-        .name { color: var(--glow); font-weight: bold; display: block; animation: move 2s infinite; margin-top: 5px; text-shadow: 0 0 5px var(--glow); }
+        .rank-tag { background: var(--master); font-size: 10px; padding: 2px 8px; border-radius: 10px; animation: glow-pulse 1s infinite; display: inline-block; }
+        .master-name { color: var(--glow); font-weight: bold; display: block; animation: side-move 2s infinite; margin-top: 5px; text-shadow: 0 0 5px var(--glow); }
         
-        @keyframes pulse { 50% { opacity: 0.5; } }
-        @keyframes move { 50% { transform: translateX(5px); } }
+        @keyframes glow-pulse { 50% { opacity: 0.5; } }
+        @keyframes side-move { 50% { transform: translateX(5px); } }
         
-        .msg-line { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border-right: 4px solid var(--glow); margin-bottom: 5px; }
+        .msg-line { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border-right: 4px solid var(--glow); }
     </style>
 </head>
 <body>
 
-<header>MASTER REAL-TIME CHAT</header>
+<header>MASTER REAL-TIME SYSTEM v5</header>
 
-<div class="wrapper">
-    <div id="right">
+<div class="main-container">
+    <div id="right-sidebar">
         <div style="color:var(--glow); font-size:12px; margin-bottom:10px;">📂 الغرف</div>
         <button class="btn" onclick="addRoom()">+ إضافة غرفة</button>
         <div id="room-list"></div>
     </div>
 
-    <div id="center">
-        <div id="msgs"></div>
+    <div id="chat-center">
+        <div id="msgs-display"></div>
         <div class="input-bar">
-            <input type="text" id="minp" placeholder="اكتب هنا وستصل لكل الأجهزة...">
-            <button class="btn" style="width:auto; margin:0;" onclick="sendMsg()">إرسال</button>
+            <input type="text" id="chatInput" placeholder="اكتب هنا وسوف يظهر عند الجميع...">
+            <button class="btn" style="width:auto; margin:0; padding: 0 20px;" onclick="publishMsg()">إرسال</button>
         </div>
     </div>
 
-    <div id="left">
+    <div id="left-sidebar">
         <div style="color:var(--glow); font-size:12px; text-align:center; margin-bottom:15px;">👤 المتصلون</div>
         <div style="background:#111; padding:15px; border-radius:10px; text-align:center; border:1px solid #222;">
-            <span class="rank">صاحب الشات</span>
-            <span class="name">الماستر</span>
+            <span class="rank-tag">صاحب الشات</span>
+            <span class="master-name">الماستر</span>
             <div style="margin-top:10px; letter-spacing: 5px;">📩 🤝 ❤️</div>
         </div>
     </div>
 </div>
 
 <script>
-    // استخدام مفاتيح عالمية لضمان الربط
+    // تغيير الـ Channel في كل مرة نحدث فيها الكود لضمان الربط
+    const channelName = 'master_final_chat_v5';
+
     const pn = new PubNub({
         publishKey: 'pub-c-db838685-3004-4363-9524-7667858c0394',
         subscribeKey: 'sub-c-576a166e-c14d-11eb-a010-02da5302672a',
-        uuid: "MasterDevice_" + Math.random()
+        uuid: "Master_" + Math.floor(Math.random() * 1000)
     });
 
-    pn.subscribe({ channels: ['master_final_v3'] });
+    pn.subscribe({ channels: [channelName] });
 
     pn.addListener({
         message: function(s) {
-            document.getElementById('msgs').innerHTML += `<div class="msg-line"><b style="color:var(--master)">[الماستر]:</b> ${s.message.text}</div>`;
-            document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
+            document.getElementById('msgs-display').innerHTML += `<div class="msg-line"><b style="color:var(--master)">[الماستر]:</b> ${s.message.text}</div>`;
+            document.getElementById('msgs-display').scrollTop = document.getElementById('msgs-display').scrollHeight;
         }
     });
 
-    function sendMsg() {
-        const i = document.getElementById('minp');
+    function publishMsg() {
+        const i = document.getElementById('chatInput');
         if(i.value.trim()) {
-            pn.publish({ channel: 'master_final_v3', message: { text: i.value } });
+            pn.publish({ channel: channelName, message: { text: i.value } });
             i.value = '';
         }
     }
@@ -92,7 +94,7 @@
         }
     }
 
-    document.getElementById('minp').onkeypress = (e) => { if(e.key === 'Enter') sendMsg(); };
+    document.getElementById('chatInput').onkeypress = (e) => { if(e.key === 'Enter') publishMsg(); };
 </script>
 </body>
-</html
+</html>
