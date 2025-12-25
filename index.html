@@ -1,17 +1,68 @@
-// 1. طلب الاسم عند الدخول
-let myName = prompt("أدخل اسمك يا ملك:"); 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>شات علوش الملكي</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; padding: 0; }
+        #chat-area { height: 80vh; overflow-y: auto; padding: 20px; border-bottom: 2px solid #ffd700; }
+        .master-msg { border: 1px solid #ffd700; background: rgba(255, 215, 0, 0.1); padding: 10px; border-radius: 10px; margin: 5px 0; }
+        .user-msg { background: #1a1a1a; padding: 10px; border-radius: 10px; margin: 5px 0; }
+        .badge { background: #ffd700; color: #000; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
+        .input-bar { height: 20vh; display: flex; padding: 20px; gap: 10px; background: #111; }
+        input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #333; background: #222; color: white; }
+        button { background: #ffd700; border: none; padding: 0 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
 
-// إذا ضغطت إلغاء أو ما كتبت اسم، راح يرجع يسألك
-if (!myName) {
-    location.reload(); 
-}
+<div id="chat-area"></div>
+<div class="input-bar">
+    <input type="text" id="mInput" placeholder="اكتب هنا يا ماستر...">
+    <button onclick="send()">إرسال</button>
+</div>
 
-let myRank = "عضو";
+<script>
+    // إعدادات مشروعك f2da9
+    const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(config);
+    const db = firebase.database();
 
-// 2. فحص هل أنت "علوش" الماستر؟
-db.ref('master').on('value', snap => {
-    if(snap.val() === myName) {
-        myRank = "الماستر";
-        alert("أهلاً بك يا إمبراطور علوش 👑");
+    // 1. طلب الاسم
+    let myName = prompt("أدخل اسمك يا ملك:");
+    if(!myName) { location.reload(); }
+
+    let myRank = "عضو";
+
+    // 2. فحص رتبة الماستر
+    db.ref('master').on('value', snap => {
+        if(snap.val() === myName) {
+            myRank = "الماستر";
+            alert("أهلاً يا إمبراطور علوش 👑");
+        }
+    });
+
+    // 3. الإرسال
+    function send() {
+        let text = document.getElementById('mInput').value;
+        if(text) {
+            db.ref('messages').push({ n: myName, m: text, r: myRank });
+            document.getElementById('mInput').value = "";
+        }
     }
-});
+
+    // 4. العرض
+    db.ref('messages').limitToLast(30).on('child_added', snap => {
+        let d = snap.val();
+        let div = document.createElement('div');
+        let isM = (d.r === "الماستر");
+        div.className = isM ? "master-msg" : "user-msg";
+        div.innerHTML = `${isM ? '<span class="badge">الماستر</span>' : ''} <b>${d.n}:</b> ${d.m}`;
+        document.getElementById('chat-area').appendChild(div);
+        document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
+    });
+</script>
+</body>
+</html>
