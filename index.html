@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>MASTER RG - Quick Entry</title>
+    <title>MASTER RG - Hybrid Entry</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
@@ -12,25 +12,26 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
         
-        /* شاشة الدخول المبسطة */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-box { background: #111; padding: 30px 20px; border-radius: 20px; border: 1px solid var(--neon); width: 100%; max-width: 320px; text-align: center; box-shadow: 0 0 20px rgba(0,242,255,0.1); }
+        /* شاشة الدخول المزدوجة */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .login-box { background: #111; padding: 25px; border-radius: 20px; border: 1px solid var(--neon); width: 100%; max-width: 360px; text-align: center; }
         
+        .tab-btn { background: #222; color: #fff; border: none; padding: 10px; width: 48%; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; }
+        .tab-btn.active { background: var(--neon); color: #000; font-weight: bold; }
+
         header { height: 55px; background: #111; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; }
         #chat-container { position: absolute; top: 55px; left: 0; right: 0; bottom: 75px; overflow-y: auto; background: #050505; }
 
-        .msg-line { display: flex; padding: 10px; border-bottom: 1px solid #111; align-items: flex-start; }
+        .msg-line { display: flex; padding: 10px; border-bottom: 1px solid #111; }
         .msg-img { width: 45px; height: 45px; border-radius: 8px; border: 1.5px solid var(--neon); margin-left: 10px; object-fit: cover; }
-        .msg-body { flex: 1; }
-        .msg-user { font-size: 14px; font-weight: bold; color: var(--neon); display: flex; align-items: center; gap: 5px; }
+        .msg-user { font-size: 14px; font-weight: bold; color: var(--neon); }
         .msg-text { font-size: 17px; color: #fff; margin-top: 3px; word-break: break-word; }
 
         .sidebar { position: fixed; top: 0; bottom: 0; right: -320px; width: 300px; background: #0a0a0a; z-index: 2000; padding: 20px; transition: 0.3s ease; border-left: 2px solid var(--neon); }
         .sidebar.active { right: 0; }
-        .box { background: #161616; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-
-        input { width: 100%; background: #000; color: #fff; border: 1px solid #444; padding: 12px; border-radius: 10px; margin-top: 10px; font-family: 'Cairo'; text-align: center; font-size: 16px; }
-        .btn { background: var(--neon); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; font-family: 'Cairo'; font-size: 16px; }
+        
+        input { width: 100%; background: #000; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; margin-top: 10px; font-family: 'Cairo'; text-align: center; }
+        .btn { background: var(--neon); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; font-family: 'Cairo'; }
         
         #overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1500; display: none; }
     </style>
@@ -39,13 +40,24 @@
 
 <div id="login-screen">
     <div class="login-box">
-        <h2 style="color:var(--neon); margin:0 0 10px 0;">إمبراطورية RG</h2>
-        <p style="font-size:14px; color:#aaa;">أهلاً بك.. ادخل اسمك المستعار</p>
+        <h2 style="color:var(--neon); margin-bottom: 20px;">إمبراطورية RG</h2>
         
-        <input type="text" id="regName" placeholder="اكتب اسمك هنا...">
-        <button onclick="entry()" class="btn">دخول الدردشة 🚀</button>
-        
-        <p style="font-size:11px; color:#555; margin-top:15px;">بضغطك على دخول أنت توافق على قوانين الإمبراطورية</p>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <button id="zair-tab" class="tab-btn active" onclick="switchTab('zair')">دخول زائر</button>
+            <button id="ozow-tab" class="tab-btn" onclick="switchTab('ozow')">تسجيل حساب</button>
+        </div>
+
+        <div id="zair-form">
+            <input type="text" id="zairName" placeholder="اكتب اسمك المستعار...">
+            <button onclick="entry('zair')" class="btn">دخول سريع ⚡</button>
+        </div>
+
+        <div id="ozow-form" style="display: none;">
+            <input type="text" id="ozowName" placeholder="الاسم الكامل">
+            <input type="text" id="ozowEmail" placeholder="البريد الإلكتروني">
+            <input type="password" id="ozowPass" placeholder="كلمة السر">
+            <button onclick="entry('ozow')" class="btn" style="background: var(--gold);">إنشاء حساب ودخول 💎</button>
+        </div>
     </div>
 </div>
 
@@ -60,15 +72,10 @@
 <div id="chat-container" onclick="closeSidebar()"></div>
 
 <div id="sidebar" class="sidebar">
-    <div class="box">
-        <h4 style="margin:0; color:var(--neon)">👤 الملف الشخصي</h4>
-        <div id="myCard" style="font-size:14px; margin-top:10px;"></div>
-        <button onclick="localStorage.clear(); location.reload();" class="btn" style="background:#ff4444; color:white; margin-top:20px;">تسجيل خروج</button>
-    </div>
-    
-    <div id="admin-panel" style="display:none;" class="box">
-        <h4 style="color:var(--gold);">🛠 تحكم الماستر</h4>
-        <button onclick="db.ref('messages').remove()" class="btn" style="background:red; color:white;">تصفير الشات</button>
+    <div class="box" style="background:#111; padding:15px; border-radius:10px;">
+        <h4 style="margin:0; color:var(--neon)">👤 بياناتي</h4>
+        <div id="myInfo" style="margin-top:10px; font-size:14px;"></div>
+        <button onclick="localStorage.clear(); location.reload();" class="btn" style="background:#ff4444; color:white; margin-top:20px;">خروج</button>
     </div>
 </div>
 
@@ -82,35 +89,38 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let my = {
-        n: localStorage.getItem('rg-n') || "",
-        i: localStorage.getItem('rg-i') || "https://ui-avatars.com/api/?background=00f2ff&color=000&name=U",
-        logged: localStorage.getItem('rg-logged') || "false"
-    };
-
-    if(my.logged === "true") {
-        document.getElementById('login-screen').style.display = 'none';
-        updateUI();
+    function switchTab(type) {
+        document.getElementById('zair-form').style.display = type === 'zair' ? 'block' : 'none';
+        document.getElementById('ozow-form').style.display = type === 'ozow' ? 'block' : 'none';
+        document.getElementById('zair-tab').classList.toggle('active', type === 'zair');
+        document.getElementById('ozow-tab').classList.toggle('active', type === 'ozow');
     }
 
-    function entry() {
-        let name = document.getElementById('regName').value;
-        if(!name || name.trim().length < 2) return alert("الرجاء كتابة اسم مستعار!");
-        
+    function entry(type) {
+        let name = type === 'zair' ? document.getElementById('zairName').value : document.getElementById('ozowName').value;
+        if(!name || name.trim().length < 2) return alert("الرجاء كتابة الاسم!");
+
         localStorage.setItem('rg-n', name);
+        localStorage.setItem('rg-type', type === 'zair' ? 'زائر' : 'عضو مسجل');
         localStorage.setItem('rg-logged', "true");
         location.reload();
     }
 
-    function updateUI() {
-        document.getElementById('myCard').innerHTML = `<b>الاسم الحالي:</b> ${my.n}`;
-        if(my.n.includes("الماستر")) document.getElementById('admin-panel').style.display = 'block';
+    let my = {
+        n: localStorage.getItem('rg-n'),
+        t: localStorage.getItem('rg-type'),
+        logged: localStorage.getItem('rg-logged')
+    };
+
+    if(my.logged === "true") {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('myInfo').innerHTML = `الاسم: ${my.n}<br>الرتبة: ${my.t}`;
     }
 
     function sendMsg() {
         let t = document.getElementById('msgInp').value;
         if(t.trim()) {
-            db.ref('messages').push({ u: my.n, i: my.i, t: t, time: Date.now() });
+            db.ref('messages').push({ u: my.n, t: t, time: Date.now() });
             document.getElementById('msgInp').value = '';
         }
     }
@@ -118,8 +128,8 @@
     db.ref('messages').limitToLast(40).on('child_added', snap => {
         let m = snap.val();
         let div = document.createElement('div');
-        div.className = 'msg-line'; div.id = snap.key;
-        div.innerHTML = `<img src="${m.i}" class="msg-img">
+        div.className = 'msg-line';
+        div.innerHTML = `<img src="https://ui-avatars.com/api/?name=${m.u}&background=random" class="msg-img">
             <div class="msg-body">
                 <div class="msg-user">${m.u} ${m.u.includes("الماستر")?'👑':''}</div>
                 <div class="msg-text">${m.t}</div>
@@ -130,7 +140,6 @@
 
     function openSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
-    db.ref('messages').on('child_removed', snap => { document.getElementById(snap.key)?.remove(); });
 </script>
 </body>
 </html>
