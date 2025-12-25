@@ -1,18 +1,32 @@
-// وظيفة تفتح قائمة التحكم عند الضغط على أي رسالة
-function openControl(targetName) {
-    if (myRank === "الماستر") { // التأكد إنك أنت علوش الماستر
-        let action = prompt(`تحكم بـ (${targetName}):\n1- طرد نهائي\n2- كتم مؤقت\n3- حذف الرسالة`);
-        
-        if (action === "1") {
-            db.ref('actions/' + targetName).set({ cmd: 'kick', admin: myName });
-            alert("تم إرسال أمر الطرد!");
-        } else if (action === "3") {
-            // كود حذف الرسالة من السيرفر
-            alert("تم طلب حذف الرسالة");
-        }
-    }
-}
+// عرض الرسائل ومعالجة البيانات
+db.ref('messages').limitToLast(50).on('child_added', snap => {
+    let data = snap.val();
+    let area = document.getElementById('chat-area');
+    
+    // 1. حل مشكلة الأسماء المجهولة (ذكاء اصطناعي بسيط)
+    let name = data.sender || data.user || data.name || "عضو مجهول";
+    let msg = data.content || data.text || data.msg || "";
+    let rank = data.role || data.rank || "عضو";
 
-// تعديل كود عرض الرسائل ليقبل الضغط
-// ابحث عن السطر اللي يعرض الرسالة (div.innerHTML) وأضف له:
-// div.onclick = () => openControl(data.sender);
+    // 2. تمييز إذا كان المرسل هو أنت (الماستر علوش)
+    let isHeTheMaster = (name === "علوش" || rank === "الماستر");
+    
+    let div = document.createElement('div');
+    div.className = isHeTheMaster ? "msg-master" : "msg-member";
+
+    // 3. الربط مع وظيفة التحكم (لما تضغط على الرسالة)
+    div.onclick = () => {
+        if(myRank === "الماستر") {
+            openControl(name); // استدعاء الوظيفة اللي نسختها أنت
+        }
+    };
+
+    div.innerHTML = `
+        <span class="rank-badge ${isHeTheMaster ? 'is-master' : 'is-member'}">${isHeTheMaster ? 'الماستر' : 'عضو'}</span>
+        <span class="user-name ${isHeTheMaster ? 'master-name' : 'member-name'}">${name}:</span> 
+        <span class="msg-text">${msg}</span>
+    `;
+    
+    area.appendChild(div);
+    area.scrollTop = area.scrollHeight;
+});
