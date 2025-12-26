@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش - الغرف الملكية 👑</title>
+    <title>مملكة علوش - المجلس العام 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -13,70 +13,72 @@
         :root { --main: #ffd700; --bg: #000; }
         body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* شريط اختيار الغرف */
-        .room-tabs { display: flex; background: #111; border-bottom: 2px solid var(--main); }
-        .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.3s; color: #888; border-left: 1px solid #222; }
-        .tab.active { background: var(--main); color: #000; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-
+        /* حاوية الأقسام القابلة للترتيب */
         #master-layout { display: flex; flex: 1; gap: 10px; padding: 10px; overflow: hidden; }
-        .panel { background: #0a0a0a; border: 2px solid #222; border-radius: 15px; display: flex; flex-direction: column; }
-        .drag-handle { background: #111; padding: 8px; cursor: move; text-align: center; font-size: 11px; color: var(--main); border-radius: 13px 13px 0 0; }
 
-        #sidebar { width: 200px; flex-shrink: 0; }
-        #main-chat-area { flex-grow: 1; }
+        .panel { background: #0a0a0a; border: 2px solid #222; border-radius: 15px; display: flex; flex-direction: column; position: relative; }
+        .drag-handle { background: #111; padding: 8px; cursor: move; text-align: center; font-size: 11px; color: var(--main); border-radius: 13px 13px 0 0; font-weight: bold; border-bottom: 1px solid #222; }
 
-        /* العناصر */
-        .mics-row { display: flex; gap: 5px; padding: 8px; background: #0f0f0f; }
-        .mic-slot { flex: 1; background: #1a1a1a; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 1px dashed #444; }
-        
-        #yt-box { padding: 10px; background: #0f0f0f; border-bottom: 1px solid #222; }
-        #video-screen { display: none; height: 180px; margin-top: 5px; border-radius: 10px; overflow: hidden; }
+        #sidebar { width: 220px; flex-shrink: 0; }
+        #chat-area { flex-grow: 1; }
 
-        #chat-window { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px; border-radius: 12px; max-width: 80%; border: 1px solid #222; }
-        .msg.me { align-self: flex-end; border-right: 3px solid var(--main); background: #1a1a1a; }
-        .msg.bot { align-self: center; border: 1px solid #00f2ff; color: #00f2ff; text-align: center; width: 90%; }
+        /* المايكات */
+        .mics-row { display: flex; gap: 5px; padding: 10px; background: #0f0f0f; border-bottom: 1px solid #222; }
+        .mic-slot { flex: 1; background: #1a1a1a; height: 50px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; border: 1px dashed #444; }
+        .mic-slot.active { border: 1px solid var(--main); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
 
-        .input-bar { padding: 12px; background: #0a0a0a; display: flex; gap: 10px; border-top: 1px solid #222; }
-        input[type="text"] { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 20px; outline: none; }
-        button.send { background: var(--main); border: none; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        /* اليوتيوب */
+        #yt-section { padding: 10px; background: #0f0f0f; border-bottom: 1px solid var(--main); }
+        #video-screen { display: none; height: 200px; background: #000; margin-top: 10px; border-radius: 10px; overflow: hidden; border: 1px solid var(--main); }
+
+        /* الشات */
+        #chat-window { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #050505; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; border: 1px solid #222; }
+        .msg.me { align-self: flex-end; background: #1a1a1a; border-right: 4px solid var(--main); }
+        .msg.bot { align-self: center; background: rgba(0, 242, 255, 0.1); border: 1px solid #00f2ff; color: #00f2ff; text-align: center; width: 90%; }
+
+        .input-bar { padding: 15px; background: #0a0a0a; display: flex; gap: 10px; border-top: 1px solid #222; }
+        input[type="text"] { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 25px; outline: none; }
+        button.send { background: var(--main); color: #000; border: none; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+
+        .bot-tag { color: #00f2ff; font-weight: bold; display: flex; align-items: center; gap: 5px; padding: 5px; border-bottom: 1px solid #111; }
     </style>
 </head>
 <body>
 
-    <div class="room-tabs">
-        <div id="tab-main" class="tab active" onclick="switchRoom('main')">🏛️ المجلس العام</div>
-        <div id="tab-private" class="tab" onclick="switchRoom('private')">🤫 الغرفة الفرعية</div>
-    </div>
-
     <div id="master-layout">
         <div id="sidebar" class="panel">
             <div class="drag-handle">✥ المتصلون ✥</div>
-            <div id="users-list" style="padding:10px;"></div>
+            <div id="users-container" style="padding: 10px; overflow-y: auto;">
+                <div class="bot-tag">🤖 بوت المملكة</div>
+                <div id="online-list"></div>
+            </div>
         </div>
 
-        <div id="main-chat-area" class="panel">
-            <div class="drag-handle">✥ نافذة الدردشة ✥</div>
+        <div id="chat-area" class="panel">
+            <div class="drag-handle">✥ المجلس العام للإمبراطور علوش ✥</div>
             
-            <div id="main-room-extras">
-                <div class="mics-row">
-                    <div class="mic-slot" id="m1">🎙️ خالي</div>
-                    <div class="mic-slot" id="m2">🎙️ خالي</div>
-                    <div class="mic-slot" id="m3">🎙️ خالي</div>
-                    <div class="mic-slot" id="m4">🎙️ خالي</div>
+            <div class="mics-row">
+                <div class="mic-slot" id="slot1">🎙️ خالي <button onclick="micAction(1)" style="font-size:8px;">صعود</button></div>
+                <div class="mic-slot" id="slot2">🎙️ خالي <button onclick="micAction(2)" style="font-size:8px;">صعود</button></div>
+                <div class="mic-slot" id="slot3">🎙️ خالي <button onclick="micAction(3)" style="font-size:8px;">صعود</button></div>
+                <div class="mic-slot" id="slot4">🎙️ خالي <button onclick="micAction(4)" style="font-size:8px;">صعود</button></div>
+            </div>
+
+            <div id="yt-section">
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="yt-query" placeholder="ابحث عن فيديو..." style="flex:1; background:#000; color:#fff; border:1px solid #333; padding:8px; border-radius:5px;">
+                    <button onclick="ytSearch()" style="background:var(--main); border:none; padding:8px; border-radius:5px; cursor:pointer;">🔍</button>
                 </div>
-                <div id="yt-box">
-                    <input type="text" id="yt-search" placeholder="بحث يوتيوب..." style="width:70%; background:#000; color:#fff; border:1px solid #333; padding:5px;">
-                    <button onclick="doSearch()">🔍</button>
-                    <div id="video-screen"></div>
-                </div>
+                <div id="yt-results" style="display:flex; overflow-x:auto; gap:10px; margin-top:5px;"></div>
+                <div id="video-screen"></div>
             </div>
 
             <div id="chat-window"></div>
 
             <div class="input-bar">
-                <input type="text" id="msgInput" placeholder="اكتب رسالتك هنا...">
-                <button class="send" onclick="postMsg()">إرسال</button>
+                <input type="text" id="mInp" placeholder="تحدث يا ملك...">
+                <button class="send" onclick="sendMsg()">إرسال</button>
             </div>
         </div>
     </div>
@@ -91,11 +93,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
-    
-    let currentRoom = 'main'; // الغرفة الحالية
     let myName = "";
 
-    // تفعيل السحب
     new Sortable(document.getElementById('master-layout'), { handle: '.drag-handle', animation: 200 });
 
     auth.onAuthStateChanged(user => {
@@ -103,63 +102,90 @@
             myName = user.email === "rgrghh77@gmail.com" ? "إمبراطور علوش 👑" : user.email.split('@')[0];
             db.ref('status/' + user.uid).set({ n: myName });
             db.ref('status/' + user.uid).onDisconnect().remove();
-            switchRoom('main');
-            loadUsers();
-            syncMics();
+            initKingdom();
         } else { window.location.href = "index.html"; }
     });
 
-    // التبديل بين الغرف
-    function switchRoom(room) {
-        currentRoom = room;
-        // تحديث شكل الأزرار
-        document.getElementById('tab-main').classList.toggle('active', room === 'main');
-        document.getElementById('tab-private').classList.toggle('active', room === 'private');
-        
-        // إظهار أو إخفاء ميزات المجلس العام (يوتيوب ومايكات)
-        document.getElementById('main-room-extras').style.display = (room === 'main') ? 'block' : 'none';
-        
-        // تصفير الشات وتحميل رسائل الغرفة المختارة
-        document.getElementById('chat-window').innerHTML = '';
-        db.ref('msgs/' + currentRoom).off(); // إغلاق الاستماع للغرفة القديمة
-        loadMessages();
+    function initKingdom() {
+        loadChat();
+        loadUsers();
+        syncMics();
+        syncYT();
     }
 
-    function postMsg() {
-        const inp = document.getElementById('msgInput');
-        if(!inp.value.trim()) return;
-        db.ref('msgs/' + currentRoom).push({ u: myName, t: inp.value, m: myName.includes("👑") });
-        inp.value = '';
+    // --- الدردشة ---
+    function sendMsg() {
+        const i = document.getElementById('mInp');
+        if(!i.value.trim()) return;
+        db.ref('main_msgs').push({ u: myName, t: i.value, m: myName.includes("👑") });
+        if(i.value.includes("بوت")) db.ref('main_msgs').push({ u: "بوت المملكة 🤖", t: "نعم يا ملك، أنا تحت أمرك!", type: 'bot' });
+        i.value = '';
     }
 
-    function loadMessages() {
-        db.ref('msgs/' + currentRoom).limitToLast(30).on('child_added', snap => {
+    function loadChat() {
+        db.ref('main_msgs').limitToLast(40).on('child_added', snap => {
             const d = snap.val();
             const win = document.getElementById('chat-window');
             const div = document.createElement('div');
-            div.className = `msg ${d.m ? 'me' : 'other'}`;
-            div.innerHTML = `<small style="color:var(--main);">${d.u}</small><br>${d.t}`;
+            div.className = `msg ${d.type === 'bot' ? 'bot' : (d.m ? 'me' : 'other')}`;
+            div.innerHTML = `<small style="color:var(--main); font-weight:bold;">${d.u}</small><br>${d.t}`;
             win.appendChild(div);
             win.scrollTop = win.scrollHeight;
         });
     }
 
-    function loadUsers() {
-        db.ref('status').on('value', snap => {
-            const list = document.getElementById('users-list');
-            list.innerHTML = `<div style="color:#00f2ff; margin-bottom:10px;">🤖 بوت المملكة</div>`;
-            snap.forEach(u => {
-                list.innerHTML += `<div style="font-size:12px; margin-bottom:5px;">🟢 ${u.val().n}</div>`;
-            });
+    // --- اليوتيوب ---
+    const YT_KEY = "AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU";
+    async function ytSearch() {
+        const q = document.getElementById('yt-query').value;
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&type=video&maxResults=5&key=${YT_KEY}`);
+        const data = await res.json();
+        const resDiv = document.getElementById('yt-results');
+        resDiv.innerHTML = '';
+        data.items.forEach(v => {
+            resDiv.innerHTML += `<div onclick="play('${v.id.videoId}')" style="cursor:pointer; min-width:80px;"><img src="${v.snippet.thumbnails.default.url}" width="80"><p style="font-size:8px;">${v.snippet.title.substring(0,10)}</p></div>`;
+        });
+    }
+    function play(id) { db.ref('yt_live').set({ id: id, active: true }); }
+    function syncYT() {
+        db.ref('yt_live').on('value', snap => {
+            const v = snap.val();
+            const screen = document.getElementById('video-screen');
+            if(v && v.active) {
+                screen.style.display = 'block';
+                screen.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${v.id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+            } else { screen.style.display = 'none'; }
         });
     }
 
-    // (وظائف اليوتيوب والمايكات مدمجة لتعمل في الغرفة الرئيسية فقط)
-    // ... تم اختصارها للحفاظ على سرعة الكود ومساحته ...
+    // --- المتصلون والمايكات ---
+    function loadUsers() {
+        db.ref('status').on('value', snap => {
+            const list = document.getElementById('online-list');
+            list.innerHTML = '';
+            snap.forEach(u => { list.innerHTML += `<div style="padding:5px; font-size:12px;">🟢 ${u.val().n}</div>`; });
+        });
+    }
+
+    function micAction(n) {
+        const ref = db.ref('mics/s' + n);
+        ref.once('value', s => {
+            if(s.val() && s.val().n === myName) ref.remove();
+            else if(!s.val()) ref.set({ n: myName });
+        });
+    }
+
     function syncMics() {
         for(let i=1; i<=4; i++) {
-            db.ref('mics/s'+i).on('value', s => {
-                document.getElementById('m'+i).innerHTML = s.val() ? `🎤 ${s.val().n}` : `🎙️ خالي`;
+            db.ref('mics/s' + i).on('value', s => {
+                const el = document.getElementById('slot' + i);
+                if(s.val()) {
+                    el.className = "mic-slot active";
+                    el.innerHTML = `🎤 <b>${s.val().n}</b> <button onclick="micAction(${i})" style="font-size:8px;">نزول</button>`;
+                } else {
+                    el.className = "mic-slot";
+                    el.innerHTML = `🎙️ خالي <button onclick="micAction(${i})" style="font-size:8px;">صعود</button>`;
+                }
             });
         }
     }
