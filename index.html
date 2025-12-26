@@ -3,72 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش | V132 👑</title>
+    <title>مملكة علوش | V133 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
         body { background: #050505; color: white; font-family: 'Cairo', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .login-card { width: 90%; max-width: 380px; background: #111; padding: 30px; border-radius: 20px; border: 2px solid #ffd700; text-align: center; box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: white; text-align: center; outline: none; }
-        .btn-gold { width: 100%; padding: 12px; background: #ffd700; color: #000; border: none; border-radius: 50px; font-weight: 900; cursor: pointer; margin-top: 15px; }
+        .login-card { width: 90%; max-width: 380px; background: #111; padding: 30px; border-radius: 20px; border: 2px solid #ffd700; text-align: center; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: white; text-align: center; outline: none; transition: 0.3s; }
+        input:focus { border-color: #ffd700; box-shadow: 0 0 10px #ffd70055; }
+        .btn-gold { width: 100%; padding: 12px; background: #ffd700; color: #000; border: none; border-radius: 50px; font-weight: 900; cursor: pointer; margin-top: 15px; font-size: 16px; }
+        .btn-outline { background: transparent; color: #ffd700; border: 1px solid #ffd700; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div id="login-ui" class="login-card">
-    <h2 style="color:#ffd700; margin-bottom:20px;">دخول المملكة 👑</h2>
-    <input type="email" id="email" placeholder="الإيميل">
+<div class="login-card">
+    <h2 style="color:#ffd700; margin-bottom:10px;">دخول المملكة 👑</h2>
+    <p style="font-size: 12px; color: #888; margin-bottom: 20px;">استخدم إيميلك الرسمي للدخول</p>
+    
+    <input type="email" id="email" placeholder="أدخل الإيميل">
     <input type="password" id="pass" placeholder="كلمة المرور">
-    <button class="btn-gold" onclick="doLogin()">دخول المملكة</button>
-    <button class="btn-gold" style="background:#333; color:white;" onclick="doRegister()">إنشاء حساب جديد</button>
+    
+    <button class="btn-gold" onclick="handleAuth('login')">دخول المملكة</button>
+    <button class="btn-gold btn-outline" onclick="handleAuth('register')">إنشاء حساب جديد</button>
 </div>
 
 <script>
-    // الإعدادات مأخوذة مباشرة من صورك
+    // الإعدادات مأخوذة من صورك البرمجية مباشرة
     const firebaseConfig = {
         apiKey: "AIzaSyDnigkb4U-RE71r_Zy3tHAV9wWWe2L3nFQ", 
         authDomain: "masterchat-f2da9.firebaseapp.com",
-        databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
         projectId: "masterchat-f2da9",
-        storageBucket: "masterchat-f2da9.appspot.com",
         appId: "1:22103852654:web:8407e5f26cee469bb471493de0041ff6"
     };
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // إنشاء حساب جديد
-    function doRegister() {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
-        
-        auth.createUserWithEmailAndPassword(e, p)
-            .then(() => {
-                alert("مبروك يا إمبراطور! تم إنشاء حسابك بنجاح. اضغط الآن على دخول.");
-            })
-            .catch(error => {
-                if(error.code === "auth/email-already-in-use") alert("هذا الحساب مسجل فعلاً، اضغط دخول مباشرة!");
-                else alert("تنبيه: " + error.message);
-            });
-    }
+    async function handleAuth(type) {
+        // تنظيف المدخلات تلقائياً لمنع خطأ "Badly formatted"
+        const e = document.getElementById('email').value.trim();
+        const p = document.getElementById('pass').value.trim();
 
-    // تسجيل الدخول
-    function doLogin() {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
+        if(!e || !p) { alert("يرجى كتابة الإيميل والرمز!"); return; }
 
-        auth.signInWithEmailAndPassword(e, p)
-            .then(() => {
-                alert("أهلاً بك في مملكتك! جاري تحويلك...");
-                // سيتم هنا نقلك لداخل الشات ولوحة التحكم
-            })
-            .catch(error => {
-                alert("خطأ: تأكد من الإيميل والرمز أو اضغط إنشاء حساب.");
-            });
+        try {
+            if(type === 'register') {
+                await auth.createUserWithEmailAndPassword(e, p);
+                alert("تم إنشاء حسابك بنجاح يا بطل! اضغط الآن على دخول.");
+            } else {
+                await auth.signInWithEmailAndPassword(e, p);
+                alert("أهلاً بك يا ملك! جاري فتح الشات ولوحة التحكم...");
+                // سيتم هنا نقلك فوراً لواجهة الشات
+            }
+        } catch (error) {
+            if(error.code === "auth/email-already-in-use") alert("هذا الحساب موجود بالفعل، اضغط دخول.");
+            else if(error.code === "auth/wrong-password") alert("كلمة المرور غير صحيحة!");
+            else alert("تنبيه: " + error.message);
+        }
     }
 </script>
 </body>
