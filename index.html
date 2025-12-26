@@ -3,108 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إمبراطورية علوش 👑</title>
+    <title>تحكم إمبراطورية علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --dark: #000; }
-        body { background: var(--dark); color: #fff; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --main-color: #ffd700; --side-pos: left; }
+        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* القائمة اليسرى (المتصلون) */
-        #users-sidebar { 
-            width: 200px; 
-            background: rgba(10,10,10,0.98); 
-            border-right: 1px solid var(--gold); 
-            padding: 15px; 
-            position: fixed;
-            left: -235px; /* مخفية في البداية */
-            top: 0;
-            bottom: 0;
-            z-index: 1000;
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 5px 0 15px rgba(255, 215, 0, 0.1);
-        }
-        #users-sidebar.open { left: 0; }
-
-        /* زر فتح القائمة (جهة اليسار) */
-        .toggle-users {
-            position: fixed;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--gold);
-            color: #000;
-            border: none;
-            width: 35px;
-            height: 60px;
-            border-radius: 0 10px 10px 0;
-            cursor: pointer;
-            z-index: 1001;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 10px var(--gold);
+        /* لوحة التحكم السريعة (تظهر لك فقط) */
+        #settings-box { 
+            position: fixed; top: 50px; right: 10px; background: #222; border: 1px solid var(--main-color);
+            padding: 15px; border-radius: 10px; z-index: 2000; display: none; box-shadow: 0 0 20px #000;
         }
 
-        .user-card { 
-            padding: 12px; 
-            border-radius: 10px; 
-            background: #1a1a1a; 
-            margin-bottom: 10px; 
-            border: 1px solid #333;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        /* قائمة المتصلين المتغيرة المكان */
+        #sidebar { 
+            width: 200px; background: rgba(10,10,10,0.95); border: 1px solid var(--main-color);
+            position: fixed; top: 0; bottom: 0; z-index: 1000; transition: 0.5s;
         }
-        .online-dot { width: 10px; height: 10px; background: #00ff00; border-radius: 50%; box-shadow: 0 0 8px #00ff00; }
-        .name-glow { color: var(--gold); font-weight: bold; text-shadow: 0 0 5px var(--gold); flex: 1; }
+        .side-left { left: 0; border-radius: 0 15px 15px 0; }
+        .side-right { right: 0; border-radius: 15px 0 0 15px; }
 
-        /* منطقة الدردشة الرئيسية */
-        .main-content { flex: 1; display: flex; flex-direction: column; width: 100%; }
-        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: radial-gradient(circle, #111, #000); }
+        .main-chat { flex: 1; display: flex; flex-direction: column; width: 100%; transition: 0.5s; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        
+        .msg { padding: 12px; border-radius: 15px; max-width: 70%; background: #1a1a1a; border: 1px solid #333; }
+        .msg.me { align-self: flex-end; border-color: var(--main-color); }
 
-        .msg { padding: 12px; border-radius: 15px; max-width: 80%; word-wrap: break-word; animation: slideIn 0.3s ease; }
-        .msg.me { align-self: flex-end; background: #222; border-right: 4px solid var(--gold); }
-        .msg.other { align-self: flex-start; background: #111; border-left: 4px solid #fff; }
-
-        .input-area { background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #222; }
-        input[type="text"] { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #333; background: #000; color: #fff; outline: none; }
-        .send-btn { background: var(--gold); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .btn-tool { background: var(--main-color); color: #000; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 5px; width: 100%; }
     </style>
 </head>
 <body>
 
-    <button class="toggle-users" onclick="toggleSidebar()">◀</button>
+    <button id="admin-gear" onclick="toggleSettings()" style="position: fixed; top: 10px; left: 10px; z-index: 2001; background:none; border:none; font-size:25px; cursor:pointer;">⚙️</button>
 
-    <div id="users-sidebar">
-        <h3 style="color:var(--gold); text-align:center; margin-top:0;">المتصلون 🇮🇶</h3>
-        <hr style="border: 0.5px solid #222;">
-        <div id="online-users"></div>
+    <div id="settings-box">
+        <h4 style="margin:0 0 10px 0; color:var(--main-color)">لوحة الترتيب 🛠️</h4>
+        <button class="btn-tool" onclick="changePos('left')">نقل لليسار ⬅️</button>
+        <button class="btn-tool" onclick="changePos('right')">نقل لليمن ➡️</button>
+        <button class="btn-tool" onclick="changeColor()">تغيير لون المملكة 🎨</button>
+        <button class="btn-tool" style="background:red; color:white;" onclick="toggleSettings()">إغلاق</button>
     </div>
 
-    <div class="main-content">
+    <div id="sidebar" class="side-left">
+        <h3 style="text-align:center; color:var(--main-color);">المتصلون 🇮🇶</h3>
+        <div id="user-list-items" style="padding:10px;"></div>
+    </div>
+
+    <div class="main-chat" id="main-chat">
         <div style="background:#111; padding:15px; text-align:center; border-bottom:1px solid #222;">
-            <h2 style="margin:0; color:var(--gold); font-size:18px;">مملكة علوش 👑</h2>
+            <h2 id="title" style="margin:0; color:var(--main-color);">مملكة علوش 👑</h2>
         </div>
-
-        <div id="chat-window"></div>
-
-        <div class="input-area">
-            <button onclick="document.getElementById('fInp').click()" style="background:none; border:none; font-size:22px; cursor:pointer;">📎</button>
-            <input type="file" id="fInp" accept="image/*" style="display:none" onchange="upImg(this)">
-            <input type="text" id="mInp" placeholder="اكتب شيئاً يا ملك...">
-            <button class="send-btn" onclick="sendMsg()">إرسال</button>
+        <div id="chat-box"></div>
+        <div style="padding:15px; background:#111; display:flex; gap:10px;">
+            <input type="text" id="mInp" placeholder="تحدث..." style="flex:1; background:#000; color:#fff; border:1px solid #333; padding:10px; border-radius:10px;">
+            <button onclick="sendMsg()" style="background:var(--main-color); border:none; padding:10px 20px; border-radius:10px; font-weight:bold;">إرسال</button>
         </div>
     </div>
-
-    <audio id="notif" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
 
 <script>
+    // إعدادات Firebase الخاصة بك
     const config = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ", 
         authDomain: "masterchat-f2da9.firebaseapp.com",
@@ -115,81 +74,61 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    function toggleSidebar() {
-        const side = document.getElementById('users-sidebar');
-        const btn = document.querySelector('.toggle-users');
-        side.classList.toggle('open');
-        btn.innerText = side.classList.contains('open') ? "▶" : "◀";
-        btn.style.left = side.classList.contains('open') ? "200px" : "10px";
+    function toggleSettings() {
+        const box = document.getElementById('settings-box');
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // وظيفة تغيير المكان من داخل الشات
+    function changePos(pos) {
+        const side = document.getElementById('sidebar');
+        if(pos === 'left') {
+            side.className = 'side-left';
+        } else {
+            side.className = 'side-right';
+        }
+    }
+
+    function changeColor() {
+        const colors = ['#ffd700', '#ff0000', '#00f2ff', '#ff00ff', '#00ff00'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        document.documentElement.style.setProperty('--main-color', randomColor);
     }
 
     auth.onAuthStateChanged(user => {
         if (user) {
             const myName = user.email === "rgrghh77@gmail.com" ? "علوش 👑" : user.email.split('@')[0];
-            const ref = db.ref('online/' + user.uid);
-            ref.set({ n: myName, t: Date.now() });
-            ref.onDisconnect().remove();
+            db.ref('online/' + user.uid).set({ n: myName }).onDisconnect().remove();
             loadChat();
             loadUsers();
+            if(user.email !== "rgrghh77@gmail.com") document.getElementById('admin-gear').style.display = 'none';
         } else { window.location.href = "index.html"; }
     });
 
     function sendMsg() {
         const i = document.getElementById('mInp');
         if(i.value.trim()) {
-            db.ref('msgs').push({
-                u: auth.currentUser.email === "rgrghh77@gmail.com" ? "علوش 👑" : auth.currentUser.email.split('@')[0],
-                t: i.value,
-                a: auth.currentUser.email === "rgrghh77@gmail.com",
-                type: 'text'
-            });
+            db.ref('msgs').push({ u: auth.currentUser.email === "rgrghh77@gmail.com" ? "علوش 👑" : auth.currentUser.email.split('@')[0], t: i.value });
             i.value = '';
         }
     }
 
-    function upImg(input) {
-        if (input.files && input.files[0]) {
-            const r = new FileReader();
-            r.onload = e => {
-                db.ref('msgs').push({
-                    u: auth.currentUser.email === "rgrghh77@gmail.com" ? "علوش 👑" : auth.currentUser.email.split('@')[0],
-                    t: e.target.result,
-                    type: 'image'
-                });
-            };
-            r.readAsDataURL(input.files[0]);
-        }
-    }
-
     function loadChat() {
-        const win = document.getElementById('chat-window');
-        db.ref('msgs').limitToLast(40).on('child_added', snap => {
+        db.ref('msgs').limitToLast(20).on('child_added', snap => {
             const d = snap.val();
-            const isMe = d.u.includes("علوش") && auth.currentUser.email === "rgrghh77@gmail.com" || d.u === auth.currentUser.email.split('@')[0];
-            const content = d.type === 'image' ? `<img src="${d.t}" style="width:100%; border-radius:10px;">` : d.t;
-            
             const div = document.createElement('div');
-            div.className = `msg ${isMe ? 'me' : 'other'}`;
-            div.innerHTML = `<b style="color:gold; font-size:11px; display:block; margin-bottom:5px;">${d.u}</b>${content}`;
-            win.appendChild(div);
-            win.scrollTop = win.scrollHeight;
-            if(!isMe) document.getElementById('notif').play().catch(()=>{});
+            div.className = `msg ${d.u.includes('علوش') ? 'me' : 'other'}`;
+            div.innerHTML = `<small style="color:var(--main-color)">${d.u}</small><br>${d.t}`;
+            document.getElementById('chat-box').appendChild(div);
+            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
         });
     }
 
     function loadUsers() {
-        const uBox = document.getElementById('online-users');
         db.ref('online').on('value', snap => {
+            const uBox = document.getElementById('user-list-items');
             uBox.innerHTML = '';
-            snap.forEach(c => {
-                const u = c.val();
-                uBox.innerHTML += `
-                    <div class="user-card">
-                        <div class="online-dot"></div>
-                        <span class="name-glow">${u.n}</span>
-                        <span>🇮🇶</span>
-                    </div>`;
-            });
+            snap.forEach(c => { uBox.innerHTML += `<div style="margin-bottom:10px;">🟢 ${c.val().n} 🇮🇶</div>`; });
         });
     }
 </script>
