@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH SMART V66 👑</title>
+    <title>ALLOSH FINAL V68 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -15,9 +15,10 @@
         .king-glow { animation: neon 1.5s infinite; font-weight: 900; }
         @keyframes neon { 0%, 100% {color: #fff; text-shadow: 0 0 10px var(--gold);} 50% {color: var(--gold); text-shadow: 0 0 20px #fff;} }
 
+        /* الهيدر */
         .header { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 5000; }
 
-        /* القوائم الجانبية */
+        /* القوائم والطبقة الشفافة */
         .side { position: fixed; top: 0; bottom: 0; width: 280px; background: rgba(10,10,15,0.98); z-index: 6000; backdrop-filter: blur(15px); transition: 0.4s; }
         #side-r { right: -285px; border-left: 2px solid var(--gold); }
         #side-l { left: -285px; border-right: 2px solid var(--gold); overflow-y: auto; }
@@ -25,14 +26,23 @@
         #side-r.active { right: 0; } #side-l.active { left: 0; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 5500; display: none; }
 
+        /* الملف الشخصي الملكي */
+        .profile-box { position: relative; width: 100%; background: #111; height: 180px; }
+        .cover-img { width: 100%; height: 140px; object-fit: cover; border-bottom: 2px solid var(--gold); cursor: pointer; }
+        .avatar-wrap { position: absolute; bottom: 0; right: 20px; text-align: center; }
+        .avatar-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--gold); background: #000; cursor: pointer; }
+        .crown-icon { position: absolute; top: -35px; right: 5px; font-size: 40px; filter: drop-shadow(0 0 10px gold); }
+
+        /* واجهة اللعبة PvP */
+        #game-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 9000; display: none; justify-content: center; align-items: center; }
+        .game-card { width: 95%; max-width: 450px; background: #fff; border-radius: 20px; color: #333; overflow: hidden; box-shadow: 0 0 30px var(--gold); }
+        .p-box { flex: 1; padding: 15px; text-align: center; border: 2px solid #eee; border-radius: 12px; }
+        .p-box.active { border-color: #2ecc71; background: #f0fff4; }
+
         /* الشات */
         #chat-flow { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .bubble { background: rgba(255,255,255,0.08); padding: 10px; border-radius: 12px; border: 1px solid #222; max-width: 85%; }
-        .bot-msg { border: 1px solid #00d2ff; background: rgba(0,210,255,0.05); color: #00d2ff; font-size: 13px; text-align: center; width: 100%; border-radius: 8px; padding: 8px; animation: fadeOut 5s forwards; }
-        @keyframes fadeOut { 0% {opacity: 1;} 80% {opacity: 1;} 100% {opacity: 0; display: none;} }
-
-        .user-item { padding: 12px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; }
-        .kick-btn { background: var(--red); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+        .bot-msg { border: 1px solid #00d2ff; background: rgba(0,210,255,0.05); color: #00d2ff; font-size: 13px; text-align: center; padding: 8px; border-radius: 8px; }
 
         .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; }
         #msg-in { flex: 1; height: 45px; background: #111; border: 1px solid #333; border-radius: 10px; color: #fff; padding: 0 15px; }
@@ -42,9 +52,32 @@
 
 <div id="overlay" onclick="closeSides()"></div>
 
+<div id="game-screen">
+    <div class="game-card">
+        <div style="background:#222; color:white; padding:15px; display:flex; justify-content:space-between;">
+            <button onclick="document.getElementById('game-screen').style.display='none'" style="background:red; border:none; color:white; padding:5px 12px; border-radius:5px; cursor:pointer;">خروج</button>
+            <b id="g-status">انتظار الخصم...</b>
+        </div>
+        <div style="padding:20px;">
+            <div style="text-align:center; margin-bottom:15px;">
+                <label style="font-size:12px; color:#999;">الرهان</label><br>
+                <input type="number" id="g-bet" style="width:100px; text-align:center; font-weight:900; border:2px solid gold; border-radius:8px;" oninput="syncBet(this.value)">
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <div class="p-box" id="b1"><small>الإمبراطور</small><div style="font-size:40px; font-weight:900; color:#2ecc71;" id="sc1">0</div></div>
+                <div class="p-box" id="b2"><small>الخصم</small><div style="font-size:40px; font-weight:900; color:#2ecc71;" id="sc2">0</div></div>
+            </div>
+            <div style="text-align:center;">
+                <div id="d-icon" style="font-size:60px;">🎲</div>
+                <button id="roll-btn" onclick="doRoll()" style="width:100%; padding:15px; background:#4a69bd; color:white; border:none; border-radius:12px; font-weight:900; display:none;">ارمي الزهر 🔥</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="header">
     <button onclick="openSide('side-l')" style="background:none; border:none; font-size:24px; color:white;">⚙️</button>
-    <div style="font-size:30px;">🛡️</div>
+    <div onclick="openPvP()" style="font-size:32px; cursor:pointer;">🎮</div>
     <div class="king-glow">الإمبراطور علوش</div>
     <button onclick="openSide('side-r')" style="background:none; border:none; font-size:24px; color:white;">👥</button>
 </div>
@@ -55,10 +88,18 @@
 </div>
 
 <div id="side-l" class="side">
-    <div style="padding:20px; text-align:center;">
-        <span style="font-size:50px;">👑</span>
+    <div class="profile-box">
+        <img class="cover-img" id="my-cover" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400" onclick="document.getElementById('pick-cover').click()">
+        <input type="file" id="pick-cover" hidden onchange="changeImg(this, 'my-cover')">
+        <div class="avatar-wrap">
+            <span class="crown-icon">👑</span>
+            <img class="avatar-img" id="my-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="document.getElementById('pick-avatar').click()">
+            <input type="file" id="pick-avatar" hidden onchange="changeImg(this, 'my-avatar')">
+        </div>
+    </div>
+    <div style="padding:20px; text-align:center; margin-top:10px;">
         <h2 class="king-glow">علوش</h2>
-        <p style="color:var(--gold); font-size:12px;">إمبراطور النظام</p>
+        <button onclick="alert('توزيع الذهب مفعل!')" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:12px; font-weight:900; margin-top:25px; cursor:pointer;">توزيع الذهب 💰</button>
     </div>
 </div>
 
@@ -74,56 +115,83 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let me = { name: "الإمبراطور علوش", role: "king" };
+    let myPos = null;
+    let me = { name: "الإمبراطور علوش", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
+    let gameRef = db.ref('p_arena_v68');
 
-    // نظام الحماية والاتصال
-    db.ref('online_v66/' + me.name).set(true);
-    db.ref('online_v66/' + me.name).onDisconnect().remove();
+    // الحماية والاتصال
+    db.ref('online_v68/' + me.name).set(true);
+    db.ref('online_v68/' + me.name).onDisconnect().remove();
 
-    // ترحيب ذكي يختفي تلقائياً (خاص بك فقط)
-    window.onload = () => {
-        const flow = document.getElementById('chat-flow');
-        const welcome = document.createElement('div');
-        welcome.className = "bot-msg";
-        welcome.innerText = "🛡️ نظام الحماية: أهلاً بك يا إمبراطور علوش، تم فحص الشات وهو آمن الآن.";
-        flow.appendChild(welcome);
-        setTimeout(() => welcome.remove(), 6000); // تختفي بعد 6 ثواني
-    };
-
-    db.ref('online_v66').on('value', s => {
+    // تحديث قائمة المتصلين والطرد
+    db.ref('online_v68').on('value', s => {
         let l = document.getElementById('on-list'); l.innerHTML = "";
         s.forEach(u => {
-            let isKing = u.key.includes("علوش");
-            l.innerHTML += `
-                <div class="user-item">
-                    <span>${isKing ? '👑' : '👤'} ${u.key}</span>
-                    ${!isKing ? `<button class="kick-btn" onclick="kick('${u.key}')">طرد</button>` : ''}
-                </div>`;
+            let isK = u.key.includes("علوش");
+            l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111; display:flex; justify-content:space-between;">
+                <span>${isK ? '👑' : '👤'} ${u.key}</span>
+                ${!isK ? `<button style="background:red; color:white; border:none; padding:2px 8px; border-radius:5px; font-size:10px;" onclick="alert('تم الطرد')">طرد</button>` : ''}
+            </div>`;
         });
     });
 
-    function kick(user) {
-        if(confirm(`طرد ${user}؟`)) {
-            db.ref('chat_v66').push({ u: "🛡️ بوت الحماية", t: `تم طرد [ ${user} ] بنجاح.`, isBot: true });
-            closeSides();
+    // الملف الشخصي
+    function changeImg(input, id) {
+        if(input.files && input.files[0]) {
+            let r = new FileReader();
+            r.onload = (e) => { document.getElementById(id).src = e.target.result; if(id==='my-avatar') me.img=e.target.result; };
+            r.readAsDataURL(input.files[0]);
         }
     }
 
+    // نظام اللعبة
+    function openPvP() {
+        document.getElementById('game-screen').style.display = 'flex';
+        gameRef.once('value', s => {
+            let d = s.val();
+            if(!d || !d.p1) { myPos = 'p1'; gameRef.update({p1: me.name, s1:0, s2:0, turn:'p1', bet:0}); }
+            else if(!d.p2) { myPos = 'p2'; gameRef.update({p2:'خصم'}); }
+        });
+    }
+
+    function syncBet(v) { gameRef.update({ bet: v }); }
+
+    gameRef.on('value', s => {
+        let d = s.val(); if(!d) return;
+        document.getElementById('sc1').innerText = d.s1 || 0;
+        document.getElementById('sc2').innerText = d.s2 || 0;
+        document.getElementById('g-bet').value = d.bet || 0;
+        if(d.p1 && d.p2) {
+            document.getElementById('g-status').innerText = (d.turn === myPos) ? "دورك الآن 🔥" : "انتظر الخصم...";
+            document.getElementById('roll-btn').style.display = (d.turn === myPos) ? 'block' : 'none';
+            document.getElementById('b1').className = (d.turn === 'p1' ? 'p-box active' : 'p-box');
+            document.getElementById('b2').className = (d.turn === 'p2' ? 'p-box active' : 'p-box');
+        }
+    });
+
+    function doRoll() {
+        let r = Math.floor(Math.random() * 6) + 1;
+        gameRef.once('value', s => {
+            let d = s.val();
+            let ns = (myPos === 'p1' ? d.s1 : d.s2) + r;
+            gameRef.update({ [myPos === 'p1' ? 's1' : 's2']: ns, turn: (myPos === 'p1' ? 'p2' : 'p1') });
+        });
+    }
+
+    // الشات
     function pushMsg() {
         let i = document.getElementById('msg-in'); if(!i.value) return;
-        db.ref('chat_v66').push({ u: me.name, t: i.value });
+        db.ref('chat_v68').push({ u: me.name, t: i.value, a: me.img });
         i.value = "";
     }
 
-    db.ref('chat_v66').limitToLast(20).on('child_added', s => {
+    db.ref('chat_v68').limitToLast(15).on('child_added', s => {
         let d = s.val();
         let div = document.createElement('div');
-        if(d.isBot) {
-            div.className = "bot-msg"; div.innerText = d.t;
-            setTimeout(() => div.remove(), 5000); // رسائل البوت تختفي لكي لا تخرب الشاشة
-        } else {
-            div.innerHTML = `<div class="bubble"><b style="color:gold; font-size:11px;">${d.u}</b><br>${d.t}</div>`;
-        }
+        div.innerHTML = `<div style="display:flex; gap:10px; margin-bottom:8px;">
+            <img src="${d.a || me.img}" style="width:35px; height:35px; border-radius:50%; border:1px solid gold;">
+            <div class="bubble"><b style="color:gold; font-size:11px;">${d.u}</b><br>${d.t}</div>
+        </div>`;
         document.getElementById('chat-flow').appendChild(div);
         document.getElementById('chat-flow').scrollTop = document.getElementById('chat-flow').scrollHeight;
     });
