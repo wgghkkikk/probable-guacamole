@@ -2,72 +2,88 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش | V143 👑</title>
+    <title>مملكة علوش للدردشة 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        body { background: #000; color: white; font-family: 'Cairo', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { width: 90%; max-width: 380px; background: #111; padding: 30px; border-radius: 20px; border: 2px solid #ffd700; text-align: center; box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); }
-        input { width: 100%; padding: 14px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: white; text-align: center; font-size: 16px; outline: none; }
-        .btn-gold { width: 100%; padding: 14px; background: #ffd700; color: #000; border: none; border-radius: 50px; font-weight: 900; cursor: pointer; margin-top: 10px; font-size: 16px; }
-        #status-box { margin-top: 15px; font-size: 14px; padding: 10px; border-radius: 10px; min-height: 20px; }
+        body { background: #000; color: #ffd700; font-family: sans-serif; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 400px; margin: auto; background: #111; padding: 20px; border-radius: 15px; border: 2px solid #ffd700; }
+        input { width: 80%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; background: #ffd700; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #chat-box { height: 300px; overflow-y: auto; background: #222; margin: 20px 0; padding: 10px; text-align: right; border-radius: 10px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h1 style="color:#ffd700; font-size: 24px;">دخول المملكة 👑</h1>
-    <input type="email" id="email" placeholder="إيميلك (rgrghh7@gmail.com)">
-    <input type="password" id="pass" placeholder="كلمة المرور">
-    
-    <button class="btn-gold" onclick="runAuth('login')">دخول مباشر</button>
-    <button class="btn-gold" style="background:#222; color:white;" onclick="runAuth('register')">إنشاء حساب جديد</button>
-    
-    <div id="status-box"></div>
-</div>
+    <div id="auth-section" class="container">
+        <h2>دخول المملكة 👑</h2>
+        <input type="email" id="email" placeholder="الإيميل">
+        <input type="password" id="pass" placeholder="الرمز">
+        <button onclick="login()">دخول</button>
+        <p id="msg"></p>
+    </div>
+
+    <div id="chat-section" class="container hidden">
+        <h2>غرفة الدردشة 💬</h2>
+        <div id="chat-box"></div>
+        <input type="text" id="user-msg" placeholder="اكتب رسالتك...">
+        <button onclick="sendMsg()">إرسال</button>
+        <button onclick="firebase.auth().signOut()" style="background:red; color:white; margin-top:10px;">خروج</button>
+    </div>
 
 <script>
-    // البيانات المسحوبة حرفياً من صورك الأخيرة لضمان المطابقة
-    const firebaseConfig = {
-        apiKey: "AIzaSyDnigkb4U-RE71r_Zy3tHAV9wWWe2L3nFQ", 
+    // إعدادات مشروعك masterchat-f2da9 من صورك
+    const config = {
+        apiKey: "AIzaSyDnigkb4U-RE71r_Zy3tHAV9wWWe2L3nFQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
-        projectId: "masterchat-f2da9",
-        appId: "1:22103852654:web:8407e5f26cee469bb471493de0041ff6"
+        databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
+        projectId: "masterchat-f2da9"
     };
+    firebase.initializeApp(config);
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.database();
 
-    async function runAuth(type) {
-        const box = document.getElementById('status-box');
-        const email = document.getElementById('email').value.trim();
-        const pass = document.getElementById('pass').value.trim();
-
-        if(!email || !pass) { box.style.color="orange"; box.innerText="🚨 اكتب البيانات!"; return; }
-
-        box.style.color="gold"; box.innerText="جاري محاولة الاتصال... ⏳";
-
-        try {
-            if(type === 'register') {
-                await auth.createUserWithEmailAndPassword(email, pass);
-                box.style.color="#00ff00"; box.innerText="✅ مبروك! تم التسجيل. اضغط دخول.";
-            } else {
-                await auth.signInWithEmailAndPassword(email, pass);
-                box.style.color="#00ff00"; box.innerText="🔓 تم الدخول بنجاح يا ملك!";
-            }
-        } catch (err) {
-            console.error(err);
-            box.style.color="#ff4444";
-            
-            // إذا استمر خطأ API Key، سنعرف السبب هنا
-            if (err.message.includes("API key")) {
-                box.innerText = "❌ خطأ في مفتاح السيرفر. يرجى الانتظار 5 دقائق وتحديث الصفحة.";
-            } else {
-                box.innerText = "⚠️ " + err.message;
-            }
+    // مراقبة حالة المستخدم
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.remove('hidden');
+            loadMessages();
+        } else {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('chat-section').classList.add('hidden');
         }
+    });
+
+    function login() {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('pass').value;
+        auth.signInWithEmailAndPassword(e, p).catch(() => auth.createUserWithEmailAndPassword(e, p));
+    }
+
+    function sendMsg() {
+        const text = document.getElementById('user-msg').value;
+        if(text) {
+            db.ref('messages').push({
+                user: auth.currentUser.email,
+                text: text,
+                time: Date.now()
+            });
+            document.getElementById('user-msg').value = '';
+        }
+    }
+
+    function loadMessages() {
+        db.ref('messages').on('child_added', snap => {
+            const data = snap.val();
+            const div = document.createElement('div');
+            div.innerHTML = `<small>${data.user}</small><br>${data.text}<hr>`;
+            document.getElementById('chat-box').appendChild(div);
+            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+        });
     }
 </script>
 </body>
