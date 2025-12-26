@@ -3,135 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CH-ALLOSH EMPIRE V12 👑</title>
+    <title>CH-ALLOSH EMPIRE V14 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;900&display=swap');
-        :root { --dark: #121821; --blue: #3498db; --gold: #f1c40f; --gradient: linear-gradient(45deg, #ff416c, #ff4b2b); }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
+        :root { --main: #ff6a00; --blue: #3498db; --bg: #0b0f15; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        body { background: #000; color: white; overflow: hidden; }
+        
+        body { background: #000; color: white; overflow: hidden; position: fixed; width: 100%; height: 100%; }
+        .stars { position: fixed; inset: 0; background: url('https://www.transparenttextures.com/patterns/stardust.png'); z-index: -1; animation: move 50s linear infinite; opacity: 0.6; }
+        @keyframes move { from { background-position: 0 0; } to { background-position: 1000px 1000px; } }
 
-        /* الهيدر الاحترافي (نفس الصورة 2) */
-        .header { height: 60px; background: #1a1a1a; display: flex; align-items: center; justify-content: space-around; border-bottom: 1px solid #333; }
-        .head-icon { color: #3498db; font-size: 22px; cursor: pointer; }
-        .user-mini { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #4caf50; position: relative; }
-        .online-dot { position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background: #4caf50; border-radius: 50%; border: 1px solid white; }
+        /* الهيدر العلوي */
+        .header { height: 60px; background: rgba(20,20,20,0.95); display: flex; align-items: center; justify-content: space-around; border-bottom: 2px solid var(--main); z-index: 2000; position: relative; }
+        .h-btn { width: 32px; cursor: pointer; transition: 0.3s; }
 
-        /* البطاقة التعريفية (نفس الصورة 1) */
-        .user-card { background: #2c3e50; width: 280px; border-radius: 15px; overflow: hidden; text-align: center; display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5000; }
-        .lvl-tag { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 10px; color: gold; font-size: 12px; }
-        .card-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; margin-top: 20px; }
-        .card-btn { padding: 12px; border-bottom: 1px solid #34495e; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .card-btn:hover { background: rgba(255,255,255,0.1); }
+        /* القائمة اليمنى (المتصلين) */
+        .side-right { position: fixed; top: 60px; right: -280px; width: 280px; bottom: 85px; background: rgba(15,15,15,0.98); border-left: 1px solid #333; transition: 0.4s; z-index: 1500; overflow-y: auto; }
+        .side-right.open { right: 0; }
 
-        /* نافذة الإطارات (نفس الصورة 6) */
-        .frame-modal { background: #1a1e26; width: 90%; max-width: 350px; border-radius: 15px; padding: 15px; display: none; flex-direction: column; align-items: center; }
-        .frame-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-        .frame-item { width: 60px; height: 60px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
-        .frame-item.active { border-color: gold; }
+        /* القائمة اليسرى (الملف الشخصي) */
+        .side-left { position: fixed; top: 60px; left: -300px; width: 300px; bottom: 85px; background: #1a242f; border-right: 1px solid #333; transition: 0.4s; z-index: 1500; overflow-y: auto; }
+        .side-left.open { left: 0; }
 
-        /* المنشورات (نفس الصورة 4) */
-        .posts-section { background: #121821; border-radius: 15px; padding: 15px; margin-top: 20px; border: 1px solid #1e272e; }
-        .upload-area { border: 1px dashed #3498db; padding: 20px; border-radius: 10px; text-align: center; cursor: pointer; }
-        .post-btn { background: var(--gradient); border: none; padding: 10px 30px; border-radius: 5px; color: white; margin-top: 10px; }
+        /* ستايل التاج الملكي */
+        .king-box { text-align: center; padding: 20px 10px; border-bottom: 1px solid #222; }
+        .big-crown { font-size: 50px; display: block; animation: pulse 1.5s infinite; filter: drop-shadow(0 0 10px gold); }
+        .king-name { font-size: 24px; font-weight: 900; background: linear-gradient(to right, #fff, gold, #ff6a00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-        /* إيموجيات متحركة (نفس الصورة 3) */
-        #emoji-panel { display: none; background: #2c3e50; border-top: 2px solid #3498db; position: absolute; bottom: 85px; width: 100%; height: 250px; overflow-y: auto; padding: 10px; display: none; grid-template-columns: repeat(6, 1fr); gap: 10px; }
-        .emoji-gif { width: 100%; cursor: pointer; }
+        /* الشات والرسائل */
+        .chat-area { position: absolute; top: 60px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg-line { display: flex; gap: 10px; align-items: flex-start; }
+        .u-img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--main); object-fit: cover; cursor: pointer; }
+        .msg-bubble { background: rgba(30,30,30,0.8); padding: 10px; border-radius: 12px; border-right: 4px solid var(--main); max-width: 75%; }
+
+        /* لوحة الإيموجيات المتحركة GIF */
+        #emoji-box { position: absolute; bottom: 85px; width: 100%; height: 250px; background: #111; border-top: 2px solid var(--main); display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 15px; overflow-y: auto; z-index: 2100; }
+        .gif-item { width: 100%; cursor: pointer; border-radius: 8px; }
+
+        /* شريط الكتابة السفلي */
+        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; z-index: 2000; }
+        #in { flex: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 25px; color: white; padding: 0 15px; outline: none; }
+        .btn-tool { background: none; border: none; font-size: 28px; cursor: pointer; color: white; }
     </style>
 </head>
 <body>
 
+<div class="stars"></div>
+
 <div class="header">
-    <i class="head-icon">📧</i>
-    <i class="head-icon">🎮</i>
-    <i class="head-icon" onclick="location.reload()">🔄</i>
-    <i class="head-icon">👤+</i>
-    <i class="head-icon">🔔</i>
-    <i class="head-icon">🏴</i>
-    <div class="user-mini" onclick="openMyMenu()">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" id="my-mini-img" style="width:100%; border-radius:50%">
-        <div class="online-dot"></div>
+    <img src="https://cdn-icons-png.flaticon.com/512/3580/3580229.png" class="h-btn" onclick="location.reload()" title="تحديث">
+    <div style="color:var(--main); font-weight:900; font-size:18px;">ALLOSH KING V14</div>
+    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="h-btn" onclick="toggleLeft()" title="ملفي">
+    <img src="https://cdn-icons-png.flaticon.com/512/880/880594.png" class="h-btn" onclick="toggleRight()" title="المتصلين">
+</div>
+
+<div id="side-r" class="side-right">
+    <div id="users-list"></div>
+    <div style="text-align:center; padding:15px; color:var(--blue); border-top:1px solid #222;">🛡️ بوت الحماية نشط</div>
+</div>
+
+<div id="side-l" class="side-left">
+    <div style="height:120px; background:url('https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp4Z2R0NXJscHB4Y25xZ3R5ZnN3bTZqZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v6aOebdclIYBkPjn9D/giphy.gif') center; background-size:cover;"></div>
+    <div style="text-align:center; margin-top:-45px;">
+        <img id="my-p-img" src="" style="width:90px; height:90px; border-radius:50%; border:4px solid #1a242f;">
+        <h2 id="my-p-name">علوش</h2>
+        <p id="my-p-rank" style="color:var(--main); font-weight:bold;"></p>
+        <hr style="margin:20px; border:0; border-top:1px solid #333;">
+        <button onclick="changeAvatar()" style="width:80%; padding:10px; background:#222; color:white; border:none; border-radius:10px; margin-bottom:10px;">تغيير الصورة 📷</button>
+        <button onclick="openAdmin()" style="width:80%; padding:10px; background:rgba(255,0,0,0.1); color:red; border:1px solid red; border-radius:10px;">لوحة الإدارة 🛡️</button>
     </div>
 </div>
 
-<div id="user-card" class="user-card">
-    <div class="lvl-tag">⭐ 41</div>
-    <img src="" id="card-img" class="card-avatar">
-    <h3 id="card-name">كرار نور</h3>
-    <p style="font-size:12px; color:#bdc3c7;">سنوات • ذكر 33</p>
-    <img src="https://flagcdn.com/w40/iq.png" width="25">
-    <div class="card-btn" style="background:#222; color:white;">👤 عرض الملف الشخصي</div>
-    <div class="card-btn">🧡 خاص</div>
-    <div class="card-btn">📞 مكالمة</div>
-    <div id="admin-tools" class="card-btn" style="color:#e74c3c;">✔️ الأوامر</div>
-    <button onclick="closeCard()" style="width:100%; background:none; border:none; color:gray; padding:10px;">إغلاق</button>
+<div id="emoji-box">
+    <img class="gif-item" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnZ4Z2R0NXJscHB4Y25xZ3R5ZnN3bTZqZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v6aOebdclIYBkPjn9D/giphy.gif" onclick="sendGif(this.src)">
+    <img class="gif-item" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp4Z2R0NXJscHB4Y25xZ3R5ZnN3bTZqZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/L2S1Y7Z9Xf3mD5uB5y/giphy.gif" onclick="sendGif(this.src)">
+    <img class="gif-item" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnZ4Z2R0NXJscHB4Y25xZ3R5ZnN3bTZqZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/8vIFoK3N6R4FwK2vC7/giphy.gif" onclick="sendGif(this.src)">
+    <img class="gif-item" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp4Z2R0NXJscHB4Y25xZ3R5ZnN3bTZqZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3o7TKVUn7iM8FMEU24/giphy.gif" onclick="sendGif(this.src)">
 </div>
 
-<div id="frame-modal" class="user-card" style="display:none; padding:15px;">
-    <p style="color:red; font-size:12px;">* change will cost you 20 روبي</p>
-    <div class="frame-grid">
-        <img class="frame-item" src="https://i.ibb.co/L9Y0YpL/frame1.png" onclick="setFrame(1)">
-        <img class="frame-item" src="https://i.ibb.co/hZ2v6mK/frame2.png" onclick="setFrame(2)">
-        </div>
-    <button class="post-btn" style="width:100%">حفظ 🔒</button>
-</div>
+<div class="chat-area" id="chat-view"></div>
 
-<div id="chat-box" style="height: calc(100vh - 145px); overflow-y: auto; padding: 15px;"></div>
-
-<div id="emoji-panel">
-    <img class="emoji-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp4Z2R0NXJscHB4Y25xZ3R5ZnN3bTZqZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v6aOebdclIYBkPjn9D/giphy.gif" onclick="sendGif(this.src)">
-    </div>
-
-<div style="position:fixed; bottom:0; width:100%; height:85px; background:#1a1a1a; display:flex; align-items:center; padding:10px; gap:10px;">
-    <button style="background:none; border:none; color:#3498db; font-size:24px;" onclick="uploadFile()">➕</button>
-    <button style="background:none; border:none; font-size:24px;" onclick="toggleEmoji()">😊</button>
-    <input type="text" id="msg-in" style="flex:1; background:#222; border:1px solid #444; border-radius:20px; color:white; padding:10px;" placeholder="اكتب شيئاً...">
-    <button onclick="sendMsg()" style="background:none; border:none; font-size:24px;">🚀</button>
+<div class="footer">
+    <button class="btn-tool" style="color:var(--main);" onclick="uploadPhoto()">➕</button>
+    <button class="btn-tool" onclick="toggleEmoji()">😊</button>
+    <input type="text" id="in" placeholder="تكلم يا ملك..." onkeypress="if(event.key==='Enter') sendText()">
+    <button class="btn-tool" onclick="sendText()">🚀</button>
 </div>
 
 <script>
-    // تهيئة Firebase كما في النسخ السابقة
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let me = { id: "u123", name: "علوش", rank: "صاحب الشات", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
+    let me = JSON.parse(localStorage.getItem('allosh_final_v14')) || {
+        id: "u_" + Math.random().toString(16).slice(2,8),
+        name: "علوش الملك",
+        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+        rank: "صاحب الشات 👑"
+    };
 
-    function openMyMenu() {
-        document.getElementById('user-card').style.display = 'block';
-        document.getElementById('card-img').src = me.avatar;
-        document.getElementById('card-name').innerText = me.name;
+    function toggleRight() { document.getElementById('side-r').classList.toggle('open'); }
+    function toggleLeft() { 
+        document.getElementById('side-l').classList.toggle('open');
+        document.getElementById('my-p-img').src = me.avatar;
+        document.getElementById('my-p-name').innerText = me.name;
+        document.getElementById('my-p-rank').innerText = me.rank;
+    }
+    function toggleEmoji() { let b = document.getElementById('emoji-box'); b.style.display = (b.style.display==='grid'?'none':'grid'); }
+
+    function sendText() {
+        let i = document.getElementById('in'); if(!i.value) return;
+        db.ref('msgs_v14').push({ uid: me.id, name: me.name, text: i.value, avatar: me.avatar, type: 'text' });
+        i.value = "";
     }
 
-    function closeCard() { document.getElementById('user-card').style.display = 'none'; }
-    function toggleEmoji() { let p = document.getElementById('emoji-panel'); p.style.display = (p.style.display==='grid'?'none':'grid'); }
-
-    function sendMsg() {
-        let text = document.getElementById('msg-in').value;
-        if(!text) return;
-        db.ref('msgs_v12').push({ sender: me.name, text: text, avatar: me.avatar, uid: me.id });
-        document.getElementById('msg-in').value = "";
+    function sendGif(url) {
+        db.ref('msgs_v14').push({ uid: me.id, name: me.name, text: url, avatar: me.avatar, type: 'gif' });
+        toggleEmoji();
     }
 
-    // استقبال الرسائل وعرضها بتنسيق احترافي
-    db.ref('msgs_v12').limitToLast(20).on('child_added', s => {
-        let d = s.val();
-        let div = document.createElement('div');
-        div.style = "margin-bottom:15px; display:flex; gap:10px; align-items:start;";
-        div.innerHTML = `<img src="${d.avatar}" style="width:40px; height:40px; border-radius:50%;" onclick="showUser('${d.uid}')">
-                         <div style="background:#1e272e; padding:10px; border-radius:12px; max-width:70%;">
-                            <b style="color:gold; font-size:12px;">${d.sender}</b><br>${d.text}
-                         </div>`;
-        document.getElementById('chat-box').appendChild(div);
-        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-    });
-
-    function showUser(uid) {
-        // كود عرض بطاقة العضو عند الضغط على صورته
-        openMyMenu(); 
+    function openAdmin() {
+        let p = prompt("رمز الإدارة السرية:");
+        if(p === "1234") { if(confirm("حذف كل الرسائل؟")) db.ref('msgs_v14').remove(); }
     }
+
+    function start() {
+        db.ref('users_v14/'+me.id).set(me);
+        db.ref('users_v14/'+me.id).onDisconnect().remove();
+
+        // تحديث قائمة المتصلين مع التاج
+        db.ref('users_v14').on('value', s => {
+            let h = "";
+            s.forEach(u => {
+                let d = u.val();
+                if(d.rank.includes("صاحب")) {
+                    h += `<div class="king-box"><span class="big-crown">👑</span><span class="king-name">${d.name}</span></div>`;
+                } else {
+                    h += `<div style="padding:15px; border-bottom:1px solid #222;">● ${d.name}</div>`;
+                }
+            });
+            document.getElementById('users-list').innerHTML = h;
+        });
+
+        // استقبال الرسائل
+        db.ref('msgs_v14').limitToLast(30).on('child_added', s => {
+            let d = s.val();
+            let box = document.getElementById('chat-view');
+            let div = document.createElement('div');
+            div.className = "msg-line";
+            let content = d.type === 'gif' || d.type === 'img' ? `<img src="${d.text}" style="max-width:150px; border-radius:10px;">` : d.text;
+            div.innerHTML = `<img src="${d.avatar}" class="u-img" onclick="toggleLeft()">
+                             <div class="msg-bubble"><b style="color:gold; font-size:12px;">${d.name}</b><br>${content}</div>`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    function uploadPhoto() {
+        let i = document.createElement('input'); i.type='file'; i.accept='image/*';
+        i.onchange = e => {
+            let r = new FileReader();
+            r.onload = ev => { db.ref('msgs_v14').push({ uid: me.id, name: me.name, text: ev.target.result, avatar: me.avatar, type: 'img' }); };
+            r.readAsDataURL(e.target.files[0]);
+        }; i.click();
+    }
+
+    start();
 </script>
 </body>
 </html>
