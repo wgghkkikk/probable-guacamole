@@ -1,180 +1,69 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CH-ALLOSH SUPREME 👑</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <style>
-        :root { --gold: #ffd700; --bg: #0a0a0a; --panel: #161616; --accent: #ff4500; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: 0.3s; }
-        body { margin: 0; background: var(--bg); color: white; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-
-        /* الهيكل العلوي */
-        .top-nav { height: 65px; background: var(--panel); border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 20px rgba(0,0,0,0.8); z-index: 1000; }
-        .logo-title { font-weight: bold; font-size: 20px; color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,0.3); }
-
-        /* القوائم الجانبية */
-        .main-wrapper { display: flex; flex: 1; overflow: hidden; }
-        .sidebar { width: 0; background: var(--panel); overflow-y: auto; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); z-index: 500; }
-        .sidebar.active { width: 300px; border: 1px solid #333; }
-
-        /* منطقة الدردشة */
-        .chat-container { flex: 1; display: flex; flex-direction: column; background: radial-gradient(circle, #111 0%, #000 100%); }
-        #chat-screen { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-
-        /* الفقاعات والرسائل */
-        .msg-entry { padding: 12px; border-radius: 15px; background: rgba(255,255,255,0.05); border-right: 4px solid #444; max-width: 85%; }
-        .msg-entry.master { border-right-color: var(--gold); background: rgba(255,215,0,0.05); }
-
-        /* لوحة اختيار الألوان (مثل صورك) */
-        .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-        .color-circle { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #333; cursor: pointer; }
-        .color-circle:hover { transform: scale(1.2); border-color: white; }
-
-        /* الاسم المتحرك */
-        .rainbow-name { background: linear-gradient(90deg, #ff0000, #ffd700, #00ff00, #00ffff, #ff0000); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flow 3s linear infinite; font-weight: bold; }
-        @keyframes flow { to { background-position: 200% center; } }
-
-        /* الفوتر */
-        .footer { padding: 15px; background: var(--panel); display: flex; gap: 12px; align-items: center; border-top: 1px solid #333; }
-        #m-box { flex: 1; background: #222; border: 1px solid #444; padding: 12px 20px; border-radius: 30px; color: white; outline: none; font-size: 16px; }
-        .btn-action { color: var(--gold); cursor: pointer; font-size: 26px; background: none; border: none; }
-
-        /* الدخول */
-        #login-overlay { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: var(--panel); padding: 40px; border: 2px solid var(--gold); border-radius: 25px; text-align: center; width: 340px; }
-    </style>
-</head>
-<body>
-
-<div id="login-overlay">
-    <div class="login-box">
-        <h1 class="rainbow-name">عالم علوش الملكي</h1>
-        <input type="text" id="u-input" placeholder="اكتب اسمك هنا" style="width:100%; padding:12px; margin:20px 0; border-radius:10px; border:none; text-align:center;">
-        <button onclick="launch()" style="background:var(--gold); width:100%; padding:12px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:18px;">دخول الآن</button>
+<div class="profile-card" style="background: #1a1a1a; padding: 15px; border-radius: 15px; text-align: center; border: 1px solid #333;">
+    <div id="user-avatar-container">
+        <img id="my-avatar" src="https://via.placeholder.com/80" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--main-orange); object-fit: cover;">
     </div>
-</div>
-
-<div class="top-nav">
-    <button class="btn-action" onclick="toggleMenu('left')">👥</button>
-    <div class="logo-title">CH-ALLOSH SUPREME</div>
-    <button class="btn-action" onclick="toggleMenu('right')">⚙️</button>
-</div>
-
-<div class="main-wrapper">
-    <div id="menu-left" class="sidebar">
-        <div style="padding: 25px;">
-            <h3 style="color:var(--gold); border-bottom: 1px solid #333; padding-bottom:10px;">👤 المتصلون</h3>
-            <div id="active-users"></div>
-        </div>
-    </div>
-
-    <div class="chat-container">
-        <div id="chat-screen"></div>
-        <div class="footer">
-            <button class="btn-action" onclick="uploadImg()">➕</button>
-            <input type="text" id="m-box" placeholder="تكلم يا ملك..." onkeypress="if(event.key==='Enter') pushMsg()">
-            <button class="btn-action" onclick="pushMsg()">🚀</button>
-        </div>
-    </div>
-
-    <div id="menu-right" class="sidebar">
-        <div style="padding: 25px;">
-            <h3 style="color:var(--gold);">🎨 إعدادات المظهر</h3>
-            <p style="font-size:12px;">اختر لون اسمك المفضل:</p>
-            <div class="color-grid" id="color-palette"></div>
-            <button onclick="setEffect('rainbow')" class="btn-action" style="width:100%; margin-top:20px; background:linear-gradient(to right, red, yellow, blue); color:white; font-size:14px; padding:10px; border-radius:8px;">تفعيل الاسم الملكي المتحرك</button>
-            <hr style="margin:25px 0; border:0; border-top:1px solid #333;">
-            <h4>📖 اليوميات</h4>
-            <div id="diary-box" style="font-size:13px; color:#888;">لا يوجد منشورات جديدة...</div>
-        </div>
-    </div>
+    <h3 id="display-name" style="margin: 10px 0; color: var(--main-orange);">علوش</h3>
+    <p style="font-size: 12px; color: #888;">الرتبة: الماستر</p>
+    
+    <button onclick="changeMyPhoto()" style="background: var(--main-orange); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; width: 100%;">
+        📷 تغيير الصورة الشخصية
+    </button>
 </div>
 
 <script>
-    const firebaseConfig = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    let myProfile = { name: "", color: "#ffffff", effect: "none" };
-
-    function toggleMenu(s) { document.getElementById('menu-'+s).classList.toggle('active'); }
-
-    // إنشاء لوحة الألوان برمجياً
-    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#ffd700'];
-    const palette = document.getElementById('color-palette');
-    colors.forEach(c => {
-        let div = document.createElement('div');
-        div.className = 'color-circle';
-        div.style.background = c;
-        div.onclick = () => { myProfile.color = c; myProfile.effect = 'none'; };
-        palette.appendChild(div);
-    });
-
-    function setEffect(e) { myProfile.effect = e; }
-
-    function launch() {
-        let name = document.getElementById('u-input').value.trim();
-        if(!name) return;
-        myProfile.name = name;
-        document.getElementById('login-overlay').style.display = 'none';
+// 1. دالة تغيير الصورة الشخصية من ملفات الجهاز
+function changeMyPhoto() {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = e => {
+        let file = e.target.files[0];
+        let reader = new FileReader();
         
-        db.ref('online_users/'+name).set(myProfile);
-        db.ref('online_users/'+name).onDisconnect().remove();
-
-        // تحديث قائمة المتصلين
-        db.ref('online_users').on('value', snap => {
-            let h = "";
-            snap.forEach(u => {
-                let d = u.val();
-                h += `<div style="margin-bottom:12px; color:${d.color}" class="${d.effect==='rainbow'?'rainbow-name':''}">● ${d.name}</div>`;
-            });
-            document.getElementById('active-users').innerHTML = h;
-        });
-
-        // استلام الرسائل (يوتيوب وصور)
-        db.ref('main_msgs').limitToLast(40).on('child_added', snap => {
-            let d = snap.val();
-            let screen = document.getElementById('chat-screen');
-            let div = document.createElement('div');
-            div.className = "msg-entry";
+        reader.onload = function(event) {
+            let imageData = event.target.result;
+            // تحديث الصورة في واجهة المستخدم فوراً
+            document.getElementById('my-avatar').src = imageData;
             
-            let text = d.msg;
-            if(text.startsWith('IMG_DATA:')) {
-                text = `<img src="${text.replace('IMG_DATA:','')}" style="max-width:100%; border-radius:10px; border:1px solid var(--gold);">`;
-            } else if(text.includes('youtube.com/watch?v=')) {
-                let id = text.split('v=')[1].split('&')[0];
-                text = `<iframe src="https://www.youtube.com/embed/${id}" frameborder="0" style="width:100%; height:200px; border-radius:10px;"></iframe>`;
-            }
-
-            div.innerHTML = `<b class="${d.effect==='rainbow'?'rainbow-name':''}" style="color:${d.color}">${d.sender}:</b><div style="margin-top:5px;">${text}</div>`;
-            screen.appendChild(div);
-            screen.scrollTop = screen.scrollHeight;
-        });
-    }
-
-    function pushMsg() {
-        let box = document.getElementById('m-box');
-        if(!box.value) return;
-        db.ref('main_msgs').push({ sender: myProfile.name, color: myProfile.color, effect: myProfile.effect, msg: box.value });
-        box.value = "";
-    }
-
-    function uploadImg() {
-        let p = document.createElement('input');
-        p.type = 'file'; p.accept = 'image/*';
-        p.onchange = e => {
-            let f = e.target.files[0];
-            let r = new FileReader();
-            r.onload = ev => {
-                db.ref('main_msgs').push({ sender: myProfile.name, color: myProfile.color, effect: myProfile.effect, msg: 'IMG_DATA:' + ev.target.result });
-            };
-            r.readAsDataURL(f);
+            // حفظها في ذاكرة المتصفح أو Firebase (حسب رغبتك)
+            mySet.avatar = imageData; 
+            // إذا تريد تخزنها بـ Firebase للعضو:
+            // db.ref('users/' + mySet.name).update({avatar: imageData});
         };
-        p.click();
+        reader.readAsDataURL(file);
+    };
+    input.click();
+}
+
+// 2. تحديث نظام اليوتيوب ليدعم روابط (youtu.be) اللي بالصورة
+function getYTId(url) {
+    let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    let match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// 3. تعديل عرض الرسائل ليدعم اليوتيوب والصور المرفوعة
+db.ref('supreme_chat').limitToLast(50).on('child_added', snap => {
+    let d = snap.val();
+    let area = document.getElementById('chat-area');
+    let div = document.createElement('div');
+    div.className = 'msg-bubble';
+    
+    let content = d.text;
+    let ytId = getYTId(content);
+
+    // إذا كان الرابط يوتيوب (يشتغل تلقائي)
+    if(ytId) {
+        content = `<div>${content}</div><iframe src="https://www.youtube.com/embed/${ytId}" frameborder="0" allowfullscreen style="width:100%; height:200px; border-radius:10px; margin-top:10px;"></iframe>`;
+    } 
+    // إذا كانت صورة مرفوعة من الملفات
+    else if(content.startsWith('DATA:IMG')) {
+        content = `<img src="${content.replace('DATA:IMG','')}" style="width:100%; border-radius:10px; cursor:pointer;" onclick="window.open(this.src)">`;
     }
+
+    div.innerHTML = `<b style="color:${d.color}">${d.sender}:</b> <div>${content}</div>`;
+    area.appendChild(div);
+    area.scrollTop = area.scrollHeight;
+});
 </script>
-</body>
-</html>
