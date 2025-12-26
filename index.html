@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH CONTROL V80 👑</title>
+    <title>ALLOSH FINAL V81 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #ffd700; --bg: #000; --red: #ff4757; }
+        :root { --gold: #ffd700; --bg: #000; --blue: #00d2ff; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
+        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; width: 100%; position: fixed; }
 
+        /* ثيم علوش الملكي */
         .owner-glow {
             font-size: 20px; font-weight: 900;
             background: linear-gradient(to right, #ffd700, #fff, #00d2ff, #ffd700);
@@ -20,61 +21,70 @@
         }
         @keyframes shine { to { background-position: 200% center; } }
 
-        /* شاشة الصيانة */
-        #maintenace-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        /* الهيدر */
+        .header { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; position: relative; }
+        .h-btn { background: none; border: none; font-size: 26px; color: white; cursor: pointer; }
 
-        /* لوحة التحكم السرية */
-        .admin-panel { background: #111; border: 2px solid var(--gold); border-radius: 15px; padding: 15px; margin: 10px; display: none; }
-        .admin-btn { width: 100%; padding: 10px; margin-top: 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000; }
-
-        .header { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
-        .side { position: fixed; top: 0; bottom: 0; width: 290px; background: rgba(10,10,10,0.98); z-index: 9999; transition: 0.4s; }
-        #side-r { right: -300px; border-left: 2px solid var(--gold); }
-        #side-l { left: -300px; border-right: 2px solid var(--gold); overflow-y: auto; }
+        /* القوائم الجانبية - إصلاح نهائي */
+        .side { position: fixed; top: 0; bottom: 0; width: 285px; background: rgba(10,10,10,0.98); z-index: 9999; backdrop-filter: blur(15px); transition: 0.4s ease-in-out; }
+        #side-r { right: -290px; border-left: 2px solid var(--gold); }
+        #side-l { left: -290px; border-right: 2px solid var(--gold); overflow-y: auto; }
         .side.active { transform: translateX(0); }
+        #side-r.active { right: 0; } #side-l.active { left: 0; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9000; display: none; }
 
+        /* الملف الشخصي */
+        .p-top { position: relative; width: 100%; height: 180px; background: #111; }
+        .p-cov { width: 100%; height: 140px; object-fit: cover; border-bottom: 2px solid var(--gold); cursor: pointer; }
+        .p-av-w { position: absolute; bottom: 0; right: 20px; }
+        .p-av { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--gold); background: #000; cursor: pointer; }
+
+        /* لوحة الإدارة */
+        .adm-box { background: #111; border: 1px solid var(--gold); border-radius: 10px; padding: 10px; margin: 10px; display: none; }
+        .adm-btn { width: 100%; padding: 8px; margin-top: 5px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
+        /* الشات */
         #chat-flow { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
         .bubble { background: rgba(255,255,255,0.07); padding: 12px; border-radius: 15px; border: 1px solid #222; max-width: 85%; }
-        
+        .yt-frame { width: 100%; max-width: 240px; height: 135px; border-radius: 10px; margin-top: 8px; display: block; }
+        .bot-notif { border: 1px solid var(--blue); background: rgba(0,210,255,0.05); color: var(--blue); padding: 8px; border-radius: 10px; text-align: center; font-size: 13px; }
+
         .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #0a0a0a; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 15px; }
         #msg-in { flex: 1; height: 45px; background: #111; border: 1px solid #333; border-radius: 12px; color: #fff; padding: 0 15px; }
     </style>
 </head>
 <body>
 
-<div id="maintenace-screen">
-    <h1 class="owner-glow" style="font-size: 40px;">⚠️</h1>
-    <h2 style="color: gold;">الشات تحت الصيانة</h2>
-    <p>بأمر من الإمبراطور علوش، نعود قريباً...</p>
-</div>
-
 <div id="overlay" onclick="closeSides()"></div>
 
 <div class="header">
-    <button onclick="openSide('side-l')" style="background:none; border:none; font-size:26px; color:white;">⚙️</button>
-    <div class="owner-glow" style="font-size:18px;">إدارة علوش</div>
-    <button onclick="openSide('side-r')" style="background:none; border:none; font-size:26px; color:white;">👥</button>
+    <button class="h-btn" onclick="openSide('side-l')">⚙️</button>
+    <div class="owner-glow" style="font-size:18px;">إمبراطورية علوش</div>
+    <button class="h-btn" onclick="openSide('side-r')">👥</button>
 </div>
 
 <div id="side-r" class="side">
     <h3 style="padding:20px; text-align:center; color:var(--gold);">🛡️ الإدارة والمتصلون</h3>
-    
-    <div id="admin-box" class="admin-panel">
-        <p style="color:gold; font-size:12px; text-align:center;">لوحة تحكم الإمبراطور 🛠️</p>
-        <button class="admin-btn" style="background: var(--red);" onclick="clearChat()">🧹 تنظيف الشات</button>
-        <button class="admin-btn" style="background: #ffa502;" id="lock-btn" onclick="toggleLock()">🔒 قفل الشات</button>
-        <button class="admin-btn" style="background: #5352ed; color:white;" onclick="toggleMaintenance()">🛠️ وضع الصيانة</button>
+    <div id="admin-area" class="adm-box">
+        <button class="adm-btn" style="background:red;" onclick="db.ref('chat_v81').remove()">🧹 تنظيف الشات</button>
+        <button class="adm-btn" style="background:orange;" onclick="toggleLock()">🔒 قفل الشات</button>
     </div>
-
     <div id="on-list" style="padding:10px;"></div>
 </div>
 
 <div id="side-l" class="side">
-    <div style="padding:20px; text-align:center;">
-        <img id="my-av" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:80px; height:80px; border-radius:50%; border:2px solid gold;">
+    <div class="p-top">
+        <img class="p-cov" id="my-cov" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400" onclick="document.getElementById('in-cov').click()">
+        <input type="file" id="in-cov" hidden onchange="upImg(this, 'my-cov')">
+        <div class="p-av-w">
+            <img class="p-av" id="my-av" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="document.getElementById('in-av').click()">
+            <input type="file" id="in-av" hidden onchange="upImg(this, 'my-av')">
+        </div>
+    </div>
+    <div style="padding:25px; text-align:center; margin-top:15px;">
         <h2 class="owner-glow">علوش</h2>
-        <span style="color:gold; font-size:12px;">The King</span>
+        <span style="color:gold;">المالك الرسمي للشات</span>
+        <div id="bot-status" class="bot-notif" style="margin-top:20px;">🛡️ البوت: الأنظمة تعمل 100%</div>
     </div>
 </div>
 
@@ -82,7 +92,7 @@
 
 <div class="footer">
     <input type="text" id="msg-in" placeholder="أمرك مطاع..." onkeypress="if(event.key==='Enter') pushMsg()">
-    <button id="send-btn" onclick="pushMsg()" style="background:var(--gold); border:none; padding:10px 22px; border-radius:12px; font-weight:900;">إرسال</button>
+    <button onclick="pushMsg()" style="background:var(--gold); border:none; padding:10px 22px; border-radius:12px; font-weight:900;">إرسال</button>
 </div>
 
 <script>
@@ -90,70 +100,77 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let me = { name: "علوش", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", role: "admin" };
+    let me = { name: "علوش", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
 
-    // التحقق من الإدارة
-    if(me.name === "علوش") {
-        document.getElementById('admin-box').style.display = 'block';
+    // تفعيل لوحة الإدارة لعلوش فقط
+    if(me.name === "علوش") document.getElementById('admin-area').style.display = 'block';
+
+    // نظام القفل
+    db.ref('chat_locked').on('value', s => {
+        let locked = s.val();
+        document.getElementById('msg-in').disabled = (locked && me.name !== "علوش");
+        document.getElementById('msg-in').placeholder = locked ? "الشات مغلق حالياً 🔒" : "تكلم يا إمبراطور...";
+    });
+    function toggleLock() { db.ref('chat_locked').transaction(l => !l); }
+
+    // رفع الصور
+    function upImg(input, id) {
+        if(input.files && input.files[0]) {
+            let r = new FileReader();
+            r.onload = (e) => { 
+                document.getElementById(id).src = e.target.result;
+                if(id==='my-av') me.img = e.target.result;
+            };
+            r.readAsDataURL(input.files[0]);
+        }
     }
 
-    // مراقبة حالة الشات (قفل، صيانة)
-    db.ref('settings').on('value', s => {
-        let settings = s.val() || { locked: false, maintenance: false };
-        
-        // الصيانة
-        if(settings.maintenance && me.name !== "علوش") {
-            document.getElementById('maintenace-screen').style.display = 'flex';
-        } else {
-            document.getElementById('maintenace-screen').style.display = 'none';
-        }
+    // الشات واليوتيوب
+    function parseYT(t) {
+        const m = t.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+        return (m && m[2].length==11) ? `<iframe class="yt-frame" src="https://www.youtube.com/embed/${m[2]}" frameborder="0" allowfullscreen></iframe>` : '';
+    }
 
-        // القفل
-        if(settings.locked) {
-            document.getElementById('msg-in').placeholder = "الشات مغلق حالياً 🔒";
-            document.getElementById('msg-in').disabled = (me.name !== "علوش");
-            document.getElementById('lock-btn').innerText = "🔓 فتح الشات";
-        } else {
-            document.getElementById('msg-in').placeholder = "تكلم يا إمبراطور...";
-            document.getElementById('msg-in').disabled = false;
-            document.getElementById('lock-btn').innerText = "🔒 قفل الشات";
-        }
-    });
-
-    // دوال الإدارة
-    function clearChat() { if(confirm("هل تريد تنظيف الشات بالكامل؟")) db.ref('chat_v80').remove(); }
-    function toggleLock() { db.ref('settings/locked').transaction(l => !l); }
-    function toggleMaintenance() { db.ref('settings/maintenance').transaction(m => !m); }
-
-    // الشات الأساسي
     function pushMsg() {
-        let i = document.getElementById('msg-in'); if(!i.value) return;
-        db.ref('chat_v80').push({ u: me.name, t: i.value, a: me.img });
+        let i = document.getElementById('msg-in'); if(!i.value || i.disabled) return;
+        db.ref('chat_v81').push({ u: me.name, t: i.value, a: me.img });
         i.value = "";
     }
 
-    db.ref('chat_v80').limitToLast(20).on('child_added', s => {
+    db.ref('chat_v81').limitToLast(15).on('child_added', s => {
         let d = s.val(); let isK = d.u === "علوش";
         let div = document.createElement('div');
         div.innerHTML = `<div style="display:flex; gap:10px; margin-bottom:12px;">
-            <img src="${d.a}" style="width:38px; height:38px; border-radius:50%; border:1px solid ${isK?'gold':'#333'};">
-            <div class="bubble">
-                <b class="${isK?'owner-glow':''}" style="font-size:12px;">${d.u}</b><br>${d.t}
-            </div>
+            <img src="${d.a || me.img}" style="width:38px; height:38px; border-radius:50%; border:1px solid ${isK?'gold':'#333'};">
+            <div class="bubble"><b class="${isK?'owner-glow':''}" style="font-size:12px;">${d.u}</b><br>${d.t}${parseYT(d.t)}</div>
         </div>`;
         document.getElementById('chat-flow').appendChild(div);
         document.getElementById('chat-flow').scrollTop = document.getElementById('chat-flow').scrollHeight;
     });
 
-    db.ref('online_v80/' + me.name).set(true);
-    db.ref('online_v80/' + me.name).onDisconnect().remove();
-    db.ref('online_v80').on('value', s => {
-        let l = document.getElementById('on-list'); l.innerHTML = "";
-        s.forEach(u => { l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111;">${u.key === "علوش" ? '👑' : '👤'} ${u.key}</div>`; });
+    // المتصلين والبوت
+    db.ref('online_v81/' + me.name).set(true);
+    db.ref('online_v81/' + me.name).onDisconnect().remove();
+    db.ref('online_v81').on('value', s => {
+        let l = document.getElementById('on-list');
+        l.innerHTML = `<div style="padding:10px; border-bottom:1px solid #111;">🛡️ بوت الحماية <span style="color:var(--blue); float:left; font-size:10px;">BOT</span></div>`;
+        s.forEach(u => {
+            let isK = u.key === "علوش";
+            l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111;" class="${isK?'owner-glow':''}"> ${isK?'👑':''} ${u.key}</div>`;
+        });
     });
 
-    function openSide(id) { closeSides(); document.getElementById(id).classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
-    function closeSides() { document.querySelectorAll('.side').forEach(s => s.classList.remove('active')); document.getElementById('overlay').style.display = 'none'; }
+    // التحكم في القوائم
+    function openSide(id) {
+        closeSides();
+        document.getElementById(id).classList.add('active');
+        document.getElementById('overlay').style.display = 'block';
+    }
+    function closeSides() {
+        document.getElementById('side-l').classList.remove('active');
+        document.getElementById('side-r').classList.remove('active');
+        document.getElementById('overlay').style.display = 'none';
+    }
 </script>
 </body>
 </html>
