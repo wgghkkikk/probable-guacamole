@@ -1,190 +1,25 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إمبراطورية علوش الملكية 2025 👑</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <style>
-        :root { --gold: #ffd700; --bg: #080808; --panel: #121212; --text: #e0e0e0; }
-        * { box-sizing: border-box; transition: 0.3s; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; overflow: hidden; height: 100vh; }
+// دالة رفع الصور من الملفات مباشرة
+function triggerMedia() {
+    // إنشاء عنصر اختيار ملفات مخفي برمجياً
+    const filePicker = document.createElement('input');
+    filePicker.type = 'file';
+    filePicker.accept = 'image/*'; // يسمح بالصور فقط
 
-        /* شاشة الدخول الاحترافية - بديلة للـ Alert */
-        #login-overlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: var(--panel); padding: 40px; border-radius: 20px; border: 2px solid var(--gold); width: 350px; text-align: center; box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); }
-        .login-card input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 10px; outline: none; }
-        .login-card button { background: var(--gold); border: none; padding: 12px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-
-        /* الهيكل الرئيسي */
-        .top-bar { height: 60px; background: var(--panel); border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 500; }
-        .main-content { display: flex; height: calc(100vh - 60px); }
-        
-        /* القوائم الجانبية */
-        .side { width: 0; background: var(--panel); overflow: hidden; position: relative; z-index: 400; }
-        .side.open { width: 280px; border-left: 1px solid #222; border-right: 1px solid #222; }
-
-        /* منطقة الشات */
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: #050505; }
-        #messages-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-
-        /* رسالة الماستر والاسم المتحرك */
-        .master-name { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 2s infinite; font-weight: bold; }
-        @keyframes shine { to { background-position: 200% center; } }
-        
-        .msg { padding: 12px 18px; border-radius: 15px; max-width: 80%; background: #1a1a1a; border-right: 4px solid #444; }
-        .msg.master { border-right-color: var(--gold); background: rgba(255, 215, 0, 0.05); }
-
-        /* التحكم السفلي */
-        .footer { padding: 15px; background: var(--panel); display: flex; gap: 10px; align-items: center; }
-        #input-box { flex: 1; background: #222; border: none; padding: 12px 20px; border-radius: 25px; color: white; outline: none; }
-        .send-btn { background: var(--gold); width: 45px; height: 45px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-
-        /* اليوميات والألعاب */
-        .card { background: #1a1a1a; margin: 10px; padding: 15px; border-radius: 10px; border: 1px solid #333; }
-        .btn-action { background: #333; color: white; border: none; padding: 8px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 5px; }
-        .btn-action:hover { background: var(--gold); color: black; }
-    </style>
-</head>
-<body>
-
-<div id="login-overlay">
-    <div class="login-card">
-        <h1 class="master-name">إمبراطورية علوش</h1>
-        <p>مرحباً بك في عالم الملوك</p>
-        <input type="text" id="entry-name" placeholder="أدخل اسمك هنا">
-        <input type="password" id="entry-pass" placeholder="كلمة السر (للملوك فقط)">
-        <button onclick="handleLogin()">دخول الشات</button>
-    </div>
-</div>
-
-<div class="top-bar">
-    <div onclick="toggleSide('left')" style="cursor:pointer; font-size:24px;">⚙️</div>
-    <div class="master-name" style="font-size:22px;">CH-ALLOSH SUPREME</div>
-    <div onclick="toggleSide('right')" style="cursor:pointer; font-size:24px;">👥</div>
-</div>
-
-<div class="main-content">
-    <div id="side-left" class="side">
-        <div class="card">
-            <h4>👤 حسابي</h4>
-            <div id="my-info-display"></div>
-            <button class="btn-action" onclick="alert('سيتم إضافة رفع الصور قريباً')">تغيير الصورة الشخصية</button>
-        </div>
-        <div class="card">
-            <h4>🎮 ألعاب الإمبراطورية</h4>
-            <button class="btn-action" onclick="mathGame()">تحدي الذكاء</button>
-        </div>
-        <div class="card">
-            <h4>📖 يوميات الأعضاء</h4>
-            <div id="diary-list" style="max-height: 200px; overflow-y: auto; font-size: 13px;"></div>
-        </div>
-    </div>
-
-    <div class="chat-area">
-        <div id="messages-container"></div>
-        <div class="footer">
-            <button class="send-btn" style="background:#333; color:white;" onclick="triggerMedia()">+</button>
-            <input type="text" id="input-box" placeholder="اكتب شيئاً فخماً..." onkeypress="if(event.key==='Enter') sendMessage()">
-            <button class="send-btn" onclick="sendMessage()">⏎</button>
-        </div>
-    </div>
-
-    <div id="side-right" class="side">
-        <div style="padding: 15px;">
-            <h4 style="color:var(--gold)">👥 المتواجدون الآن</h4>
-            <div id="online-users-list"></div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // إعدادات Firebase
-    const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(config);
-    const db = firebase.database();
-
-    let currentUser = { name: "", role: "عضو" };
-
-    // نظام الدخول بدون Alert
-    function handleLogin() {
-        const name = document.getElementById('entry-name').value.trim();
-        const pass = document.getElementById('entry-pass').value.trim();
-        
-        if(!name) return;
-
-        currentUser.name = name;
-        if(name === "علوش" && pass === "Allosh#King@2025") {
-            currentUser.role = "الماستر";
+    filePicker.onchange = e => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // إرسال كود الصورة إلى قاعدة البيانات فوراً
+                const base64Image = event.target.result;
+                db.ref('msgs_v3').push({
+                    sender: currentUser.name,
+                    role: currentUser.role,
+                    text: "IMG_V3:" + base64Image // وسم خاص للصور
+                });
+            };
+            reader.readAsDataURL(file);
         }
-
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('my-info-display').innerHTML = `الاسم: ${name} <br> الرتبة: ${currentUser.role}`;
-        initEmpire();
-    }
-
-    function toggleSide(s) {
-        document.getElementById('side-'+s).classList.toggle('open');
-    }
-
-    function initEmpire() {
-        // تسجيل التواجد
-        const userRef = db.ref('online_v3/' + currentUser.name);
-        userRef.set(currentUser);
-        userRef.onDisconnect().remove();
-
-        // تحديث القائمة
-        db.ref('online_v3').on('value', snap => {
-            let html = "";
-            snap.forEach(u => {
-                let d = u.val();
-                html += `<div style="margin-bottom:10px;" class="${d.role==='الماستر'?'master-name':''}">● ${d.name} <small>[${d.role}]</small></div>`;
-            });
-            document.getElementById('online-users-list').innerHTML = html;
-        });
-
-        // رسائل الشات (دعم الصور واليوتيوب)
-        db.ref('msgs_v3').limitToLast(50).on('child_added', snap => {
-            let d = snap.val();
-            let container = document.getElementById('messages-container');
-            let div = document.createElement('div');
-            div.className = "msg " + (d.role === "الماستر" ? "master" : "");
-            
-            let content = d.text;
-            if(content.includes('http')) {
-                if(content.match(/\.(jpg|jpeg|png|gif)$/)) content = `<img src="${content}" style="max-width:100%; border-radius:10px;">`;
-                else if(content.includes('youtube.com')) {
-                    let id = content.split('v=')[1];
-                    content = `<iframe src="https://www.youtube.com/embed/${id}" frameborder="0" style="width:100%; height:180px;"></iframe>`;
-                }
-            }
-
-            div.innerHTML = `<small class="${d.role==='الماستر'?'master-name':''}" style="font-size:10px;">${d.sender}</small><div>${content}</div>`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        });
-    }
-
-    function sendMessage() {
-        let box = document.getElementById('input-box');
-        if(!box.value.trim()) return;
-        db.ref('msgs_v3').push({ sender: currentUser.name, role: currentUser.role, text: box.value });
-        box.value = "";
-    }
-
-    function triggerMedia() {
-        let url = prompt("ألصق رابط الصورة أو اليوتيوب هنا:");
-        if(url) { document.getElementById('input-box').value = url; sendMessage(); }
-    }
-
-    function mathGame() {
-        let n1 = Math.floor(Math.random()*20);
-        let n2 = Math.floor(Math.random()*20);
-        let ans = prompt(`تحدي سريع: كم حاصل ${n1} + ${n2}؟`);
-        if(ans == (n1+n2)) alert("بطل! إجابة صحيحة");
-        else alert("حاول مرة أخرى!");
-    }
-</script>
-</body>
-</html>
+    };
+    filePicker.click(); // يفتح ملفات جهازك فوراً بدون تدخل من "الموقع"
+}
