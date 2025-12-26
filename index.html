@@ -3,154 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH DOMINATION V22 👑</title>
+    <title>ALLOSH SILENT ELITE V23 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #ffd700; --red: #ff3c00; --glass: rgba(0,0,0,0.8); }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
+        :root { --gold: #c5a059; --dark: #050505; --neon: #00d4ff; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
-        body { background: #000; color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
+        body { background: var(--dark); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
         
-        /* خلفية فخمة جداً */
-        .royal-bg { position: fixed; inset: 0; background: radial-gradient(circle at center, #1a0a00 0%, #000 100%); z-index: -2; }
-        .stars-anim { position: fixed; inset: 0; background: url('https://www.transparenttextures.com/patterns/stardust.png'); z-index: -1; animation: move 100s linear infinite; opacity: 0.4; }
-        @keyframes move { from { background-position: 0 0; } to { background-position: 1000px 1000px; } }
+        /* منع أي إشعارات أو طلبات منبثقة */
+        iframe, .location-request { display: none !important; }
 
-        /* الهيدر العلوي */
-        .top-nav { height: 65px; background: var(--glass); border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; position: relative; }
-        .nav-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: var(--gold); filter: drop-shadow(0 0 5px gold); }
+        /* الهيدر الفخم */
+        .royal-nav { height: 60px; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid var(--gold); z-index: 2000; position: relative; }
+        .nav-icon { font-size: 24px; cursor: pointer; color: var(--gold); }
 
-        /* القائمة اليمنى واليسرى (تنسد وتنفتح) */
-        .drawer { position: fixed; top: 65px; bottom: 85px; width: 260px; background: rgba(10,5,0,0.95); border: 1px solid var(--gold); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1500; overflow-y: auto; backdrop-filter: blur(10px); }
-        #right-drawer { right: -265px; border-radius: 20px 0 0 20px; }
-        #left-drawer { left: -265px; border-radius: 0 20px 20px 0; }
-        .drawer.open { right: 0 !important; left: 0 !important; }
+        /* القوائم الجانبية الاحترافية */
+        .panel { position: fixed; top: 60px; bottom: 80px; width: 270px; background: rgba(10,10,10,0.98); border: 1px solid rgba(197, 160, 89, 0.2); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1500; backdrop-filter: blur(15px); }
+        #panel-r { right: -275px; border-radius: 15px 0 0 15px; }
+        #panel-l { left: -275px; border-radius: 0 15px 15px 0; }
+        .panel.active { right: 0 !important; left: 0 !important; }
 
-        /* الشات الرئيسي */
-        .chat-container { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .msg-line { display: flex; gap: 10px; align-items: flex-start; animation: pop 0.3s ease; }
-        @keyframes pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        
-        .u-pic { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); box-shadow: 0 0 10px gold; }
-        .bubble { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 18px; border: 1px solid rgba(255,215,0,0.2); max-width: 75%; position: relative; }
-        .owner-bubble { border-right: 4px solid var(--red); background: rgba(255,60,0,0.1); }
+        /* الشات النظيف */
+        #chat-view { position: absolute; top: 60px; bottom: 80px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+        .msg-row { display: flex; gap: 10px; animation: fadeIn 0.3s ease; }
+        .avatar { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--gold); object-fit: cover; }
+        .bubble { background: rgba(255,255,255,0.04); padding: 10px 14px; border-radius: 15px; max-width: 78%; border: 1px solid rgba(255,255,255,0.05); }
+        .owner-style { border-right: 3px solid var(--gold); background: rgba(197, 160, 89, 0.05); }
 
-        /* ستايل المالك في قائمة المتصلين */
-        .king-card { text-align: center; padding: 20px; border-bottom: 1px solid #333; }
-        .king-crown { font-size: 50px; animation: bounce 2s infinite; display: block; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        /* البار السفلي الذكي */
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: #000; display: flex; align-items: center; padding: 0 12px; gap: 10px; border-top: 1px solid #1a1a1a; }
+        #msg-in { flex: 1; height: 45px; background: #111; border: 1px solid #222; border-radius: 12px; color: #fff; padding: 0 15px; outline: none; transition: 0.3s; }
+        #msg-in:focus { border-color: var(--gold); }
+        .send-btn { width: 45px; height: 45px; background: var(--gold); border: none; border-radius: 12px; color: #000; font-weight: bold; cursor: pointer; }
 
-        /* البار السفلي */
-        .bottom-bar { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 2px solid var(--gold); display: flex; align-items: center; padding: 0 15px; gap: 10px; z-index: 2000; }
-        #msg-input { flex: 1; height: 50px; background: #111; border: 1px solid #333; border-radius: 25px; color: #fff; padding: 0 20px; outline: none; }
-        .send-btn { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, var(--gold), var(--red)); border: none; color: #000; font-size: 20px; cursor: pointer; }
-
-        /* لوحة الإيموجيات */
-        #emoji-box { position: absolute; bottom: 90px; width: 100%; height: 200px; background: #000; border: 1px solid var(--gold); display: none; grid-template-columns: repeat(5, 1fr); padding: 10px; overflow-y: auto; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="royal-bg"></div>
-<div class="stars-anim"></div>
-
-<div class="top-nav">
-    <button class="nav-btn" onclick="toggleD('left-drawer')">⚙️</button>
+<div class="royal-nav">
+    <div class="nav-icon" onclick="toggleP('panel-l')">👤</div>
     <div style="text-align:center">
-        <div style="color:var(--gold); font-weight:900; font-size:18px; text-shadow:0 0 10px gold;">ALLOSH DOMINATION</div>
-        <div style="font-size:10px; color:var(--red);">● نظام السيادة مفعل</div>
+        <div style="color:var(--gold); font-weight:900; letter-spacing:1px;">ALLOSH ELITE</div>
+        <div id="status" style="font-size:9px; color:#444;">V23 | SECURE MODE</div>
     </div>
-    <button class="nav-btn" onclick="toggleD('right-drawer')">👥</button>
+    <div class="nav-icon" onclick="toggleP('panel-r')">👥</div>
 </div>
 
-<div id="right-drawer" class="drawer">
-    <div class="king-card">
-        <span class="king-crown">👑</span>
-        <h2 id="king-name" style="color:var(--gold)">علوش</h2>
-        <small style="color:var(--red)">الإمبراطور الحالي</small>
-    </div>
-    <div id="online-list" style="padding:10px"></div>
+<div id="panel-r" class="panel">
+    <div style="padding:15px; color:var(--gold); border-bottom:1px solid #1a1a1a; font-weight:900;">المتواجدون الآن</div>
+    <div id="user-list" style="padding:10px;"></div>
 </div>
 
-<div id="left-drawer" class="drawer">
-    <div style="padding:20px; text-align:center;">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:80px; border:3px solid var(--gold); border-radius:50%;">
-        <h3>ملف الإمبراطور</h3>
-        <hr style="margin:20px 0; opacity:0.1;">
-        <button onclick="clearChat()" style="width:100%; padding:12px; background:none; border:1px solid red; color:red; border-radius:10px; margin-bottom:10px;">مسح السجلات 🧹</button>
-        <button onclick="location.reload()" style="width:100%; padding:12px; background:none; border:1px solid var(--gold); color:var(--gold); border-radius:10px;">تحديث النظام 🔄</button>
+<div id="panel-l" class="panel">
+    <div style="padding:25px; text-align:center;">
+        <div style="width:70px; height:70px; border:2px solid var(--gold); border-radius:15px; margin: 0 auto 15px; background: url('https://cdn-icons-png.flaticon.com/512/3135/3135715.png') center/cover;"></div>
+        <h3 style="color:var(--gold)">الإمبراطور علوش</h3>
+        <p style="font-size:11px; color:#666; margin-bottom:20px;">الرتبة: مالك السيرفر ✅</p>
+        <button onclick="clearChat()" style="width:100%; padding:10px; background:none; border:1px solid #333; color:#ff4444; border-radius:8px; cursor:pointer;">مسح الشات 🧹</button>
     </div>
 </div>
 
-<div class="chat-container" id="chat-box"></div>
-
-<div id="emoji-box">
-    <span onclick="sendEmoji('👑')" style="font-size:30px; cursor:pointer">👑</span>
-    <span onclick="sendEmoji('🔥')" style="font-size:30px; cursor:pointer">🔥</span>
-    <span onclick="sendEmoji('💎')" style="font-size:30px; cursor:pointer">💎</span>
-    <span onclick="sendEmoji('🚀')" style="font-size:30px; cursor:pointer">🚀</span>
-</div>
+<div id="chat-view"></div>
 
 <div class="bottom-bar">
-    <button class="nav-btn" onclick="toggleEmoji()">😊</button>
-    <input type="text" id="msg-input" placeholder="تكلم لـيسمع العالم..." onkeypress="if(event.key==='Enter') send()">
-    <button class="send-btn" onclick="send()">🚀</button>
+    <button style="background:none; border:none; font-size:22px; cursor:pointer;" onclick="alert('قريباً: رفع صور')">🖼️</button>
+    <input type="text" id="msg-in" placeholder="اكتب رسالتك السرية..." onkeypress="if(event.key==='Enter') send()">
+    <button class="send-btn" onclick="send()">إرسال</button>
 </div>
 
 <script>
-    const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(config);
+    // تهيئة Firebase
+    const firebaseConfig = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let me = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", rank: "إمبراطور" };
+    const me = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", isOwner: true };
 
-    function toggleD(id) {
-        document.querySelectorAll('.drawer').forEach(d => { if(d.id !== id) d.classList.remove('open'); });
-        document.getElementById(id).classList.toggle('open');
+    function toggleP(id) {
+        document.querySelectorAll('.panel').forEach(p => { if(p.id !== id) p.classList.remove('active'); });
+        document.getElementById(id).classList.toggle('active');
     }
-    
-    function toggleEmoji() { let b = document.getElementById('emoji-box'); b.style.display = (b.style.display==='grid'?'none':'grid'); }
 
     function send() {
-        let i = document.getElementById('msg-input'); if(!i.value) return;
-        db.ref('msgs_v22').push({ sender: me.name, text: i.value, avatar: me.avatar, isOwner: true });
-        i.value = "";
+        let input = document.getElementById('msg-in'); if(!input.value) return;
+        db.ref('elite_msgs').push({
+            user: me.name,
+            text: input.value,
+            avatar: me.avatar,
+            owner: me.isOwner,
+            time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'})
+        });
+        input.value = "";
     }
 
-    function sendEmoji(e) { db.ref('msgs_v22').push({ sender: me.name, text: e, avatar: me.avatar, isOwner: true }); toggleEmoji(); }
-
-    db.ref('msgs_v22').limitToLast(40).on('child_added', s => {
+    db.ref('elite_msgs').limitToLast(35).on('child_added', s => {
         let d = s.val();
-        let box = document.getElementById('chat-box');
+        let view = document.getElementById('chat-view');
         let div = document.createElement('div');
-        div.className = "msg-line";
-        div.innerHTML = `<img src="${d.avatar}" class="u-pic">
-                         <div class="bubble ${d.isOwner?'owner-bubble':''}">
-                            <b style="color:var(--gold); font-size:12px;">${d.sender}</b><br>${d.text}
-                         </div>`;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
+        div.className = "msg-row";
+        div.innerHTML = `
+            <img src="${d.avatar}" class="avatar">
+            <div class="bubble ${d.owner?'owner-style':''}">
+                <div style="font-size:11px; color:var(--gold); font-weight:bold; margin-bottom:3px;">${d.user}</div>
+                <div style="font-size:14px; line-height:1.4;">${d.text}</div>
+                <div style="font-size:9px; color:#555; text-align:left; margin-top:4px;">${d.time}</div>
+            </div>`;
+        view.appendChild(div);
+        view.scrollTop = view.scrollHeight;
     });
 
-    // تسجيل الدخول والبوت
-    db.ref('online_v22/'+me.name).set(true);
-    db.ref('online_v22/'+me.name).onDisconnect().remove();
+    // تسجيل الحضور
+    db.ref('online_elite/'+me.name).set(true);
+    db.ref('online_elite/'+me.name).onDisconnect().remove();
+    db.ref('online_elite').on('value', s => {
+        let list = document.getElementById('user-list'); list.innerHTML = "";
+        s.forEach(u => { list.innerHTML += `<div style="padding:8px; font-size:14px; border-bottom:1px solid #111;">• ${u.key}</div>`; });
+    });
+
+    function clearChat() { if(confirm("تأكيد مسح السجلات؟")) db.ref('elite_msgs').remove(); }
     
-    db.ref('online_v22').on('value', s => {
-        let list = document.getElementById('online-list');
-        list.innerHTML = "";
-        s.forEach(u => {
-            list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111;">🟢 ${u.key}</div>`;
-        });
-    });
-
-    function clearChat() { if(confirm("مسح السجلات؟")) db.ref('msgs_v22').remove(); }
-
-    setTimeout(() => {
-        db.ref('msgs_v22').push({ sender: "علوش بوت 🤖", text: "تم فتح بوابات العرش.. بانتظار أوامرك يا ملك!", avatar: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png", isOwner: false });
-    }, 1500);
+    // إخفاء القوائم عند لمس الشات
+    document.getElementById('chat-view').onclick = () => { document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); };
 </script>
 </body>
 </html>
