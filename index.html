@@ -1,26 +1,56 @@
-/* تنسيق الهيكل لجعل القائمة على اليمين */
-#main-wrapper {
-    display: flex;
-    flex-direction: row-reverse; /* يضع القائمة على اليمين */
-    height: calc(100vh - 60px);
-    overflow: hidden;
+// دالة فتح وإغلاق القائمة اليمنى
+function toggleSide(side) {
+    if(side === 'right') {
+        document.getElementById('side-right').classList.toggle('open');
+    }
 }
 
-#side-right {
-    width: 0; /* البداية تكون مغلقة */
-    transition: 0.4s;
-    background: #121212;
-    overflow-y: auto;
-    border-left: 0px solid var(--gold);
+// دالة رفع الصور من الملفات (بدون أي رسائل من الموقع)
+function triggerMedia() {
+    const picker = document.createElement('input');
+    picker.type = 'file';
+    picker.accept = 'image/*';
+    picker.onchange = e => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = event => {
+                db.ref('msgs_v3').push({
+                    sender: currentUser.name,
+                    role: currentUser.role,
+                    text: "IMG_FILE:" + event.target.result
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    picker.click();
 }
 
-#side-right.open {
-    width: 250px; /* العرض عند الفتح */
-    border-left: 2px solid var(--gold);
-}
+// نظام عرض الرسائل (يوتيوب وصور تلقائي)
+db.ref('msgs_v3').limitToLast(50).on('child_added', snap => {
+    let d = snap.val();
+    let container = document.getElementById('messages-container');
+    let div = document.createElement('div');
+    div.className = "msg " + (d.role === "الماستر" ? "master" : "");
 
-.chat-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
+    let content = d.text;
+
+    // تشغيل اليوتيوب تلقائياً
+    if (content.includes('youtube.com/watch?v=')) {
+        let vid = content.split('v=')[1].split('&')[0];
+        content = `<iframe src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen style="width:100%; height:200px; border-radius:10px;"></iframe>`;
+    } 
+    // عرض الصور المرفوعة من الملفات
+    else if (content.startsWith("IMG_FILE:")) {
+        content = `<img src="${content.replace('IMG_FILE:','')}" style="max-width:100%; border-radius:10px; border:1px solid var(--gold);">`;
+    }
+    // عرض روابط الصور المباشرة
+    else if (content.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+        content = `<img src="${content}" style="max-width:100%; border-radius:10px;">`;
+    }
+
+    div.innerHTML = `<small class="master-name">${d.sender}</small><div>${content}</div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+});
