@@ -3,103 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH SUPREME V36 👑</title>
+    <title>ALLOSH PRO V37 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #ffd700; --glass: rgba(15, 15, 25, 0.9); --red: #ff5f56; --yellow: #ffbd2e; }
+        :root { --gold: #ffd700; --bg: #000; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         
-        body { background: #000; color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
-        
+        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
+
+        /* نافذة اليوتيوب العائمة (مربعة وصغيرة) */
+        #yt-window { 
+            position: fixed; top: 80px; left: 10px; width: 200px; 
+            background: #111; border: 2px solid var(--gold); border-radius: 12px; 
+            z-index: 5000; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .win-head { 
+            background: var(--gold); color: #000; padding: 3px 10px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            font-size: 11px; font-weight: 900; border-radius: 10px 10px 0 0;
+        }
+        .btn-win { background: #000; color: #fff; border: none; width: 18px; height: 18px; border-radius: 4px; cursor: pointer; font-size: 10px; }
+
         /* الهيدر */
-        .header { height: 60px; background: #050505; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
-        .header b { color: var(--gold); text-shadow: 0 0 15px var(--gold); font-size: 18px; }
-
-        /* نوافذ ذكية بنمط الماك */
-        .win-box { position: fixed; width: 280px; background: var(--glass); border: 1px solid rgba(255,215,0,0.3); border-radius: 15px; z-index: 3000; display: none; overflow: hidden; backdrop-filter: blur(20px); box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
-        .win-head { background: rgba(255,255,255,0.05); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,215,0,0.1); }
-        .win-controls { display: flex; gap: 8px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: none; }
-        .dot-red { background: var(--red); } .dot-yellow { background: var(--yellow); }
-
-        #win-profile { top: 70px; right: 20px; }
-        #win-users { top: 70px; left: 20px; }
-        #win-stickers { bottom: 90px; right: 20px; width: 200px; }
-
-        /* الشات */
-        #chat-scroller { position: absolute; top: 60px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at top, #0a0a1a, #000); }
-        .msg { display: flex; gap: 10px; animation: slideIn 0.3s; }
-        .pfp { width: 45px; height: 45px; border-radius: 12px; border: 1px solid var(--gold); object-fit: cover; }
-        .bubble { background: rgba(255,255,255,0.07); padding: 10px 15px; border-radius: 15px; max-width: 80%; border: 1px solid rgba(255,255,255,0.1); }
-        .owner-msg { border-color: var(--gold); background: rgba(255,215,0,0.05); box-shadow: 0 0 10px rgba(255,215,0,0.1); }
+        .nav { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
         
-        .yt-frame { width: 100%; height: 160px; border-radius: 10px; margin-top: 10px; border: 1px solid #333; }
-        .sticker-img { width: 80px; height: 80px; cursor: pointer; transition: 0.2s; }
-        .sticker-img:hover { transform: scale(1.1); }
+        /* القوائم الجانبية (رجعتها سحب بدون X) */
+        .side { position: fixed; top: 65px; bottom: 85px; width: 260px; background: rgba(10,10,15,0.98); border: 1px solid rgba(255,215,0,0.2); transition: 0.4s; z-index: 1500; backdrop-filter: blur(10px); }
+        #side-r { right: -270px; } #side-l { left: -270px; }
+        .side.active { right: 0 !important; left: 0 !important; }
+
+        /* منطقة الدردشة */
+        #chat-area { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .msg { display: flex; gap: 10px; animation: slide 0.3s; }
+        @keyframes slide { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; } }
+        .pfp { width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--gold); }
+        .bubble { background: rgba(255,255,255,0.06); padding: 10px 15px; border-radius: 15px; max-width: 80%; border: 1px solid rgba(255,255,255,0.05); }
+        .owner { border-color: var(--gold); background: rgba(255,215,0,0.05); }
 
         /* البار السفلي */
         .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #1a1a1a; display: flex; align-items: center; padding: 0 10px; gap: 8px; }
-        #input-text { flex: 1; height: 45px; background: #0d0d0d; border: 1px solid #333; border-radius: 10px; color: #fff; padding: 0 12px; }
-        .action-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #in { flex: 1; height: 45px; background: #0d0d0d; border: 1px solid #333; border-radius: 10px; color: #fff; padding: 0 12px; }
+        .btn-go { background: var(--gold); border: none; padding: 10px 18px; border-radius: 10px; font-weight: 900; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<audio id="pop-sound" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3"></audio>
-
-<div class="header">
-    <button onclick="toggleWin('win-profile')" class="action-btn">⚙️</button>
-    <div style="text-align:center">
-        <b>ALLOSH ULTIMATE V36</b>
-        <div id="typing-ui" style="font-size:9px; color:var(--gold); opacity:0;">يكتب الآن...</div>
+<div id="yt-window">
+    <div class="win-head">
+        <span>تشغيل الفيديو</span>
+        <div>
+            <button class="btn-win" onclick="minYT()">-</button>
+            <button class="btn-win" onclick="closeYT()">X</button>
+        </div>
     </div>
-    <button onclick="toggleWin('win-users')" class="action-btn">👥</button>
+    <div id="yt-player"></div>
 </div>
 
-<div id="win-users" class="win-box">
-    <div class="win-head">
-        <div class="win-controls"><button class="dot dot-red" onclick="toggleWin('win-users')"></button><button class="dot dot-yellow"></button></div>
-        <span style="font-size:12px;">المتصلون</span>
-    </div>
-    <div id="user-list" style="padding:15px; max-height: 200px; overflow-y: auto;"></div>
+<div class="nav">
+    <button onclick="toggleSide('side-l')" style="background:none; border:none; font-size:24px;">👤</button>
+    <b style="color:var(--gold)">ALLOSH SUPREME V37</b>
+    <button onclick="toggleSide('side-r')" style="background:none; border:none; font-size:24px;">👥</button>
 </div>
 
-<div id="win-stickers" class="win-box">
-    <div class="win-head">
-        <span style="font-size:12px;">الملصقات الملكية</span>
-        <button class="dot dot-red" onclick="toggleWin('win-stickers')"></button>
-    </div>
-    <div style="padding:10px; display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; text-align:center;">
-        <span onclick="sendSticker('👑')" style="font-size:40px; cursor:pointer;">👑</span>
-        <span onclick="sendSticker('🔥')" style="font-size:40px; cursor:pointer;">🔥</span>
-        <span onclick="sendSticker('🦁')" style="font-size:40px; cursor:pointer;">🦁</span>
-        <span onclick="sendSticker('💎')" style="font-size:40px; cursor:pointer;">💎</span>
-    </div>
+<div id="side-r" class="side">
+    <div style="padding:20px; color:var(--gold); border-bottom:1px solid #222;">المتصلون</div>
+    <div id="u-list" style="padding:10px;"></div>
 </div>
 
-<div id="win-profile" class="win-box">
-    <div class="win-head">
-        <div class="win-controls"><button class="dot dot-red" onclick="toggleWin('win-profile')"></button></div>
-        <span style="font-size:12px;">الإعدادات</span>
-    </div>
+<div id="side-l" class="side">
     <div style="padding:20px; text-align:center;">
-        <img id="my-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:80px; border-radius:15px; border:2px solid var(--gold); cursor:pointer;" onclick="document.getElementById('f-up').click()">
-        <input type="file" id="f-up" hidden onchange="updatePfp(this)">
-        <h3 style="margin:10px 0; font-size:16px;">الإمبراطور علوش</h3>
-        <button onclick="clearChat()" style="width:100%; padding:10px; background:rgba(255,0,0,0.1); border:1px solid red; color:red; border-radius:10px; font-size:12px; cursor:pointer;">مسح السجلات 🧹</button>
+        <img id="my-pfp" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:80px; border-radius:10px; border:2px solid var(--gold); cursor:pointer;" onclick="document.getElementById('file').click()">
+        <input type="file" id="file" hidden onchange="updateP(this)">
+        <h4 style="margin:10px 0;">الإمبراطور علوش</h4>
+        <button onclick="db.ref('supreme_v37').remove()" style="width:100%; padding:10px; background:none; border:1px solid red; color:red; border-radius:8px; font-size:12px;">تصفير الشات</button>
     </div>
 </div>
 
-<div id="chat-scroller"></div>
+<div id="chat-area"></div>
 
 <div class="footer">
-    <button class="action-btn" onclick="toggleWin('win-stickers')">🎭</button>
-    <input type="text" id="input-text" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') push()" oninput="handleTyping()">
-    <button class="action-btn" onclick="push()">🚀</button>
+    <button onclick="toggleSide('side-l')" style="background:none; border:none; font-size:22px;">🎭</button>
+    <input type="text" id="in" placeholder="أدخل مرسومك..." onkeypress="if(event.key==='Enter') send()">
+    <button class="btn-go" onclick="send()">إرسال</button>
 </div>
 
 <script>
@@ -107,28 +94,11 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let user = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", king: true };
+    let me = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", k: true };
 
-    function toggleWin(id) {
-        let w = document.getElementById(id);
-        w.style.display = (w.style.display === 'block') ? 'none' : 'block';
-    }
-
-    function handleTyping() {
-        db.ref('typing/'+user.name).set(true);
-        setTimeout(() => db.ref('typing/'+user.name).remove(), 2000);
-    }
-
-    db.ref('typing').on('value', s => {
-        document.getElementById('typing-ui').style.opacity = s.exists() ? "1" : "0";
-    });
-
-    function updatePfp(input) {
-        if(input.files[0]) {
-            let r = new FileReader();
-            r.onload = e => { user.avatar = e.target.result; document.getElementById('my-avatar').src = e.target.result; };
-            r.readAsDataURL(input.files[0]);
-        }
+    function toggleSide(id) {
+        document.querySelectorAll('.side').forEach(s => { if(s.id !== id) s.classList.remove('active'); });
+        document.getElementById(id).classList.toggle('active');
     }
 
     function getYTID(url) {
@@ -137,51 +107,55 @@
         return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    function push() {
-        let i = document.getElementById('input-text'); if(!i.value) return;
-        db.ref('supreme_v36').push({ u: user.name, t: i.value, a: user.avatar, k: user.king, type: 'text' });
+    function send() {
+        let i = document.getElementById('in'); if(!i.value) return;
+        db.ref('supreme_v37').push({ u: me.name, t: i.value, a: me.avatar, k: me.k });
         i.value = "";
     }
 
-    function sendSticker(s) {
-        db.ref('supreme_v36').push({ u: user.name, t: s, a: user.avatar, k: user.king, type: 'sticker' });
-        toggleWin('win-stickers');
-    }
-
-    db.ref('supreme_v36').limitToLast(30).on('child_added', s => {
+    db.ref('supreme_v37').limitToLast(30).on('child_added', s => {
         let d = s.val();
-        let box = document.getElementById('chat-scroller');
-        let div = document.createElement('div');
-        div.className = "msg";
+        let ytID = getYTID(d.t);
         
-        document.getElementById('pop-sound').play();
-
-        let content = d.t;
-        if(d.type === 'sticker') {
-            content = `<span style="font-size:60px;">${d.t}</span>`;
-        } else {
-            let ytID = getYTID(d.t);
-            if(ytID) content += `<iframe class="yt-frame" src="https://www.youtube.com/embed/${ytID}" frameborder="0" allowfullscreen></iframe>`;
+        if(ytID) {
+            document.getElementById('yt-window').style.display = 'block';
+            document.getElementById('yt-player').innerHTML = `<iframe width="100%" height="150" src="https://www.youtube.com/embed/${ytID}" frameborder="0" allowfullscreen></iframe>`;
         }
 
-        div.innerHTML = `
-            <img src="${d.a}" class="pfp">
-            <div class="bubble ${d.k?'owner-msg':''}">
+        let area = document.getElementById('chat-area');
+        let div = document.createElement('div');
+        div.className = "msg";
+        div.innerHTML = `<img src="${d.a}" class="pfp">
+            <div class="bubble ${d.k?'owner':''}">
                 <b style="color:var(--gold); font-size:11px;">${d.u}</b><br>
-                <span>${content}</span>
+                <span>${d.t}</span>
             </div>`;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
+        area.appendChild(div);
+        area.scrollTop = area.scrollHeight;
     });
 
-    db.ref('presence_v36/'+user.name).set(true);
-    db.ref('presence_v36/'+user.name).onDisconnect().remove();
-    db.ref('presence_v36').on('value', s => {
-        let l = document.getElementById('user-list'); l.innerHTML = "";
-        s.forEach(u => { l.innerHTML += `<div style="padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">💎 ${u.key}</div>`; });
+    function closeYT() { document.getElementById('yt-window').style.display = 'none'; document.getElementById('yt-player').innerHTML = ""; }
+    function minYT() { 
+        let win = document.getElementById('yt-window');
+        win.style.width = win.style.width === '50px' ? '200px' : '50px';
+    }
+
+    function updateP(input) {
+        if(input.files[0]) {
+            let r = new FileReader();
+            r.onload = e => { me.avatar = e.target.result; document.getElementById('my-pfp').src = e.target.result; };
+            r.readAsDataURL(input.files[0]);
+        }
+    }
+
+    db.ref('online_v37/'+me.name).set(true);
+    db.ref('online_v37/'+me.name).onDisconnect().remove();
+    db.ref('online_v37').on('value', s => {
+        let l = document.getElementById('u-list'); l.innerHTML = "";
+        s.forEach(u => { l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111;">💎 ${u.key}</div>`; });
     });
 
-    function clearChat() { if(confirm("مسح السجلات؟")) db.ref('supreme_v36').remove(); }
+    document.getElementById('chat-area').onclick = () => document.querySelectorAll('.side').forEach(s => s.classList.remove('active'));
 </script>
 </body>
 </html>
