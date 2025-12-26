@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CH-ALLOSH PERMANENT 👑</title>
+    <title>CH-ALLOSH SUPREME V5 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -12,22 +12,39 @@
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         body, html { height: 100%; width: 100%; background: var(--bg); color: white; overflow: hidden; position: fixed; }
 
-        .top-bar { height: 60px; background: #000; border-bottom: 2px solid var(--main); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
+        /* الهيدر */
+        .top-bar { height: 60px; background: #000; border-bottom: 2px solid var(--main); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; position: relative; }
+        
+        /* قائمة المتصلين الجانبية */
+        .side { position: fixed; top: 60px; bottom: 70px; width: 260px; background: var(--card); left: -260px; transition: 0.3s; z-index: 1500; border: 1px solid #222; overflow-y: auto; }
+        .side.open { left: 0; }
+
+        /* الشات */
         .content { position: absolute; top: 60px; bottom: 70px; width: 100%; display: flex; }
         .chat-view { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
 
+        /* فخامة اسم علوش في المتصلين */
+        .vip-name { 
+            color: #fff; text-shadow: 0 0 10px var(--main), 0 0 20px #ff0000; 
+            font-weight: bold; animation: glow 1.5s infinite alternate; 
+            background: linear-gradient(90deg, #ff6a00, #ff0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        @keyframes glow { from { filter: drop-shadow(0 0 2px var(--main)); } to { filter: drop-shadow(0 0 8px #ff0000); } }
+
+        /* الرسائل */
         .msg-container { display: flex; align-items: flex-start; gap: 10px; }
         .u-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--main); object-fit: cover; }
         .msg-body { flex: 1; background: #161616; padding: 10px; border-radius: 15px; border-right: 4px solid var(--main); }
-        .r-tag { font-size: 9px; background: var(--main); color: white; padding: 1px 5px; border-radius: 4px; }
+        .r-tag { font-size: 9px; background: var(--main); color: white; padding: 1px 5px; border-radius: 4px; margin-left: 5px; }
 
+        /* النافذة المنبثقة */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 3000; }
-        .modal-card { background: white; width: 92%; max-width: 380px; border-radius: 25px; color: #333; overflow: hidden; }
-        .modal-body { padding: 20px; text-align: center; }
+        .modal-card { background: white; width: 92%; max-width: 380px; border-radius: 25px; color: #333; overflow: hidden; text-align: center; }
+        .modal-body { padding: 20px; max-height: 500px; overflow-y: auto; }
 
+        /* أزرار */
         .z-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
-        .z-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 10px; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: bold; }
-
+        .z-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 10px; border-radius: 12px; cursor: pointer; font-weight: bold; }
         .bottom-bar { position: fixed; bottom: 0; height: 70px; width: 100%; background: #0a0a0a; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; z-index: 1000; }
         #in { flex: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 25px; color: white; padding: 0 15px; outline: none; }
     </style>
@@ -36,36 +53,43 @@
 
 <div id="main-modal" class="modal">
     <div class="modal-card">
-        <div style="padding:15px; background:#f8f9fa; font-weight:bold; text-align:center;">⚙️ إعدادات الإمبراطورية</div>
+        <div style="padding:15px; background:#f8f9fa; font-weight:bold; border-bottom:1px solid #eee;">⚙️ الإعدادات والتحديث</div>
         <div class="modal-body">
-            <img id="p-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--main);">
-            <div id="p-rank" style="font-size:12px; color:var(--main); font-weight:bold; margin-top:5px;">جاري التحميل...</div>
-            <button onclick="changePhoto()" style="margin:10px 0; padding:8px 20px; border-radius:12px; border:none; background:#eee; cursor:pointer;">تغيير الصورة الشخصية 📷</button>
+            <img id="p-img" src="" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--main);">
+            <div id="p-rank" style="color:var(--main); font-weight:bold; margin-top:5px;"></div>
+            <button onclick="changePhoto()" style="margin:10px 0; padding:8px 20px; border-radius:10px; border:none; background:#eee; cursor:pointer;">تغيير الصورة 📷</button>
             <hr>
-            <p style="font-weight:bold; margin-top:10px;">اختر زخرفتك الثابتة:</p>
+            <p style="font-weight:bold; margin-top:10px;">زخرفات علوش:</p>
             <div class="z-grid">
                 <button class="z-btn" onclick="setN('عـلـ★ـش')">عـلـ★ـش</button>
                 <button class="z-btn" onclick="setN('☬علوش☬')">☬علوش☬</button>
                 <button class="z-btn" onclick="setN('亗علوش亗')">亗علوش亗</button>
                 <button class="z-btn" onclick="setN('♛علوش♛')">♛علوش♛</button>
             </div>
+            <button onclick="location.reload()" style="width:100%; padding:12px; background:#000; color:#fff; border-radius:10px; margin-top:10px; border:none;">تحديث النظام الداخلي 🔄</button>
         </div>
         <button onclick="closeM()" style="width:100%; padding:15px; background:var(--main); color:white; border:none; font-weight:bold;">حفظ وإغلاق</button>
     </div>
 </div>
 
 <div class="top-bar">
-    <div style="width:30px"></div>
-    <div style="color:var(--main); font-weight:bold;">AL-LOSH PERMANENT 👑</div>
+    <button onclick="toggleSide()" style="background:none; border:none; font-size:24px; color:white;">👥</button>
+    <div style="color:var(--main); font-weight:bold;">CH-ALLOSH VIP</div>
     <button onclick="openM()" style="background:none; border:none; font-size:24px; color:white;">⚙️</button>
 </div>
 
 <div class="content">
+    <div id="side-users" class="side">
+        <div style="padding:20px;">
+            <h3>👤 المتصلون</h3><hr style="border:0.5px solid #333; margin:10px 0;">
+            <div id="u-list"></div>
+        </div>
+    </div>
     <div class="chat-view" id="chat-box"></div>
 </div>
 
 <div class="bottom-bar">
-    <input type="text" id="in" placeholder="اكتب شيئاً..." onkeypress="if(event.key==='Enter') send()">
+    <input type="text" id="in" placeholder="تكلم يا إمبراطور..." onkeypress="if(event.key==='Enter') send()">
     <button onclick="send()" style="background:var(--main); border:none; width:45px; height:45px; border-radius:50%; color:white;">🚀</button>
 </div>
 
@@ -74,40 +98,48 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // استرجاع البيانات من ذاكرة الهاتف أو وضع بيانات افتراضية
-    let savedData = JSON.parse(localStorage.getItem('allosh_user')) || {
+    // الذاكرة الدائمة
+    let me = JSON.parse(localStorage.getItem('allosh_final')) || {
         id: "u_" + Math.random().toString(16).slice(2,8),
         name: "علوش",
         avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        rank: "عضو"
+        rank: "صاحب الشات 👑"
     };
-
-    let me = savedData;
 
     function openM() { 
         document.getElementById('main-modal').style.display='flex';
         document.getElementById('p-img').src = me.avatar;
         document.getElementById('p-rank').innerText = me.rank;
     }
-    
     function closeM() { document.getElementById('main-modal').style.display='none'; }
+    function toggleSide() { document.getElementById('side-users').classList.toggle('open'); }
 
-    function setN(n) { 
-        me.name = n; 
-        saveAndSync(); 
-    }
-
-    // دالة الحفظ الدائم
-    function saveAndSync() {
-        localStorage.setItem('allosh_user', JSON.stringify(me)); // حفظ في ذاكرة الهاتف
-        db.ref('p_perm/'+me.id).set(me); // حفظ في قاعدة البيانات
+    function setN(n) { me.name = n; save(); }
+    function save() {
+        localStorage.setItem('allosh_final', JSON.stringify(me));
+        db.ref('p_v5/'+me.id).set(me);
     }
 
     function start() {
-        saveAndSync();
-        db.ref('p_perm/'+me.id).onDisconnect().remove();
+        save();
+        db.ref('p_v5/'+me.id).onDisconnect().remove();
 
-        db.ref('m_perm').limitToLast(40).on('child_added', s => {
+        // قائمة المتصلين مع تمييز فخم لعلوش
+        db.ref('p_v5').on('value', s => {
+            let h = "";
+            s.forEach(u => {
+                let userData = u.val();
+                let isAllosh = userData.name.includes("علوش") || userData.rank.includes("صاحب");
+                h += `<div style="padding:10px; border-bottom:1px solid #222;">
+                        <span class="${isAllosh ? 'vip-name' : ''}">● ${userData.name}</span>
+                        <br><small style="color:#666; font-size:10px;">${userData.rank}</small>
+                      </div>`;
+            });
+            document.getElementById('u-list').innerHTML = h;
+        });
+
+        // الشات
+        db.ref('m_v5').limitToLast(40).on('child_added', s => {
             let d = s.val();
             let box = document.getElementById('chat-box');
             let div = document.createElement('div');
@@ -115,7 +147,7 @@
             div.innerHTML = `
                 <img src="${d.avatar}" class="u-avatar">
                 <div class="msg-body">
-                    <div><span class="r-tag">${d.rank}</span> <b style="color:#ff6a00">${d.sender}</b></div>
+                    <div><span class="r-tag">${d.rank}</span> <b style="color:var(--main)">${d.sender}</b></div>
                     <div style="margin-top:5px;">${d.text}</div>
                 </div>`;
             box.appendChild(div);
@@ -126,12 +158,7 @@
     function send() {
         let i = document.getElementById('in');
         if(!i.value) return;
-        db.ref('m_perm').push({ 
-            sender: me.name, 
-            text: i.value, 
-            avatar: me.avatar, 
-            rank: me.rank 
-        });
+        db.ref('m_v5').push({ sender: me.name, text: i.value, avatar: me.avatar, rank: me.rank });
         i.value = "";
     }
 
@@ -142,7 +169,7 @@
             r.onload = ev => {
                 me.avatar = ev.target.result;
                 document.getElementById('p-img').src = me.avatar;
-                saveAndSync();
+                save();
             };
             r.readAsDataURL(e.target.files[0]);
         };
