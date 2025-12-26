@@ -3,44 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - النسخة الفخمة 👑</title>
+    <title>مملكة علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #050505; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* واجهة الإدارة */
-        .admin-header { background: linear-gradient(90deg, #ffd700, #ffae00); color: black; padding: 10px; text-align: center; font-weight: bold; cursor: pointer; display: none; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
-
-        .chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #111 0%, #000 100%); }
-        
-        /* تصميم الرسائل */
-        .msg { padding: 12px 16px; border-radius: 20px; max-width: 75%; position: relative; line-height: 1.5; animation: pop 0.3s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .msg.me { align-self: flex-end; background: #222; border: 1px solid #444; border-bottom-right-radius: 2px; }
-        .msg.other { align-self: flex-start; background: #1a1a1a; border: 1px solid var(--gold); border-bottom-left-radius: 2px; }
-        
-        .u-info { font-size: 11px; color: var(--gold); font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .kick-btn { color: red; cursor: pointer; margin-right: 10px; font-size: 14px; font-weight: bold; }
-
-        /* منطقة الإدخال */
-        .input-bar { background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #222; }
-        input { flex: 1; background: #000; border: 1px solid #333; color: white; padding: 12px; border-radius: 12px; outline: none; }
-        button { background: var(--gold); border: none; padding: 0 20px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-
-        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        :root { --gold: #ffd700; --dark: #000; }
+        body { background: var(--dark); color: #fff; font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; }
+        .admin-bar { background: var(--gold); color: #000; padding: 10px; text-align: center; font-weight: bold; cursor: pointer; display: none; }
+        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #050505; }
+        .msg { padding: 10px 15px; border-radius: 18px; max-width: 80%; position: relative; word-wrap: break-word; }
+        .msg.me { align-self: flex-end; background: #222; border: 1px solid #333; border-bottom-right-radius: 2px; }
+        .msg.other { align-self: flex-start; background: #111; border: 1px solid var(--gold); border-bottom-left-radius: 2px; }
+        .u-name { font-size: 11px; color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px; }
+        .chat-img { max-width: 100%; border-radius: 10px; margin-top: 5px; display: block; }
+        .input-bar { background: #111; padding: 15px; display: flex; gap: 8px; align-items: center; border-top: 1px solid #222; }
+        input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #333; background: #000; color: #fff; outline: none; }
+        .btn-send { background: var(--gold); border: none; padding: 10px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        .btn-upload { background: #333; color: var(--gold); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="adm-head" class="admin-header" onclick="adminMenu()">⚖️ لوحة تحكم الإمبراطور علوش</div>
+    <div id="adm-head" class="admin-bar" onclick="adminAction()">إدارة المملكة ⚖️ (مسح الكل)</div>
 
-    <div class="chat-container" id="chat"></div>
+    <div id="chat"></div>
 
     <div class="input-bar">
-        <input type="text" id="minp" placeholder="اكتب رسالتك أو رابط صورة...">
-        <button onclick="send()">إرسال</button>
+        <button class="btn-upload" onclick="document.getElementById('fileInp').click()">📎</button>
+        <input type="file" id="fileInp" accept="image/*" style="display:none" onchange="uploadImg(this)">
+        
+        <input type="text" id="mInp" placeholder="اكتب رسالتك...">
+        <button class="btn-send" onclick="send()">إرسال</button>
     </div>
 
 <script>
@@ -62,47 +56,51 @@
     });
 
     function send() {
-        const val = document.getElementById('minp').value.trim();
-        if(val) {
+        const inp = document.getElementById('mInp');
+        if(inp.value.trim()) {
             db.ref('msgs').push({
                 u: auth.currentUser.email.split('@')[0],
-                t: val,
+                t: inp.value,
                 a: auth.currentUser.email === "rgrghh77@gmail.com",
-                time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'})
+                type: 'text'
             });
-            document.getElementById('minp').value = '';
+            inp.value = '';
+        }
+    }
+
+    // وظيفة رفع الصور وتحويلها لبيانات مباشرة
+    function uploadImg(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                db.ref('msgs').push({
+                    u: auth.currentUser.email.split('@')[0],
+                    t: e.target.result,
+                    a: auth.currentUser.email === "rgrghh77@gmail.com",
+                    type: 'image'
+                });
+            };
+            reader.readAsDataURL(input.files[0]);
         }
     }
 
     function load() {
         const chat = document.getElementById('chat');
-        db.ref('msgs').limitToLast(40).on('child_added', snap => {
+        db.ref('msgs').limitToLast(30).on('child_added', snap => {
             const d = snap.val();
-            const id = snap.key;
             const isMe = d.u === auth.currentUser.email.split('@')[0];
-            const isImg = d.t.match(/\.(jpeg|jpg|gif|png)$/) != null;
+            const content = d.type === 'image' ? `<img src="${d.t}" class="chat-img">` : d.t;
             
-            let content = isImg ? `<img src="${d.t}" style="width:100%; border-radius:10px; margin-top:5px;">` : d.t;
-            let kickIcon = (auth.currentUser.email === "rgrghh77@gmail.com") ? `<span class="kick-btn" onclick="deleteMsg('${id}')">×</span>` : '';
-
-            chat.innerHTML += `
-                <div class="msg ${isMe ? 'me' : 'other'}">
-                    <div class="u-info">
-                        <span>${d.a ? '👑 ' : ''}@${d.u}</span>
-                        ${kickIcon}
-                    </div>
-                    <div>${content}</div>
-                    <div style="font-size:9px; opacity:0.5; margin-top:5px;">${d.time}</div>
-                </div>`;
+            const div = document.createElement('div');
+            div.className = `msg ${isMe ? 'me' : 'other'}`;
+            div.innerHTML = `<span class="u-name">${d.a ? '👑 ' : ''}@${d.u}</span>${content}`;
+            chat.appendChild(div);
             chat.scrollTop = chat.scrollHeight;
         });
     }
 
-    function deleteMsg(id) { if(confirm("حذف هذه الرسالة؟")) db.ref('msgs').child(id).remove().then(() => location.reload()); }
-
-    function adminMenu() {
-        const op = prompt("1: مسح كل الدردشة\n2: تغيير اسمك المستعار");
-        if(op === "1" && confirm("متأكد؟")) db.ref('msgs').remove().then(() => location.reload());
+    function adminAction() {
+        if(confirm("هل تريد تنظيف المملكة بالكامل؟")) db.ref('msgs').remove().then(() => location.reload());
     }
 </script>
 </body>
