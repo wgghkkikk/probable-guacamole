@@ -3,48 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH SUPREME V74 🛡️</title>
+    <title>ALLOSH SUPREME V75 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #ffd700; --bg: #000; --blue: #00d2ff; --vip: #ff00ff; --mod: #2ecc71; }
+        :root { --gold: #ffd700; --bg: #000; --blue: #00d2ff; --vip: #ff00ff; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
 
-        /* الأنيميشن الملكي */
         .king-glow { animation: neon 1.5s infinite; font-weight: 900; }
         @keyframes neon { 0%, 100% {color: #fff; text-shadow: 0 0 10px var(--gold);} 50% {color: var(--gold); text-shadow: 0 0 20px #fff;} }
 
         .header { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 5000; }
         
-        /* القوائم */
-        .side { position: fixed; top: 0; bottom: 0; width: 280px; background: rgba(10,10,15,0.98); z-index: 6000; backdrop-filter: blur(15px); transition: 0.4s; overflow-y: auto; }
-        #side-r { right: -285px; border-left: 2px solid var(--gold); }
-        #side-l { left: -285px; border-right: 2px solid var(--gold); }
+        .side { position: fixed; top: 0; bottom: 0; width: 290px; background: rgba(10,10,15,0.98); z-index: 6000; backdrop-filter: blur(15px); transition: 0.4s; overflow-y: auto; }
+        #side-r { right: -295px; border-left: 2px solid var(--gold); }
+        #side-l { left: -295px; border-right: 2px solid var(--gold); }
         .side.active { transform: translateX(0); }
-        #side-r.active { right: 0; } #side-l.active { left: 0; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5500; display: none; }
 
-        /* الرتب والحالات */
-        .user-card { padding: 12px; border-bottom: 1px solid #111; display: flex; flex-direction: column; gap: 5px; }
-        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #000; }
-        .b-king { background: var(--gold); } .b-mod { background: var(--mod); } .b-vip { background: var(--vip); }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #2ecc71; margin-left: 5px; }
+        /* الملف الشخصي الملكي */
+        .profile-header { position: relative; width: 100%; height: 180px; background: #111; }
+        .cover-img { width: 100%; height: 140px; object-fit: cover; border-bottom: 2px solid var(--gold); cursor: pointer; }
+        .avatar-wrap { position: absolute; bottom: 0; right: 20px; }
+        .avatar-img { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--gold); background: #000; cursor: pointer; }
+        .crown-icon { position: absolute; top: -35px; right: 5px; font-size: 40px; filter: drop-shadow(0 0 10px gold); }
 
-        /* الشات والهمس */
+        /* الرتب والشات */
+        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #000; }
+        .b-king { background: var(--gold); } .b-vip { background: var(--vip); }
         #chat-flow { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .bubble { background: rgba(255,255,255,0.08); padding: 12px; border-radius: 15px; border: 1px solid #222; max-width: 85%; position: relative; }
+        .bubble { background: rgba(255,255,255,0.08); padding: 12px; border-radius: 15px; border: 1px solid #222; max-width: 85%; }
         .whisper { border: 1px dashed var(--vip) !important; background: rgba(255,0,255,0.05) !important; }
-        .msg-info { font-size: 10px; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
 
         /* متجر الهدايا */
         #gift-panel { position: fixed; bottom: 90px; left: 10px; right: 10px; background: #111; border: 1px solid var(--gold); border-radius: 15px; padding: 15px; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 7000; }
-        .gift-item { text-align: center; font-size: 25px; cursor: pointer; background: #222; padding: 10px; border-radius: 10px; }
+        .gift-btn { text-align: center; font-size: 25px; cursor: pointer; background: #222; padding: 10px; border-radius: 10px; }
 
         .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 8px; }
         #msg-in { flex: 1; height: 45px; background: #111; border: 1px solid #333; border-radius: 12px; color: #fff; padding: 0 15px; }
-        .btn-act { background: none; border: none; font-size: 24px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -52,48 +50,46 @@
 <div id="overlay" onclick="closeSides()"></div>
 
 <div id="gift-panel">
-    <div class="gift-item" onclick="sendGift('🚀')">🚀</div>
-    <div class="gift-item" onclick="sendGift('💎')">💎</div>
-    <div class="gift-item" onclick="sendGift('👑')">👑</div>
-    <div class="gift-item" onclick="sendGift('🦁')">🦁</div>
-    <div class="gift-item" onclick="sendGift('🔥')">🔥</div>
-    <div class="gift-item" onclick="sendGift('❤️')">❤️</div>
-    <div class="gift-item" onclick="sendGift('🍕')">🍕</div>
-    <div class="gift-item" onclick="sendGift('💰')">💰</div>
+    <div class="gift-btn" onclick="sendGift('🚀')">🚀</div>
+    <div class="gift-btn" onclick="sendGift('💎')">💎</div>
+    <div class="gift-btn" onclick="sendGift('👑')">👑</div>
+    <div class="gift-btn" onclick="sendGift('🦁')">🦁</div>
 </div>
 
 <div class="header">
-    <button class="btn-act" onclick="openSide('side-l')">⚙️</button>
-    <div class="king-glow" style="font-size:18px;">إمبراطورية علوش</div>
-    <button class="btn-act" onclick="openSide('side-r')">👥</button>
+    <button onclick="openSide('side-l')" style="background:none; border:none; font-size:26px; color:white;">⚙️</button>
+    <div class="king-glow">إمبراطورية علوش</div>
+    <button onclick="openSide('side-r')" style="background:none; border:none; font-size:26px; color:white;">👥</button>
 </div>
 
 <div id="side-r" class="side">
-    <h3 style="padding:20px; text-align:center; color:var(--gold); border-bottom:1px solid #222;">🛡️ الرتب والمتصلون</h3>
+    <h3 style="padding:20px; text-align:center; color:var(--gold); border-bottom:1px solid #222;">👥 المتصلون</h3>
     <div id="on-list"></div>
 </div>
 
 <div id="side-l" class="side">
-    <div style="padding:20px; text-align:center; border-bottom:1px solid #222;">
-        <div style="font-size:50px;">👑</div>
-        <h2 class="king-glow">علوش</h2>
-        <span class="badge b-king">المالك</span>
-        <div style="margin-top:15px;">
-            <input type="text" id="my-status" placeholder="اكتب حالتك هنا..." onchange="updateStatus(this.value)" style="width:100%; background:#111; border:1px solid #333; color:gold; padding:8px; border-radius:8px; text-align:center;">
+    <div class="profile-header">
+        <img class="cover-img" id="my-cov" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400" onclick="document.getElementById('pick-cov').click()">
+        <input type="file" id="pick-cov" hidden onchange="updateImg(this, 'my-cov')">
+        <div class="avatar-wrap">
+            <span class="crown-icon">👑</span>
+            <img class="avatar-img" id="my-av" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="document.getElementById('pick-av').click()">
+            <input type="file" id="pick-av" hidden onchange="updateImg(this, 'my-av')">
         </div>
     </div>
-    <div style="padding:15px;">
-        <h4 style="color:var(--gold);">📜 سجل الأحداث (Logs)</h4>
-        <div id="logs" style="font-size:11px; color:#888; margin-top:10px;"></div>
+    <div style="padding:20px; text-align:center; margin-top:15px;">
+        <h2 class="king-glow">علوش</h2>
+        <span class="badge b-king">المالك الرسمي</span>
+        <input type="text" id="status-in" onchange="syncMe()" placeholder="حالتك..." style="width:100%; margin-top:15px; background:#111; border:1px solid #333; color:gold; padding:10px; border-radius:10px; text-align:center;">
     </div>
 </div>
 
 <div id="chat-flow"></div>
 
 <div class="footer">
-    <button class="btn-act" onclick="toggleGifts()">🎁</button>
+    <button onclick="toggleGifts()" style="background:none; border:none; font-size:24px;">🎁</button>
     <input type="text" id="msg-in" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') pushMsg()">
-    <button onclick="pushMsg()" style="background:var(--gold); border:none; padding:10px 15px; border-radius:10px; font-weight:900;">إرسال</button>
+    <button onclick="pushMsg()" style="background:var(--gold); border:none; padding:10px 15px; border-radius:12px; font-weight:900;">إرسال</button>
 </div>
 
 <script>
@@ -101,85 +97,65 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let me = { name: "علوش", role: "king", status: "الملك في نزهة 👑" };
+    let me = { name: "علوش", role: "king", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", status: "متصل" };
+    let whisperTo = null;
 
-    // التواجد والحالة
-    function updateStatus(val) { me.status = val; syncOnline(); }
-    function syncOnline() {
-        db.ref('online_v74/' + me.name).set({ role: me.role, status: me.status });
-        db.ref('online_v74/' + me.name).onDisconnect().remove();
+    function syncMe() {
+        me.status = document.getElementById('status-in').value || "متصل";
+        db.ref('online_v75/' + me.name).set(me);
+        db.ref('online_v75/' + me.name).onDisconnect().remove();
     }
-    syncOnline();
+    syncMe();
 
-    // تحديث القائمة والسجلات
-    db.ref('online_v74').on('value', s => {
+    function updateImg(input, id) {
+        if(input.files && input.files[0]) {
+            let r = new FileReader();
+            r.onload = (e) => { 
+                document.getElementById(id).src = e.target.result;
+                if(id === 'my-av') me.img = e.target.result;
+                syncMe();
+            };
+            r.readAsDataURL(input.files[0]);
+        }
+    }
+
+    db.ref('online_v75').on('value', s => {
         let l = document.getElementById('on-list'); l.innerHTML = "";
         s.forEach(u => {
-            let data = u.val();
-            let badgeClass = data.role === 'king' ? 'b-king' : 'b-vip';
-            l.innerHTML += `
-                <div class="user-card" onclick="startWhisper('${u.key}')">
-                    <div style="display:flex; justify-content:space-between;">
-                        <b>${u.key} <span class="status-dot"></span></b>
-                        <span class="badge ${badgeClass}">${data.role === 'king' ? 'المالك' : 'VIP'}</span>
-                    </div>
-                    <small style="color:#666;">${data.status || ''}</small>
-                </div>`;
+            let d = u.val();
+            l.innerHTML += `<div style="padding:12px; border-bottom:1px solid #111;" onclick="startWhisper('${u.key}')">
+                <b>${u.key}</b> <span class="badge ${d.role==='king'?'b-king':'b-vip'}">${d.role==='king'?'ملك':'VIP'}</span><br>
+                <small style="color:#666;">${d.status}</small>
+            </div>`;
         });
     });
 
-    // الشات والهمس
-    let whisperTo = null;
-    function startWhisper(name) {
-        if(name === me.name) return;
-        whisperTo = name;
-        document.getElementById('msg-in').placeholder = "همس إلى " + name + "...";
-        document.getElementById('msg-in').style.borderColor = "var(--vip)";
-    }
+    function startWhisper(n) { if(n===me.name)return; whisperTo=n; document.getElementById('msg-in').placeholder="همس لـ "+n; }
 
     function pushMsg() {
         let i = document.getElementById('msg-in'); if(!i.value) return;
-        let msgData = { u: me.name, t: i.value, r: me.role, to: whisperTo || 'all' };
-        db.ref('chat_v74').push(msgData);
-        i.value = ""; whisperTo = null;
-        i.placeholder = "اكتب رسالتك..."; i.style.borderColor = "#333";
+        db.ref('chat_v75').push({ u: me.name, t: i.value, a: me.img, to: whisperTo || 'all', r: me.role });
+        i.value = ""; whisperTo = null; i.placeholder="اكتب رسالتك...";
     }
 
-    db.ref('chat_v74').limitToLast(20).on('child_added', s => {
+    db.ref('chat_v75').limitToLast(20).on('child_added', s => {
         let d = s.val();
-        if(d.to !== 'all' && d.to !== me.name && d.u !== me.name) return; // حماية الهمس
-
-        let isWhisper = d.to !== 'all';
+        if(d.to !== 'all' && d.to !== me.name && d.u !== me.name) return;
         let div = document.createElement('div');
-        div.className = "bubble " + (isWhisper ? 'whisper' : '');
-        div.innerHTML = `
-            <div class="msg-info">
-                <span class="badge ${d.r==='king'?'b-king':'b-vip'}">${d.r==='king'?'👑':'💎'}</span>
-                <b style="color:gold;">${d.u}</b>
-                ${isWhisper ? '<small style="color:var(--vip);">[همس]</small>' : ''}
-            </div>
-            <div>${d.t}</div>`;
+        div.className = "bubble " + (d.to!=='all'?'whisper':'');
+        div.innerHTML = `<div style="display:flex; gap:10px; margin-bottom:5px;">
+            <img src="${d.a}" style="width:35px; height:35px; border-radius:50%; border:1px solid gold;">
+            <div><b style="color:gold; font-size:12px;">${d.u}</b> ${d.to!=='all'?'<small>[همس]</small>':''}<br>${d.t}</div>
+        </div>`;
         document.getElementById('chat-flow').appendChild(div);
         document.getElementById('chat-flow').scrollTop = document.getElementById('chat-flow').scrollHeight;
     });
 
-    // الهدايا
-    function toggleGifts() { let p = document.getElementById('gift-panel'); p.style.display = p.style.display === 'grid' ? 'none' : 'grid'; }
-    function sendGift(emoji) {
-        pushMsg({ u: me.name, t: "أرسل هدية: " + emoji, r: me.role, to: 'all' });
-        toggleGifts();
-    }
+    function toggleGifts() { let p = document.getElementById('gift-panel'); p.style.display = p.style.display==='grid'?'none':'grid'; }
+    function sendGift(e) { db.ref('chat_v75').push({u:me.name, t:"أرسل هدية: "+e, a:me.img, to:'all'}); toggleGifts(); }
 
-    // سجل الأحداث
-    db.ref('online_v74').on('child_added', s => { addLog("دخل: " + s.key); });
-    db.ref('online_v74').on('child_removed', s => { addLog("خرج: " + s.key); });
-    function addLog(txt) {
-        let div = document.createElement('div'); div.innerText = `[${new Date().toLocaleTimeString()}] ${txt}`;
-        document.getElementById('logs').prepend(div);
-    }
-
-    function openSide(id) { closeSides(); document.getElementById(id).classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
-    function closeSides() { document.querySelectorAll('.side').forEach(s => s.classList.remove('active')); document.getElementById('overlay').style.display = 'none'; }
+    function openSide(id) { closeSides(); document.getElementById(id).classList.add('active'); document.getElementById('overlay').style.display='block'; }
+    function closeSides() { document.querySelectorAll('.side').forEach(s=>s.classList.remove('active')); document.getElementById('overlay').style.display='none'; }
 </script>
 </body>
 </html>
