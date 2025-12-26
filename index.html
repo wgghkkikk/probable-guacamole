@@ -3,78 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CH-ALLOSH SUPREME 👑</title>
+    <title>CH-ALLOSH SUPREME | الإصدار المستقر 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --main-orange: #ff6a00; --bg: #050505; --panel: #121212; }
+        :root { --gold: #ffd700; --orange: #ff6a00; --bg: #050505; --card: #121212; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: 0.3s; }
         body { margin: 0; background: var(--bg); color: white; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
         /* البار العلوي */
-        .header { height: 60px; background: #000; border-bottom: 2px solid var(--main-orange); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
+        .header { height: 60px; background: #000; border-bottom: 2px solid var(--orange); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
         
-        /* القوائم الجانبية */
-        .wrapper { display: flex; flex: 1; overflow: hidden; }
-        .sidebar { width: 0; background: var(--panel); overflow-y: auto; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); border: 0 solid #333; }
-        .sidebar.active { width: 300px; border-width: 1px; }
+        /* الهيكل الأساسي */
+        .main-wrapper { display: flex; flex: 1; overflow: hidden; }
+        .sidebar { width: 0; background: var(--card); overflow-y: auto; transition: 0.5s; z-index: 500; border: 0 solid #333; }
+        .sidebar.active { width: 280px; border-width: 1px; }
 
         /* منطقة الشات */
-        .chat-view { flex: 1; display: flex; flex-direction: column; background: #000; border-left: 1px solid #222; border-right: 1px solid #222; }
+        .chat-view { flex: 1; display: flex; flex-direction: column; background: #000; }
         #msgs-holder { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
 
-        /* تصميم الرسالة */
-        .msg-box { background: #181818; padding: 12px; border-radius: 12px; border-bottom: 1px solid #333; border-right: 4px solid var(--main-orange); }
-        .msg-box img { max-width: 100%; border-radius: 8px; margin-top: 8px; }
-        iframe { width: 100%; height: 200px; border-radius: 12px; margin-top: 10px; border: none; }
+        /* تصميم الرسائل */
+        .msg-box { background: #1a1a1a; padding: 10px; border-radius: 12px; border-right: 4px solid var(--orange); line-height: 1.6; }
+        .msg-box img { max-width: 100%; border-radius: 8px; margin-top: 5px; }
+        iframe { width: 100%; height: 200px; border-radius: 10px; margin-top: 10px; border: none; }
 
-        /* الملف الشخصي (مثل الصورة) */
-        .profile-sec { padding: 20px; text-align: center; background: #1a1a1a; margin: 10px; border-radius: 15px; border: 1px solid #333; }
-        .avatar-img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--main-orange); object-fit: cover; cursor: pointer; }
-
-        /* النوافذ المنبثقة (Modals) */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
-        .modal-card { background: #fff; width: 360px; border-radius: 20px; overflow: hidden; color: #333; }
-        .modal-head { padding: 15px; text-align: center; border-bottom: 1px solid #eee; font-weight: bold; }
-        .modal-body { padding: 15px; max-height: 300px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .color-opt { padding: 10px; border: 1px solid #eee; border-radius: 10px; text-align: center; cursor: pointer; }
-        .save-btn { background: var(--main-orange); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; cursor: pointer; }
+        /* الملف الشخصي (الجهة اليمنى) */
+        .profile-container { padding: 20px; text-align: center; }
+        .avatar { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--orange); object-fit: cover; cursor: pointer; margin-bottom: 10px; }
+        
+        /* الألوان المتحركة */
+        .rainbow { background: linear-gradient(90deg, red, yellow, lime, cyan, blue, magenta, red); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shift 3s linear infinite; font-weight: bold; }
+        @keyframes shift { to { background-position: 200% center; } }
 
         /* الفوتر */
         .footer { padding: 10px; background: #111; display: flex; gap: 10px; align-items: center; }
-        #in-text { flex: 1; background: #222; border: none; padding: 12px 20px; border-radius: 25px; color: white; outline: none; }
+        #input-text { flex: 1; background: #222; border: 1px solid #333; padding: 12px; border-radius: 25px; color: white; outline: none; }
+        
+        /* بوابة الدخول */
+        #login-gate { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #111; padding: 30px; border: 2px solid var(--orange); border-radius: 20px; width: 320px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div id="gate" style="position:fixed; inset:0; background:#000; z-index:3000; display:flex; align-items:center; justify-content:center;">
-    <div style="background:#111; padding:40px; border:2px solid var(--main-orange); border-radius:20px; text-align:center;">
-        <h2 style="color:var(--main-orange)">دخول الإمبراطورية</h2>
-        <input type="text" id="nick" placeholder="اسمك الملكي" style="width:100%; padding:10px; margin:20px 0; border-radius:10px; border:none;">
-        <button onclick="enter()" style="background:var(--main-orange); color:white; border:none; padding:10px 30px; border-radius:10px; cursor:pointer; font-weight:bold;">ابدأ الآن</button>
+<div id="login-gate">
+    <div class="login-card">
+        <h2 style="color:var(--orange)">دخول الإمبراطورية</h2>
+        <input type="text" id="nick-name" placeholder="ادخل اسمك هنا" style="width:100%; padding:10px; margin:15px 0; border-radius:8px; border:none;">
+        <button onclick="accessChat()" style="background:var(--orange); color:white; padding:10px 30px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; width:100%;">دخول مباشر 🚀</button>
     </div>
 </div>
 
 <div class="header">
-    <button onclick="toggleSide('right')" style="background:none; border:none; font-size:24px; cursor:pointer;">⚙️</button>
-    <div style="color:var(--main-orange); font-weight:bold; font-size:20px;">CH-ALLOSH SUPREME</div>
     <button onclick="toggleSide('left')" style="background:none; border:none; font-size:24px; cursor:pointer;">👥</button>
+    <div class="rainbow" style="font-size:20px;">CH-ALLOSH SUPREME</div>
+    <button onclick="toggleSide('right')" style="background:none; border:none; font-size:24px; cursor:pointer;">⚙️</button>
 </div>
 
-<div class="wrapper">
-    <div id="side-right" class="sidebar">
-        <div class="profile-sec">
-            <img id="my-pic" src="https://via.placeholder.com/90" class="avatar-img" onclick="changeAvatar()">
-            <h3 id="my-name" style="margin:10px 0; color:var(--main-orange)">علوش</h3>
-            <p style="font-size:12px; color:#aaa;">الرتبة: الماستر</p>
-            <button onclick="changeAvatar()" style="background:var(--main-orange); color:white; border:none; padding:8px 15px; border-radius:20px; font-size:12px; cursor:pointer; width:100%;">تغيير الصورة من الجهاز</button>
-        </div>
-        <div style="padding:15px;">
-            <button onclick="openModal()" style="width:100%; padding:12px; background:#222; color:white; border:1px solid #444; border-radius:10px; cursor:pointer;">🎨 ألوان الاسم والتأثيرات</button>
+<div class="main-wrapper">
+    <div id="side-left" class="sidebar">
+        <div style="padding: 20px;">
+            <h3 style="color:var(--orange); border-bottom:1px solid #333; padding-bottom:10px;">👤 المتواجدون</h3>
+            <div id="users-list"></div>
         </div>
     </div>
 
     <div class="chat-view">
         <div id="msgs-holder"></div>
         <div class="footer">
-            <button onclick="pickImg()" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--main-orange);">
+            <button onclick="uploadChatImg()" style="background:none; border:none; font-size:24px; cursor:pointer;">➕</button>
+            <input type="text" id="input-text" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') sendMsg()">
+            <button onclick="sendMsg()" style="background:var(--orange); border:none; width:45px; height:45px; border-radius:50%; color:white; cursor:pointer;">⏎</button>
+        </div>
+    </div>
+
+    <div id="side-right" class="sidebar">
+        <div class="profile-container">
+            <img id="my-avatar" src="https://via.placeholder.com/100" class="avatar" onclick="updateAvatar()">
+            <h3 id="profile-name" style="color:var(--orange)">علوش</h3>
+            <p style="font-size:12px; color:#888;">الرتبة: الماستر</p>
+            <button onclick="updateAvatar()" style="background:var(--orange); color:white; border:none; padding:8px 15px; border-radius:20px; font-size:12px; cursor:pointer; width:100%;">تغيير الصورة 📷</button>
+            
+            <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+            <h4 style="color:var(--orange)">الألوان والتأثيرات</h4>
+            <input type="color" id="clr-picker" onchange="setNewColor(this.value)" style="width:100%; height:40px; cursor:pointer;">
+            <button onclick="setEffect('rainbow')" class="rainbow" style="width:100%; margin-top:10px; padding:10px; border:1px solid #333; border-radius:8px; background:#222; cursor:pointer;">تفعيل الاسم المتحرك</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // تهيئة Firebase
+    const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(config);
+    const db = firebase.database();
+
+    let myInfo = { name: "", color: "#ff6a00", avatar: "https://via.placeholder.com/100", effect: "none" };
+
+    function toggleSide(s) { document.getElementById('side-'+s).classList.toggle('active'); }
+
+    function accessChat() {
+        let n = document.getElementById('nick-name').value.trim();
+        if(!n) return;
+        myInfo.name = n;
+        document.getElementById('profile-name').innerText = n;
+        document.getElementById('login-gate').style.display = 'none';
+        startEngine();
+    }
+
+    function setNewColor(c) { myInfo.color = c; myInfo.effect = 'none'; }
+    function setEffect(e) { myInfo.effect = e; }
+
+    function getYTId(url) {
+        let reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        let m = url.match(reg);
+        return (m && m[2].length === 11) ? m[2] : null;
+    }
+
+    function startEngine() {
+        // تحديث حالة الاتصال
+        db.ref('presence_v10/'+myInfo.name).set(myInfo);
+        db.ref('presence_v10/'+myInfo.name).onDisconnect().remove();
+
+        // عرض المتواجدين
+        db.ref('presence_v10').on('value', s => {
+            let h = "";
+            s.forEach(u => {
+                let d = u.val();
+                h += `<div style="color:${d.color}; margin-bottom:10px;" class="${d.effect==='rainbow'?'rainbow':''}">● ${d.name}</div>`;
+            });
+            document.getElementById('users-list').innerHTML = h;
+        });
+
+        // استقبال الرسائل
+        db.ref('msgs_v10').limitToLast(50).on('child_added', s => {
+            let d = s.val();
+            let box = document.getElementById('msgs-holder');
+            let div = document.createElement('div');
+            div.className = "msg-box";
+            
+            let text = d.text;
+            let yt = getYTId(text);
+            if(yt) {
+                text = `<div>${text}</div><iframe src="https://www.youtube.com/embed/${yt}" allowfullscreen></iframe>`;
+            } else if(text.startsWith('IMAGE_FILE:')) {
+                text = `<img src="${text.replace('IMAGE_FILE:','')}" onclick="window.open(this.src)">`;
+            }
+
+            div.innerHTML = `<b style="color:${d.color}" class="${d.effect==='rainbow'?'rainbow':''}">${d.sender}:</b> <div>${text}</div>`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    function sendMsg() {
+        let inp = document.getElementById('input-text');
+        if(!inp.value) return;
+        db.ref('msgs_v10').push({ sender: myInfo.name, color: myInfo.color, effect: myInfo.effect, text: inp.value });
+        inp.value = "";
+    }
+
+    // رفع صور الشات
+    function uploadChatImg() {
+        let i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*';
+        i.onchange = e => {
+            let r = new FileReader();
+            r.onload = ev => db.ref('msgs_v10').push({ sender: myInfo.name, color: myInfo.color, effect: myInfo.effect, text: 'IMAGE_FILE:' + ev.target.result });
+            r.readAsDataURL(e.target.files[0]);
+        };
+        i.click();
+    }
+
+    // رفع صورة الملف الشخصي من الجهاز
+    function updateAvatar() {
+        let i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*';
+        i.onchange = e => {
+            let r = new FileReader();
+            r.onload = ev => {
+                document.getElementById('my-avatar').src = ev.target.result;
+                myInfo.avatar = ev.target.result;
+                db.ref('presence_v10/'+myInfo.name).update({ avatar: ev.target.result });
+            };
+            r.readAsDataURL(e.target.files[0]);
+        };
+        i.click();
+    }
+</script>
+</body>
+</html>
