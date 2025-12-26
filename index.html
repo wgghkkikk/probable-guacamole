@@ -3,50 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CH-ALLOSH SHIELD 🛡️</title>
+    <title>CH-ALLOSH SUPREME 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;900&display=swap');
-        :root { --main: #ff6a00; --bg: #050505; --bot: #00d4ff; --shield: #2ed573; }
+        :root { --main: #ff6a00; --bg: #000; --bot: #00d4ff; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         
-        body { 
-            background: var(--bg); color: white; overflow: hidden; position: fixed; width: 100%; height: 100%;
-            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px);
-            background-size: 550px 550px; animation: stars 100s linear infinite;
-        }
-        @keyframes stars { from { background-position: 0 0; } to { background-position: 1000px 1000px; } }
+        body { background: var(--bg); color: white; overflow: hidden; position: fixed; width: 100%; height: 100%; }
+
+        /* خلفية النجوم */
+        .stars-bg { position: fixed; inset: 0; background: radial-gradient(white, rgba(255,255,255,.1) 1px, transparent 20px); background-size: 100px 100px; animation: move 50s linear infinite; z-index: -1; }
+        @keyframes move { from { background-position: 0 0; } to { background-position: 500px 1000px; } }
 
         .top-bar { height: 60px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--main); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
         
-        /* قائمة المتصلين */
-        .side { position: fixed; top: 60px; bottom: 70px; width: 280px; background: rgba(10,10,10,0.98); left: -280px; transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); z-index: 1500; border-left: 1px solid #222; overflow-y: auto; }
+        /* قائمة المتصلين الفخمة */
+        .side { position: fixed; top: 60px; bottom: 70px; width: 280px; background: rgba(10,10,10,0.98); left: -280px; transition: 0.4s; z-index: 1500; border-left: 1px solid #333; overflow-y: auto; }
         .side.open { left: 0; }
 
-        /* ستايل علوش */
-        .allosh-vip {
-            font-size: 24px; font-weight: 900; padding: 10px;
-            background: linear-gradient(to right, #fff, var(--main), #ff0000);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-align: center; display: block;
+        /* ستايل علوش الملكي في القائمة */
+        .allosh-king {
+            font-size: 26px; font-weight: 900; padding: 20px 10px;
+            background: linear-gradient(90deg, #fff, #ffae00, #ff0000, #fff);
+            background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 3s infinite, float 2s infinite alternate;
+            text-align: center; display: block; filter: drop-shadow(0 0 10px rgba(255,106,0,0.5));
         }
+        @keyframes shine { to { background-position: 200% center; } }
+        @keyframes float { from { transform: translateY(0); } to { transform: translateY(-8px); } }
 
-        /* ستايل البوت في القائمة */
-        .bot-online {
-            background: rgba(0, 212, 255, 0.1); border: 1px solid var(--bot);
-            margin: 10px; padding: 10px; border-radius: 12px; text-align: center;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,212,255,0.4); } 70% { box-shadow: 0 0 0 10px rgba(0,212,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,212,255,0); } }
+        .bot-box { background: rgba(0,212,255,0.1); border: 1px solid var(--bot); margin: 10px; padding: 10px; border-radius: 15px; text-align: center; }
 
         .chat-view { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; position: absolute; top: 60px; bottom: 70px; width: 100%; }
-
         .msg-container { display: flex; align-items: flex-start; gap: 10px; }
         .u-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--main); }
-        .msg-body { flex: 1; background: rgba(30,30,30,0.85); padding: 12px; border-radius: 18px; border-right: 4px solid var(--main); }
-        
-        .shield-msg { border-right: 4px solid var(--shield) !important; background: rgba(46, 213, 115, 0.1) !important; }
+        .msg-body { flex: 1; background: rgba(25,25,25,0.9); padding: 12px; border-radius: 18px; border-right: 4px solid var(--main); }
 
         .bottom-bar { position: fixed; bottom: 0; height: 70px; width: 100%; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; }
         #in { flex: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 25px; color: white; padding: 0 15px; outline: none; }
@@ -54,28 +47,30 @@
 </head>
 <body>
 
+<div class="stars-bg"></div>
+
 <div class="top-bar">
     <button onclick="toggleSide()" style="background:none; border:none; font-size:28px; color:white;">👥</button>
-    <div style="color:var(--main); font-weight:900;">AL-LOSH SHIELD 🛡️</div>
-    <div style="width:30px"></div>
+    <div style="color:var(--main); font-weight:900;">EMPIRE ALLOSH 👑</div>
+    <button onclick="location.reload()" style="background:none; border:none; font-size:22px;">🔄</button>
 </div>
 
 <div class="chat-view" id="chat-box"></div>
 
 <div id="side-users" class="side">
-    <div style="padding:20px;">
-        <div class="bot-online">
-            <div style="font-size: 20px;">🛡️</div>
-            <b style="color:var(--bot);">الدرع الملكي</b><br>
-            <small style="color:var(--shield);">نظام الحماية نشط</small>
+    <div style="padding:15px;">
+        <div class="bot-box">
+            <b style="color:var(--bot);">🛡️ حارس الإمبراطورية</b><br>
+            <small style="color:#2ed573;">نظام الحماية فعال</small>
         </div>
-        <hr style="border:0.5px solid #222; margin:15px 0;">
+        <hr style="border:0.1px solid #222;">
         <div id="u-list"></div>
     </div>
 </div>
 
 <div class="bottom-bar">
-    <input type="text" id="in" placeholder="اكتب بأمان..." onkeypress="if(event.key==='Enter') send()">
+    <button onclick="changePhoto()" style="background:none; border:none; font-size:24px;">📷</button>
+    <input type="text" id="in" placeholder="تكلم يا إمبراطور..." onkeypress="if(event.key==='Enter') send()">
     <button onclick="send()" style="background:var(--main); border:none; width:50px; height:50px; border-radius:50%; color:white;">🚀</button>
 </div>
 
@@ -84,76 +79,58 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let me = JSON.parse(localStorage.getItem('allosh_shield')) || {
-        id: "u_" + Math.random().toString(16).slice(2,8),
-        name: "علوش",
+    // استرجاع وحماية رتبة علوش
+    let saved = JSON.parse(localStorage.getItem('allosh_final_fix')) || {
+        id: "allosh_king_" + Math.random().toString(16).slice(2,6),
+        name: "عـلـ★ـش",
         avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
         rank: "صاحب الشات 👑"
     };
 
-    const SHIELD_BOT = {
-        name: "الدرع الملكي 🛡️",
-        avatar: "https://cdn-icons-png.flaticon.com/512/1067/1067562.png",
-        rank: "حماية الإمبراطورية"
-    };
+    // تأكيد الرتبة في كل مرة
+    if(saved.name.includes("علوش") || saved.name.includes("عـلـ★ـش")) {
+        saved.rank = "صاحب الشات 👑";
+    }
 
-    // كلمات ممنوعة (يمكنك إضافة المزيد)
-    const badWords = ["مسبات", "غلط", "رابط"]; 
+    let me = saved;
 
     function toggleSide() { document.getElementById('side-users').classList.toggle('open'); }
+    function save() { localStorage.setItem('allosh_final_fix', JSON.stringify(me)); db.ref('online_v7/'+me.id).set(me); }
 
     function start() {
-        db.ref('p_shield/'+me.id).set(me);
-        db.ref('p_shield/'+me.id).onDisconnect().remove();
+        save();
+        db.ref('online_v7/'+me.id).onDisconnect().remove();
 
         // قائمة المتصلين
-        db.ref('p_shield').on('value', s => {
+        db.ref('online_v7').on('value', s => {
             let h = "";
             s.forEach(u => {
                 let d = u.val();
-                if(d.name.includes("علوش")) {
-                    h += `<div class="allosh-vip">${d.name}</div>`;
+                if(d.rank.includes("صاحب")) {
+                    h += `<div class="allosh-king">✨ ${d.name} ✨</div>`;
                 } else {
-                    h += `<div style="padding:10px; color:#ccc; border-bottom:1px solid #222;">● ${d.name}</div>`;
+                    h += `<div style="padding:12px; color:#ccc; border-bottom:1px solid #111;">● ${d.name} <br><small style="color:#666">${d.rank}</small></div>`;
                 }
             });
             document.getElementById('u-list').innerHTML = h;
         });
 
-        // مراقبة الشات والحماية
-        db.ref('m_shield').limitToLast(40).on('child_added', s => {
+        // استقبال الرسائل + حماية البوت
+        db.ref('chat_v7').limitToLast(40).on('child_added', s => {
             let d = s.val();
             let box = document.getElementById('chat-box');
             
-            // نظام الحماية الآلي
-            let isSafe = true;
-            let warning = "";
-
-            // 1. منع الروابط
-            if (d.text.includes("http") || d.text.includes("www") || d.text.includes(".com")) {
-                isSafe = false;
-                warning = "⚠️ عذراً، الروابط ممنوعة هنا بأمر الإمبراطور!";
-            }
-            
-            // 2. فحص الكلمات
-            badWords.forEach(word => {
-                if(d.text.includes(word)) { isSafe = false; warning = "🚫 التزم بالأدب يا صديقي، الدرع يراقبك!"; }
-            });
-
-            if(!isSafe && !d.isShield) {
-                // حذف الرسالة وإرسال تحذير من البوت
-                if(d.sender === me.name) { s.ref.remove(); shieldWarn(warning); return; }
-                return; 
+            // البوت يحمي الشات بس ما يلمسك
+            if(!d.rank.includes("صاحب") && (d.text.includes("http") || d.text.includes("www"))) {
+                return; // منع الروابط للأعضاء فقط
             }
 
             let div = document.createElement('div');
             div.className = "msg-container";
-            let shieldClass = d.isShield ? "shield-msg" : "";
-
             div.innerHTML = `
-                <img src="${d.avatar}" class="u-avatar" style="${d.isShield ? 'border-color:var(--shield);' : ''}">
-                <div class="msg-body ${shieldClass}">
-                    <b style="color:${d.isShield ? 'var(--shield)' : 'var(--main)'}; font-size:13px;">${d.sender}</b>
+                <img src="${d.avatar}" class="u-avatar">
+                <div class="msg-body">
+                    <b style="color:var(--main); font-size:13px;">${d.sender}</b> <small style="color:#555; font-size:9px;">(${d.rank})</small>
                     <div style="color:#eee; margin-top:5px;">${d.text}</div>
                 </div>`;
             box.appendChild(div);
@@ -161,27 +138,21 @@
         });
     }
 
-    function shieldWarn(txt) {
-        db.ref('m_shield').push({
-            sender: SHIELD_BOT.name,
-            text: txt,
-            avatar: SHIELD_BOT.avatar,
-            rank: SHIELD_BOT.rank,
-            isShield: true
-        });
-    }
-
     function send() {
         let i = document.getElementById('in');
         if(!i.value) return;
-        db.ref('m_shield').push({
-            sender: me.name,
-            text: i.value,
-            avatar: me.avatar,
-            rank: me.rank,
-            isShield: false
-        });
+        db.ref('chat_v7').push({ sender: me.name, text: i.value, avatar: me.avatar, rank: me.rank });
         i.value = "";
+    }
+
+    function changePhoto() {
+        let i = document.createElement('input'); i.type='file'; i.accept='image/*';
+        i.onchange = e => {
+            let r = new FileReader();
+            r.onload = ev => { me.avatar = ev.target.result; save(); location.reload(); };
+            r.readAsDataURL(e.target.files[0]);
+        };
+        i.click();
     }
 
     start();
