@@ -3,88 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إمبراطورية علوش - البث العام 👑</title>
+    <title>منصة علوش الملكية 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --main: #ffd700; --bg: #000; --side-w: 250px; }
+        :root { --main: #ffd700; --bg: #000; }
         body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        #sidebar { width: var(--side-w); background: rgba(10, 10, 10, 0.98); border-left: 1px solid var(--main); padding: 20px; box-sizing: border-box; flex-shrink: 0; transition: 0.4s; }
-        .user-card { padding: 10px; border-radius: 12px; background: #1a1a1a; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; border: 1px solid #333; }
-        .online-dot { width: 10px; height: 10px; background: #00ff00; border-radius: 50%; box-shadow: 0 0 8px #00ff00; }
-        .name-glow { color: var(--main); font-weight: bold; text-shadow: 0 0 5px var(--main); font-size: 13px; }
+        /* نظام المايكات الأربعة */
+        .mic-slots { display: flex; justify-content: space-around; background: #111; padding: 10px; border-bottom: 2px solid var(--main); gap: 5px; }
+        .slot { flex: 1; background: #1a1a1a; border: 1px dashed var(--main); border-radius: 10px; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; position: relative; }
+        .slot.active { border-style: solid; box-shadow: 0 0 10px var(--main); }
+        .mic-on-btn { position: absolute; bottom: 2px; font-size: 10px; background: var(--main); color: #000; border: none; border-radius: 5px; cursor: pointer; }
 
-        .main-chat { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
-        .header { background: #111; padding: 10px 15px; border-bottom: 1px solid var(--main); display: flex; justify-content: space-between; align-items: center; }
-        
-        /* قسم البحث المفتوح للجميع */
-        .search-bar { background: #111; padding: 10px; display: flex; gap: 8px; border-bottom: 1px solid #222; }
-        .search-bar input { flex: 1; padding: 8px 15px; border-radius: 20px; border: 1px solid #444; background: #000; color: #fff; outline: none; font-size: 13px; }
-        .search-bar button { background: var(--main); border: none; padding: 5px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        /* تنسيق الأقسام القابل للنقل */
+        #sidebar { width: 220px; border-left: 1px solid var(--main); order: 1; transition: 0.3s; overflow-y: auto; padding: 10px; }
+        .main-chat { flex: 1; display: flex; flex-direction: column; order: 2; }
 
-        #live-area { display: none; height: 230px; background: #000; border-bottom: 2px solid var(--main); }
-        #chat-box { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        
-        .msg { padding: 10px 14px; border-radius: 15px; max-width: 80%; position: relative; animation: fadeIn 0.3s; }
-        .msg.me { align-self: flex-end; background: #222; border-right: 4px solid var(--main); border-bottom-right-radius: 4px; }
-        .msg.other { align-self: flex-start; background: #1a1a1a; border-left: 4px solid #fff; border-bottom-left-radius: 4px; }
-        .u-info { font-size: 0.8em; color: var(--main); font-weight: bold; margin-bottom: 4px; }
+        /* البوت */
+        .bot-msg { background: linear-gradient(45deg, #444, #111) !important; border-right: 4px solid #00f2ff !important; }
 
-        /* لوحة التحكم للملك فقط */
-        #admin-panel { position: fixed; top: 15%; left: 15%; right: 15%; bottom: 15%; background: rgba(10,10,10,0.98); border: 2px solid var(--main); z-index: 9999; border-radius: 20px; padding: 20px; display: none; text-align: center; }
-        
-        #yt-results { display: flex; overflow-x: auto; gap: 10px; padding: 10px; background: #0a0a0a; border-bottom: 1px solid #333; }
-        .yt-card { min-width: 120px; cursor: pointer; text-align: center; }
-        .yt-card img { width: 100px; border-radius: 8px; }
-        .yt-card p { font-size: 10px; height: 25px; overflow: hidden; margin: 5px 0; }
+        /* لوحة التحكم */
+        #admin-panel { position: fixed; top: 10%; left: 10%; right: 10%; bottom: 10%; background: rgba(0,0,0,0.95); border: 2px solid var(--main); z-index: 9999; border-radius: 20px; padding: 20px; display: none; }
+        .control-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn { background: var(--main); color: #000; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-        .input-bar { padding: 10px 15px; background: #111; border-top: 1px solid #222; display: flex; gap: 10px; }
-        .input-bar input { flex: 1; padding: 10px 18px; border-radius: 25px; border: 1px solid #333; background: #000; color: #fff; outline: none; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px; border-radius: 12px; max-width: 80%; }
+        .msg.me { align-self: flex-end; background: #222; border-right: 3px solid var(--main); }
+        .msg.other { align-self: flex-start; background: #1a1a1a; }
+        .input-area { padding: 15px; background: #111; display: flex; gap: 10px; align-items: center; }
+        input[type="text"] { flex: 1; background: #000; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 25px; outline: none; }
     </style>
 </head>
 <body>
 
-    <div id="admin-panel">
-        <h2 style="color:var(--main);">👑 إعدادات الإمبراطور</h2>
-        <button onclick="clearChat()" style="background:red; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; margin:10px;">مسح الشات 🧨</button>
-        <button onclick="toggleSide()" style="background:var(--main); padding:10px 20px; border:none; border-radius:8px; cursor:pointer; margin:10px;">نقل القائمة ↔️</button>
-        <button onclick="stopLive()" style="background:#555; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; margin:10px;">إيقاف البث ❌</button>
-        <br><br>
-        <button onclick="closePanel()" style="padding:10px 30px;">إغلاق</button>
-    </div>
-
     <div id="sidebar">
-        <h3 style="text-align:center; color:var(--main); margin:0 0 15px 0;">المتصلون 🇮🇶</h3>
-        <div id="online-users"></div>
+        <h3 style="text-align:center; color:var(--main);">الملوك 🇮🇶</h3>
+        <div id="online-list"></div>
     </div>
 
     <div class="main-chat">
-        <div class="header">
-            <button id="gear-btn" onclick="openPanel()" style="background:none; border:none; font-size:22px; cursor:pointer; display:none;">⚙️</button>
-            <h2 style="margin:0; font-size:18px;">مملكة علوش 👑</h2>
-            <div id="timer" style="font-size:12px; color:#666;"></div>
+        <div class="mic-slots">
+            <div class="slot" id="slot1">🎙️ خالي <button class="mic-on-btn" onclick="toggleMic(1)">صعود</button></div>
+            <div class="slot" id="slot2">🎙️ خالي <button class="mic-on-btn" onclick="toggleMic(2)">صعود</button></div>
+            <div class="slot" id="slot3">🎙️ خالي <button class="mic-on-btn" onclick="toggleMic(3)">صعود</button></div>
+            <div class="slot" id="slot4">🎙️ خالي <button class="mic-on-btn" onclick="toggleMic(4)">صعود</button></div>
         </div>
 
-        <div class="search-bar">
-            <input type="text" id="yt-query" placeholder="ابحث عن أي فيديو في يوتيوب...">
-            <button onclick="searchYT()">بحث 🔍</button>
+        <div style="background:#111; padding:10px; display:flex; justify-content:space-between; border-bottom:1px solid #222;">
+            <button id="admin-gear" style="background:none; border:none; color:var(--main); font-size:20px; cursor:pointer; display:none;" onclick="togglePanel()">⚙️</button>
+            <span style="color:var(--main); font-weight:bold;">مملكة علوش 👑</span>
+            <span id="clock" style="color:gray;"></span>
         </div>
-        <div id="yt-results"></div>
 
-        <div id="live-area"><div id="yt-player" style="width:100%; height:100%;"></div></div>
-        
         <div id="chat-box"></div>
 
-        <div class="input-bar">
-            <button onclick="document.getElementById('fInp').click()" style="background:none; border:none; font-size:22px;">📎</button>
-            <input type="file" id="fInp" style="display:none" onchange="upImg(this)">
+        <div class="input-area">
             <input type="text" id="mInp" placeholder="اكتب رسالتك...">
-            <button onclick="send()" style="background:var(--main); border:none; padding:8px 20px; border-radius:20px; font-weight:bold;">إرسال</button>
+            <button class="btn" onclick="send()">إرسال</button>
         </div>
+    </div>
+
+    <div id="admin-panel">
+        <h2 style="text-align:center; color:var(--main);">🛠️ لوحة التحكم المطلقة</h2>
+        <div class="control-row">
+            <button class="btn" onclick="moveLayout('right')">نقل القائمة لليمين</button>
+            <button class="btn" onclick="moveLayout('left')">نقل القائمة لليسار</button>
+            <button class="btn" onclick="clearChat()">تصفير الشات 🧨</button>
+            <button class="btn" onclick="toggleMicsVisibility()">إخفاء/إظهار المايكات</button>
+        </div>
+        <button class="btn" style="width:100%; margin-top:20px;" onclick="togglePanel()">إغلاق</button>
     </div>
 
 <script>
@@ -96,89 +86,126 @@
         projectId: "masterchat-f2da9"
     };
     firebase.initializeApp(config);
-    const auth = firebase.auth();
     const db = firebase.database();
+    const auth = firebase.auth();
+
+    let myName = "";
 
     auth.onAuthStateChanged(user => {
         if (user) {
             const isMe = user.email === "rgrghh77@gmail.com";
-            if(isMe) document.getElementById('gear-btn').style.display = 'block';
-            const name = isMe ? "إمبراطور علوش 👑" : user.email.split('@')[0];
-            db.ref('status/' + user.uid).set({ n: name });
+            if(isMe) document.getElementById('admin-gear').style.display = 'block';
+            myName = isMe ? "إمبراطور علوش 👑" : user.email.split('@')[0];
+            db.ref('status/' + user.uid).set({ n: myName });
             db.ref('status/' + user.uid).onDisconnect().remove();
-            loadChat(); loadUsers(); watchLive();
+            loadChat(); loadUsers(); syncMics();
         } else { window.location.href = "index.html"; }
     });
 
+    // --- نظام البوت ---
+    function runBot(msg) {
+        if(msg === "بوت") {
+            setTimeout(() => {
+                sendBotMsg("أهلاً بك في مملكة الإمبراطور علوش! كيف أخدمك؟ 🤖");
+            }, 1000);
+        } else if(msg.includes("علوش")) {
+            setTimeout(() => {
+                sendBotMsg("الإمبراطور علوش هو سيد هذه المملكة 👑 حيّوه!");
+            }, 800);
+        }
+    }
+
+    function sendBotMsg(text) {
+        db.ref('msgs').push({ u: "بوت المملكة 🤖", t: text, type: 'bot' });
+    }
+
+    // --- نظام المايكات ---
+    function toggleMic(num) {
+        const ref = db.ref('mics/slot' + num);
+        ref.once('value', snap => {
+            const d = snap.val();
+            if(d && d.u === myName) {
+                ref.remove(); // نزول من المايك
+            } else if(!d) {
+                ref.set({ u: myName }); // صعود للمايك
+            } else {
+                alert("المايك مشغول!");
+            }
+        });
+    }
+
+    function syncMics() {
+        for(let i=1; i<=4; i++) {
+            db.ref('mics/slot' + i).on('value', snap => {
+                const d = snap.val();
+                const el = document.getElementById('slot' + i);
+                if(d) {
+                    el.innerHTML = `🎤 ${d.u} <button class="mic-on-btn" onclick="toggleMic(${i})">نزول</button>`;
+                    el.classList.add('active');
+                } else {
+                    el.innerHTML = `🎙️ خالي <button class="mic-on-btn" onclick="toggleMic(${i})">صعود</button>`;
+                    el.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    // --- التحكم ونقل المميزات ---
+    function moveLayout(side) {
+        const sideEl = document.getElementById('sidebar');
+        const chatEl = document.querySelector('.main-chat');
+        if(side === 'right') {
+            sideEl.style.order = "2";
+            chatEl.style.order = "1";
+        } else {
+            sideEl.style.order = "1";
+            chatEl.style.order = "2";
+        }
+    }
+
+    function toggleMicsVisibility() {
+        const m = document.querySelector('.mic-slots');
+        m.style.display = m.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    // --- الوظائف الأساسية ---
     function send() {
         const i = document.getElementById('mInp');
         if(i.value.trim()) {
-            db.ref('msgs').push({
-                u: auth.currentUser.email === "rgrghh77@gmail.com" ? "إمبراطور علوش 👑" : auth.currentUser.email.split('@')[0],
-                t: i.value,
-                m: auth.currentUser.email === "rgrghh77@gmail.com"
-            });
+            db.ref('msgs').push({ u: myName, t: i.value, m: auth.currentUser.email === "rgrghh77@gmail.com" });
+            runBot(i.value); // تفعيل البوت
             i.value = '';
         }
     }
 
     function loadChat() {
-        db.ref('msgs').limitToLast(50).on('child_added', snap => {
+        db.ref('msgs').limitToLast(40).on('child_added', snap => {
             const d = snap.val();
             const box = document.getElementById('chat-box');
             const div = document.createElement('div');
-            div.className = `msg ${d.m ? 'me' : 'other'}`;
-            div.innerHTML = `<div class="u-info">${d.u}</div>${d.t}`;
+            div.className = `msg ${d.m ? 'me' : 'other'} ${d.type === 'bot' ? 'bot-msg' : ''}`;
+            div.innerHTML = `<b style="color:var(--main); font-size:11px;">${d.u}</b><br>${d.t}`;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         });
         db.ref('msgs').on('child_removed', () => location.reload());
     }
 
-    async function searchYT() {
-        const q = document.getElementById('yt-query').value;
-        if(!q) return;
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&type=video&maxResults=5&key=${YT_KEY}`);
-        const data = await res.json();
-        const container = document.getElementById('yt-results');
-        container.innerHTML = '';
-        data.items.forEach(v => {
-            container.innerHTML += `
-                <div class="yt-card" onclick="playVideo('${v.id.videoId}')">
-                    <img src="${v.snippet.thumbnails.default.url}">
-                    <p style="color:white; font-size:9px;">${v.snippet.title}</p>
-                </div>`;
-        });
-    }
-
-    function playVideo(id) { db.ref('live').set({ id: id, active: true }); document.getElementById('yt-results').innerHTML = ''; }
-    function stopLive() { db.ref('live').set({ active: false }); }
-    function watchLive() {
-        db.ref('live').on('value', snap => {
-            const v = snap.val();
-            const area = document.getElementById('live-area');
-            if(v && v.active) {
-                area.style.display = 'block';
-                document.getElementById('yt-player').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${v.id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
-            } else { area.style.display = 'none'; }
-        });
-    }
-
-    function openPanel() { document.getElementById('admin-panel').style.display = 'block'; }
-    function closePanel() { document.getElementById('admin-panel').style.display = 'none'; }
-    function clearChat() { if(confirm("حذف الرسائل؟")) db.ref('msgs').remove(); }
-    function toggleSide() { 
-        const body = document.body;
-        body.style.flexDirection = body.style.flexDirection === 'row-reverse' ? 'row' : 'row-reverse';
-    }
     function loadUsers() {
         db.ref('status').on('value', snap => {
-            const list = document.getElementById('online-users');
+            const list = document.getElementById('online-list');
             list.innerHTML = '';
-            snap.forEach(c => { list.innerHTML += `<div class="user-card"><div class="online-dot"></div><span class="name-glow">${c.val().n}</span></div>`; });
+            snap.forEach(c => { list.innerHTML += `<div style="padding:5px; border-bottom:1px solid #111;">🟢 ${c.val().n}</div>`; });
         });
     }
-    setInterval(() => { document.getElementById('timer').innerText = new Date().toLocaleTimeString(); }, 1000);
+
+    function togglePanel() {
+        const p = document.getElementById('admin-panel');
+        p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function clearChat() { if(confirm("حذف كل شيء؟")) db.ref('msgs').remove(); }
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
