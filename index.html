@@ -3,93 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH SUPREME V75 👑</title>
+    <title>ALLOSH EMPIRE V76 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #ffd700; --bg: #000; --blue: #00d2ff; --vip: #ff00ff; }
+        :root { --gold: #ffd700; --bg: #000; --blue: #00d2ff; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
+        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; width: 100%; position: fixed; }
 
         .king-glow { animation: neon 1.5s infinite; font-weight: 900; }
         @keyframes neon { 0%, 100% {color: #fff; text-shadow: 0 0 10px var(--gold);} 50% {color: var(--gold); text-shadow: 0 0 20px #fff;} }
 
-        .header { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 5000; }
-        
-        .side { position: fixed; top: 0; bottom: 0; width: 290px; background: rgba(10,10,15,0.98); z-index: 6000; backdrop-filter: blur(15px); transition: 0.4s; overflow-y: auto; }
-        #side-r { right: -295px; border-left: 2px solid var(--gold); }
-        #side-l { left: -295px; border-right: 2px solid var(--gold); }
+        /* الهيدر */
+        .header { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; position: relative; }
+        .h-btn { background: none; border: none; font-size: 28px; color: white; cursor: pointer; }
+
+        /* القوائم الجانبية - تثبيت نهائي */
+        .side { position: fixed; top: 0; bottom: 0; width: 285px; background: rgba(10,10,10,0.98); z-index: 9999; backdrop-filter: blur(20px); transition: 0.4s ease; }
+        #side-r { right: -290px; border-left: 2px solid var(--gold); }
+        #side-l { left: -290px; border-right: 2px solid var(--gold); overflow-y: auto; }
         .side.active { transform: translateX(0); }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5500; display: none; }
+        #side-r.active { right: 0; } #side-l.active { left: 0; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9000; display: none; }
 
         /* الملف الشخصي الملكي */
-        .profile-header { position: relative; width: 100%; height: 180px; background: #111; }
-        .cover-img { width: 100%; height: 140px; object-fit: cover; border-bottom: 2px solid var(--gold); cursor: pointer; }
-        .avatar-wrap { position: absolute; bottom: 0; right: 20px; }
-        .avatar-img { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--gold); background: #000; cursor: pointer; }
-        .crown-icon { position: absolute; top: -35px; right: 5px; font-size: 40px; filter: drop-shadow(0 0 10px gold); }
+        .prof-top { position: relative; width: 100%; height: 180px; background: #111; }
+        .prof-cov { width: 100%; height: 140px; object-fit: cover; border-bottom: 2px solid var(--gold); cursor: pointer; }
+        .prof-av-wrap { position: absolute; bottom: 0; right: 20px; text-align: center; }
+        .prof-av { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--gold); background: #000; cursor: pointer; }
+        .prof-crn { position: absolute; top: -38px; right: 5px; font-size: 45px; filter: drop-shadow(0 0 10px gold); }
 
-        /* الرتب والشات */
-        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #000; }
-        .b-king { background: var(--gold); } .b-vip { background: var(--vip); }
+        /* الشات */
         #chat-flow { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .bubble { background: rgba(255,255,255,0.08); padding: 12px; border-radius: 15px; border: 1px solid #222; max-width: 85%; }
-        .whisper { border: 1px dashed var(--vip) !important; background: rgba(255,0,255,0.05) !important; }
+        .bubble { background: rgba(255,255,255,0.07); padding: 12px; border-radius: 15px; border: 1px solid #222; max-width: 85%; }
+        .bot-msg { border: 1px solid var(--blue); background: rgba(0,210,255,0.05); color: var(--blue); padding: 10px; border-radius: 10px; text-align: center; font-size: 13px; margin: 5px 0; }
 
-        /* متجر الهدايا */
-        #gift-panel { position: fixed; bottom: 90px; left: 10px; right: 10px; background: #111; border: 1px solid var(--gold); border-radius: 15px; padding: 15px; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 7000; }
-        .gift-btn { text-align: center; font-size: 25px; cursor: pointer; background: #222; padding: 10px; border-radius: 10px; }
-
-        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 8px; }
+        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #0a0a0a; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 15px; z-index: 1000; }
         #msg-in { flex: 1; height: 45px; background: #111; border: 1px solid #333; border-radius: 12px; color: #fff; padding: 0 15px; }
+        
+        .on-user { padding: 12px; border-bottom: 1px solid #111; display: flex; align-items: center; justify-content: space-between; }
+        .bot-tag { background: var(--blue); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="overlay" onclick="closeSides()"></div>
 
-<div id="gift-panel">
-    <div class="gift-btn" onclick="sendGift('🚀')">🚀</div>
-    <div class="gift-btn" onclick="sendGift('💎')">💎</div>
-    <div class="gift-btn" onclick="sendGift('👑')">👑</div>
-    <div class="gift-btn" onclick="sendGift('🦁')">🦁</div>
-</div>
-
 <div class="header">
-    <button onclick="openSide('side-l')" style="background:none; border:none; font-size:26px; color:white;">⚙️</button>
-    <div class="king-glow">إمبراطورية علوش</div>
-    <button onclick="openSide('side-r')" style="background:none; border:none; font-size:26px; color:white;">👥</button>
+    <button class="h-btn" onclick="openSide('side-l')">⚙️</button>
+    <div class="king-glow" style="font-size: 18px;">إمبراطورية علوش</div>
+    <button class="h-btn" onclick="openSide('side-r')">👥</button>
 </div>
 
 <div id="side-r" class="side">
-    <h3 style="padding:20px; text-align:center; color:var(--gold); border-bottom:1px solid #222;">👥 المتصلون</h3>
-    <div id="on-list"></div>
+    <h3 style="padding:20px; text-align:center; color:var(--gold); border-bottom:1px solid #222;">🛡️ المتصلون</h3>
+    <div id="on-list" style="padding:10px;"></div>
 </div>
 
 <div id="side-l" class="side">
-    <div class="profile-header">
-        <img class="cover-img" id="my-cov" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400" onclick="document.getElementById('pick-cov').click()">
-        <input type="file" id="pick-cov" hidden onchange="updateImg(this, 'my-cov')">
-        <div class="avatar-wrap">
-            <span class="crown-icon">👑</span>
-            <img class="avatar-img" id="my-av" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="document.getElementById('pick-av').click()">
-            <input type="file" id="pick-av" hidden onchange="updateImg(this, 'my-av')">
+    <div class="prof-top">
+        <img class="prof-cov" id="my-cov" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400" onclick="document.getElementById('pick-cov').click()">
+        <input type="file" id="pick-cov" hidden onchange="upImg(this, 'my-cov')">
+        <div class="prof-av-wrap">
+            <span class="prof-crn">👑</span>
+            <img class="prof-av" id="my-av" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="document.getElementById('pick-av').click()">
+            <input type="file" id="pick-av" hidden onchange="upImg(this, 'my-av')">
         </div>
     </div>
-    <div style="padding:20px; text-align:center; margin-top:15px;">
+    <div style="padding:25px; text-align:center; margin-top:15px;">
         <h2 class="king-glow">علوش</h2>
-        <span class="badge b-king">المالك الرسمي</span>
-        <input type="text" id="status-in" onchange="syncMe()" placeholder="حالتك..." style="width:100%; margin-top:15px; background:#111; border:1px solid #333; color:gold; padding:10px; border-radius:10px; text-align:center;">
+        <p style="color:var(--gold); font-size:13px;">المالك الرسمي للشات</p>
+        <div style="margin-top:20px; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; border:1px solid #333;">
+            <small style="color:#888;">الحالة الملكية</small>
+            <p style="color:white; font-size:14px;" id="disp-status">متصل الآن 👑</p>
+        </div>
     </div>
 </div>
 
 <div id="chat-flow"></div>
 
 <div class="footer">
-    <button onclick="toggleGifts()" style="background:none; border:none; font-size:24px;">🎁</button>
-    <input type="text" id="msg-in" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') pushMsg()">
-    <button onclick="pushMsg()" style="background:var(--gold); border:none; padding:10px 15px; border-radius:12px; font-weight:900;">إرسال</button>
+    <input type="text" id="msg-in" placeholder="تكلم يا إمبراطور..." onkeypress="if(event.key==='Enter') pushMsg()">
+    <button onclick="pushMsg()" style="background:var(--gold); border:none; padding:10px 22px; border-radius:12px; font-weight:900; margin-right:10px;">إرسال</button>
 </div>
 
 <script>
@@ -97,65 +93,71 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let me = { name: "علوش", role: "king", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", status: "متصل" };
-    let whisperTo = null;
+    let me = { name: "الإمبراطور علوش", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
 
-    function syncMe() {
-        me.status = document.getElementById('status-in').value || "متصل";
-        db.ref('online_v75/' + me.name).set(me);
-        db.ref('online_v75/' + me.name).onDisconnect().remove();
-    }
-    syncMe();
+    // نظام البوت والاتصال
+    db.ref('online_v76/' + me.name).set(true);
+    db.ref('online_v76/' + me.name).onDisconnect().remove();
 
-    function updateImg(input, id) {
+    // رسالة الترحيب من البوت
+    window.onload = () => {
+        let b = document.createElement('div'); b.className = "bot-msg";
+        b.innerHTML = "🛡️ <b>بوت الحماية:</b> أهلاً بك يا إمبراطور علوش. تم تأمين الشات والقوائم بالكامل.";
+        document.getElementById('chat-flow').appendChild(b);
+        setTimeout(() => b.remove(), 7000);
+    };
+
+    // تحديث القوائم مع البوت
+    db.ref('online_v76').on('value', s => {
+        let l = document.getElementById('on-list');
+        l.innerHTML = `<div class="on-user"><span>🛡️ بوت الحماية</span><span class="bot-tag">BOT</span></div>`;
+        s.forEach(u => {
+            let isK = u.key.includes("علوش");
+            l.innerHTML += `<div class="on-user"><span>${isK?'👑':'👤'} ${u.key}</span></div>`;
+        });
+    });
+
+    // الملف الشخصي (رفع الصور)
+    function upImg(input, id) {
         if(input.files && input.files[0]) {
             let r = new FileReader();
             r.onload = (e) => { 
                 document.getElementById(id).src = e.target.result;
                 if(id === 'my-av') me.img = e.target.result;
-                syncMe();
             };
             r.readAsDataURL(input.files[0]);
         }
     }
 
-    db.ref('online_v75').on('value', s => {
-        let l = document.getElementById('on-list'); l.innerHTML = "";
-        s.forEach(u => {
-            let d = u.val();
-            l.innerHTML += `<div style="padding:12px; border-bottom:1px solid #111;" onclick="startWhisper('${u.key}')">
-                <b>${u.key}</b> <span class="badge ${d.role==='king'?'b-king':'b-vip'}">${d.role==='king'?'ملك':'VIP'}</span><br>
-                <small style="color:#666;">${d.status}</small>
-            </div>`;
-        });
-    });
-
-    function startWhisper(n) { if(n===me.name)return; whisperTo=n; document.getElementById('msg-in').placeholder="همس لـ "+n; }
-
+    // الشات
     function pushMsg() {
         let i = document.getElementById('msg-in'); if(!i.value) return;
-        db.ref('chat_v75').push({ u: me.name, t: i.value, a: me.img, to: whisperTo || 'all', r: me.role });
-        i.value = ""; whisperTo = null; i.placeholder="اكتب رسالتك...";
+        db.ref('chat_v76').push({ u: me.name, t: i.value, a: me.img });
+        i.value = "";
     }
 
-    db.ref('chat_v75').limitToLast(20).on('child_added', s => {
+    db.ref('chat_v76').limitToLast(15).on('child_added', s => {
         let d = s.val();
-        if(d.to !== 'all' && d.to !== me.name && d.u !== me.name) return;
         let div = document.createElement('div');
-        div.className = "bubble " + (d.to!=='all'?'whisper':'');
-        div.innerHTML = `<div style="display:flex; gap:10px; margin-bottom:5px;">
-            <img src="${d.a}" style="width:35px; height:35px; border-radius:50%; border:1px solid gold;">
-            <div><b style="color:gold; font-size:12px;">${d.u}</b> ${d.to!=='all'?'<small>[همس]</small>':''}<br>${d.t}</div>
+        div.innerHTML = `<div style="display:flex; gap:10px; margin-bottom:12px;">
+            <img src="${d.a || me.img}" style="width:38px; height:38px; border-radius:50%; border:1px solid var(--gold);">
+            <div class="bubble"><b style="color:var(--gold); font-size:11px;">${d.u}</b><br>${d.t}</div>
         </div>`;
         document.getElementById('chat-flow').appendChild(div);
         document.getElementById('chat-flow').scrollTop = document.getElementById('chat-flow').scrollHeight;
     });
 
-    function toggleGifts() { let p = document.getElementById('gift-panel'); p.style.display = p.style.display==='grid'?'none':'grid'; }
-    function sendGift(e) { db.ref('chat_v75').push({u:me.name, t:"أرسل هدية: "+e, a:me.img, to:'all'}); toggleGifts(); }
-
-    function openSide(id) { closeSides(); document.getElementById(id).classList.add('active'); document.getElementById('overlay').style.display='block'; }
-    function closeSides() { document.querySelectorAll('.side').forEach(s=>s.classList.remove('active')); document.getElementById('overlay').style.display='none'; }
+    // فتح وإغلاق القوائم
+    function openSide(id) { 
+        closeSides(); 
+        document.getElementById(id).classList.add('active'); 
+        document.getElementById('overlay').style.display = 'block'; 
+    }
+    function closeSides() { 
+        document.getElementById('side-l').classList.remove('active');
+        document.getElementById('side-r').classList.remove('active');
+        document.getElementById('overlay').style.display = 'none'; 
+    }
 </script>
 </body>
 </html>
