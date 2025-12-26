@@ -3,57 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إمبراطورية علوش | نسخة الموبايل والحاسبة 👑</title>
+    <title>إمبراطورية علوش الملكية 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --orange: #ff6a00; --bg: #000; --panel: #111; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; background: var(--bg); color: white; height: 100%; overflow: hidden; }
-
-        /* الهيدر - متجاوب */
-        .header { height: 60px; background: #000; border-bottom: 2px solid var(--orange); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: relative; z-index: 1001; }
+        :root { --orange: #ff6a00; --bg: #000; --panel: #121212; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         
-        .main-wrapper { display: flex; height: calc(100vh - 60px); position: relative; }
+        body, html { 
+            margin: 0; padding: 0; background: var(--bg); color: white; 
+            height: 100%; width: 100%; overflow: hidden; position: fixed;
+        }
 
-        /* القوائم الجانبية - تعديل ذكي للموبايل */
+        /* الهيدر */
+        .header { 
+            height: 60px; background: #000; border-bottom: 2px solid var(--orange); 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 15px; z-index: 1001; position: relative;
+        }
+
+        /* حاوية النظام */
+        .main-wrapper { 
+            display: flex; height: calc(100% - 120px); /* ترك مساحة للهيدر والفوتر */
+            position: relative; width: 100%; 
+        }
+
+        /* القوائم الجانبية - ضبط الموبايل والحاسبة */
         .sidebar { 
             position: absolute; top: 0; bottom: 0; width: 280px; 
-            background: var(--panel); transition: 0.4s; z-index: 1000;
-            overflow-y: auto; border: 0 solid #333;
+            background: var(--panel); transition: 0.3s ease-in-out; z-index: 1000;
+            overflow-y: auto; border-top: 1px solid #222;
         }
-        /* القائمة اليمنى (الإعدادات) */
-        #side-right { right: -280px; border-left-width: 1px; }
-        #side-right.active { right: 0; }
 
-        /* القائمة اليسرى (المتصلين) */
-        #side-left { left: -280px; border-right-width: 1px; }
+        /* المتواجدون (يسار دائماً) */
+        #side-left { left: -280px; border-right: 1px solid #333; }
         #side-left.active { left: 0; }
 
-        /* منطقة الشات - تأخذ المساحة كلها */
-        .chat-view { flex: 1; display: flex; flex-direction: column; width: 100%; }
-        #msgs-holder { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        /* الإعدادات والبروفايل (يمين دائماً) */
+        #side-right { right: -280px; border-left: 1px solid #333; }
+        #side-right.active { right: 0; }
 
-        /* تحسينات للحاسبة (عندما تكون الشاشة واسعة) */
+        /* منطقة الشات */
+        .chat-view { 
+            flex: 1; display: flex; flex-direction: column; width: 100%;
+            background: #000; position: relative;
+        }
+        #msgs-holder { 
+            flex: 1; overflow-y: auto; padding: 15px; 
+            display: flex; flex-direction: column; gap: 10px;
+            padding-bottom: 20px;
+        }
+
+        /* فوتر الكتابة - تأمين الظهور في الموبايل */
+        .footer { 
+            height: 60px; background: #0a0a0a; display: flex; 
+            gap: 10px; align-items: center; padding: 0 10px;
+            border-top: 1px solid #222; z-index: 1001;
+            position: relative;
+        }
+
+        #input-text { 
+            flex: 1; background: #222; border: 1px solid #333; 
+            padding: 12px 15px; border-radius: 25px; color: white; 
+            outline: none; font-size: 16px;
+        }
+
+        /* تعديلات الحاسبة */
         @media (min-width: 992px) {
             .sidebar { position: relative; left: 0 !important; right: 0 !important; width: 0; }
             .sidebar.active { width: 300px; }
-            #side-left { order: -1; } /* المتصلين يسار */
-            #side-right { order: 1; }  /* الإعدادات يمين */
+            #side-left { order: -1; } /* اليسار يبقى يسار */
+            #side-right { order: 1; }  /* اليمين يبقى يمين */
         }
 
-        /* تصميم الرسائل واليوتيوب */
-        .msg-box { background: #161616; padding: 10px; border-radius: 10px; border-right: 3px solid var(--orange); word-wrap: break-word; }
-        .msg-box img { max-width: 100%; border-radius: 8px; }
-        iframe { width: 100%; height: 200px; border-radius: 10px; margin-top: 8px; border: none; }
+        .msg-box { background: #161616; padding: 10px; border-radius: 12px; border-right: 4px solid var(--orange); }
+        .msg-box img { max-width: 100%; border-radius: 8px; margin-top: 5px; }
+        iframe { width: 100%; height: 200px; border-radius: 10px; border: none; }
 
-        /* الفوتر - ثابت بالأسفل */
-        .footer { padding: 8px; background: #0a0a0a; display: flex; gap: 8px; align-items: center; border-top: 1px solid #222; }
-        #input-text { flex: 1; background: #222; border: 1px solid #333; padding: 10px 15px; border-radius: 20px; color: white; outline: none; font-size: 14px; }
-        
-        /* الدخول */
-        #login-gate { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-card { background: #111; padding: 25px; border: 2px solid var(--orange); border-radius: 20px; width: 100%; max-width: 320px; text-align: center; }
+        #login-gate { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #111; padding: 30px; border: 2px solid var(--orange); border-radius: 20px; width: 320px; text-align: center; }
     </style>
 </head>
 <body>
@@ -61,43 +89,45 @@
 <div id="login-gate">
     <div class="login-card">
         <h2 style="color:var(--orange)">دخول الإمبراطورية</h2>
-        <input type="text" id="nick-name" placeholder="ادخل اسمك" style="width:100%; padding:12px; margin:15px 0; border-radius:8px; border:none; text-align:center;">
-        <button onclick="accessChat()" style="background:var(--orange); color:white; padding:12px; border:none; border-radius:10px; width:100%; font-weight:bold;">دخول 🚀</button>
+        <input type="text" id="nick-name" placeholder="اسمك الملكي" style="width:100%; padding:12px; margin:15px 0; border-radius:10px; text-align:center;">
+        <button onclick="accessChat()" style="background:var(--orange); color:white; padding:12px; border:none; border-radius:10px; width:100%; font-weight:bold; cursor:pointer;">دخول 🚀</button>
     </div>
 </div>
 
 <div class="header">
-    <button onclick="toggleSide('left')" style="background:none; border:none; font-size:22px; cursor:pointer; color:white;">👥</button>
-    <div style="color:var(--orange); font-weight:bold;">CH-ALLOSH</div>
-    <button onclick="toggleSide('right')" style="background:none; border:none; font-size:22px; cursor:pointer; color:white;">⚙️</button>
+    <button onclick="toggleSide('left')" style="background:none; border:none; font-size:24px; color:white; cursor:pointer;">👥</button>
+    <div style="color:var(--orange); font-weight:bold; font-size:20px;">CH-ALLOSH</div>
+    <button onclick="toggleSide('right')" style="background:none; border:none; font-size:24px; color:white; cursor:pointer;">⚙️</button>
 </div>
 
 <div class="main-wrapper">
     <div id="side-left" class="sidebar">
-        <div style="padding: 15px;">
-            <h3 style="color:var(--orange); border-bottom:1px solid #333;">👤 المتصلون</h3>
+        <div style="padding: 20px;">
+            <h3 style="color:var(--orange); border-bottom:1px solid #333;">👥 المتواجدون</h3>
             <div id="users-list"></div>
         </div>
     </div>
 
     <div class="chat-view">
         <div id="msgs-holder"></div>
-        <div class="footer">
-            <button onclick="uploadChatImg()" style="background:none; border:none; font-size:24px; color:var(--orange);">➕</button>
-            <input type="text" id="input-text" placeholder="اكتب..." onkeypress="if(event.key==='Enter') sendMsg()">
-            <button onclick="sendMsg()" style="background:var(--orange); border:none; width:40px; height:40px; border-radius:50%; color:white;">⏎</button>
-        </div>
     </div>
 
     <div id="side-right" class="sidebar">
-        <div style="padding: 15px; text-align: center;">
-            <img id="my-avatar" src="https://via.placeholder.com/80" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--orange); cursor:pointer;" onclick="updateAvatar()">
-            <h4 id="profile-name" style="color:var(--orange); margin:10px 0;">علوش</h4>
-            <button onclick="updateAvatar()" style="background:var(--orange); color:white; border:none; padding:8px; border-radius:15px; width:100%; font-size:12px;">تغيير الصورة 📷</button>
-            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-            <input type="color" id="clr-picker" onchange="myInfo.color = this.value" style="width:100%; height:35px;">
+        <div style="padding: 20px; text-align: center;">
+            <img id="my-avatar" src="https://via.placeholder.com/100" style="width:100px; height:100px; border-radius:50%; border:2px solid var(--orange); cursor:pointer;" onclick="updateAvatar()">
+            <h3 id="profile-name" style="color:var(--orange); margin:10px 0;">علوش</h3>
+            <button onclick="updateAvatar()" style="background:var(--orange); color:white; border:none; padding:10px; border-radius:20px; width:100%; cursor:pointer;">تغيير الصورة 📷</button>
+            <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+            <p>لون الاسم:</p>
+            <input type="color" id="clr-picker" onchange="myInfo.color = this.value" style="width:100%; height:40px; cursor:pointer;">
         </div>
     </div>
+</div>
+
+<div class="footer">
+    <button onclick="uploadChatImg()" style="background:none; border:none; font-size:26px; color:var(--orange); cursor:pointer;">➕</button>
+    <input type="text" id="input-text" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') sendMsg()">
+    <button onclick="sendMsg()" style="background:var(--orange); border:none; width:45px; height:45px; border-radius:50%; color:white; cursor:pointer;">⏎</button>
 </div>
 
 <script>
@@ -105,11 +135,10 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let myInfo = { name: "", color: "#ff6a00", avatar: "https://via.placeholder.com/80" };
+    let myInfo = { name: "", color: "#ff6a00", avatar: "https://via.placeholder.com/100" };
 
     function toggleSide(s) { 
         document.getElementById('side-'+s).classList.toggle('active');
-        // في الموبايل: إذا فتحت جهة، اغلق الثانية
         if (window.innerWidth < 992) {
             let other = s === 'left' ? 'right' : 'left';
             document.getElementById('side-'+other).classList.remove('active');
@@ -126,23 +155,22 @@
     }
 
     function startEngine() {
-        db.ref('p_v11/'+myInfo.name).set(myInfo);
-        db.ref('p_v11/'+myInfo.name).onDisconnect().remove();
+        db.ref('p_v12/'+myInfo.name).set(myInfo);
+        db.ref('p_v12/'+myInfo.name).onDisconnect().remove();
 
-        db.ref('p_v11').on('value', s => {
+        db.ref('p_v12').on('value', s => {
             let h = "";
-            s.forEach(u => { h += `<div style="color:${u.val().color}; padding:5px;">● ${u.val().name}</div>`; });
+            s.forEach(u => { h += `<div style="color:${u.val().color}; padding:8px; border-bottom:1px solid #1a1a1a;">● ${u.val().name}</div>`; });
             document.getElementById('users-list').innerHTML = h;
         });
 
-        db.ref('m_v11').limitToLast(40).on('child_added', s => {
+        db.ref('m_v12').limitToLast(40).on('child_added', s => {
             let d = s.val();
             let box = document.getElementById('msgs-holder');
             let div = document.createElement('div');
             div.className = "msg-box";
             
             let text = d.text;
-            // فحص يوتيوب ذكي
             let ytMatch = text.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
             if(ytMatch) {
                 text = `<div>${text}</div><iframe src="https://www.youtube.com/embed/${ytMatch[1]}" allowfullscreen></iframe>`;
@@ -159,7 +187,7 @@
     function sendMsg() {
         let inp = document.getElementById('input-text');
         if(!inp.value) return;
-        db.ref('m_v11').push({ sender: myInfo.name, color: myInfo.color, text: inp.value });
+        db.ref('m_v12').push({ sender: myInfo.name, color: myInfo.color, text: inp.value });
         inp.value = "";
     }
 
@@ -167,7 +195,7 @@
         let i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*';
         i.onchange = e => {
             let r = new FileReader();
-            r.onload = ev => db.ref('m_v11').push({ sender: myInfo.name, color: myInfo.color, text: 'IMG:' + ev.target.result });
+            r.onload = ev => db.ref('m_v12').push({ sender: myInfo.name, color: myInfo.color, text: 'IMG:' + ev.target.result });
             r.readAsDataURL(e.target.files[0]);
         };
         i.click();
@@ -180,7 +208,7 @@
             r.onload = ev => {
                 document.getElementById('my-avatar').src = ev.target.result;
                 myInfo.avatar = ev.target.result;
-                db.ref('p_v11/'+myInfo.name).update({ avatar: ev.target.result });
+                db.ref('p_v12/'+myInfo.name).update({ avatar: ev.target.result });
             };
             r.readAsDataURL(e.target.files[0]);
         };
