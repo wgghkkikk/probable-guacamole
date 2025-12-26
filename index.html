@@ -3,74 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CH-ALLOSH SUPER V17 👑</title>
+    <title>THE EMPIRE V18 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #f1c40f; --owner-red: #ff3b30; --blue: #00d4ff; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        body { background: #000; color: white; overflow: hidden; background-size: cover; background-position: center; transition: 0.5s; }
-        .stars-overlay { position: fixed; inset: 0; background: url('https://www.transparenttextures.com/patterns/stardust.png'); z-index: -1; pointer-events: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;900&display=swap');
+        
+        :root {
+            --royal-gold: linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            --glass: rgba(255, 255, 255, 0.05);
+            --neon-blue: #00d4ff;
+        }
 
-        /* الهيدر */
-        .header { height: 60px; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid var(--gold); }
-        .h-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: white; }
+        body {
+            background: #050505;
+            color: #e0e0e0;
+            font-family: 'Cairo', sans-serif;
+            margin: 0; overflow: hidden;
+            height: 100vh;
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+        }
 
-        /* الرتب والتوثيق */
-        .owner-name { color: var(--owner-red); font-weight: 900; text-shadow: 0 0 8px rgba(255,0,0,0.5); }
-        .verify-check { width: 16px; vertical-align: middle; }
+        /* خلفية الجزيئات */
+        #particles-js { position: fixed; inset: 0; z-index: -1; }
 
-        /* ساحة الدردشة */
-        #chat-box { height: calc(100vh - 145px); overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { background: rgba(20,20,20,0.8); padding: 10px; border-radius: 12px; border-right: 4px solid var(--gold); max-width: 80%; animation: slideIn 0.3s; }
-        .bot-msg { border-right-color: var(--blue) !important; background: rgba(0,212,255,0.1) !important; }
+        /* الهيدر الملكي */
+        .royal-header {
+            height: 70px;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px;
+            border-bottom: 1px solid rgba(184, 134, 11, 0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
 
-        /* متجر الهدايا */
-        #gift-panel { position: fixed; bottom: 90px; right: 10px; background: #111; border: 1px solid var(--gold); border-radius: 15px; padding: 10px; display: none; grid-template-columns: repeat(3, 1fr); gap: 10px; z-index: 3000; }
-        .gift-item { cursor: pointer; transition: 0.2s; border-radius: 10px; padding: 5px; }
-        .gift-item:hover { background: #222; transform: scale(1.1); }
+        .logo-text {
+            font-size: 22px; font-weight: 900;
+            background: var(--royal-gold);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 5px rgba(184,134,11,0.5));
+        }
+
+        /* نظام الرسائل الفخم */
+        #chat-window {
+            height: calc(100vh - 155px);
+            overflow-y: auto;
+            padding: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .message-card {
+            background: var(--glass);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 12px;
+            margin-bottom: 15px;
+            display: flex; gap: 12px;
+            max-width: 85%;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .owner-aura {
+            width: 50px; height: 50px; border-radius: 50%;
+            border: 2px solid gold;
+            box-shadow: 0 0 15px gold;
+            animation: pulseAura 2s infinite;
+        }
+
+        @keyframes pulseAura {
+            0% { box-shadow: 0 0 5px gold; }
+            50% { box-shadow: 0 0 20px gold; }
+            100% { box-shadow: 0 0 5px gold; }
+        }
+
+        /* شريط الإعلانات المتحرك */
+        .marquee-box {
+            background: rgba(184, 134, 11, 0.1);
+            color: gold;
+            padding: 5px 0;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(184,134,11,0.2);
+        }
 
         /* البار السفلي */
-        .footer { height: 85px; background: #000; display: flex; align-items: center; padding: 10px; gap: 10px; border-top: 1px solid #222; }
-        #in { flex: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 25px; color: white; padding: 0 15px; outline: none; }
-        
+        .input-container {
+            height: 85px;
+            background: rgba(10,10,10,0.95);
+            display: flex; align-items: center;
+            padding: 0 15px; gap: 10px;
+        }
+
+        #main-input {
+            flex: 1; height: 50px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(184,134,11,0.3);
+            border-radius: 30px;
+            color: #fff; padding: 0 20px;
+            outline: none; transition: 0.3s;
+        }
+
+        #main-input:focus { border-color: gold; box-shadow: 0 0 10px rgba(184,134,11,0.3); }
+
+        .action-btn {
+            width: 50px; height: 50px;
+            background: var(--royal-gold);
+            border: none; border-radius: 50%;
+            color: #000; font-size: 20px;
+            cursor: pointer; font-weight: 900;
+        }
+
         /* لوحة التحكم الجانبية */
-        .side-panel { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #0a0a0a; border-right: 2px solid var(--gold); transition: 0.3s; z-index: 4000; padding: 20px; }
-        .side-panel.open { left: 0; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .admin-drawer {
+            position: fixed; top: 0; left: -300px;
+            width: 300px; height: 100%;
+            background: #0a0a0a;
+            z-index: 5000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 2px solid gold;
+            padding: 25px;
+        }
+        .admin-drawer.open { left: 0; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="stars-overlay"></div>
+<div id="particles-js"></div>
 
-<div class="header">
-    <button class="h-btn" onclick="toggleSide()">⚙️</button>
-    <div style="font-weight: 900; color: var(--gold);">ALLOSH SUPREME V17</div>
-    <button class="h-btn" onclick="toggleGifts()">🎁</button>
+<div class="marquee-box">
+    <marquee id="global-notice">👑 أهلاً بكم في حضرة الإمبراطور علوش - يرجى الالتزام بالقوانين 👑</marquee>
 </div>
 
-<div id="side-p" class="side-panel">
-    <h3>🛡️ لوحة الإمبراطور</h3>
-    <hr style="opacity:0.2; margin:15px 0;">
-    <button onclick="clearChat()" style="width:100%; padding:10px; background:red; border:none; color:white; border-radius:8px; margin-bottom:10px;">مسح الشات 🧹</button>
-    <button onclick="setGlobalBg()" style="width:100%; padding:10px; background:var(--blue); border:none; color:white; border-radius:8px; margin-bottom:10px;">تغيير الخلفية للكل 🖼️</button>
-    <button onclick="toggleSide()" style="width:100%; padding:10px; background:#333; border:none; color:white; border-radius:8px;">إغلاق</button>
+<div class="royal-header">
+    <button onclick="toggleAdmin()" style="background:none; border:none; color:gold; font-size:24px;">☰</button>
+    <div class="logo-text">ALLOSH EMPIRE</div>
+    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="location.reload()" style="width:40px; border-radius:50%; border:1px solid gold;">
 </div>
 
-<div id="gift-panel">
-    <div class="gift-item" onclick="sendGift('👑', 'تاج ملكي')"><img src="https://cdn-icons-png.flaticon.com/512/2558/2558671.png" width="40"></div>
-    <div class="gift-item" onclick="sendGift('💎', 'ماسة نادرة')"><img src="https://cdn-icons-png.flaticon.com/512/744/744465.png" width="40"></div>
-    <div class="gift-item" onclick="sendGift('🌹', 'وردة حب')"><img src="https://cdn-icons-png.flaticon.com/512/1053/1053181.png" width="40"></div>
+<div id="drawer" class="admin-drawer">
+    <h2 style="color:gold;">⚙️ لوحة العرش</h2>
+    <hr style="opacity:0.1;">
+    <button onclick="clearChat()" style="width:100%; padding:15px; background:rgba(255,0,0,0.1); color:red; border:1px solid red; border-radius:10px; margin-top:20px;">مسح السجلات 🧹</button>
+    <button onclick="updateNotice()" style="width:100%; padding:15px; background:rgba(0,212,255,0.1); color:var(--neon-blue); border:1px solid var(--neon-blue); border-radius:10px; margin-top:10px;">تغيير الإعلان 📢</button>
 </div>
 
-<div id="chat-box"></div>
+<div id="chat-window"></div>
 
-<div class="footer">
-    <button class="h-btn" onclick="toggleGifts()">😊</button>
-    <input type="text" id="in" placeholder="اكتب يا ملك..." onkeypress="if(event.key==='Enter') sendMsg()">
-    <button class="h-btn" style="color:var(--gold)" onclick="sendMsg()">🚀</button>
+<div class="input-container">
+    <button class="action-btn" onclick="openGifts()" style="background:none; color:gold; font-size:30px;">🎁</button>
+    <input type="text" id="main-input" placeholder="تحدث يا إمبراطور..." onkeypress="if(event.key==='Enter') sendMessage()">
+    <button class="action-btn" onclick="sendMessage()">🚀</button>
 </div>
 
 <script>
@@ -78,62 +162,69 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // معلوماتك كمالك
-    let me = {
+    let user = {
         name: "علوش",
-        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        rank: "owner"
+        role: "إمبراطور 👑",
+        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
     };
 
-    function toggleSide() { document.getElementById('side-p').classList.toggle('open'); }
-    function toggleGifts() { let p = document.getElementById('gift-panel'); p.style.display = (p.style.display==='grid'?'none':'grid'); }
+    function toggleAdmin() { document.getElementById('drawer').classList.toggle('open'); }
 
-    function sendMsg() {
-        let text = document.getElementById('in').value; if(!text) return;
-        // حماية من الكلمات البذيئة (مثال)
-        if(text.includes("مسبة")) { alert("ممنوع التجاوز!"); return; }
-        db.ref('msgs_v17').push({ sender: me.name, text: text, rank: me.rank, avatar: me.avatar, type: 'text' });
-        document.getElementById('in').value = "";
+    function sendMessage() {
+        let input = document.getElementById('main-input');
+        if(!input.value) return;
+        db.ref('empire_msgs').push({
+            name: user.name,
+            text: input.value,
+            role: user.role,
+            avatar: user.avatar,
+            time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
+        });
+        input.value = "";
     }
 
-    function sendGift(emoji, name) {
-        db.ref('msgs_v17').push({ sender: me.name, text: `أهدى ${name} ${emoji}`, rank: me.rank, avatar: me.avatar, type: 'gift' });
-        toggleGifts();
-    }
-
-    function setGlobalBg() {
-        let url = prompt("أدخل رابط صورة الخلفية الجديدة:");
-        if(url) db.ref('settings/globalBg').set(url);
-    }
-
-    // استقبال الرسائل ومعالجة الرتب والتوثيق
-    db.ref('msgs_v17').limitToLast(40).on('child_added', s => {
+    db.ref('empire_msgs').limitToLast(50).on('child_added', s => {
         let d = s.val();
-        let box = document.getElementById('chat-box');
+        let win = document.getElementById('chat-window');
         let div = document.createElement('div');
-        div.className = "msg " + (d.bot ? "bot-msg" : "");
+        div.className = "message-card";
         
-        let nameHtml = d.rank === 'owner' ? 
-            `<b class="owner-name">${d.sender} <img src="https://cdn-icons-png.flaticon.com/512/7641/7641727.png" class="verify-check"></b>` : 
-            `<b style="color:var(--gold)">${d.sender}</b>`;
-
-        let content = d.type === 'gift' ? `<span style="font-size:20px; color:var(--blue)">${d.text}</span>` : d.text;
-
-        div.innerHTML = `<img src="${d.avatar}" style="width:35px; height:35px; border-radius:50%; vertical-align:middle; margin-left:8px;">
-                         <div>${nameHtml}<br>${content}</div>`;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
+        div.innerHTML = `
+            <img src="${d.avatar}" class="owner-aura">
+            <div style="flex:1">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <b style="color:gold; font-size:14px;">${d.name} <span style="font-size:10px; color:#aaa; font-weight:normal;">[${d.role}]</span></b>
+                    <small style="color:#666; font-size:10px;">${d.time}</small>
+                </div>
+                <div style="margin-top:5px; line-height:1.6;">${d.text}</div>
+            </div>
+        `;
+        win.appendChild(div);
+        win.scrollTop = win.scrollHeight;
     });
 
-    // تحديث الخلفية للكل
-    db.ref('settings/globalBg').on('value', s => { if(s.val()) document.body.style.backgroundImage = `url('${s.val()}')`; });
+    function clearChat() { if(confirm("هل تريد تصفير الشات بالكامل؟")) db.ref('empire_msgs').remove(); }
+    
+    function updateNotice() {
+        let n = prompt("اكتب الإعلان الجديد:");
+        if(n) db.ref('empire_settings/notice').set(n);
+    }
 
-    function clearChat() { if(confirm("مسح كل الشات؟")) db.ref('msgs_v17').remove(); }
+    db.ref('empire_settings/notice').on('value', s => {
+        if(s.val()) document.getElementById('global-notice').innerText = "👑 " + s.val() + " 👑";
+    });
 
-    // البوت يرحب بك
+    // بوت الترحيب
     setTimeout(() => {
-        db.ref('msgs_v17').push({ sender: "علوش بوت 🤖", text: "تم تفعيل نظام V17 الخارق.. أهلاً بك يا ملك!", avatar: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png", bot: true });
-    }, 1000);
+        let win = document.getElementById('chat-window');
+        let div = document.createElement('div');
+        div.className = "message-card";
+        div.style.border = "1px solid var(--neon-blue)";
+        div.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" style="width:50px;"> 
+        <div><b style="color:var(--neon-blue)">البوت الملكي 🤖</b><br>نظام الشات الفخم V18 قيد التشغيل.. السمع والطاعة يا إمبراطور!</div>`;
+        win.appendChild(div);
+        win.scrollTop = win.scrollHeight;
+    }, 2000);
 </script>
 </body>
 </html>
