@@ -3,45 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH FINAL V55 👑</title>
+    <title>ALLOSH ARENA PvP V56 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
         :root { --gold: #ffd700; --bg: #000; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        
-        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; touch-action: pan-y; }
+        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
 
-        /* الاسم النيون المتحرك */
-        @keyframes neon { 0% {color: #fff; text-shadow: 0 0 10px var(--gold);} 50% {color: var(--gold); text-shadow: 0 0 20px #fff;} 100% {color: #fff; text-shadow: 0 0 10px var(--gold);} }
+        /* برستيج الإمبراطور */
+        @keyframes neon { 0%, 100% {color: #fff; text-shadow: 0 0 10px var(--gold);} 50% {color: var(--gold); text-shadow: 0 0 20px #fff;} }
         .king-name { animation: neon 2s infinite; font-weight: 900; }
 
         /* الهيدر */
         .header { height: 60px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
 
-        /* القوائم الجانبية والسحب */
-        .side { position: fixed; top: 0; bottom: 0; width: 280px; background: rgba(10,10,15,0.98); z-index: 4000; backdrop-filter: blur(15px); transition: 0.4s; }
-        #side-r { right: 0; transform: translateX(285px); border-left: 2px solid var(--gold); }
-        #side-l { left: 0; transform: translateX(-285px); border-right: 2px solid var(--gold); overflow-y: auto; }
-        .side.active { transform: translateX(0) !important; }
-
-        /* الملف الشخصي */
-        .profile { position: relative; width: 100%; }
-        .cover { width: 100%; height: 130px; object-fit: cover; border-bottom: 2px solid var(--gold); cursor: pointer; }
-        .avatar-box { position: absolute; bottom: -40px; right: 20px; text-align: center; }
-        .avatar { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--gold); background: #000; cursor: pointer; }
-        .crown { position: absolute; top: -30px; right: 10px; font-size: 45px; filter: drop-shadow(0 0 10px gold); }
-
-        /* واجهة اللعبة (المسابقة) */
+        /* واجهة اللعبة (لاعب ضد لاعب) */
         #game-ui { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; justify-content: center; align-items: center; }
-        .game-card { width: 90%; max-width: 500px; background: #fff; border-radius: 20px; color: #333; overflow: hidden; padding-bottom: 20px; }
-        .game-head { background: #f0f0f0; padding: 15px; display: flex; justify-content: space-between; font-weight: 900; }
-        .score-display { font-size: 60px; color: #2ecc71; font-weight: 900; margin: 20px 0; }
+        .game-card { width: 95%; max-width: 600px; background: #f8f9fa; border-radius: 20px; color: #333; overflow: hidden; padding-bottom: 20px; box-shadow: 0 0 30px var(--gold); }
+        .p-box { flex: 1; text-align: center; padding: 15px; border-radius: 15px; background: #fff; border: 2px solid #eee; }
+        .p-box.active { border-color: #2ecc71; background: #fafffa; transform: scale(1.02); }
+        .score-val { font-size: 45px; font-weight: 900; color: #2ecc71; }
+
+        /* القوائم الجانبية */
+        .side { position: fixed; top: 0; bottom: 0; width: 280px; background: rgba(10,10,15,0.98); z-index: 4000; transition: 0.4s; border-right: 1px solid var(--gold); left: -285px; }
+        .side.active { left: 0 !important; }
 
         /* الشات */
-        #chat { position: absolute; top: 60px; bottom: 80px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .bubble { background: rgba(255,255,255,0.08); padding: 10px; border-radius: 15px; max-width: 85%; border: 1px solid #222; }
+        #chat { position: absolute; top: 60px; bottom: 80px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { background: rgba(255,255,255,0.08); padding: 10px; border-radius: 12px; max-width: 85%; border: 1px solid #222; }
 
         .footer { position: fixed; bottom: 0; width: 100%; height: 80px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; }
         input { flex: 1; height: 45px; background: #111; border: 1px solid #333; border-radius: 10px; color: #fff; padding: 0 15px; }
@@ -51,52 +42,56 @@
 
 <div id="game-ui">
     <div class="game-card">
-        <div class="game-head">
-            <button onclick="document.getElementById('game-ui').style.display='none'" style="border:none; background:red; color:white; padding:5px 15px; border-radius:8px; cursor:pointer;">خروج</button>
-            <span>تحدي الـ 100 نقطة 🏆</span>
+        <div style="background:#eee; padding:15px; display:flex; justify-content:space-between; align-items:center;">
+            <button onclick="closeGame()" style="background:red; color:white; border:none; padding:5px 15px; border-radius:8px;">خروج</button>
+            <b id="status-msg">انتظار الخصم...</b>
         </div>
-        <div style="text-align:center; padding:20px;">
-            <p>نقاطك الحالية</p>
-            <div class="score-display" id="my-score">0</div>
-            <div id="dice-result" style="font-size:50px; margin-bottom:10px;">🎲</div>
-            <button onclick="rollDice()" style="width:100%; padding:15px; background:#4a69bd; color:white; border:none; border-radius:15px; font-weight:900; font-size:20px; cursor:pointer;">ارمي الزهر 🔥</button>
+        
+        <div style="padding:10px;">
+            <input type="number" id="game-bet" placeholder="مبلغ الرهان" style="width:100%; color:#000; background:#fff; margin-bottom:10px; text-align:center;">
+            
+            <div style="display:flex; gap:10px;">
+                <div class="p-box" id="p1-ui">
+                    <small>اللاعب 1</small>
+                    <div class="score-val" id="s1">0</div>
+                </div>
+                <div style="align-self:center; font-weight:900;">VS</div>
+                <div class="p-box" id="p2-ui">
+                    <small>اللاعب 2</small>
+                    <div class="score-val" id="s2">0</div>
+                </div>
+            </div>
+
+            <div style="text-align:center; padding:20px;">
+                <div id="dice-face" style="font-size:60px; margin-bottom:10px;">🎲</div>
+                <button id="roll-btn" onclick="rollPvP()" style="width:100%; padding:15px; background:#4a69bd; color:white; border:none; border-radius:15px; font-weight:900; display:none;">ارمي الزهر 🔥</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="header">
-    <button onclick="document.getElementById('side-l').classList.toggle('active')" style="background:none; border:none; font-size:24px; color:white;">⚙️</button>
-    <div class="king-name" style="font-size:18px;">👑 علوش الإمبراطور 👑</div>
-    <button onclick="document.getElementById('side-r').classList.toggle('active')" style="background:none; border:none; font-size:24px; color:white;">👥</button>
+    <button onclick="document.getElementById('side-l').classList.toggle('active')" style="background:none; border:none; font-size:24px;">⚙️</button>
+    <div class="king-name">👑 علوش الإمبراطور 👑</div>
+    <div onclick="openGame()" style="font-size:28px; cursor:pointer;">🎮</div>
 </div>
 
 <div id="side-l" class="side">
-    <div class="profile">
-        <img class="cover" id="c-img" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400" onclick="document.getElementById('f-c').click()">
-        <input type="file" id="f-c" hidden onchange="upC(this)">
-        <div class="avatar-box">
-            <span class="crown">👑</span>
-            <img class="avatar" id="a-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="document.getElementById('f-a').click()">
-            <input type="file" id="f-a" hidden onchange="upA(this)">
+    <div style="padding:20px; text-align:center;">
+        <div style="position:relative; display:inline-block;">
+            <span style="position:absolute; top:-25px; right:0; font-size:40px;">👑</span>
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:100px; border-radius:50%; border:3px solid gold;">
         </div>
+        <h2 class="king-name" style="margin-top:10px;">علوش</h2>
+        <button onclick="rainGold()" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:900; margin-top:30px;">توزيع 5000 ذهبة 💰</button>
     </div>
-    <div style="margin-top:50px; padding:20px; text-align:center;">
-        <h2 class="king-name">علوش</h2>
-        <button onclick="rainGold()" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:900; margin-top:20px; cursor:pointer;">⛈️ توزيع 5000 ذهبة</button>
-    </div>
-</div>
-
-<div id="side-r" class="side">
-    <h3 style="padding:20px; text-align:center; color:var(--gold);">المتصلون الآن</h3>
-    <div id="u-list" style="padding:15px;"></div>
 </div>
 
 <div id="chat"></div>
 
 <div class="footer">
-    <span onclick="document.getElementById('game-ui').style.display='flex'" style="font-size:30px; cursor:pointer;">🎮</span>
-    <input type="text" id="msg-in" placeholder="أمرك مطاع يا ملك..." onkeypress="if(event.key==='Enter') push()">
-    <button onclick="push()" style="background:var(--gold); border:none; padding:10px 20px; border-radius:10px; font-weight:900; cursor:pointer;">إرسال</button>
+    <input type="text" id="msg-in" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') push()">
+    <button onclick="push()" style="background:var(--gold); border:none; padding:10px 20px; border-radius:10px; font-weight:900;">إرسال</button>
 </div>
 
 <script>
@@ -104,60 +99,65 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let score = 0;
-    let me = { name: "علوش الإمبراطور", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
+    let myId = null; 
+    let gameRef = db.ref('pvp_room');
 
-    // تشغيل اللعبة
-    function rollDice() {
-        let r = Math.floor(Math.random() * 6) + 1;
-        const icons = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-        document.getElementById('dice-result').innerText = icons[r];
-        score += r;
-        document.getElementById('my-score').innerText = score;
-        if(score >= 100) { 
-            alert("كفووو يا إمبراطور! سحقت الرقم 100 🎉"); 
-            db.ref('msgs_v55').push({ u: "👑 الملك علوش", t: "لقد فزت بمسابقة الـ 100 نقطة الآن! 🏆", a: me.img, goldMsg: true });
-            score = 0; 
-            document.getElementById('my-score').innerText = "0";
-        }
+    function openGame() {
+        document.getElementById('game-ui').style.display = 'flex';
+        gameRef.once('value', s => {
+            let d = s.val();
+            if(!d || !d.p1) { myId = 'p1'; gameRef.update({p1: 'علوش', s1:0, s2:0, turn:'p1', active:true}); }
+            else if(!d.p2) { myId = 'p2'; gameRef.update({p2: 'خصم علوش', s2:0}); }
+        });
     }
 
-    // إرسال رسالة
+    gameRef.on('value', s => {
+        let d = s.val(); if(!d) return;
+        document.getElementById('s1').innerText = d.s1 || 0;
+        document.getElementById('s2').innerText = d.s2 || 0;
+        
+        if(d.p1 && d.p2) {
+            document.getElementById('status-msg').innerText = d.turn === myId ? "دورك الآن!" : "انتظر الخصم...";
+            document.getElementById('roll-btn').style.display = d.turn === myId ? 'block' : 'none';
+            document.getElementById('p1-ui').classList.toggle('active', d.turn === 'p1');
+            document.getElementById('p2-ui').classList.toggle('active', d.turn === 'p2');
+        }
+
+        if(d.s1 >= 100 || d.s2 >= 100) {
+            alert("انتهى التحدي! الفائز هو " + (d.s1 >= 100 ? "لاعب 1" : "لاعب 2"));
+            gameRef.remove();
+            document.getElementById('game-ui').style.display = 'none';
+        }
+    });
+
+    function rollPvP() {
+        let r = Math.floor(Math.random() * 6) + 1;
+        gameRef.once('value', s => {
+            let d = s.val();
+            let newScore = (myId === 'p1' ? d.s1 : d.s2) + r;
+            gameRef.update({
+                [myId === 'p1' ? 's1' : 's2']: newScore,
+                turn: myId === 'p1' ? 'p2' : 'p1'
+            });
+        });
+    }
+
     function push() {
         let i = document.getElementById('msg-in'); if(!i.value) return;
-        db.ref('msgs_v55').push({ u: me.name, t: i.value, a: me.img });
+        db.ref('chat_v56').push({ u: "علوش", t: i.value });
         i.value = "";
     }
 
-    // توزيع الذهب
-    function rainGold() {
-        db.ref('msgs_v54').push({ u: "👑 الإمبراطور", t: "⛈️ مكرمة ملكية! تم توزيع 5000 ذهبة للجميع! 💰", a: "https://cdn-icons-png.flaticon.com/512/2489/2489756.png", goldMsg: true });
-    }
-
-    // عرض الرسائل
-    db.ref('msgs_v55').limitToLast(20).on('child_added', s => {
+    db.ref('chat_v56').limitToLast(15).on('child_added', s => {
         let d = s.val();
         let div = document.createElement('div');
-        div.style.display = "flex"; div.style.gap = "10px";
-        div.innerHTML = `<img src="${d.a}" style="width:40px; height:40px; border-radius:50%; border:1px solid gold;">
-            <div class="bubble" style="${d.goldMsg ? 'border:1px solid gold; background:rgba(255,215,0,0.1);' : ''}">
-                <b style="font-size:11px; color:gold;">${d.u}</b><br><span>${d.t}</span>
-            </div>`;
+        div.innerHTML = `<div class="bubble"><b style="color:gold;">${d.u}:</b> ${d.t}</div>`;
         document.getElementById('chat').appendChild(div);
         document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
     });
 
-    // سحب القوائم (Swipe)
-    let startX = 0;
-    document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-    document.addEventListener('touchend', e => {
-        let diff = e.changedTouches[0].clientX - startX;
-        if(diff > 100) document.getElementById('side-l').classList.add('active');
-        if(diff < -100) document.getElementById('side-l').classList.remove('active');
-    });
-
-    function upA(i) { if(i.files[0]) { let r = new FileReader(); r.onload = e => { me.img = e.target.result; document.getElementById('a-img').src = e.target.result; }; r.readAsDataURL(i.files[0]); } }
-    function upC(i) { if(i.files[0]) { let r = new FileReader(); r.onload = e => { document.getElementById('c-img').src = e.target.result; }; r.readAsDataURL(i.files[0]); } }
+    function closeGame() { gameRef.remove(); document.getElementById('game-ui').style.display='none'; }
+    function rainGold() { db.ref('chat_v56').push({ u: "👑 الإمبراطور", t: "تم توزيع 5000 ذهبة! 💰" }); }
 </script>
 </body>
 </html>
