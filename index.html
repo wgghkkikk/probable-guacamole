@@ -3,29 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إمبراطورية علوش V2 👑</title>
+    <title>إمبراطورية علوش الملكية 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #050505; --panel: #111; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        
-        /* صفحة الدخول */
-        #login-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-        .login-box { background: #111; padding: 30px; border-radius: 15px; border: 1px solid var(--gold); width: 300px; text-align: center; }
-        .login-box input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #333; background: #222; color: #fff; }
-        
-        /* الهيكل الأساسي */
-        .header { height: 50px; background: var(--panel); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid #222; }
-        #wrapper { display: flex; height: calc(100vh - 50px); }
+        :root { --gold: #ffd700; --bg: #0a0a0a; --panel: #161616; --accent: #1e1e1e; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Cairo', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* صفحة تسجيل الدخول */
+        #login-page { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: var(--panel); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 320px; text-align: center; }
+        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #222; color: white; box-sizing: border-box; }
+        .login-card button { background: var(--gold); border: none; padding: 12px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+
+        /* الهيكل الرئيسي */
+        .top-bar { height: 60px; background: var(--panel); border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
+        #main-box { display: flex; flex: 1; position: relative; }
 
         /* القوائم الجانبية */
-        .sidebar { width: 0; transition: 0.3s; background: var(--panel); overflow: hidden; position: relative; }
-        .sidebar.active { width: 250px; border-left: 1px solid #222; border-right: 1px solid #222; }
-        
-        /* الاسم المتحرك للماستر */
-        .name-master { 
-            background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
+        .side { width: 0; transition: 0.3s; background: var(--panel); overflow: hidden; white-space: nowrap; position: relative; z-index: 100; }
+        .side.open { width: 260px; border-left: 1px solid #222; border-right: 1px solid #222; }
+
+        /* منطقة الدردشة */
+        .chat-view { flex: 1; display: flex; flex-direction: column; background: #0f0f0f; }
+        #chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+
+        /* تصميم اسم الماستر المتحرك */
+        .master-name {
+            background: linear-gradient(90deg, #ffd700, #ffffff, #ffd700);
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -34,137 +39,134 @@
         }
         @keyframes shine { to { background-position: 200% center; } }
 
-        /* منطقة الشات */
-        .chat-main { flex: 1; display: flex; flex-direction: column; position: relative; }
-        #chat-messages { flex: 1; overflow-y: auto; padding: 15px; }
+        /* أدوات الماستر فوق */
+        .master-tools { display: flex; gap: 10px; font-size: 18px; }
 
-        /* أزرار التحكم */
-        .icon-btn { cursor: pointer; font-size: 20px; color: var(--gold); }
-        .plus-btn { position: absolute; bottom: 80px; left: 20px; width: 40px; height: 40px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-size: 24px; cursor: pointer; }
+        /* الملف الشخصي والمنشورات */
+        .profile-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; }
+        .post { background: var(--accent); padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; border-right: 3px solid var(--gold); }
 
-        .footer { padding: 15px; display: flex; gap: 10px; background: #111; }
-        input#msg-input { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #333; background: #222; color: #fff; }
+        /* أسفل الشات */
+        .footer { padding: 15px; background: var(--panel); display: flex; gap: 10px; align-items: center; }
+        #msg-in { flex: 1; background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 25px; outline: none; }
+        .plus-btn { background: #333; color: white; width: 40px; height: 40px; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; }
+
+        .btn-gold { color: var(--gold); cursor: pointer; font-size: 22px; }
     </style>
 </head>
 <body>
 
-<div id="login-screen">
-    <div class="login-box">
-        <h2 style="color:var(--gold)">دخول الإمبراطورية</h2>
-        <input type="text" id="user-name" placeholder="الاسم">
-        <input type="password" id="user-pass" placeholder="كلمة السر (للملوك)">
-        <button class="icon-btn" onclick="app.login()">دخول</button>
+<div id="login-page">
+    <div class="login-card">
+        <h2 style="color:var(--gold)">شات علوش 👑</h2>
+        <input type="text" id="u-name" placeholder="اسمك المستعار">
+        <input type="password" id="u-pass" placeholder="كلمة السر (للمسؤولين فقط)">
+        <button onclick="login()">دخول الإمبراطورية</button>
     </div>
 </div>
 
-<div class="header">
-    <div onclick="app.toggleSide('left')">⚙️ الإعدادات</div>
-    <div id="room-name">شات علوش الملكي</div>
-    <div onclick="app.toggleSide('right')">👥 المتصلين</div>
+<div class="top-bar">
+    <div class="btn-gold" onclick="toggleSide('left')">☰</div>
+    <div class="master-tools" id="m-tools" style="display:none;">
+        <span onclick="alert('صافرة انذار! 📢')">📢</span>
+        <span onclick="alert('إعلان عام! 📣')">📣</span>
+    </div>
+    <div id="logo" class="master-name">CH-ALLOSH</div>
+    <div class="btn-gold" onclick="toggleSide('right')">👥</div>
 </div>
 
-<div id="wrapper">
-    <div id="side-left" class="sidebar">
+<div id="main-box">
+    <div id="side-right" class="side">
         <div style="padding: 20px;">
-            <h3>الملف الشخصي</h3>
-            <div id="my-profile"></div>
-            <hr>
-            <button onclick="app.setTheme('gold')">ثيم ذهبي</button>
-            <button onclick="app.setTheme('dark')">ثيم ليلي</button>
-            <hr>
-            <button onclick="app.showDaily()">📖 اليوميات</button>
+            <h4 style="color:var(--gold)">● المتصلون الآن</h4>
+            <div id="online-users"></div>
         </div>
     </div>
 
-    <div class="chat-main">
-        <div id="chat-messages"></div>
-        <div class="plus-btn" onclick="app.triggerUpload()">+</div>
+    <div class="chat-view">
+        <div id="chat-msgs"></div>
         <div class="footer">
-            <input type="text" id="msg-input" placeholder="اكتب رسالتك...">
-            <button onclick="app.send()" style="background:var(--gold); border:none; border-radius:50%; width:40px; height:40px;">⏎</button>
+            <button class="plus-btn" onclick="document.getElementById('fileIn').click()">+</button>
+            <input type="file" id="fileIn" style="display:none">
+            <input type="text" id="msg-in" placeholder="اكتب هنا...">
+            <button onclick="sendMsg()" style="background:var(--gold); border:none; padding:10px 20px; border-radius:20px; font-weight:bold;">إرسال</button>
         </div>
     </div>
 
-    <div id="side-right" class="sidebar">
-        <div style="padding: 15px;" id="online-list">
-            <h4>المتصلين</h4>
+    <div id="side-left" class="side">
+        <div style="padding: 20px;">
+            <div id="my-info" style="text-align:center;">
+                <img src="https://via.placeholder.com/60" class="profile-img">
+                <h3 id="display-name"></h3>
+            </div>
+            <hr style="border:0; border-top:1px solid #333;">
+            <h4 style="color:var(--gold)">📖 اليوميات (المنشورات)</h4>
+            <div id="posts-area"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // تهيئة Firebase (تأكد من وضع بياناتك هنا)
+    // ربط Firebase
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    const app = {
-        user: null,
-        login: function() {
-            let name = document.getElementById('user-name').value;
-            let pass = document.getElementById('user-pass').value;
-            
-            if(!name) return alert("اكتب اسمك");
-            
-            this.user = { name: name, role: 'عضو' };
-            
-            if(name === "علوش" && pass === "Allosh#King@2025") {
-                this.user.role = "الماستر";
-            }
-            
-            document.getElementById('login-screen').style.display = 'none';
-            this.initChat();
-        },
-        
-        toggleSide: function(side) {
-            document.getElementById('side-' + side).classList.toggle('active');
-        },
+    let myUser = { name: "", role: "عضو" };
 
-        initChat: function() {
-            // تسجيل التواجد
-            db.ref('online/' + this.user.name).set(this.user);
-            db.ref('online/' + this.user.name).onDisconnect().remove();
+    function login() {
+        let name = document.getElementById('u-name').value;
+        let pass = document.getElementById('u-pass').value;
+        if(!name) return;
 
-            // سماع الرسائل
-            db.ref('messages').limitToLast(50).on('child_added', snap => {
-                this.renderMsg(snap.val());
+        myUser.name = name;
+        if(name === "علوش" && pass === "Allosh#King@2025") {
+            myUser.role = "الماستر";
+            document.getElementById('m-tools').style.display = 'flex';
+        }
+
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('display-name').innerText = name;
+        initApp();
+    }
+
+    function toggleSide(s) {
+        document.getElementById('side-'+s).classList.toggle('open');
+    }
+
+    function initApp() {
+        // تسجيل التواجد
+        db.ref('online/' + myUser.name).set(myUser);
+        db.ref('online/' + myUser.name).onDisconnect().remove();
+
+        // عرض المتصلين
+        db.ref('online').on('value', snap => {
+            let out = "";
+            snap.forEach(u => {
+                let d = u.val();
+                out += `<div style="margin:10px 0" class="${d.role==='الماستر'?'master-name':''}">● ${d.name}</div>`;
             });
+            document.getElementById('online-users').innerHTML = out;
+        });
 
-            // تحديث قائمة المتصلين
-            db.ref('online').on('value', snap => {
-                let list = document.getElementById('online-list');
-                list.innerHTML = "<h4>المتصلين</h4>";
-                snap.forEach(u => {
-                    let ud = u.val();
-                    list.innerHTML += `<div class="${ud.role==='الماستر'?'name-master':''}">● ${ud.name} (${ud.role})</div>`;
-                });
-            });
-        },
-
-        send: function() {
-            let txt = document.getElementById('msg-input').value;
-            if(!txt) return;
-            db.ref('messages').push({
-                sender: this.user.name,
-                role: this.user.role,
-                content: txt
-            });
-            document.getElementById('msg-input').value = "";
-        },
-
-        renderMsg: function(data) {
-            let area = document.getElementById('chat-messages');
-            let isM = data.role === "الماستر";
+        // الشات
+        db.ref('messages').limitToLast(50).on('child_added', snap => {
+            let d = snap.val();
+            let area = document.getElementById('chat-msgs');
             let div = document.createElement('div');
-            div.innerHTML = `<b class="${isM?'name-master':''}">${data.sender}:</b> ${data.content}`;
+            let isM = d.role === "الماستر";
+            div.innerHTML = `<b class="${isM?'master-name':''}">${d.sender}:</b> ${d.content}`;
             area.appendChild(div);
             area.scrollTop = area.scrollHeight;
-        },
+        });
+    }
 
-        triggerUpload: function() {
-            alert("سيتم إضافة نظام رفع الصور في التحديث القادم!");
-        }
-    };
+    function sendMsg() {
+        let inpt = document.getElementById('msg-in');
+        if(!inpt.value) return;
+        db.ref('messages').push({ sender: myUser.name, role: myUser.role, content: inpt.value });
+        inpt.value = "";
+    }
 </script>
 </body>
 </html>
