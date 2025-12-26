@@ -3,98 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SULTAN CHAT V21 👑</title>
+    <title>ALLOSH DOMINATION V22 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #d4af37; --dark-glass: rgba(0, 0, 0, 0.85); --accent: #ff6a00; }
+        :root { --gold: #ffd700; --red: #ff3c00; --glass: rgba(0,0,0,0.8); }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         
-        body { background: #000; color: white; overflow: hidden; height: 100vh; }
-        .bg-overlay { position: fixed; inset: 0; background: url('https://i.ibb.co/L8N7pPr/stars-bg.jpg') center; background-size: cover; z-index: -2; opacity: 0.5; }
-        .stars { position: fixed; inset: 0; background: url('https://www.transparenttextures.com/patterns/stardust.png'); z-index: -1; animation: moveStars 100s linear infinite; }
-        @keyframes moveStars { from { background-position: 0 0; } to { background-position: 1000px 1000px; } }
+        body { background: #000; color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
+        
+        /* خلفية فخمة جداً */
+        .royal-bg { position: fixed; inset: 0; background: radial-gradient(circle at center, #1a0a00 0%, #000 100%); z-index: -2; }
+        .stars-anim { position: fixed; inset: 0; background: url('https://www.transparenttextures.com/patterns/stardust.png'); z-index: -1; animation: move 100s linear infinite; opacity: 0.4; }
+        @keyframes move { from { background-position: 0 0; } to { background-position: 1000px 1000px; } }
 
-        /* الهيدر الملكي */
-        .header { height: 65px; background: var(--dark-glass); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid var(--gold); box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); z-index: 2000; position: relative; }
-        .h-btn { font-size: 26px; cursor: pointer; color: var(--gold); background: none; border: none; transition: 0.3s; }
-        .h-btn:hover { transform: scale(1.2); text-shadow: 0 0 10px var(--gold); }
+        /* الهيدر العلوي */
+        .top-nav { height: 65px; background: var(--glass); border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; position: relative; }
+        .nav-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: var(--gold); filter: drop-shadow(0 0 5px gold); }
 
-        /* القائمة اليمنى (المتصلين) */
-        .side-right { position: fixed; top: 65px; right: -280px; width: 280px; bottom: 85px; background: var(--dark-glass); border-left: 2px solid var(--gold); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1500; overflow-y: auto; backdrop-filter: blur(10px); }
-        .side-right.open { right: 0; }
+        /* القائمة اليمنى واليسرى (تنسد وتنفتح) */
+        .drawer { position: fixed; top: 65px; bottom: 85px; width: 260px; background: rgba(10,5,0,0.95); border: 1px solid var(--gold); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1500; overflow-y: auto; backdrop-filter: blur(10px); }
+        #right-drawer { right: -265px; border-radius: 20px 0 0 20px; }
+        #left-drawer { left: -265px; border-radius: 0 20px 20px 0; }
+        .drawer.open { right: 0 !important; left: 0 !important; }
 
-        /* القائمة اليسرى (الملف الشخصي) */
-        .side-left { position: fixed; top: 65px; left: -300px; width: 300px; bottom: 85px; background: var(--dark-glass); border-right: 2px solid var(--gold); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1500; overflow-y: auto; backdrop-filter: blur(10px); }
-        .side-left.open { left: 0; }
+        /* الشات الرئيسي */
+        .chat-container { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .msg-line { display: flex; gap: 10px; align-items: flex-start; animation: pop 0.3s ease; }
+        @keyframes pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        
+        .u-pic { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); box-shadow: 0 0 10px gold; }
+        .bubble { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 18px; border: 1px solid rgba(255,215,0,0.2); max-width: 75%; position: relative; }
+        .owner-bubble { border-right: 4px solid var(--red); background: rgba(255,60,0,0.1); }
 
-        /* تصميم كروت المتصلين */
-        .user-item { display: flex; align-items: center; gap: 10px; padding: 12px; border-bottom: 1px solid rgba(212, 175, 55, 0.1); transition: 0.3s; }
-        .user-item:hover { background: rgba(212, 175, 55, 0.05); }
-        .u-status { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; box-shadow: 0 0 5px #2ecc71; }
-
-        /* منطقة الشات الرئيسية */
-        .main-chat { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .msg-container { display: flex; gap: 12px; align-items: flex-end; animation: slideUp 0.3s ease; }
-        .msg-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--gold); padding: 2px; }
-        .msg-bubble { background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.2); padding: 12px; border-radius: 15px 15px 0 15px; max-width: 75%; position: relative; backdrop-filter: blur(5px); }
-        .owner-msg { border-right: 4px solid var(--gold); background: rgba(212, 175, 55, 0.05); }
-
-        /* البروفايل الفخم (يسار) */
-        .profile-header { height: 120px; background: linear-gradient(to bottom, var(--gold), transparent); position: relative; }
-        .profile-img { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #000; position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%); box-shadow: 0 0 20px var(--gold); }
-        .profile-info { margin-top: 60px; text-align: center; padding: 20px; }
+        /* ستايل المالك في قائمة المتصلين */
+        .king-card { text-align: center; padding: 20px; border-bottom: 1px solid #333; }
+        .king-crown { font-size: 50px; animation: bounce 2s infinite; display: block; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         /* البار السفلي */
-        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 2px solid var(--gold); display: flex; align-items: center; padding: 0 15px; gap: 10px; z-index: 2000; }
-        #input-box { flex: 1; height: 45px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 25px; color: white; padding: 0 20px; outline: none; transition: 0.3s; }
-        #input-box:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 2px solid var(--gold); display: flex; align-items: center; padding: 0 15px; gap: 10px; z-index: 2000; }
+        #msg-input { flex: 1; height: 50px; background: #111; border: 1px solid #333; border-radius: 25px; color: #fff; padding: 0 20px; outline: none; }
+        .send-btn { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, var(--gold), var(--red)); border: none; color: #000; font-size: 20px; cursor: pointer; }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* لوحة الإيموجيات */
+        #emoji-box { position: absolute; bottom: 90px; width: 100%; height: 200px; background: #000; border: 1px solid var(--gold); display: none; grid-template-columns: repeat(5, 1fr); padding: 10px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-<div class="bg-overlay"></div>
-<div class="stars"></div>
+<div class="royal-bg"></div>
+<div class="stars-anim"></div>
 
-<div class="header">
-    <button class="h-btn" onclick="toggleSide('side-l')">⚙️</button>
-    <div style="text-align: center;">
-        <div style="color:var(--gold); font-weight:900; font-size:20px; text-shadow: 0 0 10px gold;">ALLOSH ROYAL V21</div>
-        <div id="online-count" style="font-size:10px; color:#aaa;">المتصلين: جارِ التحميل...</div>
+<div class="top-nav">
+    <button class="nav-btn" onclick="toggleD('left-drawer')">⚙️</button>
+    <div style="text-align:center">
+        <div style="color:var(--gold); font-weight:900; font-size:18px; text-shadow:0 0 10px gold;">ALLOSH DOMINATION</div>
+        <div style="font-size:10px; color:var(--red);">● نظام السيادة مفعل</div>
     </div>
-    <button class="h-btn" onclick="toggleSide('side-r')">👥</button>
+    <button class="nav-btn" onclick="toggleD('right-drawer')">👥</button>
 </div>
 
-<div id="side-r" class="side-right">
-    <div style="padding:20px; color:var(--gold); font-weight:900; border-bottom:1px solid #333;">المتصلين الآن</div>
-    <div id="users-list"></div>
+<div id="right-drawer" class="drawer">
+    <div class="king-card">
+        <span class="king-crown">👑</span>
+        <h2 id="king-name" style="color:var(--gold)">علوش</h2>
+        <small style="color:var(--red)">الإمبراطور الحالي</small>
+    </div>
+    <div id="online-list" style="padding:10px"></div>
 </div>
 
-<div id="side-l" class="side-left">
-    <div class="profile-header">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="profile-img">
-    </div>
-    <div class="profile-info">
-        <h2 id="p-name">علوش</h2>
-        <p style="color:var(--gold);">الرتبة: إمبراطور الشات 👑</p>
-        <div style="display:flex; justify-content:space-around; margin-top:30px;">
-            <div><b style="color:var(--gold)">1.5k</b><br><small>نقاط</small></div>
-            <div><b style="color:var(--gold)">100</b><br><small>لفل</small></div>
-        </div>
-        <hr style="margin:30px 0; opacity:0.1;">
-        <button onclick="clearChat()" style="width:100%; padding:12px; background:rgba(255,0,0,0.1); border:1px solid red; color:red; border-radius:10px;">مسح السجلات 🧹</button>
+<div id="left-drawer" class="drawer">
+    <div style="padding:20px; text-align:center;">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:80px; border:3px solid var(--gold); border-radius:50%;">
+        <h3>ملف الإمبراطور</h3>
+        <hr style="margin:20px 0; opacity:0.1;">
+        <button onclick="clearChat()" style="width:100%; padding:12px; background:none; border:1px solid red; color:red; border-radius:10px; margin-bottom:10px;">مسح السجلات 🧹</button>
+        <button onclick="location.reload()" style="width:100%; padding:12px; background:none; border:1px solid var(--gold); color:var(--gold); border-radius:10px;">تحديث النظام 🔄</button>
     </div>
 </div>
 
-<div class="main-chat" id="chat-box"></div>
+<div class="chat-container" id="chat-box"></div>
 
-<div class="footer">
-    <button class="h-btn" onclick="alert('متجر الهدايا قادم!')">🎁</button>
-    <input type="text" id="input-box" placeholder="تحدث يا إمبراطور..." onkeypress="if(event.key==='Enter') send()">
-    <button class="h-btn" style="color:var(--accent)" onclick="send()">🚀</button>
+<div id="emoji-box">
+    <span onclick="sendEmoji('👑')" style="font-size:30px; cursor:pointer">👑</span>
+    <span onclick="sendEmoji('🔥')" style="font-size:30px; cursor:pointer">🔥</span>
+    <span onclick="sendEmoji('💎')" style="font-size:30px; cursor:pointer">💎</span>
+    <span onclick="sendEmoji('🚀')" style="font-size:30px; cursor:pointer">🚀</span>
+</div>
+
+<div class="bottom-bar">
+    <button class="nav-btn" onclick="toggleEmoji()">😊</button>
+    <input type="text" id="msg-input" placeholder="تكلم لـيسمع العالم..." onkeypress="if(event.key==='Enter') send()">
+    <button class="send-btn" onclick="send()">🚀</button>
 </div>
 
 <script>
@@ -102,64 +104,53 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let me = {
-        id: "allosh_king",
-        name: "علوش",
-        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        rank: "إمبراطور"
-    };
+    let me = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", rank: "إمبراطور" };
 
-    function toggleSide(id) {
-        let sideR = document.getElementById('side-r');
-        let sideL = document.getElementById('side-l');
-        if(id === 'side-r') { sideR.classList.toggle('open'); sideL.classList.remove('open'); }
-        else { sideL.classList.toggle('open'); sideR.classList.remove('open'); }
+    function toggleD(id) {
+        document.querySelectorAll('.drawer').forEach(d => { if(d.id !== id) d.classList.remove('open'); });
+        document.getElementById(id).classList.toggle('open');
     }
+    
+    function toggleEmoji() { let b = document.getElementById('emoji-box'); b.style.display = (b.style.display==='grid'?'none':'grid'); }
 
     function send() {
-        let i = document.getElementById('input-box'); if(!i.value) return;
-        db.ref('msgs_v21').push({ sender: me.name, text: i.value, avatar: me.avatar, isOwner: true });
+        let i = document.getElementById('msg-input'); if(!i.value) return;
+        db.ref('msgs_v22').push({ sender: me.name, text: i.value, avatar: me.avatar, isOwner: true });
         i.value = "";
     }
 
-    // استقبال الرسائل
-    db.ref('msgs_v21').limitToLast(40).on('child_added', s => {
+    function sendEmoji(e) { db.ref('msgs_v22').push({ sender: me.name, text: e, avatar: me.avatar, isOwner: true }); toggleEmoji(); }
+
+    db.ref('msgs_v22').limitToLast(40).on('child_added', s => {
         let d = s.val();
         let box = document.getElementById('chat-box');
         let div = document.createElement('div');
-        div.className = "msg-container";
-        div.innerHTML = `
-            <img src="${d.avatar}" class="msg-avatar">
-            <div class="msg-bubble ${d.isOwner?'owner-msg':''}">
-                <b style="color:var(--gold); font-size:12px;">${d.sender}</b><br>${d.text}
-            </div>
-        `;
+        div.className = "msg-line";
+        div.innerHTML = `<img src="${d.avatar}" class="u-pic">
+                         <div class="bubble ${d.isOwner?'owner-bubble':''}">
+                            <b style="color:var(--gold); font-size:12px;">${d.sender}</b><br>${d.text}
+                         </div>`;
         box.appendChild(div);
         box.scrollTop = box.scrollHeight;
     });
 
-    // تحديث المتصلين (تجريبي)
-    db.ref('users_v21').on('value', s => {
-        let list = document.getElementById('users-list');
-        let h = ""; let count = 0;
+    // تسجيل الدخول والبوت
+    db.ref('online_v22/'+me.name).set(true);
+    db.ref('online_v22/'+me.name).onDisconnect().remove();
+    
+    db.ref('online_v22').on('value', s => {
+        let list = document.getElementById('online-list');
+        list.innerHTML = "";
         s.forEach(u => {
-            count++;
-            let d = u.val();
-            h += `<div class="user-item">
-                    <div class="u-status"></div>
-                    <img src="${d.avatar}" style="width:35px; height:35px; border-radius:50%;">
-                    <b>${d.name}</b>
-                  </div>`;
+            list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111;">🟢 ${u.key}</div>`;
         });
-        list.innerHTML = h;
-        document.getElementById('online-count').innerText = `المتصلين: ${count}`;
     });
 
-    // تسجيل دخول المالك
-    db.ref('users_v21/'+me.id).set(me);
-    db.ref('users_v21/'+me.id).onDisconnect().remove();
+    function clearChat() { if(confirm("مسح السجلات؟")) db.ref('msgs_v22').remove(); }
 
-    function clearChat() { if(confirm("هل تريد مسح الشات؟")) db.ref('msgs_v21').remove(); }
+    setTimeout(() => {
+        db.ref('msgs_v22').push({ sender: "علوش بوت 🤖", text: "تم فتح بوابات العرش.. بانتظار أوامرك يا ملك!", avatar: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png", isOwner: false });
+    }, 1500);
 </script>
 </body>
 </html>
