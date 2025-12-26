@@ -1,69 +1,80 @@
-<div class="profile-card" style="background: #1a1a1a; padding: 15px; border-radius: 15px; text-align: center; border: 1px solid #333;">
-    <div id="user-avatar-container">
-        <img id="my-avatar" src="https://via.placeholder.com/80" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--main-orange); object-fit: cover;">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CH-ALLOSH SUPREME 👑</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        :root { --main-orange: #ff6a00; --bg: #050505; --panel: #121212; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; transition: 0.3s; }
+        body { margin: 0; background: var(--bg); color: white; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* البار العلوي */
+        .header { height: 60px; background: #000; border-bottom: 2px solid var(--main-orange); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
+        
+        /* القوائم الجانبية */
+        .wrapper { display: flex; flex: 1; overflow: hidden; }
+        .sidebar { width: 0; background: var(--panel); overflow-y: auto; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); border: 0 solid #333; }
+        .sidebar.active { width: 300px; border-width: 1px; }
+
+        /* منطقة الشات */
+        .chat-view { flex: 1; display: flex; flex-direction: column; background: #000; border-left: 1px solid #222; border-right: 1px solid #222; }
+        #msgs-holder { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+
+        /* تصميم الرسالة */
+        .msg-box { background: #181818; padding: 12px; border-radius: 12px; border-bottom: 1px solid #333; border-right: 4px solid var(--main-orange); }
+        .msg-box img { max-width: 100%; border-radius: 8px; margin-top: 8px; }
+        iframe { width: 100%; height: 200px; border-radius: 12px; margin-top: 10px; border: none; }
+
+        /* الملف الشخصي (مثل الصورة) */
+        .profile-sec { padding: 20px; text-align: center; background: #1a1a1a; margin: 10px; border-radius: 15px; border: 1px solid #333; }
+        .avatar-img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--main-orange); object-fit: cover; cursor: pointer; }
+
+        /* النوافذ المنبثقة (Modals) */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-card { background: #fff; width: 360px; border-radius: 20px; overflow: hidden; color: #333; }
+        .modal-head { padding: 15px; text-align: center; border-bottom: 1px solid #eee; font-weight: bold; }
+        .modal-body { padding: 15px; max-height: 300px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .color-opt { padding: 10px; border: 1px solid #eee; border-radius: 10px; text-align: center; cursor: pointer; }
+        .save-btn { background: var(--main-orange); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; cursor: pointer; }
+
+        /* الفوتر */
+        .footer { padding: 10px; background: #111; display: flex; gap: 10px; align-items: center; }
+        #in-text { flex: 1; background: #222; border: none; padding: 12px 20px; border-radius: 25px; color: white; outline: none; }
+    </style>
+</head>
+<body>
+
+<div id="gate" style="position:fixed; inset:0; background:#000; z-index:3000; display:flex; align-items:center; justify-content:center;">
+    <div style="background:#111; padding:40px; border:2px solid var(--main-orange); border-radius:20px; text-align:center;">
+        <h2 style="color:var(--main-orange)">دخول الإمبراطورية</h2>
+        <input type="text" id="nick" placeholder="اسمك الملكي" style="width:100%; padding:10px; margin:20px 0; border-radius:10px; border:none;">
+        <button onclick="enter()" style="background:var(--main-orange); color:white; border:none; padding:10px 30px; border-radius:10px; cursor:pointer; font-weight:bold;">ابدأ الآن</button>
     </div>
-    <h3 id="display-name" style="margin: 10px 0; color: var(--main-orange);">علوش</h3>
-    <p style="font-size: 12px; color: #888;">الرتبة: الماستر</p>
-    
-    <button onclick="changeMyPhoto()" style="background: var(--main-orange); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; width: 100%;">
-        📷 تغيير الصورة الشخصية
-    </button>
 </div>
 
-<script>
-// 1. دالة تغيير الصورة الشخصية من ملفات الجهاز
-function changeMyPhoto() {
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    
-    input.onchange = e => {
-        let file = e.target.files[0];
-        let reader = new FileReader();
-        
-        reader.onload = function(event) {
-            let imageData = event.target.result;
-            // تحديث الصورة في واجهة المستخدم فوراً
-            document.getElementById('my-avatar').src = imageData;
-            
-            // حفظها في ذاكرة المتصفح أو Firebase (حسب رغبتك)
-            mySet.avatar = imageData; 
-            // إذا تريد تخزنها بـ Firebase للعضو:
-            // db.ref('users/' + mySet.name).update({avatar: imageData});
-        };
-        reader.readAsDataURL(file);
-    };
-    input.click();
-}
+<div class="header">
+    <button onclick="toggleSide('right')" style="background:none; border:none; font-size:24px; cursor:pointer;">⚙️</button>
+    <div style="color:var(--main-orange); font-weight:bold; font-size:20px;">CH-ALLOSH SUPREME</div>
+    <button onclick="toggleSide('left')" style="background:none; border:none; font-size:24px; cursor:pointer;">👥</button>
+</div>
 
-// 2. تحديث نظام اليوتيوب ليدعم روابط (youtu.be) اللي بالصورة
-function getYTId(url) {
-    let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    let match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-}
+<div class="wrapper">
+    <div id="side-right" class="sidebar">
+        <div class="profile-sec">
+            <img id="my-pic" src="https://via.placeholder.com/90" class="avatar-img" onclick="changeAvatar()">
+            <h3 id="my-name" style="margin:10px 0; color:var(--main-orange)">علوش</h3>
+            <p style="font-size:12px; color:#aaa;">الرتبة: الماستر</p>
+            <button onclick="changeAvatar()" style="background:var(--main-orange); color:white; border:none; padding:8px 15px; border-radius:20px; font-size:12px; cursor:pointer; width:100%;">تغيير الصورة من الجهاز</button>
+        </div>
+        <div style="padding:15px;">
+            <button onclick="openModal()" style="width:100%; padding:12px; background:#222; color:white; border:1px solid #444; border-radius:10px; cursor:pointer;">🎨 ألوان الاسم والتأثيرات</button>
+        </div>
+    </div>
 
-// 3. تعديل عرض الرسائل ليدعم اليوتيوب والصور المرفوعة
-db.ref('supreme_chat').limitToLast(50).on('child_added', snap => {
-    let d = snap.val();
-    let area = document.getElementById('chat-area');
-    let div = document.createElement('div');
-    div.className = 'msg-bubble';
-    
-    let content = d.text;
-    let ytId = getYTId(content);
-
-    // إذا كان الرابط يوتيوب (يشتغل تلقائي)
-    if(ytId) {
-        content = `<div>${content}</div><iframe src="https://www.youtube.com/embed/${ytId}" frameborder="0" allowfullscreen style="width:100%; height:200px; border-radius:10px; margin-top:10px;"></iframe>`;
-    } 
-    // إذا كانت صورة مرفوعة من الملفات
-    else if(content.startsWith('DATA:IMG')) {
-        content = `<img src="${content.replace('DATA:IMG','')}" style="width:100%; border-radius:10px; cursor:pointer;" onclick="window.open(this.src)">`;
-    }
-
-    div.innerHTML = `<b style="color:${d.color}">${d.sender}:</b> <div>${content}</div>`;
-    area.appendChild(div);
-    area.scrollTop = area.scrollHeight;
-});
-</script>
+    <div class="chat-view">
+        <div id="msgs-holder"></div>
+        <div class="footer">
+            <button onclick="pickImg()" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--main-orange);">
