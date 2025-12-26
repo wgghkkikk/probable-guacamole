@@ -3,118 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش - النسخة المفهومة 👑</title>
+    <title>مملكة علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --main: #ffd700; --bg: #000; --side-w: 250px; }
-        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; display: flex; }
+        :root { --main: #ffd700; --bg: #000; }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
 
-        /* الأجنحة الجانبية */
-        .side { width: var(--side-w); height: 100vh; background: #0a0a0a; position: fixed; transition: 0.3s; z-index: 1000; border: 1px solid #222; }
+        /* الجوانب */
+        .side { width: 250px; height: 100vh; background: #0a0a0a; position: fixed; transition: 0.3s; z-index: 1000; border: 1px solid #222; top: 0; }
         #side-right { right: -250px; border-left: 2px solid var(--main); }
         #side-left { left: -250px; border-right: 2px solid var(--main); }
         .side.open { right: 0 !important; left: 0 !important; }
 
-        /* المحتوى الرئيسي */
-        #main-view { flex: 1; height: 100vh; display: flex; flex-direction: column; position: relative; }
-
-        /* اليوتيوب المربع المستقل */
-        #yt-player-box { position: absolute; top: 60px; left: 10px; width: 150px; height: 100px; background: #000; border: 1px solid var(--main); z-index: 500; display: none; border-radius: 8px; overflow: hidden; }
-        .yt-btns { background: rgba(0,0,0,0.8); display: flex; justify-content: space-around; font-size: 10px; cursor: pointer; }
-
         /* الشات */
-        #chat-window { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg-row { display: flex; gap: 10px; align-items: flex-start; }
+        #main { height: 100vh; display: flex; flex-direction: column; position: relative; }
+        #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        
+        .msg-row { display: flex; gap: 8px; align-items: flex-end; }
         .msg-row.me { flex-direction: row-reverse; }
-        .u-img { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--main); cursor: pointer; }
-        .txt { background: #111; padding: 10px; border-radius: 12px; max-width: 70%; border: 1px solid #222; }
-        .me .txt { border-color: var(--main); background: #1a1a1a; }
+        .u-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--main); background: #222; cursor: pointer; }
+        .bubble { background: #111; padding: 10px; border-radius: 12px; max-width: 75%; border: 1px solid #222; line-height: 1.4; }
+        .me .bubble { border-color: var(--main); background: #1a1a1a; }
 
-        /* البروفايل */
-        .prof-header { height: 80px; background: #333; position: relative; border-radius: 5px; }
-        .prof-av { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--main); position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); background: #000; }
+        /* اليوتيوب العائم */
+        #yt-float { position: absolute; top: 70px; left: 10px; width: 140px; height: 90px; background: #000; border: 1px solid var(--main); z-index: 500; display: none; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px #000; }
+        .yt-ctrl { background: rgba(0,0,0,0.8); display: flex; justify-content: space-around; font-size: 9px; padding: 2px; }
 
-        /* الإدخال */
+        /* شريط الإدخال */
         .bar { padding: 10px; background: #050505; display: flex; gap: 5px; border-top: 1px solid #222; align-items: center; }
         input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 20px; outline: none; }
-        .btn-icon { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--main); }
+        .btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--main); }
 
-        #emoji-shelf { display: none; background: #111; padding: 10px; grid-template-columns: repeat(6, 1fr); border-top: 1px solid var(--main); }
+        #emojis { display: none; background: #111; padding: 10px; grid-template-columns: repeat(6, 1fr); border-top: 1px solid var(--main); gap: 10px; }
     </style>
 </head>
 <body>
 
     <div id="side-right" class="side">
-        <div style="padding:15px; text-align:center; color:var(--main); border-bottom:1px solid #222;">الملف الشخصي & المتصلون</div>
-        <div id="my-profile" style="padding:10px; text-align:center;">
-            <div class="prof-header" id="p-cover-bg">
-                <img src="https://via.placeholder.com/60" class="prof-av" id="p-avatar-img">
-            </div>
-            <h4 id="p-name-ui" style="margin-top:35px;">تحميل...</h4>
-            <button onclick="editProf()" style="font-size:10px;">⚙️ تعديل البروفايل</button>
+        <div style="padding:15px; text-align:center; color:var(--main); border-bottom:1px solid #222;">الملف الشخصي</div>
+        <div id="prof-ui" style="padding:20px; text-align:center;">
+            <img src="" id="my-av" style="width:70px; height:70px; border-radius:50%; border:2px solid var(--main);">
+            <h4 id="my-name">تحميل...</h4>
+            <button onclick="editP()" style="background:var(--main); border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">⚙️ تعديل</button>
         </div>
         <hr style="border:0; border-top:1px solid #222;">
-        <div id="user-list" style="padding:10px;"></div>
+        <div id="user-list" style="padding:10px; font-size:12px;"></div>
     </div>
 
     <div id="side-left" class="side">
-        <div style="padding:15px; color:var(--main);">إعدادات الشات</div>
-        <button onclick="toggleYT()" style="width:100%; padding:10px; background:none; color:#fff; border:none; text-align:right;">📺 تشغيل يوتيوب</button>
-        <button onclick="db.ref('msgs').remove()" style="width:100%; padding:10px; background:none; color:red; border:none; text-align:right;">🧨 تصفير الشات</button>
+        <div style="padding:15px; color:var(--main);">الإعدادات الملكية</div>
+        <button onclick="askYT()" style="width:100%; padding:12px; background:none; color:#fff; border:none; text-align:right; cursor:pointer;">📺 تشغيل يوتيوب</button>
+        <button onclick="location.reload()" style="width:100%; padding:12px; background:none; color:#fff; border:none; text-align:right; cursor:pointer;">🔄 تحديث الصفحة</button>
     </div>
 
-    <div id="main-view">
-        <div style="padding:10px; background:#0a0a0a; display:flex; justify-content:space-between; border-bottom:1px solid #222;">
-            <button class="btn-icon" onclick="openS('left')">⚙️</button>
-            <span style="color:var(--main); font-weight:bold;">مملكة علوش</span>
-            <button class="btn-icon" onclick="openS('right')">👤</button>
+    <div id="main">
+        <div style="padding:10px; background:#0a0a0a; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222;">
+            <button class="btn" onclick="openS('left')">⚙️</button>
+            <b style="color:var(--main);">مملكة علوش</b>
+            <button class="btn" onclick="openS('right')">👤</button>
         </div>
 
-        <div id="yt-player-box">
-            <div class="yt-btns">
-                <span onclick="ytV(false)">➖ صوت</span>
-                <span onclick="ytV(true)">➕ فيديو</span>
+        <div id="yt-float">
+            <div class="yt-ctrl">
+                <span onclick="setYT(false)">🔇 صوت</span>
+                <span onclick="setYT(true)">📺 فيديو</span>
                 <span onclick="this.parentElement.parentElement.style.display='none'">X</span>
             </div>
-            <div id="yt-frame" style="width:100%; height:100%;"></div>
+            <div id="player" style="width:100%; height:100%;"></div>
         </div>
 
-        <div id="chat-window" onclick="closeAll()"></div>
+        <div id="chat-win" onclick="closeAll()"></div>
 
-        <div id="emoji-shelf"></div>
+        <div id="emojis"></div>
 
         <div class="bar">
-            <button class="btn-icon" onclick="showE()">😊</button>
-            <input type="text" id="mInp" placeholder="تحدث يا ملك...">
-            <button class="btn-icon" onclick="send()">🚀</button>
+            <button class="btn" onclick="showE()">😊</button>
+            <input type="text" id="mInp" placeholder="اكتب رسالتك...">
+            <button class="btn" onclick="send()">🚀</button>
         </div>
     </div>
 
 <script>
-    const firebaseConfig = {
+    const config = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
         databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
         projectId: "masterchat-f2da9"
     };
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(config);
     const db = firebase.database();
     const auth = firebase.auth();
-    let myID, myD = {};
+    let myID, myData = {};
 
     auth.onAuthStateChanged(u => {
         if(u) {
             myID = u.uid;
             db.ref('users/'+myID).on('value', s => {
-                myD = s.val() || { n: u.email.split('@')[0], av: "https://via.placeholder.com/40" };
-                document.getElementById('p-name-ui').innerText = myD.n;
-                document.getElementById('p-avatar-img').src = myD.av;
+                myData = s.val() || { n: u.email.split('@')[0], av: "https://via.placeholder.com/40" };
+                document.getElementById('my-name').innerText = myData.n;
+                document.getElementById('my-av').src = myData.av;
             });
-            db.ref('status/'+myID).set({ n: myD.n });
-            db.ref('status/'+myID).onDisconnect().remove();
-            load();
+            db.ref('status/'+myID).set({ n: myData.n });
+            start();
         }
     });
 
@@ -122,54 +114,52 @@
     function closeAll() { 
         document.getElementById('side-right').classList.remove('open'); 
         document.getElementById('side-left').classList.remove('open');
-        document.getElementById('emoji-shelf').style.display = 'none';
+        document.getElementById('emojis').style.display = 'none';
     }
 
-    function editProf() {
-        const n = prompt("اسمك الجديد:", myD.n);
-        const av = prompt("رابط صورتك:", myD.av);
-        const mu = prompt("رابط موسيقى MP3 لبروفايلك:");
-        db.ref('users/'+myID).update({ n, av, mu });
+    function editP() {
+        const n = prompt("اسمك:", myData.n);
+        const av = prompt("رابط صورتك الشخصية:", myData.av);
+        db.ref('users/'+myID).update({ n, av });
     }
 
     function send() {
         const t = document.getElementById('mInp').value;
         if(!t) return;
-        db.ref('msgs').push({ uid: myID, n: myD.n, av: myD.av, t: t });
+        db.ref('msgs').push({ uid: myID, n: myData.n, av: myData.av, t: t });
         document.getElementById('mInp').value = '';
     }
 
-    function load() {
-        db.ref('msgs').limitToLast(20).on('child_added', s => {
+    function start() {
+        db.ref('msgs').limitToLast(25).on('child_added', s => {
             const d = s.val();
             const isMe = d.uid === myID;
             const div = document.createElement('div');
             div.className = `msg-row ${isMe ? 'me' : ''}`;
-            div.innerHTML = `<img src="${d.av}" class="u-img"><div class="txt"><small style="color:var(--main); display:block; font-size:10px;">${d.n}</small>${d.t}</div>`;
-            document.getElementById('chat-window').appendChild(div);
-            document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+            div.innerHTML = `<img src="${d.av}" class="u-avatar" onclick="openS('right')"><div class="bubble"><small style="color:var(--main); font-size:9px; display:block;">${d.n}</small>${d.t}</div>`;
+            document.getElementById('chat-win').appendChild(div);
+            document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
         });
 
-        const ems = ['😂','🔥','👑','✨','💯','💎','🌹','💙','🚀','🧿','🇮🇶','🤝','❤️','👌','😎','🤔','⚡','🎉','💪'];
-        ems.forEach(e => { document.getElementById('emoji-shelf').innerHTML += `<span style="cursor:pointer; font-size:25px;" onclick="addE('${e}')">${e}</span>`; });
+        const list = ['😂','🔥','👑','✨','💯','💎','🌹','💙','🚀','🧿''🇮🇶','🤝','❤️','👌','😎','🤔','⚡','🎉','💪','🔥','💎','👑'];
+        list.forEach(e => { document.getElementById('emojis').innerHTML += `<span style="cursor:pointer; font-size:25px;" onclick="addE('${e}')">${e}</span>`; });
     }
 
     function addE(e) { document.getElementById('mInp').value += e; }
-    function showE() { const s = document.getElementById('emoji-shelf'); s.style.display = s.style.display === 'grid' ? 'none' : 'grid'; }
+    function showE() { const s = document.getElementById('emojis'); s.style.display = s.style.display === 'grid' ? 'none' : 'grid'; }
 
-    function toggleYT() {
-        const id = prompt("كود فيديو يوتيوب:");
+    function askYT() {
+        const id = prompt("أدخل كود اليوتيوب:");
         if(id) db.ref('yt').set({ id, v: true });
     }
     db.ref('yt').on('value', s => {
         const y = s.val();
         if(y) {
-            const b = document.getElementById('yt-player-box');
-            b.style.display = 'block';
-            document.getElementById('yt-frame').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${y.id}?autoplay=1&controls=${y.v?1:0}" frameborder="0"></iframe>`;
+            document.getElementById('yt-float').style.display = 'block';
+            document.getElementById('player').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${y.id}?autoplay=1&controls=${y.v?1:0}" frameborder="0"></iframe>`;
         }
     });
-    function ytV(v) { db.ref('yt/v').set(v); }
+    function setYT(v) { db.ref('yt/v').set(v); }
 </script>
 </body>
 </html>
