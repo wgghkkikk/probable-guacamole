@@ -3,89 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CH-ALLOSH SUPREME 👑</title>
+    <title>إمبراطورية علوش الشاملة 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #050505; --panel: #121212; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Cairo', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        :root { --gold: #ffd700; --royal: #8a2be2; --bg: #050505; --panel: #111; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* شريط الإشعارات والتحكم العلوي */
-        .top-nav { height: 50px; background: var(--panel); border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
-        .master-btns span { margin: 0 10px; cursor: pointer; font-size: 20px; }
-
-        /* الهيكل الأساسي للقوائم */
-        #wrapper { display: flex; flex: 1; overflow: hidden; position: relative; }
-        .sidebar { width: 0; transition: 0.4s; background: var(--panel); overflow-y: auto; white-space: nowrap; position: relative; }
-        .sidebar.active { width: 280px; border: 1px solid #222; }
-
-        /* منطقة الدردشة */
-        .chat-container { flex: 1; display: flex; flex-direction: column; background: #000; }
-        #chat-window { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-
-        /* تصميم الرتب والأسماء المتحركة */
-        .name-master { background: linear-gradient(to right, #ffd700, #ff0000, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: anim 2s linear infinite; font-weight: bold; font-size: 1.1em; }
-        @keyframes anim { 0%{filter: hue-rotate(0deg);} 100%{filter: hue-rotate(360deg);} }
+        /* تأثيرات الأسماء */
+        .name-master { background: linear-gradient(90deg, #ff0000, #ffd700, #ff0000); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 2s linear infinite; font-weight: bold; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        @keyframes shine { to { background-position: 200% center; } }
         
-        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; color: #000; font-weight: bold; }
-        .bg-master { background: var(--gold); }
-        .bg-admin { background: #ff00ff; }
-        .bg-mod { background: #00ffff; }
+        /* الهيكل الأساسي */
+        .top-nav { height: 60px; background: var(--panel); border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 0 20px var(--gold); }
+        #wrapper { display: flex; flex: 1; overflow: hidden; }
+        .sidebar { width: 0; transition: 0.4s; background: var(--panel); overflow-y: auto; z-index: 100; }
+        .sidebar.active { width: 300px; border: 1px solid #333; }
+        
+        /* منطقة الشات */
+        .main-chat { flex: 1; display: flex; flex-direction: column; background: url('https://www.transparenttextures.com/patterns/dark-matter.png'); }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        
+        /* الرسائل والفيديو والصور */
+        .msg-box { padding: 10px; border-radius: 12px; max-width: 85%; position: relative; border-right: 4px solid #444; background: rgba(255,255,255,0.05); }
+        .master-msg { border-right: 4px solid var(--gold); background: rgba(255,215,0,0.05); }
+        img.chat-img { max-width: 100%; border-radius: 10px; margin-top: 5px; border: 1px solid var(--gold); }
+        iframe { width: 100%; border-radius: 10px; margin-top: 5px; }
 
-        /* المنشورات واليوميات */
-        .post-card { background: #1a1a1a; padding: 10px; border-radius: 8px; margin: 10px; border-right: 3px solid var(--gold); }
+        /* الألعاب واليوميات */
+        .card { background: #1a1a1a; padding: 15px; margin: 10px; border-radius: 10px; border: 1px solid #333; }
+        .game-btn { background: var(--royal); color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 5px; }
 
-        /* رسائل الصور واليوتيوب */
-        .chat-img { max-width: 200px; border-radius: 10px; border: 1px solid var(--gold); }
-        .yt-frame { width: 100%; max-width: 300px; height: 180px; border-radius: 10px; }
+        /* التحكم السفلي */
+        .footer { padding: 15px; background: var(--panel); display: flex; gap: 10px; align-items: center; }
+        #mInput { flex: 1; padding: 12px; border-radius: 30px; border: 1px solid #333; background: #222; color: white; outline: none; }
+        .action-btn { font-size: 24px; cursor: pointer; color: var(--gold); }
 
-        /* الفوتر */
-        .footer { padding: 10px; background: var(--panel); display: flex; gap: 10px; align-items: center; }
-        #msg-input { flex: 1; background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 20px; outline: none; }
-        .add-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); background: none; cursor: pointer; font-size: 20px; }
+        /* صفحة الدخول */
+        #auth { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="top-nav">
-    <div onclick="toggleSide('left')">⚙️ المميزات</div>
-    <div class="master-btns" id="m-tools" style="display:none">
-        <span onclick="sendAlert('📢 إعلان ملكي: الشات منور بوجودكم!')">📣</span>
-        <span onclick="sendAlert('🚨 صافرة إنذار: يرجى الالتزام بالقوانين!')">🔔</span>
+<div id="auth">
+    <div class="card" style="width: 300px; border: 2px solid var(--gold);">
+        <h2 class="name-master">دخول الإمبراطورية</h2>
+        <input type="text" id="uName" placeholder="اسمك الملكي" style="width:90%; padding:10px; margin-bottom:10px;">
+        <input type="password" id="uPass" placeholder="رمز المسؤول (اختياري)" style="width:90%; padding:10px;">
+        <button onclick="login()" class="game-btn" style="background:var(--gold); color:black; font-weight:bold; margin-top:15px;">دخول</button>
     </div>
-    <div class="name-master">إمبراطورية علوش</div>
-    <div onclick="toggleSide('right')">👥 المتصلين</div>
+</div>
+
+<div class="top-nav">
+    <div class="action-btn" onclick="toggleSide('left')">⚙️</div>
+    <div class="name-master" style="font-size: 20px;">CH-ALLOSH SUPREME</div>
+    <div class="action-btn" onclick="toggleSide('right')">👥</div>
 </div>
 
 <div id="wrapper">
-    <div id="side-left" class="sidebar">
-        <div style="padding: 20px;">
-            <center>
-                <img id="my-avatar" src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" style="width:80px; border:2px solid var(--gold); border-radius:50%;">
-                <h3 id="my-name-display">الملف الشخصي</h3>
-                <button onclick="changeAvatar()" class="badge">تغيير الصورة</button>
-            </center>
-            <hr>
-            <h4>📖 يومياتي</h4>
-            <input type="text" id="post-in" placeholder="بماذا تفكر؟" style="width:80%; background:#222; color:white; border:1px solid #444; padding:5px;">
-            <button onclick="addPost()" class="badge bg-master">نشر</button>
-            <div id="diary-area"></div>
-        </div>
-    </div>
-
-    <div class="chat-container">
-        <div id="chat-window"></div>
-        <div class="footer">
-            <button class="add-btn" onclick="uploadTool()">+</button>
-            <input type="text" id="msg-input" placeholder="اكتب رسالتك هنا...">
-            <button onclick="sendMsg()" style="background:var(--gold); border:none; padding:10px 20px; border-radius:20px; font-weight:bold;">إرسال</button>
-        </div>
-    </div>
-
     <div id="side-right" class="sidebar">
         <div style="padding: 20px;">
-            <h4>👥 المتواجدون الآن</h4>
-            <div id="user-list"></div>
+            <h3 style="color:var(--gold)">👥 المتصلين</h3>
+            <div id="userList"></div>
+        </div>
+    </div>
+
+    <div class="main-chat">
+        <div id="messages"></div>
+        <div class="footer">
+            <span class="action-btn" onclick="uploadMedia()">➕</span>
+            <input type="text" id="mInput" placeholder="تكلم يا ملك..." onkeypress="if(event.key==='Enter') send()">
+            <span class="action-btn" onclick="send()">🚀</span>
+        </div>
+    </div>
+
+    <div id="side-left" class="sidebar">
+        <div class="card">
+            <h4>👤 ملفي الشخصي</h4>
+            <div id="myRank">الرتبة: زائر</div>
+            <button class="game-btn" onclick="changeColor()">تغيير لون اسمي</button>
+        </div>
+        <div class="card">
+            <h4>🎮 ألعاب سريعة</h4>
+            <button class="game-btn" onclick="playGame('XO')">لعبة XO</button>
+            <button class="game-btn" onclick="playGame('Math')">تحدي الحساب</button>
+        </div>
+        <div class="card">
+            <h4>📖 يوميات الإمبراطورية</h4>
+            <input id="postTxt" placeholder="أنشر يومياتك..." style="width:70%; background:#222; border:1px solid #444; color:white;">
+            <button onclick="addPost()" style="background:var(--gold); border:none; border-radius:5px;">نشر</button>
+            <div id="postsArea"></div>
         </div>
     </div>
 </div>
@@ -95,97 +102,98 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let user = { name: "", role: "عضو", avatar: "" };
+    let me = { name: "", role: "عضو", color: "white" };
 
-    // دخول
-    window.onload = () => {
-        let n = prompt("ادخل اسمك يا ملك:");
-        if(!n) location.reload();
-        user.name = n;
-        if(n === "علوش") {
-            let p = prompt("باسورد الماستر:");
-            if(p === "Allosh#King@2025") {
-                user.role = "الماستر";
-                document.getElementById('m-tools').style.display = "block";
-            }
-        }
-        document.getElementById('my-name-display').innerText = n;
-        initChat();
+    function login() {
+        let n = document.getElementById('uName').value;
+        let p = document.getElementById('uPass').value;
+        if(!n) return alert("اكتب اسمك!");
+        me.name = n;
+        if(n === "علوش" && p === "Allosh#King@2025") me.role = "الماستر";
+        document.getElementById('auth').style.display = "none";
+        document.getElementById('myRank').innerText = "الرتبة: " + me.role;
+        start();
     }
 
-    function toggleSide(id) { document.getElementById('side-'+id).classList.toggle('active'); }
+    function toggleSide(s) { document.getElementById('side-'+s).classList.toggle('active'); }
 
-    function initChat() {
-        // تسجيل التواجد
-        db.ref('online/' + user.name).set(user);
-        db.ref('online/' + user.name).onDisconnect().remove();
+    function start() {
+        db.ref('online/' + me.name).set(me);
+        db.ref('online/' + me.name).onDisconnect().remove();
 
-        // المتصلين
-        db.ref('online').on('value', s => {
-            let html = "";
-            s.forEach(u => {
+        // تحديث المتصلين
+        db.ref('online').on('value', snap => {
+            let h = "";
+            snap.forEach(u => {
                 let d = u.val();
-                html += `<div style="margin:10px" onclick="adminAction('${d.name}')">
-                    <span class="badge ${d.role==='الماستر'?'bg-master':'bg-member'}">${d.role}</span>
-                    <span class="${d.role==='الماستر'?'name-master':''}">${d.name}</span>
+                h += `<div style="padding:5px; border-bottom:1px solid #222" onclick="adminOp('${d.name}')">
+                    <span class="${d.role==='الماستر'?'name-master':''}">● ${d.name}</span> 
+                    <small style="color:#666">[${d.role}]</small>
                 </div>`;
             });
-            document.getElementById('user-list').innerHTML = html;
+            document.getElementById('userList').innerHTML = h;
         });
 
-        // الرسائل
-        db.ref('messages').limitToLast(30).on('child_added', s => {
-            let d = s.val();
-            let area = document.getElementById('chat-window');
+        // الشات الذكي (صور، يوتيوب، روابط)
+        db.ref('msgs').limitToLast(50).on('child_added', snap => {
+            let d = snap.val();
+            let area = document.getElementById('messages');
             let div = document.createElement('div');
+            div.className = "msg-box " + (d.role==='الماستر' ? 'master-msg' : '');
             
-            let content = d.msg;
-            if(content.includes('http') && (content.includes('.jpg') || content.includes('.png') || content.includes('.gif'))) {
-                content = `<img src="${content}" class="chat-img">`;
-            } else if(content.includes('youtube.com/watch?v=')) {
-                let id = content.split('v=')[1];
-                content = `<iframe class="yt-frame" src="https://www.youtube.com/embed/${id}" frameborder="0"></iframe>`;
+            let content = d.text;
+            if(content.includes('http')){
+                if(content.match(/\.(jpeg|jpg|gif|png)$/) != null) content = `<img src="${content}" class="chat-img">`;
+                else if(content.includes('youtube.com/watch?v=')) content = `<iframe src="https://www.youtube.com/embed/${content.split('v=')[1]}" frameborder="0" allowfullscreen></iframe>`;
             }
 
-            div.innerHTML = `<b class="${d.role==='الماستر'?'name-master':''}">${d.sender}:</b> <span>${content}</span>`;
+            div.innerHTML = `<small class="${d.role==='الماستر'?'name-master':''}" style="display:block; font-size:10px;">${d.role}</small>
+                             <b style="color:${d.color}">${d.name}:</b> <span>${content}</span>`;
             area.appendChild(div);
             area.scrollTop = area.scrollHeight;
         });
     }
 
-    function sendMsg() {
-        let m = document.getElementById('msg-input').value;
-        if(!m) return;
-        db.ref('messages').push({ sender: user.name, role: user.role, msg: m });
-        document.getElementById('msg-input').value = "";
+    function send() {
+        let inp = document.getElementById('mInput');
+        if(!inp.value) return;
+        db.ref('msgs').push({ name: me.name, role: me.role, text: inp.value, color: me.color });
+        inp.value = "";
     }
 
-    function uploadTool() {
-        let link = prompt("ضع رابط الصورة أو الفيديو هنا لرفعه:");
-        if(link) { document.getElementById('msg-input').value = link; sendMsg(); }
+    function uploadMedia() {
+        let url = prompt("ألصق رابط الصورة أو فيديو اليوتيوب هنا:");
+        if(url) { document.getElementById('mInput').value = url; send(); }
     }
-
-    function sendAlert(txt) { db.ref('messages').push({ sender: "📢 إعلان", role: "الماستر", msg: txt }); }
 
     function addPost() {
-        let p = document.getElementById('post-in').value;
-        if(p) {
-            db.ref('posts').push({ name: user.name, text: p });
-            document.getElementById('post-in').value = "";
+        let t = document.getElementById('postTxt').value;
+        if(t) db.ref('posts').push({ name: me.name, text: t });
+        document.getElementById('postTxt').value = "";
+    }
+
+    db.ref('posts').on('value', snap => {
+        let h = "";
+        snap.forEach(p => { let d = p.val(); h += `<div class="post-card" style="font-size:12px; border-bottom:1px solid #333; padding:5px;"><b>${d.name}:</b> ${d.text}</div>`; });
+        document.getElementById('postsArea').innerHTML = h;
+    });
+
+    function playGame(type) {
+        if(type === 'Math') {
+            let q = Math.floor(Math.random()*10) + " + " + Math.floor(Math.random()*10);
+            let ans = prompt("حل المسألة بسرعة: " + q);
+            if(ans == eval(q)) alert("بطل! جواب صح"); else alert("خطأ يا ذكي!");
+        } else {
+            alert("لعبة " + type + " قيد التطوير في التحديث القادم!");
         }
     }
 
-    db.ref('posts').on('value', s => {
-        let out = "";
-        s.forEach(p => { let d = p.val(); out += `<div class="post-card"><b>${d.name}:</b><br>${d.text}</div>`; });
-        document.getElementById('diary-area').innerHTML = out;
-    });
-
-    function adminAction(target) {
-        if(user.role === "الماستر" && target !== user.name) {
-            let action = prompt("1: جعل مشرف | 2: طرد");
-            if(action === "1") db.ref('online/'+target+'/role').set('مشرف');
-            if(action === "2") db.ref('kicked/'+target).set(true);
+    function adminOp(user) {
+        if(me.role === "الماستر" && user !== me.name) {
+            let op = prompt("1: طرد | 2: ترقية لأدمن | 3: ترقية لمشرف");
+            if(op === "1") db.ref('kicked/'+user).set(true);
+            if(op === "2") db.ref('online/'+user+'/role').set('أدمن');
+            if(op === "3") db.ref('online/'+user+'/role').set('مشرف');
         }
     }
 </script>
