@@ -3,65 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إمبراطورية علوش | النسخة النهائية 👑</title>
-    <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.11.0.js"></script>
+    <title>مملكة علوش | V132 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --main: #ffd700; --bg: #050505; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        body { background: var(--bg); color: white; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-
-        /* واجهة الدخول */
-        #auth-screen { width: 90%; max-width: 400px; background: #111; padding: 30px; border-radius: 20px; border: 2px solid var(--main); text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; border-radius: 10px; color: white; text-align: center; outline: none; }
-        .btn-gold { width: 100%; padding: 12px; background: var(--main); color: black; border: none; border-radius: 50px; font-weight: 900; cursor: pointer; margin-top: 10px; }
-
-        /* واجهة الشات */
-        #main-chat { display: none; width: 100%; height: 100vh; flex-direction: column; background: var(--bg); }
-        .header { height: 60px; background: #000; border-bottom: 2px solid var(--main); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
-        .mics-area { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; background: #111; }
-        .mic-box { background: #1a1a1a; border: 2px solid #333; border-radius: 12px; padding: 10px 0; text-align: center; cursor: pointer; }
-        .mic-box.on { border-color: #00ff00; box-shadow: 0 0 10px #00ff00; }
-        #chat-flow { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { background: #111; padding: 10px; border-radius: 10px; border-right: 3px solid var(--main); }
+        body { background: #050505; color: white; font-family: 'Cairo', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .login-card { width: 90%; max-width: 380px; background: #111; padding: 30px; border-radius: 20px; border: 2px solid #ffd700; text-align: center; box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: white; text-align: center; outline: none; }
+        .btn-gold { width: 100%; padding: 12px; background: #ffd700; color: #000; border: none; border-radius: 50px; font-weight: 900; cursor: pointer; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<div id="auth-screen">
-    <h2 style="color:var(--main); margin-bottom:15px;">مملكة علوش 👑</h2>
-    <input type="email" id="email" placeholder="بريدك الإلكتروني">
+<div id="login-ui" class="login-card">
+    <h2 style="color:#ffd700; margin-bottom:20px;">دخول المملكة 👑</h2>
+    <input type="email" id="email" placeholder="الإيميل">
     <input type="password" id="pass" placeholder="كلمة المرور">
-    <button class="btn-gold" onclick="login()">دخول المملكة</button>
-    <button class="btn-gold" style="background:#333; color:white;" onclick="register()">إنشاء حساب جديد</button>
-</div>
-
-<div id="main-chat">
-    <div class="header">
-        <span style="color:var(--main); font-weight:bold;">الإمبراطور: <span id="user-name"></span></span>
-        <button onclick="location.reload()" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px;">خروج</button>
-    </div>
-
-    <div class="mics-area">
-        <div id="mic1" class="mic-box" onclick="toggleVoice(1)">🎙️ <span id="u1" style="font-size:10px; display:block;">فارغ</span></div>
-        <div id="mic2" class="mic-box" onclick="toggleVoice(2)">🎙️ <span id="u2" style="font-size:10px; display:block;">فارغ</span></div>
-        <div id="mic3" class="mic-box" onclick="toggleVoice(3)">🎙️ <span id="u3" style="font-size:10px; display:block;">فارغ</span></div>
-        <div id="mic4" class="mic-box" onclick="toggleVoice(4)">🎙️ <span id="u4" style="font-size:10px; display:block;">فارغ</span></div>
-    </div>
-
-    <div id="chat-flow"></div>
-
-    <div style="padding:15px; background:#000; border-top:1px solid #222; display:flex;">
-        <input type="text" id="msg-in" style="flex:1; margin:0;" placeholder="اكتب شيئاً..." onkeypress="if(event.key==='Enter') send()">
-        <button onclick="send()" style="background:var(--main); border:none; padding:0 15px; border-radius:10px; margin-right:5px; font-weight:bold;">إرسال</button>
-    </div>
+    <button class="btn-gold" onclick="doLogin()">دخول المملكة</button>
+    <button class="btn-gold" style="background:#333; color:white;" onclick="doRegister()">إنشاء حساب جديد</button>
 </div>
 
 <script>
-    // بياناتك الحقيقية من الصورة
+    // الإعدادات مأخوذة مباشرة من صورك
     const firebaseConfig = {
         apiKey: "AIzaSyDnigkb4U-RE71r_Zy3tHAV9wWWe2L3nFQ", 
         authDomain: "masterchat-f2da9.firebaseapp.com",
@@ -71,71 +36,39 @@
         appId: "1:22103852654:web:8407e5f26cee469bb471493de0041ff6"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const auth = firebase.auth();
-    const db = firebase.database();
-    const agoraClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    let localTrack, currentName;
 
-    // وظائف الدخول
-    function register() {
-        const e = document.getElementById('email').value, p = document.getElementById('pass').value;
-        auth.createUserWithEmailAndPassword(e, p).then(() => alert("تم الحساب!")).catch(err => alert(err.message));
+    // إنشاء حساب جديد
+    function doRegister() {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('pass').value;
+        
+        auth.createUserWithEmailAndPassword(e, p)
+            .then(() => {
+                alert("مبروك يا إمبراطور! تم إنشاء حسابك بنجاح. اضغط الآن على دخول.");
+            })
+            .catch(error => {
+                if(error.code === "auth/email-already-in-use") alert("هذا الحساب مسجل فعلاً، اضغط دخول مباشرة!");
+                else alert("تنبيه: " + error.message);
+            });
     }
 
-    function login() {
-        const e = document.getElementById('email').value, p = document.getElementById('pass').value;
-        auth.signInWithEmailAndPassword(e, p).then(u => {
-            currentName = e.split('@')[0];
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-chat').style.display = 'flex';
-            document.getElementById('user-name').innerText = currentName;
-            initChat();
-        }).catch(err => alert("خطأ بالبيانات!"));
-    }
+    // تسجيل الدخول
+    function doLogin() {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('pass').value;
 
-    // وظيفة المايك الحقيقي (Agora)
-    async function toggleVoice(n) {
-        if (localTrack) {
-            await agoraClient.leave();
-            localTrack.close(); localTrack = null;
-            db.ref('v130_mics/'+n).remove();
-        } else {
-            await agoraClient.join("8407e5f26cee469bb471493de0041ff6", "alloush", null, null);
-            localTrack = await AgoraRTC.createMicrophoneAudioTrack();
-            await agoraClient.publish([localTrack]);
-            db.ref('v130_mics/'+n).set({u: currentName});
-            db.ref('v130_mics/'+n).onDisconnect().remove();
-        }
-    }
-
-    agoraClient.on("user-published", async (user, type) => {
-        await agoraClient.subscribe(user, type);
-        if (type === "audio") user.audioTrack.play();
-    });
-
-    // الشات
-    function initChat() {
-        db.ref('v130_mics').on('value', s => {
-            for(let i=1;i<=4;i++) {
-                let d = s.child(i).val();
-                document.getElementById('mic'+i).className = d ? 'mic-box on' : 'mic-box';
-                document.getElementById('u'+i).innerText = d ? d.u : 'فارغ';
-            }
-        });
-        db.ref('v130_msgs').limitToLast(15).on('child_added', s => {
-            let d = s.val();
-            let div = document.createElement('div'); div.className="msg";
-            div.innerHTML = `<b style="color:gold">${d.u}:</b> ${d.t}`;
-            document.getElementById('chat-flow').appendChild(div);
-            document.getElementById('chat-flow').scrollTop = document.getElementById('chat-flow').scrollHeight;
-        });
-    }
-
-    function send() {
-        let i = document.getElementById('msg-in'); if(!i.value) return;
-        db.ref('v130_msgs').push({u: currentName, t: i.value});
-        i.value = "";
+        auth.signInWithEmailAndPassword(e, p)
+            .then(() => {
+                alert("أهلاً بك في مملكتك! جاري تحويلك...");
+                // سيتم هنا نقلك لداخل الشات ولوحة التحكم
+            })
+            .catch(error => {
+                alert("خطأ: تأكد من الإيميل والرمز أو اضغط إنشاء حساب.");
+            });
     }
 </script>
 </body>
