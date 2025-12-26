@@ -3,93 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH ELITE V38 👑</title>
+    <title>ALLOSH TREASURY V39 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #ffd700; --neon: #00f2ff; --bg: #050505; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; outline: none; }
+        :root { --gold: #ffd700; --bronze: #cd7f32; --bg: #000; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         
         body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
 
-        /* نافذة اليوتيوب العائمة (مربعة وصغيرة كما طلبت) */
-        #yt-window { position: fixed; top: 75px; left: 10px; width: 180px; background: #000; border: 2px solid var(--gold); border-radius: 12px; z-index: 5000; display: none; box-shadow: 0 0 20px var(--gold); }
-        .win-head { background: var(--gold); color: #000; padding: 5px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 900; border-radius: 10px 10px 0 0; }
-        .btn-win { background: #000; color: #fff; border: none; width: 20px; height: 20px; border-radius: 50%; cursor: pointer; font-size: 10px; font-weight: 900; }
+        /* نافذة اليوتيوب المربعة الصغيرة */
+        #yt-win { position: fixed; top: 70px; left: 10px; width: 170px; background: #111; border: 2px solid var(--gold); border-radius: 12px; z-index: 5000; display: none; overflow: hidden; }
+        .win-bar { background: var(--gold); color: #000; padding: 4px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 900; }
 
-        /* الهيدر */
-        .header { height: 65px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
-        .header b { font-size: 18px; color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+        /* الهيدر مع عداد الذهب */
+        .header { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
+        #my-gold-count { color: var(--gold); font-size: 14px; border: 1px solid #333; padding: 2px 10px; border-radius: 20px; background: #111; }
 
-        /* القوائم الجانبية */
-        .panel { position: fixed; top: 65px; bottom: 85px; width: 270px; background: rgba(10,10,20,0.95); border: 1px solid rgba(255,215,0,0.2); transition: 0.5s cubic-bezier(0.1, 0.7, 1.0, 0.1); z-index: 1500; backdrop-filter: blur(15px); }
-        #panel-r { right: -280px; border-radius: 20px 0 0 20px; }
-        #panel-l { left: -280px; border-radius: 0 20px 20px 0; }
-        .panel.active { right: 0 !important; left: 0 !important; }
-
-        /* ساحة الدردشة */
-        #chat-scroller { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at bottom, #0f0f1f, #000); }
-        .msg-row { display: flex; gap: 10px; animation: pop 0.3s; align-items: flex-end; }
-        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* الشات */
+        #chat-scroller { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); }
+        .msg { display: flex; gap: 10px; animation: slide 0.3s; align-items: flex-end; }
+        @keyframes slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
         
-        .avatar { width: 45px; height: 45px; border-radius: 12px; border: 2px solid #222; cursor: pointer; }
-        .king-avatar { border-color: var(--gold); box-shadow: 0 0 10px var(--gold); }
-        
-        .bubble { background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 18px; max-width: 75%; border: 1px solid rgba(255,255,255,0.05); position: relative; }
-        .bubble b { font-size: 11px; display: block; margin-bottom: 4px; color: var(--neon); }
-        .owner-bubble { border-color: var(--gold); background: rgba(255,215,0,0.03); }
-        .msg-time { font-size: 8px; color: #555; position: absolute; bottom: -15px; left: 5px; }
+        .pfp { width: 45px; height: 45px; border-radius: 10px; border: 2px solid var(--gold); }
+        .bubble { background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 15px; max-width: 75%; border: 1px solid #222; }
+        .lvl-tag { font-size: 9px; background: var(--bronze); color: #000; padding: 0 5px; border-radius: 4px; font-weight: 900; }
 
-        /* شريط الكتابة السفلي */
-        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #1a1a1a; display: flex; align-items: center; padding: 0 10px; gap: 10px; z-index: 2000; }
-        #input-box { flex: 1; height: 50px; background: #0d0d0d; border: 1px solid #333; border-radius: 15px; color: white; padding: 0 15px; font-size: 15px; }
-        #input-box:focus { border-color: var(--gold); }
-        .btn-send { width: 50px; height: 50px; background: var(--gold); border: none; border-radius: 15px; color: black; font-weight: 900; cursor: pointer; }
+        /* البروفايل العائم */
+        #profile-card { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; background: #111; border: 2px solid var(--gold); border-radius: 20px; z-index: 6000; display: none; text-align: center; padding: 20px; box-shadow: 0 0 50px rgba(0,0,0,1); }
 
-        /* وسام الملك المتحرك */
-        .badge { animation: shine 3s infinite linear; background: linear-gradient(90deg, #ffd700, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200%; }
-        @keyframes shine { to { background-position: 200%; } }
+        /* البار السفلي */
+        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #1a1a1a; display: flex; align-items: center; padding: 0 10px; gap: 8px; }
+        #msg-in { flex: 1; height: 45px; background: #0d0d0d; border: 1px solid #333; border-radius: 10px; color: #fff; padding: 0 12px; }
+        .send-btn { background: var(--gold); border: none; padding: 10px 20px; border-radius: 10px; font-weight: 900; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="yt-window">
-    <div class="win-head">
-        <span>🎬 سينما ALLOSH</span>
-        <div><button class="btn-win" onclick="document.getElementById('yt-window').style.display='none'">X</button></div>
-    </div>
-    <div id="yt-container"></div>
+<div id="yt-win">
+    <div class="win-bar"><span>YOUTUBE</span><button onclick="document.getElementById('yt-win').style.display='none'" style="border:none; background:none; font-weight:900;">X</button></div>
+    <div id="yt-content"></div>
+</div>
+
+<div id="profile-card">
+    <img id="p-img" src="" style="width:80px; border-radius:15px; border:2px solid var(--gold);">
+    <h3 id="p-name" style="margin:10px 0;"></h3>
+    <p style="color:var(--gold); font-size:14px;">الذهب: <span id="p-gold">0</span> 💰</p>
+    <p style="color:#00f2ff; font-size:14px;">المستوى: <span id="p-lvl">1</span> ⚡</p>
+    <button onclick="document.getElementById('profile-card').style.display='none'" style="margin-top:15px; background:red; color:white; border:none; padding:5px 20px; border-radius:5px;">إغلاق</button>
 </div>
 
 <div class="header">
-    <button onclick="toggleSide('panel-l')" style="background:none; border:none; font-size:26px;">⚙️</button>
-    <b>ALLOSH ELITE <span class="badge">V38</span></b>
-    <button onclick="toggleSide('panel-r')" style="background:none; border:none; font-size:26px;">👥</button>
-</div>
-
-<div id="panel-r" class="panel">
-    <div style="padding:20px; color:var(--gold); border-bottom:1px solid #222; font-weight:900;">الرادار الملكي</div>
-    <div id="users-online" style="padding:10px;"></div>
-</div>
-
-<div id="panel-l" class="panel">
-    <div style="padding:30px; text-align:center;">
-        <img id="my-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:100px; height:100px; border-radius:20px; border:3px solid var(--gold); cursor:pointer;" onclick="document.getElementById('f').click()">
-        <input type="file" id="f" hidden onchange="changeAvatar(this)">
-        <h3 style="margin:15px 0;">الإمبراطور علوش</h3>
-        <p style="font-size:11px; color:var(--gold);">الرتبة: مالك السيرفر 👑</p>
-        <hr style="margin:20px 0; opacity:0.1;">
-        <button onclick="db.ref('elite_v38').remove()" style="width:100%; padding:15px; background:none; border:1px solid red; color:red; border-radius:15px; font-weight:900;">تطهير الشات 🧹</button>
-    </div>
+    <b style="color:var(--gold)">ALLOSH V39</b>
+    <div id="my-gold-count">💰 0</div>
+    <button onclick="document.getElementById('profile-card').style.display='block'; showMyInfo();" style="background:none; border:none; font-size:24px;">👤</button>
 </div>
 
 <div id="chat-scroller"></div>
 
 <div class="footer">
-    <button onclick="toggleSide('panel-l')" style="background:none; border:none; font-size:24px;">✨</button>
-    <input type="text" id="input-box" placeholder="أمرك مطاع يا سيدي..." onkeypress="if(event.key==='Enter') send()">
-    <button class="btn-send" onclick="send()">إرسال</button>
+    <input type="text" id="msg-in" placeholder="اكتب واكسب الذهب..." onkeypress="if(event.key==='Enter') push()">
+    <button class="send-btn" onclick="push()">🚀</button>
 </div>
 
 <script>
@@ -97,11 +72,32 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let me = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", king: true };
+    let me = { 
+        name: "علوش", 
+        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
+        gold: parseInt(localStorage.getItem('gold')) || 0,
+        lvl: parseInt(localStorage.getItem('lvl')) || 1
+    };
 
-    function toggleSide(id) {
-        document.querySelectorAll('.panel').forEach(p => { if(p.id !== id) p.classList.remove('active'); });
-        document.getElementById(id).classList.toggle('active');
+    function showMyInfo() {
+        document.getElementById('p-img').src = me.avatar;
+        document.getElementById('p-name').innerText = me.name;
+        document.getElementById('p-gold').innerText = me.gold;
+        document.getElementById('p-lvl').innerText = me.lvl;
+    }
+
+    function push() {
+        let i = document.getElementById('msg-in'); if(!i.value) return;
+        
+        // نظام المكافآت
+        me.gold += 5;
+        if(me.gold % 100 === 0) me.lvl += 1;
+        localStorage.setItem('gold', me.gold);
+        localStorage.setItem('lvl', me.lvl);
+        document.getElementById('my-gold-count').innerText = "💰 " + me.gold;
+
+        db.ref('treasury_v39').push({ u: me.name, t: i.value, a: me.avatar, g: me.gold, l: me.lvl });
+        i.value = "";
     }
 
     function getYTID(url) {
@@ -109,52 +105,35 @@
         return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    function send() {
-        let i = document.getElementById('input-box'); if(!i.value) return;
-        let time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        db.ref('elite_v38').push({ u: me.name, t: i.value, a: me.avatar, k: me.king, time: time });
-        i.value = "";
-    }
-
-    db.ref('elite_v38').limitToLast(35).on('child_added', s => {
+    db.ref('treasury_v39').limitToLast(30).on('child_added', s => {
         let d = s.val();
         let ytID = getYTID(d.t);
-        
         if(ytID) {
-            document.getElementById('yt-window').style.display = 'block';
-            document.getElementById('yt-container').innerHTML = `<iframe width="100%" height="140" src="https://www.youtube.com/embed/${ytID}" frameborder="0" allowfullscreen></iframe>`;
+            document.getElementById('yt-win').style.display = 'block';
+            document.getElementById('yt-content').innerHTML = `<iframe width="100%" height="130" src="https://www.youtube.com/embed/${ytID}" frameborder="0" allowfullscreen></iframe>`;
         }
 
-        let scroller = document.getElementById('chat-scroller');
+        let sc = document.getElementById('chat-scroller');
         let div = document.createElement('div');
-        div.className = "msg-row";
+        div.className = "msg";
+        div.onclick = () => {
+            document.getElementById('p-img').src = d.a;
+            document.getElementById('p-name').innerText = d.u;
+            document.getElementById('p-gold').innerText = d.g;
+            document.getElementById('p-lvl').innerText = d.l;
+            document.getElementById('profile-card').style.display = 'block';
+        };
         div.innerHTML = `
-            <img src="${d.a}" class="avatar ${d.k?'king-avatar':''}" onclick="alert('بروفايل: ${d.u}')">
-            <div class="bubble ${d.k?'owner-bubble':''}">
-                <b>${d.u} ${d.k?'👑':''}</b>
+            <img src="${d.a}" class="pfp">
+            <div class="bubble">
+                <span class="lvl-tag">LVL ${d.l}</span> <b style="color:var(--gold); font-size:11px;">${d.u}</b><br>
                 <span>${d.t}</span>
-                <div class="msg-time">${d.time}</div>
             </div>`;
-        scroller.appendChild(div);
-        scroller.scrollTop = scroller.scrollHeight;
+        sc.appendChild(div);
+        sc.scrollTop = sc.scrollHeight;
     });
 
-    function changeAvatar(input) {
-        if(input.files[0]) {
-            let r = new FileReader();
-            r.onload = e => { me.avatar = e.target.result; document.getElementById('my-img').src = e.target.result; };
-            r.readAsDataURL(input.files[0]);
-        }
-    }
-
-    db.ref('online_v38/'+me.name).set(true);
-    db.ref('online_v38/'+me.name).onDisconnect().remove();
-    db.ref('online_v38').on('value', s => {
-        let l = document.getElementById('users-online'); l.innerHTML = "";
-        s.forEach(u => { l.innerHTML += `<div style="padding:12px; border-bottom:1px solid #111;">⚡ ${u.key}</div>`; });
-    });
-
-    document.getElementById('chat-scroller').onclick = () => document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('my-gold-count').innerText = "💰 " + me.gold;
 </script>
 </body>
 </html>
