@@ -1,13 +1,139 @@
-<div id="gift-shop" style="display:none; position:fixed; bottom:100px; background:#111; padding:20px; border-radius:20px; z-index:5000; border:2px solid gold;">
-    <img src="https://cdn-icons-png.flaticon.com/512/2558/2558671.png" width="50" onclick="sendGift('👑')">
-    <img src="https://cdn-icons-png.flaticon.com/512/1053/1053181.png" width="50" onclick="sendGift('🌹')">
-    <img src="https://cdn-icons-png.flaticon.com/512/744/744465.png" width="50" onclick="sendGift('💎')">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CH-ALLOSH SUPER V17 👑</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
+        :root { --gold: #f1c40f; --owner-red: #ff3b30; --blue: #00d4ff; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
+        body { background: #000; color: white; overflow: hidden; background-size: cover; background-position: center; transition: 0.5s; }
+        .stars-overlay { position: fixed; inset: 0; background: url('https://www.transparenttextures.com/patterns/stardust.png'); z-index: -1; pointer-events: none; }
+
+        /* الهيدر */
+        .header { height: 60px; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid var(--gold); }
+        .h-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: white; }
+
+        /* الرتب والتوثيق */
+        .owner-name { color: var(--owner-red); font-weight: 900; text-shadow: 0 0 8px rgba(255,0,0,0.5); }
+        .verify-check { width: 16px; vertical-align: middle; }
+
+        /* ساحة الدردشة */
+        #chat-box { height: calc(100vh - 145px); overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: rgba(20,20,20,0.8); padding: 10px; border-radius: 12px; border-right: 4px solid var(--gold); max-width: 80%; animation: slideIn 0.3s; }
+        .bot-msg { border-right-color: var(--blue) !important; background: rgba(0,212,255,0.1) !important; }
+
+        /* متجر الهدايا */
+        #gift-panel { position: fixed; bottom: 90px; right: 10px; background: #111; border: 1px solid var(--gold); border-radius: 15px; padding: 10px; display: none; grid-template-columns: repeat(3, 1fr); gap: 10px; z-index: 3000; }
+        .gift-item { cursor: pointer; transition: 0.2s; border-radius: 10px; padding: 5px; }
+        .gift-item:hover { background: #222; transform: scale(1.1); }
+
+        /* البار السفلي */
+        .footer { height: 85px; background: #000; display: flex; align-items: center; padding: 10px; gap: 10px; border-top: 1px solid #222; }
+        #in { flex: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 25px; color: white; padding: 0 15px; outline: none; }
+        
+        /* لوحة التحكم الجانبية */
+        .side-panel { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #0a0a0a; border-right: 2px solid var(--gold); transition: 0.3s; z-index: 4000; padding: 20px; }
+        .side-panel.open { left: 0; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+<div class="stars-overlay"></div>
+
+<div class="header">
+    <button class="h-btn" onclick="toggleSide()">⚙️</button>
+    <div style="font-weight: 900; color: var(--gold);">ALLOSH SUPREME V17</div>
+    <button class="h-btn" onclick="toggleGifts()">🎁</button>
 </div>
+
+<div id="side-p" class="side-panel">
+    <h3>🛡️ لوحة الإمبراطور</h3>
+    <hr style="opacity:0.2; margin:15px 0;">
+    <button onclick="clearChat()" style="width:100%; padding:10px; background:red; border:none; color:white; border-radius:8px; margin-bottom:10px;">مسح الشات 🧹</button>
+    <button onclick="setGlobalBg()" style="width:100%; padding:10px; background:var(--blue); border:none; color:white; border-radius:8px; margin-bottom:10px;">تغيير الخلفية للكل 🖼️</button>
+    <button onclick="toggleSide()" style="width:100%; padding:10px; background:#333; border:none; color:white; border-radius:8px;">إغلاق</button>
+</div>
+
+<div id="gift-panel">
+    <div class="gift-item" onclick="sendGift('👑', 'تاج ملكي')"><img src="https://cdn-icons-png.flaticon.com/512/2558/2558671.png" width="40"></div>
+    <div class="gift-item" onclick="sendGift('💎', 'ماسة نادرة')"><img src="https://cdn-icons-png.flaticon.com/512/744/744465.png" width="40"></div>
+    <div class="gift-item" onclick="sendGift('🌹', 'وردة حب')"><img src="https://cdn-icons-png.flaticon.com/512/1053/1053181.png" width="40"></div>
+</div>
+
+<div id="chat-box"></div>
+
+<div class="footer">
+    <button class="h-btn" onclick="toggleGifts()">😊</button>
+    <input type="text" id="in" placeholder="اكتب يا ملك..." onkeypress="if(event.key==='Enter') sendMsg()">
+    <button class="h-btn" style="color:var(--gold)" onclick="sendMsg()">🚀</button>
+</div>
+
 <script>
-    function sendGift(type) {
-        let msg = `أرسل هدية: ${type}`;
-        db.ref('msgs').push({sender: me.name, text: msg, type: 'gift'});
-        document.getElementById('gift-shop').style.display = 'none';
+    const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(config);
+    const db = firebase.database();
+
+    // معلوماتك كمالك
+    let me = {
+        name: "علوش",
+        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+        rank: "owner"
+    };
+
+    function toggleSide() { document.getElementById('side-p').classList.toggle('open'); }
+    function toggleGifts() { let p = document.getElementById('gift-panel'); p.style.display = (p.style.display==='grid'?'none':'grid'); }
+
+    function sendMsg() {
+        let text = document.getElementById('in').value; if(!text) return;
+        // حماية من الكلمات البذيئة (مثال)
+        if(text.includes("مسبة")) { alert("ممنوع التجاوز!"); return; }
+        db.ref('msgs_v17').push({ sender: me.name, text: text, rank: me.rank, avatar: me.avatar, type: 'text' });
+        document.getElementById('in').value = "";
     }
-</script
-    
+
+    function sendGift(emoji, name) {
+        db.ref('msgs_v17').push({ sender: me.name, text: `أهدى ${name} ${emoji}`, rank: me.rank, avatar: me.avatar, type: 'gift' });
+        toggleGifts();
+    }
+
+    function setGlobalBg() {
+        let url = prompt("أدخل رابط صورة الخلفية الجديدة:");
+        if(url) db.ref('settings/globalBg').set(url);
+    }
+
+    // استقبال الرسائل ومعالجة الرتب والتوثيق
+    db.ref('msgs_v17').limitToLast(40).on('child_added', s => {
+        let d = s.val();
+        let box = document.getElementById('chat-box');
+        let div = document.createElement('div');
+        div.className = "msg " + (d.bot ? "bot-msg" : "");
+        
+        let nameHtml = d.rank === 'owner' ? 
+            `<b class="owner-name">${d.sender} <img src="https://cdn-icons-png.flaticon.com/512/7641/7641727.png" class="verify-check"></b>` : 
+            `<b style="color:var(--gold)">${d.sender}</b>`;
+
+        let content = d.type === 'gift' ? `<span style="font-size:20px; color:var(--blue)">${d.text}</span>` : d.text;
+
+        div.innerHTML = `<img src="${d.avatar}" style="width:35px; height:35px; border-radius:50%; vertical-align:middle; margin-left:8px;">
+                         <div>${nameHtml}<br>${content}</div>`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+    });
+
+    // تحديث الخلفية للكل
+    db.ref('settings/globalBg').on('value', s => { if(s.val()) document.body.style.backgroundImage = `url('${s.val()}')`; });
+
+    function clearChat() { if(confirm("مسح كل الشات؟")) db.ref('msgs_v17').remove(); }
+
+    // البوت يرحب بك
+    setTimeout(() => {
+        db.ref('msgs_v17').push({ sender: "علوش بوت 🤖", text: "تم تفعيل نظام V17 الخارق.. أهلاً بك يا ملك!", avatar: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png", bot: true });
+    }, 1000);
+</script>
+</body>
+</html>
