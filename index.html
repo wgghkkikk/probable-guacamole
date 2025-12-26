@@ -2,60 +2,45 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش للدردشة 👑</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مملكة علوش - النسخة الفخمة 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --dark: #0a0a0a; --bg: #000; }
-        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-        .box { background: #111; border: 2px solid var(--gold); border-radius: 20px; width: 100%; max-width: 500px; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); position: relative; }
+        :root { --gold: #ffd700; --bg: #050505; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* لوحة الإدارة */
-        #admin-btn { display: none; background: var(--gold); color: #000; text-align: center; padding: 8px; font-weight: bold; cursor: pointer; border-radius: 15px 15px 0 0; }
-        
-        .header { padding: 15px; border-bottom: 1px solid #222; text-align: center; }
-        .header h2 { margin: 0; color: var(--gold); font-size: 22px; text-shadow: 0 0 10px var(--gold); }
+        /* واجهة الإدارة */
+        .admin-header { background: linear-gradient(90deg, #ffd700, #ffae00); color: black; padding: 10px; text-align: center; font-weight: bold; cursor: pointer; display: none; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
 
-        #msg-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: url('https://www.transparenttextures.com/patterns/black-linen.png'); }
+        .chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #111 0%, #000 100%); }
         
-        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; position: relative; animation: fadeIn 0.3s ease; }
-        .msg.other { background: #222; align-self: flex-start; border-right: 3px solid var(--gold); }
-        .msg.me { background: #333; align-self: flex-end; border-left: 3px solid #fff; }
+        /* تصميم الرسائل */
+        .msg { padding: 12px 16px; border-radius: 20px; max-width: 75%; position: relative; line-height: 1.5; animation: pop 0.3s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .msg.me { align-self: flex-end; background: #222; border: 1px solid #444; border-bottom-right-radius: 2px; }
+        .msg.other { align-self: flex-start; background: #1a1a1a; border: 1px solid var(--gold); border-bottom-left-radius: 2px; }
         
-        .u-name { font-size: 11px; font-weight: bold; color: var(--gold); display: block; margin-bottom: 4px; }
-        .u-time { font-size: 9px; opacity: 0.5; display: block; margin-top: 5px; text-align: left; }
-        
-        .input-area { padding: 15px; background: #111; display: flex; gap: 8px; border-radius: 0 0 20px 20px; }
-        input { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #333; background: #000; color: #fff; outline: none; }
-        .send-btn { background: var(--gold); color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+        .u-info { font-size: 11px; color: var(--gold); font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .kick-btn { color: red; cursor: pointer; margin-right: 10px; font-size: 14px; font-weight: bold; }
+
+        /* منطقة الإدخال */
+        .input-bar { background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #222; }
+        input { flex: 1; background: #000; border: 1px solid #333; color: white; padding: 12px; border-radius: 12px; outline: none; }
+        button { background: var(--gold); border: none; padding: 0 20px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <div id="admin-btn" onclick="openAdmin()">إدارة المملكة ⚖️</div>
-        
-        <div class="header">
-            <h2>مملكة علوش 👑</h2>
-            <small id="online-status" style="color: lime; font-size: 10px;">المملكة متصلة الآن ✅</small>
-        </div>
+    <div id="adm-head" class="admin-header" onclick="adminMenu()">⚖️ لوحة تحكم الإمبراطور علوش</div>
 
-        <div id="msg-box"></div>
+    <div class="chat-container" id="chat"></div>
 
-        <div class="input-area">
-            <input type="text" id="m-input" placeholder="اكتب رسالتك للملك...">
-            <button class="send-btn" onclick="send()">إرسال</button>
-        </div>
-        
-        <div style="text-align: center; padding-bottom: 10px;">
-            <button onclick="auth.signOut()" style="background:none; border:none; color:red; cursor:pointer; font-size: 12px;">خروج آمن</button>
-        </div>
+    <div class="input-bar">
+        <input type="text" id="minp" placeholder="اكتب رسالتك أو رابط صورة...">
+        <button onclick="send()">إرسال</button>
     </div>
 
 <script>
@@ -71,64 +56,54 @@
 
     auth.onAuthStateChanged(user => {
         if (user) {
-            // تفعيل لوحة الإدارة لإيميلك فقط
-            if(user.email === "rgrghh77@gmail.com") {
-                document.getElementById('admin-btn').style.display = 'block';
-            }
-            loadMessages();
-        } else {
-            window.location.href = "index.html"; 
-        }
+            if(user.email === "rgrghh77@gmail.com") document.getElementById('adm-head').style.display = 'block';
+            load();
+        } else { window.location.href = "index.html"; }
     });
 
     function send() {
-        const inp = document.getElementById('m-input');
-        const text = inp.value.trim();
-        if(text !== "") {
-            const user = auth.currentUser;
+        const val = document.getElementById('minp').value.trim();
+        if(val) {
             db.ref('msgs').push({
-                u: user.email.split('@')[0],
-                t: text,
-                a: user.email === "rgrghh77@gmail.com", // رتبة الإمبراطور
-                time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
+                u: auth.currentUser.email.split('@')[0],
+                t: val,
+                a: auth.currentUser.email === "rgrghh77@gmail.com",
+                time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'})
             });
-            inp.value = '';
+            document.getElementById('minp').value = '';
         }
     }
 
-    function loadMessages() {
-        const box = document.getElementById('msg-box');
+    function load() {
+        const chat = document.getElementById('chat');
         db.ref('msgs').limitToLast(40).on('child_added', snap => {
             const d = snap.val();
+            const id = snap.key;
             const isMe = d.u === auth.currentUser.email.split('@')[0];
-            const rank = d.a ? "👑 إمبراطور" : "👤 عضو";
+            const isImg = d.t.match(/\.(jpeg|jpg|gif|png)$/) != null;
             
-            const div = document.createElement('div');
-            div.className = `msg ${isMe ? 'me' : 'other'}`;
-            div.innerHTML = `
-                <span class="u-name">${rank} @${d.u}</span>
-                <span>${d.t}</span>
-                <span class="u-time">${d.time}</span>
-            `;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+            let content = isImg ? `<img src="${d.t}" style="width:100%; border-radius:10px; margin-top:5px;">` : d.t;
+            let kickIcon = (auth.currentUser.email === "rgrghh77@gmail.com") ? `<span class="kick-btn" onclick="deleteMsg('${id}')">×</span>` : '';
+
+            chat.innerHTML += `
+                <div class="msg ${isMe ? 'me' : 'other'}">
+                    <div class="u-info">
+                        <span>${d.a ? '👑 ' : ''}@${d.u}</span>
+                        ${kickIcon}
+                    </div>
+                    <div>${content}</div>
+                    <div style="font-size:9px; opacity:0.5; margin-top:5px;">${d.time}</div>
+                </div>`;
+            chat.scrollTop = chat.scrollHeight;
         });
     }
 
-    function openAdmin() {
-        const cmd = prompt("أوامر الإمبراطور علوش:\n1- مسح الدردشة بالكامل\n2- حظر الكل (قريباً)");
-        if(cmd === "1") {
-            if(confirm("هل أنت متأكد من تنظيف المملكة؟")) {
-                db.ref('msgs').remove();
-                location.reload();
-            }
-        }
-    }
+    function deleteMsg(id) { if(confirm("حذف هذه الرسالة؟")) db.ref('msgs').child(id).remove().then(() => location.reload()); }
 
-    // إرسال بالضغط على Enter
-    document.getElementById('m-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') send();
-    });
+    function adminMenu() {
+        const op = prompt("1: مسح كل الدردشة\n2: تغيير اسمك المستعار");
+        if(op === "1" && confirm("متأكد؟")) db.ref('msgs').remove().then(() => location.reload());
+    }
 </script>
 </body>
 </html>
