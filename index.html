@@ -3,78 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة علوش الملكية 👑</title>
+    <title>إمبراطورية علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --main: #ffd700; --bg: #000; }
+        :root { --main: #ffd700; --bg: #000; --side-w: 220px; }
         body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* نظام المايكات الأربعة */
-        .mic-slots { display: flex; justify-content: space-around; background: #111; padding: 10px; border-bottom: 2px solid var(--main); gap: 5px; }
-        .slot { flex: 1; background: #1a1a1a; border: 1px dashed var(--main); border-radius: 10px; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; position: relative; }
-        .slot.active { border-style: solid; box-shadow: 0 0 10px var(--main); }
-        .mic-on-btn { position: absolute; bottom: 2px; font-size: 10px; background: var(--main); color: #000; border: none; border-radius: 5px; cursor: pointer; }
+        /* القائمة الجانبية القابلة للإخفاء */
+        #sidebar { 
+            width: var(--side-w); background: #0a0a0a; border-left: 1px solid var(--main); 
+            padding: 15px; box-sizing: border-box; flex-shrink: 0; transition: 0.4s;
+            position: relative; z-index: 10;
+        }
+        #sidebar.hidden { margin-right: calc(var(--side-w) * -1); }
 
-        /* تنسيق الأقسام القابل للنقل */
-        #sidebar { width: 220px; border-left: 1px solid var(--main); order: 1; transition: 0.3s; overflow-y: auto; padding: 10px; }
-        .main-chat { flex: 1; display: flex; flex-direction: column; order: 2; }
+        .user-card { padding: 8px; border-radius: 10px; background: #151515; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; border: 1px solid #222; }
+        .online-dot { width: 8px; height: 8px; background: #00ff00; border-radius: 50%; }
+        .bot-dot { background: #00f2ff; box-shadow: 0 0 8px #00f2ff; }
 
-        /* البوت */
-        .bot-msg { background: linear-gradient(45deg, #444, #111) !important; border-right: 4px solid #00f2ff !important; }
+        .main-chat { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* نظام المايكات */
+        .mic-slots { display: flex; background: #111; padding: 5px; gap: 5px; border-bottom: 1px solid #222; }
+        .slot { flex: 1; background: #1a1a1a; height: 50px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; border: 1px dashed #444; }
+        .slot.active { border: 1px solid var(--main); }
 
-        /* لوحة التحكم */
-        #admin-panel { position: fixed; top: 10%; left: 10%; right: 10%; bottom: 10%; background: rgba(0,0,0,0.95); border: 2px solid var(--main); z-index: 9999; border-radius: 20px; padding: 20px; display: none; }
-        .control-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn { background: var(--main); color: #000; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        /* اليوتيوب */
+        .yt-area { background: #111; padding: 10px; border-bottom: 1px solid var(--main); }
+        #yt-results { display: flex; overflow-x: auto; gap: 10px; padding: 5px; }
+        .yt-card { min-width: 100px; text-align: center; cursor: pointer; }
+        .yt-card img { width: 90px; border-radius: 5px; }
 
-        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px; border-radius: 12px; max-width: 80%; }
+        #live-display { display: none; height: 200px; background: #000; }
+
+        #chat-box { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px; border-radius: 12px; max-width: 80%; font-size: 14px; }
         .msg.me { align-self: flex-end; background: #222; border-right: 3px solid var(--main); }
-        .msg.other { align-self: flex-start; background: #1a1a1a; }
-        .input-area { padding: 15px; background: #111; display: flex; gap: 10px; align-items: center; }
-        input[type="text"] { flex: 1; background: #000; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 25px; outline: none; }
+        .msg.other { align-self: flex-start; background: #1a1a1a; border-left: 3px solid #eee; }
+        .msg.bot { border-right: 3px solid #00f2ff; background: #111; }
+
+        .input-bar { padding: 10px; background: #0a0a0a; display: flex; gap: 10px; border-top: 1px solid #222; }
+        input[type="text"] { flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid #333; background: #000; color: #fff; outline: none; }
+        
+        #toggle-hint { position: fixed; top: 10px; right: 10px; font-size: 10px; color: var(--main); z-index: 20; opacity: 0.5; }
     </style>
 </head>
-<body>
+<body onclick="checkToggle(event)">
+
+    <div id="toggle-hint">اضغط هنا لإخفاء/إظهار القائمة ↔️</div>
 
     <div id="sidebar">
-        <h3 style="text-align:center; color:var(--main);">الملوك 🇮🇶</h3>
-        <div id="online-list"></div>
+        <h4 style="text-align:center; color:var(--main); margin:0 0 10px 0;">المتواجدون</h4>
+        <div id="online-users">
+            <div class="user-card">
+                <div class="online-dot bot-dot"></div>
+                <span style="color:#00f2ff; font-weight:bold; font-size:12px;">بوت المملكة 🤖</span>
+            </div>
+        </div>
     </div>
 
     <div class="main-chat">
         <div class="mic-slots">
-            <div class="slot" id="slot1">🎙️ خالي <button class="mic-on-btn" onclick="toggleMic(1)">صعود</button></div>
-            <div class="slot" id="slot2">🎙️ خالي <button class="mic-on-btn" onclick="toggleMic(2)">صعود</button></div>
-            <div class="slot" id="slot3">🎙️ خالي <button class="mic-on-btn" onclick="toggleMic(3)">صعود</button></div>
-            <div class="slot" id="slot4">🎙️ خالي <button class="mic-on-btn" onclick="toggleMic(4)">صعود</button></div>
+            <div class="slot" id="s1">🎙️ خالي <button onclick="joinMic(1)" style="font-size:9px;">صعود</button></div>
+            <div class="slot" id="s2">🎙️ خالي <button onclick="joinMic(2)" style="font-size:9px;">صعود</button></div>
+            <div class="slot" id="s3">🎙️ خالي <button onclick="joinMic(3)" style="font-size:9px;">صعود</button></div>
+            <div class="slot" id="s4">🎙️ خالي <button onclick="joinMic(4)" style="font-size:9px;">صعود</button></div>
         </div>
 
-        <div style="background:#111; padding:10px; display:flex; justify-content:space-between; border-bottom:1px solid #222;">
-            <button id="admin-gear" style="background:none; border:none; color:var(--main); font-size:20px; cursor:pointer; display:none;" onclick="togglePanel()">⚙️</button>
-            <span style="color:var(--main); font-weight:bold;">مملكة علوش 👑</span>
-            <span id="clock" style="color:gray;"></span>
+        <div class="yt-area">
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="yt-inp" placeholder="بحث يوتيوب..." style="flex:1; padding:5px; border-radius:5px; border:1px solid #444; background:#000; color:#fff;">
+                <button onclick="searchYT()" style="background:var(--main); border:none; padding:5px 15px; border-radius:5px; cursor:pointer;">🔍</button>
+            </div>
+            <div id="yt-results"></div>
         </div>
+
+        <div id="live-display"></div>
 
         <div id="chat-box"></div>
 
-        <div class="input-area">
+        <div class="input-bar">
             <input type="text" id="mInp" placeholder="اكتب رسالتك...">
-            <button class="btn" onclick="send()">إرسال</button>
+            <button onclick="send()" style="background:var(--main); border:none; padding:8px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">إرسال</button>
         </div>
-    </div>
-
-    <div id="admin-panel">
-        <h2 style="text-align:center; color:var(--main);">🛠️ لوحة التحكم المطلقة</h2>
-        <div class="control-row">
-            <button class="btn" onclick="moveLayout('right')">نقل القائمة لليمين</button>
-            <button class="btn" onclick="moveLayout('left')">نقل القائمة لليسار</button>
-            <button class="btn" onclick="clearChat()">تصفير الشات 🧨</button>
-            <button class="btn" onclick="toggleMicsVisibility()">إخفاء/إظهار المايكات</button>
-        </div>
-        <button class="btn" style="width:100%; margin-top:20px;" onclick="togglePanel()">إغلاق</button>
     </div>
 
 <script>
@@ -88,124 +101,105 @@
     firebase.initializeApp(config);
     const db = firebase.database();
     const auth = firebase.auth();
-
     let myName = "";
 
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            const isMe = user.email === "rgrghh77@gmail.com";
-            if(isMe) document.getElementById('admin-gear').style.display = 'block';
-            myName = isMe ? "إمبراطور علوش 👑" : user.email.split('@')[0];
-            db.ref('status/' + user.uid).set({ n: myName });
-            db.ref('status/' + user.uid).onDisconnect().remove();
-            loadChat(); loadUsers(); syncMics();
-        } else { window.location.href = "index.html"; }
-    });
-
-    // --- نظام البوت ---
-    function runBot(msg) {
-        if(msg === "بوت") {
-            setTimeout(() => {
-                sendBotMsg("أهلاً بك في مملكة الإمبراطور علوش! كيف أخدمك؟ 🤖");
-            }, 1000);
-        } else if(msg.includes("علوش")) {
-            setTimeout(() => {
-                sendBotMsg("الإمبراطور علوش هو سيد هذه المملكة 👑 حيّوه!");
-            }, 800);
+    // اخفاء واظهار القائمة بالضغط
+    function checkToggle(e) {
+        if (e.clientX > window.innerWidth - 50 || e.target.id === "toggle-hint") {
+            document.getElementById('sidebar').classList.toggle('hidden');
         }
     }
 
-    function sendBotMsg(text) {
-        db.ref('msgs').push({ u: "بوت المملكة 🤖", t: text, type: 'bot' });
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            myName = user.email === "rgrghh77@gmail.com" ? "إمبراطور علوش 👑" : user.email.split('@')[0];
+            db.ref('status/' + user.uid).set({ n: myName });
+            db.ref('status/' + user.uid).onDisconnect().remove();
+            loadChat(); loadUsers(); syncMics(); watchYT();
+        } else { window.location.href = "index.html"; }
+    });
+
+    // يوتيوب
+    async function searchYT() {
+        const q = document.getElementById('yt-inp').value;
+        if(!q) return;
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&type=video&maxResults=5&key=${YT_KEY}`);
+        const data = await res.json();
+        const resDiv = document.getElementById('yt-results');
+        resDiv.innerHTML = '';
+        data.items.forEach(v => {
+            resDiv.innerHTML += `
+                <div class="yt-card" onclick="playVideo('${v.id.videoId}')">
+                    <img src="${v.snippet.thumbnails.default.url}">
+                    <p style="font-size:9px; color:#fff; margin:2px;">${v.snippet.title.substring(0,20)}</p>
+                </div>`;
+        });
     }
 
-    // --- نظام المايكات ---
-    function toggleMic(num) {
-        const ref = db.ref('mics/slot' + num);
-        ref.once('value', snap => {
-            const d = snap.val();
-            if(d && d.u === myName) {
-                ref.remove(); // نزول من المايك
-            } else if(!d) {
-                ref.set({ u: myName }); // صعود للمايك
-            } else {
-                alert("المايك مشغول!");
-            }
+    function playVideo(id) { db.ref('live').set({ id: id, active: true }); document.getElementById('yt-results').innerHTML = ''; }
+    
+    function watchYT() {
+        db.ref('live').on('value', snap => {
+            const v = snap.val();
+            const disp = document.getElementById('live-display');
+            if(v && v.active) {
+                disp.style.display = 'block';
+                disp.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${v.id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+            } else { disp.style.display = 'none'; }
+        });
+    }
+
+    // مايكات
+    function joinMic(n) {
+        const ref = db.ref('mics/s' + n);
+        ref.once('value', s => {
+            if(s.val() && s.val().n === myName) ref.remove();
+            else if(!s.val()) ref.set({ n: myName });
         });
     }
 
     function syncMics() {
         for(let i=1; i<=4; i++) {
-            db.ref('mics/slot' + i).on('value', snap => {
-                const d = snap.val();
-                const el = document.getElementById('slot' + i);
-                if(d) {
-                    el.innerHTML = `🎤 ${d.u} <button class="mic-on-btn" onclick="toggleMic(${i})">نزول</button>`;
-                    el.classList.add('active');
-                } else {
-                    el.innerHTML = `🎙️ خالي <button class="mic-on-btn" onclick="toggleMic(${i})">صعود</button>`;
-                    el.classList.remove('active');
-                }
+            db.ref('mics/s' + i).on('value', s => {
+                const el = document.getElementById('s' + i);
+                if(s.val()) el.innerHTML = `🎤 ${s.val().n} <button onclick="joinMic(${i})" style="font-size:8px;">نزول</button>`;
+                else el.innerHTML = `🎙️ خالي <button onclick="joinMic(${i})" style="font-size:8px;">صعود</button>`;
             });
         }
     }
 
-    // --- التحكم ونقل المميزات ---
-    function moveLayout(side) {
-        const sideEl = document.getElementById('sidebar');
-        const chatEl = document.querySelector('.main-chat');
-        if(side === 'right') {
-            sideEl.style.order = "2";
-            chatEl.style.order = "1";
-        } else {
-            sideEl.style.order = "1";
-            chatEl.style.order = "2";
-        }
-    }
-
-    function toggleMicsVisibility() {
-        const m = document.querySelector('.mic-slots');
-        m.style.display = m.style.display === 'none' ? 'flex' : 'none';
-    }
-
-    // --- الوظائف الأساسية ---
+    // شات وبوت
     function send() {
         const i = document.getElementById('mInp');
-        if(i.value.trim()) {
-            db.ref('msgs').push({ u: myName, t: i.value, m: auth.currentUser.email === "rgrghh77@gmail.com" });
-            runBot(i.value); // تفعيل البوت
-            i.value = '';
+        if(!i.value.trim()) return;
+        db.ref('msgs').push({ u: myName, t: i.value, m: auth.currentUser.email === "rgrghh77@gmail.com" });
+        if(i.value === "بوت") {
+            setTimeout(()=> db.ref('msgs').push({ u: "بوت المملكة 🤖", t: "نعم يا ملك، أنا في الخدمة!", type: 'bot' }), 1000);
         }
+        i.value = '';
     }
 
     function loadChat() {
-        db.ref('msgs').limitToLast(40).on('child_added', snap => {
+        db.ref('msgs').limitToLast(30).on('child_added', snap => {
             const d = snap.val();
             const box = document.getElementById('chat-box');
             const div = document.createElement('div');
-            div.className = `msg ${d.m ? 'me' : 'other'} ${d.type === 'bot' ? 'bot-msg' : ''}`;
-            div.innerHTML = `<b style="color:var(--main); font-size:11px;">${d.u}</b><br>${d.t}`;
+            div.className = `msg ${d.m ? 'me' : 'other'} ${d.type==='bot' ? 'bot' : ''}`;
+            div.innerHTML = `<b style="font-size:10px; color:var(--main)">${d.u}</b><br>${d.t}`;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         });
-        db.ref('msgs').on('child_removed', () => location.reload());
     }
 
     function loadUsers() {
         db.ref('status').on('value', snap => {
-            const list = document.getElementById('online-list');
-            list.innerHTML = '';
-            snap.forEach(c => { list.innerHTML += `<div style="padding:5px; border-bottom:1px solid #111;">🟢 ${c.val().n}</div>`; });
+            const list = document.getElementById('online-users');
+            list.innerHTML = `<div class="user-card"><div class="online-dot bot-dot"></div><span style="color:#00f2ff; font-weight:bold; font-size:12px;">بوت المملكة 🤖</span></div>`;
+            snap.forEach(c => {
+                list.innerHTML += `<div class="user-card"><div class="online-dot"></div><span style="font-size:12px; color:#fff;">${c.val().n}</span></div>`;
+            });
         });
     }
-
-    function togglePanel() {
-        const p = document.getElementById('admin-panel');
-        p.style.display = p.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function clearChat() { if(confirm("حذف كل شيء؟")) db.ref('msgs').remove(); }
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
