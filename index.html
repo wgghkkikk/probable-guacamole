@@ -3,106 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH SUPREME V57 👑</title>
+    <title>ALLOSH SUPREME V58 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
         :root { --gold: #ffd700; --bg: #000; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         
         body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
 
-        /* الاسم النيون الفخم */
-        @keyframes neon-glow { 0%, 100% {color: #fff; text-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold);} 50% {color: var(--gold); text-shadow: 0 0 20px #fff, 0 0 30px var(--gold);} }
-        .king-name { animation: neon-glow 2s infinite; font-weight: 900; }
+        /* الاسم النيون */
+        @keyframes neon { 0%, 100% {color: #fff; text-shadow: 0 0 10px var(--gold);} 50% {color: var(--gold); text-shadow: 0 0 20px #fff;} }
+        .king-name { animation: neon 2s infinite; font-weight: 900; }
 
-        /* الهيدر الإمبراطوري */
-        .header { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; position: relative; }
-        .game-btn { font-size: 30px; cursor: pointer; filter: drop-shadow(0 0 5px var(--gold)); padding: 5px; }
-
+        /* الهيدر */
+        .header { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 5000; position: relative; }
+        
         /* القوائم الجانبية */
-        .side { position: fixed; top: 0; bottom: 0; width: 280px; background: rgba(10,10,15,0.98); z-index: 4000; backdrop-filter: blur(15px); }
+        .side { position: fixed; top: 0; bottom: 0; width: 280px; background: rgba(10,10,15,0.98); z-index: 6000; backdrop-filter: blur(15px); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         #side-r { right: -285px; border-left: 2px solid var(--gold); }
-        #side-l { left: -285px; border-right: 2px solid var(--gold); overflow-y: auto; }
-        .side.active { right: 0 !important; left: 0 !important; }
+        #side-l { left: -285px; border-right: 2px solid var(--gold); }
+        .side.active { transform: translateX(0); }
+        #side-r.active { right: 0; }
+        #side-l.active { left: 0; }
+
+        /* الطبقة الشفافة للإغلاق عند اللمس */
+        #overlay-closer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 5500; display: none; }
 
         /* الملف الشخصي */
         .profile-sec { position: relative; width: 100%; }
-        .cover-pic { width: 100%; height: 130px; object-fit: cover; border-bottom: 2px solid var(--gold); }
-        .avatar-wrap { position: absolute; bottom: -40px; right: 20px; text-align: center; }
-        .avatar-pic { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--gold); background: #000; }
-        .king-crown { position: absolute; top: -35px; right: 5px; font-size: 45px; filter: drop-shadow(0 0 10px gold); }
-
-        /* واجهة اللعبة PvP */
-        #game-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; justify-content: center; align-items: center; padding: 15px; }
-        .game-box { width: 100%; max-width: 550px; background: #f8f9fa; border-radius: 20px; color: #333; overflow: hidden; box-shadow: 0 0 30px var(--gold); }
-        .score-num { font-size: 50px; font-weight: 900; color: #2ecc71; }
-        .turn-active { border: 3px solid #2ecc71 !important; background: #fafffa !important; }
+        .cover-img { width: 100%; height: 140px; object-fit: cover; border-bottom: 2px solid var(--gold); }
+        .avatar-wrap { position: absolute; bottom: -35px; right: 20px; }
+        .avatar-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--gold); background: #000; }
+        .big-crown { position: absolute; top: -30px; right: 5px; font-size: 40px; filter: drop-shadow(0 0 10px gold); }
 
         /* الشات */
-        #chat-area { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .bubble { background: rgba(255,255,255,0.08); padding: 10px; border-radius: 15px; max-width: 85%; border: 1px solid #222; }
+        #chat-area { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+        .bubble { background: rgba(255,255,255,0.08); padding: 10px; border-radius: 12px; max-width: 85%; border: 1px solid #222; }
 
-        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; }
+        /* اللعبة */
+        #game-ui { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; justify-content: center; align-items: center; }
+        .game-card { width: 90%; background: #fff; color: #333; border-radius: 20px; overflow: hidden; }
+
+        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; z-index: 2000; }
         input { flex: 1; height: 45px; background: #111; border: 1px solid #333; border-radius: 10px; color: #fff; padding: 0 15px; }
     </style>
 </head>
 <body>
 
-<div id="game-popup">
-    <div class="game-box">
-        <div style="background:#eee; padding:15px; display:flex; justify-content:space-between; font-weight:900;">
-            <button onclick="document.getElementById('game-popup').style.display='none'" style="background:red; color:white; border:none; padding:5px 15px; border-radius:8px;">خروج</button>
-            <span id="match-status">انتظار الخصم...</span>
+<div id="overlay-closer" onclick="closeAllSides()"></div>
+
+<div id="game-ui">
+    <div class="game-card">
+        <div style="background:#eee; padding:15px; display:flex; justify-content:space-between;">
+            <button onclick="document.getElementById('game-ui').style.display='none'" style="background:red; color:#fff; border:none; padding:5px 15px; border-radius:8px;">إغلاق</button>
+            <b>تحدي الـ 100 🏆</b>
         </div>
-        <div style="padding:20px; display:flex; gap:10px; text-align:center;">
-            <div id="p1-card" style="flex:1; padding:10px; border:2px solid #ddd; border-radius:15px;">
-                <small>لاعب 1</small><div class="score-num" id="sc1">0</div>
-            </div>
-            <div id="p2-card" style="flex:1; padding:10px; border:2px solid #ddd; border-radius:15px;">
-                <small>لاعب 2</small><div class="score-num" id="sc2">0</div>
-            </div>
-        </div>
-        <div style="text-align:center; padding:20px;">
-            <div id="dice-icon" style="font-size:60px; margin-bottom:15px;">🎲</div>
-            <button id="roll-action" onclick="rollPvP()" style="width:100%; padding:15px; background:#4a69bd; color:white; border:none; border-radius:15px; font-weight:900; font-size:18px; display:none;">ارمي الزهر 🔥</button>
+        <div style="padding:30px; text-align:center;">
+            <div id="p-score" style="font-size:60px; color:#2ecc71; font-weight:900;">0</div>
+            <button onclick="playDice()" style="width:100%; padding:15px; background:#4a69bd; color:#fff; border:none; border-radius:12px; font-weight:900;">ارمي الزهر 🎲</button>
         </div>
     </div>
 </div>
 
 <div class="header">
-    <button onclick="toggleSide('side-l')" style="background:none; border:none; font-size:26px; color:white;">⚙️</button>
-    <div class="game-btn" onclick="openGame()">🎮</div>
+    <button onclick="toggleSide('side-l')" style="background:none; border:none; font-size:26px;">⚙️</button>
+    <div onclick="document.getElementById('game-ui').style.display='flex'" style="font-size:30px; cursor:pointer;">🎮</div>
     <div class="king-name" style="font-size:16px;">علوش الإمبراطور</div>
-    <button onclick="toggleSide('side-r')" style="background:none; border:none; font-size:26px; color:white;">👥</button>
+    <button onclick="toggleSide('side-r')" style="background:none; border:none; font-size:26px;">👥</button>
+</div>
+
+<div id="side-r" class="side">
+    <h3 style="padding:20px; text-align:center; color:var(--gold); border-bottom:1px solid #222;">المتصلون الآن</h3>
+    <div id="online-users" style="padding:15px;"></div>
 </div>
 
 <div id="side-l" class="side">
     <div class="profile-sec">
-        <img class="cover-pic" id="cov-img" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400" onclick="document.getElementById('f-cov').click()">
-        <input type="file" id="f-cov" hidden onchange="upC(this)">
+        <img class="cover-img" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400">
         <div class="avatar-wrap">
-            <span class="king-crown">👑</span>
-            <img class="avatar-pic" id="av-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="document.getElementById('f-av').click()">
-            <input type="file" id="f-av" hidden onchange="upA(this)">
+            <span class="big-crown">👑</span>
+            <img class="avatar-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
         </div>
     </div>
-    <div style="margin-top:60px; padding:20px; text-align:center;">
+    <div style="margin-top:50px; padding:20px; text-align:center;">
         <h2 class="king-name">علوش</h2>
-        <button onclick="rainGold()" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:12px; font-weight:900; margin-top:20px;">توزيع 5000 ذهبة 💰</button>
+        <button onclick="rainGold()" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:900; margin-top:20px;">توزيع ذهب 💰</button>
     </div>
-</div>
-
-<div id="side-r" class="side">
-    <h3 style="padding:20px; text-align:center; color:var(--gold); border-bottom:1px solid #222;">👥 المتصلون الآن</h3>
-    <div id="online-list" style="padding:15px;"></div>
 </div>
 
 <div id="chat-area"></div>
 
 <div class="footer">
-    <input type="text" id="msg-input" placeholder="أمرك مطاع يا إمبراطور..." onkeypress="if(event.key==='Enter') pushMsg()">
+    <input type="text" id="msg-in" placeholder="تكلم يا ملك..." onkeypress="if(event.key==='Enter') pushMsg()">
     <button onclick="pushMsg()" style="background:var(--gold); border:none; padding:10px 20px; border-radius:10px; font-weight:900;">إرسال</button>
 </div>
 
@@ -111,73 +105,51 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let myRole = null;
-    let roomRef = db.ref('match_room_v57');
-    let me = { name: "علوش", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
-
+    // دالة فتح القوائم مع تفعيل طبقة الإغلاق
     function toggleSide(id) {
-        document.querySelectorAll('.side').forEach(s => { if(s.id !== id) s.classList.remove('active'); });
-        document.getElementById(id).classList.toggle('active');
+        closeAllSides();
+        document.getElementById(id).classList.add('active');
+        document.getElementById('overlay-closer').style.display = 'block';
     }
 
-    function openGame() {
-        document.getElementById('game-popup').style.display = 'flex';
-        roomRef.once('value', s => {
-            if(!s.exists() || !s.val().p1) { myRole = 'p1'; roomRef.update({p1: me.name, s1:0, s2:0, turn:'p1'}); }
-            else if(!s.val().p2) { myRole = 'p2'; roomRef.update({p2: me.name}); }
-        });
+    // دالة إغلاق كل شيء عند لمس الشاشة
+    function closeAllSides() {
+        document.getElementById('side-l').classList.remove('active');
+        document.getElementById('side-r').classList.remove('active');
+        document.getElementById('overlay-closer').style.display = 'none';
     }
 
-    roomRef.on('value', s => {
-        let d = s.val(); if(!d) return;
-        document.getElementById('sc1').innerText = d.s1 || 0;
-        document.getElementById('sc2').innerText = d.s2 || 0;
-        if(d.p1 && d.p2) {
-            document.getElementById('match-status').innerText = d.turn === myRole ? "دورك الآن 🔥" : "انتظر الخصم...";
-            document.getElementById('roll-action').style.display = d.turn === myRole ? 'block' : 'none';
-            document.getElementById('p1-card').classList.toggle('turn-active', d.turn === 'p1');
-            document.getElementById('p2-card').classList.toggle('turn-active', d.turn === 'p2');
-        }
-        if(d.s1 >= 100 || d.s2 >= 100) { alert("انتهى الفوز!"); roomRef.remove(); location.reload(); }
-    });
-
-    function rollPvP() {
+    // اللعبة
+    let score = 0;
+    function playDice() {
         let r = Math.floor(Math.random() * 6) + 1;
-        roomRef.once('value', s => {
-            let d = s.val();
-            let scoreKey = (myRole === 'p1') ? 's1' : 's2';
-            roomRef.update({ [scoreKey]: d[scoreKey] + r, turn: (myRole === 'p1' ? 'p2' : 'p1') });
-        });
+        score += r;
+        document.getElementById('p-score').innerText = score;
+        if(score >= 100) { alert("مبروك الفوز!"); score=0; document.getElementById('p-score').innerText="0"; }
     }
 
+    // الشات والمتصلين
     function pushMsg() {
-        let i = document.getElementById('msg-input'); if(!i.value) return;
-        db.ref('chat_v57').push({ u: me.name, t: i.value, a: me.img });
+        let i = document.getElementById('msg-in'); if(!i.value) return;
+        db.ref('chat_v58').push({ u: "علوش", t: i.value });
         i.value = "";
     }
 
-    db.ref('chat_v57').limitToLast(20).on('child_added', s => {
+    db.ref('chat_v58').limitToLast(15).on('child_added', s => {
         let d = s.val();
         let div = document.createElement('div');
-        div.innerHTML = `<div style="display:flex; gap:10px; margin-bottom:8px;">
-            <img src="${d.a}" style="width:35px; height:35px; border-radius:50%; border:1px solid gold;">
-            <div class="bubble"><b style="color:gold; font-size:11px;">${d.u}</b><br>${d.t}</div>
-        </div>`;
+        div.innerHTML = `<div class="bubble"><b style="color:gold;">${d.u}:</b> ${d.t}</div>`;
         document.getElementById('chat-area').appendChild(div);
         document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
     });
 
-    // قائمة المتصلين
-    db.ref('online_v57/'+me.name).set(true);
-    db.ref('online_v57/'+me.name).onDisconnect().remove();
-    db.ref('online_v57').on('value', s => {
-        let l = document.getElementById('online-list'); l.innerHTML = "";
+    db.ref('online_v58/علوش').set(true);
+    db.ref('online_v58').on('value', s => {
+        let l = document.getElementById('online-users'); l.innerHTML = "";
         s.forEach(u => l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111;">👑 ${u.key}</div>`);
     });
 
-    function upA(i) { if(i.files[0]) { let r = new FileReader(); r.onload = e => { me.img = e.target.result; document.getElementById('av-img').src = e.target.result; }; r.readAsDataURL(i.files[0]); } }
-    function upC(i) { if(i.files[0]) { let r = new FileReader(); r.onload = e => { document.getElementById('cov-img').src = e.target.result; }; r.readAsDataURL(i.files[0]); } }
-    function rainGold() { db.ref('chat_v57').push({ u: "👑 الإمبراطور", t: "⛈️ تم توزيع 5000 ذهبة للجميع! 💰", a: me.img }); }
+    function rainGold() { db.ref('chat_v58').push({ u: "👑 الإمبراطور", t: "تم توزيع الذهب! 💰" }); closeAllSides(); }
 </script>
 </body>
 </html>
