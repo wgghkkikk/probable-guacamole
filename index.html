@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH EMPEROR V54 👑</title>
+    <title>ALLOSH FINAL V55 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -13,83 +13,90 @@
         
         body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; touch-action: pan-y; }
 
-        /* الاسم المتحرك الفخم */
-        @keyframes rainbow { 0% {color: #ff0000;} 20% {color: #ffd700;} 40% {color: #00ff00;} 60% {color: #00ffff;} 80% {color: #ff00ff;} 100% {color: #ff0000;} }
-        .king-name { animation: rainbow 3s infinite; font-weight: 900; text-shadow: 0 0 10px var(--gold); }
+        /* الاسم النيون المتحرك */
+        @keyframes neon { 0% {color: #fff; text-shadow: 0 0 10px var(--gold);} 50% {color: var(--gold); text-shadow: 0 0 20px #fff;} 100% {color: #fff; text-shadow: 0 0 10px var(--gold);} }
+        .king-name { animation: neon 2s infinite; font-weight: 900; }
 
         /* الهيدر */
-        .header { height: 65px; background: #050505; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
+        .header { height: 60px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
 
-        /* القوائم الجانبية */
-        .side { position: fixed; top: 0; bottom: 0; width: 280px; background: rgba(10,10,15,0.98); z-index: 4000; backdrop-filter: blur(15px); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* القوائم الجانبية والسحب */
+        .side { position: fixed; top: 0; bottom: 0; width: 280px; background: rgba(10,10,15,0.98); z-index: 4000; backdrop-filter: blur(15px); transition: 0.4s; }
         #side-r { right: 0; transform: translateX(285px); border-left: 2px solid var(--gold); }
         #side-l { left: 0; transform: translateX(-285px); border-right: 2px solid var(--gold); overflow-y: auto; }
-        .side.active-l, .side.active-r { transform: translateX(0) !important; }
+        .side.active { transform: translateX(0) !important; }
 
-        /* الملف الشخصي الملكي */
-        .profile-card { position: relative; width: 100%; height: 200px; background: #111; }
-        #cover-img { width: 100%; height: 120px; object-fit: cover; border-bottom: 2px solid var(--gold); cursor: pointer; }
-        .avatar-container { position: absolute; bottom: 10px; right: 20px; text-align: center; }
-        #me-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--gold); background: #000; cursor: pointer; }
-        .big-crown { position: absolute; top: -25px; right: 15px; font-size: 40px; filter: drop-shadow(0 0 10px gold); z-index: 5; }
+        /* الملف الشخصي */
+        .profile { position: relative; width: 100%; }
+        .cover { width: 100%; height: 130px; object-fit: cover; border-bottom: 2px solid var(--gold); cursor: pointer; }
+        .avatar-box { position: absolute; bottom: -40px; right: 20px; text-align: center; }
+        .avatar { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--gold); background: #000; cursor: pointer; }
+        .crown { position: absolute; top: -30px; right: 10px; font-size: 45px; filter: drop-shadow(0 0 10px gold); }
 
-        /* أزرار التوزيع */
-        .btn-gold { width: 90%; margin: 10px 5%; padding: 15px; background: linear-gradient(45deg, #ffd700, #b8860b); color: #000; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+        /* واجهة اللعبة (المسابقة) */
+        #game-ui { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; justify-content: center; align-items: center; }
+        .game-card { width: 90%; max-width: 500px; background: #fff; border-radius: 20px; color: #333; overflow: hidden; padding-bottom: 20px; }
+        .game-head { background: #f0f0f0; padding: 15px; display: flex; justify-content: space-between; font-weight: 900; }
+        .score-display { font-size: 60px; color: #2ecc71; font-weight: 900; margin: 20px 0; }
 
         /* الشات */
-        #chat-scroller { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { display: flex; gap: 10px; align-items: flex-end; }
-        .pfp-msg { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--gold); }
-        .bubble { background: rgba(255,255,255,0.08); padding: 10px; border-radius: 15px; max-width: 80%; border: 1px solid #222; }
+        #chat { position: absolute; top: 60px; bottom: 80px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .bubble { background: rgba(255,255,255,0.08); padding: 10px; border-radius: 15px; max-width: 85%; border: 1px solid #222; }
 
-        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 8px; }
-        #msg-in { flex: 1; height: 45px; background: #0d0d0d; border: 1px solid #333; border-radius: 10px; color: #fff; padding: 0 15px; }
+        .footer { position: fixed; bottom: 0; width: 100%; height: 80px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; }
+        input { flex: 1; height: 45px; background: #111; border: 1px solid #333; border-radius: 10px; color: #fff; padding: 0 15px; }
     </style>
 </head>
-<body id="touch-area">
+<body id="main-area">
+
+<div id="game-ui">
+    <div class="game-card">
+        <div class="game-head">
+            <button onclick="document.getElementById('game-ui').style.display='none'" style="border:none; background:red; color:white; padding:5px 15px; border-radius:8px; cursor:pointer;">خروج</button>
+            <span>تحدي الـ 100 نقطة 🏆</span>
+        </div>
+        <div style="text-align:center; padding:20px;">
+            <p>نقاطك الحالية</p>
+            <div class="score-display" id="my-score">0</div>
+            <div id="dice-result" style="font-size:50px; margin-bottom:10px;">🎲</div>
+            <button onclick="rollDice()" style="width:100%; padding:15px; background:#4a69bd; color:white; border:none; border-radius:15px; font-weight:900; font-size:20px; cursor:pointer;">ارمي الزهر 🔥</button>
+        </div>
+    </div>
+</div>
 
 <div class="header">
-    <button onclick="toggleL()" style="background:none; border:none; font-size:24px; color:white;">⚙️</button>
-    <div style="text-align:center">
-        <span class="king-name">👑 علوش الإمبراطور 👑</span><br>
-        <small style="color:var(--gold)">💰 ∞</small>
-    </div>
-    <button onclick="toggleR()" style="background:none; border:none; font-size:24px; color:white;">👥</button>
+    <button onclick="document.getElementById('side-l').classList.toggle('active')" style="background:none; border:none; font-size:24px; color:white;">⚙️</button>
+    <div class="king-name" style="font-size:18px;">👑 علوش الإمبراطور 👑</div>
+    <button onclick="document.getElementById('side-r').classList.toggle('active')" style="background:none; border:none; font-size:24px; color:white;">👥</button>
 </div>
 
 <div id="side-l" class="side">
-    <div class="profile-card">
-        <img id="cover-img" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400" onclick="document.getElementById('f-cover').click()">
-        <input type="file" id="f-cover" hidden onchange="upCover(this)">
-        <div class="avatar-container">
-            <span class="big-crown">👑</span>
-            <img id="me-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="document.getElementById('f-avatar').click()">
-            <input type="file" id="f-avatar" hidden onchange="upAvatar(this)">
+    <div class="profile">
+        <img class="cover" id="c-img" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400" onclick="document.getElementById('f-c').click()">
+        <input type="file" id="f-c" hidden onchange="upC(this)">
+        <div class="avatar-box">
+            <span class="crown">👑</span>
+            <img class="avatar" id="a-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="document.getElementById('f-a').click()">
+            <input type="file" id="f-a" hidden onchange="upA(this)">
         </div>
     </div>
-    <div style="padding:15px; text-align:center; margin-top:20px;">
+    <div style="margin-top:50px; padding:20px; text-align:center;">
         <h2 class="king-name">علوش</h2>
-        <p style="color:var(--gold); font-size:12px;">الحاكم المطلق للشات</p>
-    </div>
-
-    <button class="btn-gold" onclick="rainGold()">⛈️ توزيع 5000 ذهبة للجميع</button>
-    
-    <div style="padding:15px;">
-        <button onclick="toggleL()" style="width:100%; padding:10px; background:red; border:none; color:white; border-radius:8px;">إغلاق</button>
+        <button onclick="rainGold()" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:900; margin-top:20px; cursor:pointer;">⛈️ توزيع 5000 ذهبة</button>
     </div>
 </div>
 
 <div id="side-r" class="side">
-    <h3 style="padding:20px; text-align:center; color:var(--gold); border-bottom:1px solid #222;">👥 المتصلون</h3>
-    <div id="users-list" style="padding:15px;"></div>
+    <h3 style="padding:20px; text-align:center; color:var(--gold);">المتصلون الآن</h3>
+    <div id="u-list" style="padding:15px;"></div>
 </div>
 
-<div id="chat-scroller"></div>
+<div id="chat"></div>
 
 <div class="footer">
-    <button onclick="document.getElementById('game-trigger').click()" style="background:none; border:none; font-size:24px;">🎮</button>
-    <input type="text" id="msg-in" placeholder="أمرك مطاع يا إمبراطور..." onkeypress="if(event.key==='Enter') push()">
-    <button onclick="push()" style="background:var(--gold); color:black; border:none; padding:10px 20px; border-radius:10px; font-weight:900;">إرسال</button>
+    <span onclick="document.getElementById('game-ui').style.display='flex'" style="font-size:30px; cursor:pointer;">🎮</span>
+    <input type="text" id="msg-in" placeholder="أمرك مطاع يا ملك..." onkeypress="if(event.key==='Enter') push()">
+    <button onclick="push()" style="background:var(--gold); border:none; padding:10px 20px; border-radius:10px; font-weight:900; cursor:pointer;">إرسال</button>
 </div>
 
 <script>
@@ -97,50 +104,60 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let me = { 
-        name: "علوش الإمبراطور", 
-        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        cover: "https://images.unsplash.com/photo-1614850523296-d8c1af93d400"
-    };
+    let score = 0;
+    let me = { name: "علوش الإمبراطور", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
 
-    // نظام اللمس
-    let touchStartX = 0;
-    document.getElementById('touch-area').addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; });
-    document.getElementById('touch-area').addEventListener('touchend', e => {
-        let dist = e.changedTouches[0].screenX - touchStartX;
-        if (dist > 80 && !document.getElementById('side-l').classList.contains('active-l')) toggleL();
-        if (dist < -80 && document.getElementById('side-l').classList.contains('active-l')) toggleL();
-    });
-
-    function toggleL() { document.getElementById('side-l').classList.toggle('active-l'); }
-    function toggleR() { document.getElementById('side-r').classList.toggle('active-r'); }
-
-    function rainGold() {
-        db.ref('msgs_v54').push({ u: "👑 الإمبراطور", t: "⛈️ مكرمة ملكية! تم توزيع 5000 ذهبة لكل الرعية! 💰", a: "https://cdn-icons-png.flaticon.com/512/2489/2489756.png", isGold: true });
-        alert("تم التوزيع بنجاح يا صاحب الجلالة!");
+    // تشغيل اللعبة
+    function rollDice() {
+        let r = Math.floor(Math.random() * 6) + 1;
+        const icons = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+        document.getElementById('dice-result').innerText = icons[r];
+        score += r;
+        document.getElementById('my-score').innerText = score;
+        if(score >= 100) { 
+            alert("كفووو يا إمبراطور! سحقت الرقم 100 🎉"); 
+            db.ref('msgs_v55').push({ u: "👑 الملك علوش", t: "لقد فزت بمسابقة الـ 100 نقطة الآن! 🏆", a: me.img, goldMsg: true });
+            score = 0; 
+            document.getElementById('my-score').innerText = "0";
+        }
     }
 
+    // إرسال رسالة
     function push() {
         let i = document.getElementById('msg-in'); if(!i.value) return;
-        db.ref('msgs_v54').push({ u: me.name, t: i.value, a: me.avatar, isMe: true });
+        db.ref('msgs_v55').push({ u: me.name, t: i.value, a: me.img });
         i.value = "";
     }
 
-    db.ref('msgs_v54').limitToLast(20).on('child_added', s => {
+    // توزيع الذهب
+    function rainGold() {
+        db.ref('msgs_v54').push({ u: "👑 الإمبراطور", t: "⛈️ مكرمة ملكية! تم توزيع 5000 ذهبة للجميع! 💰", a: "https://cdn-icons-png.flaticon.com/512/2489/2489756.png", goldMsg: true });
+    }
+
+    // عرض الرسائل
+    db.ref('msgs_v55').limitToLast(20).on('child_added', s => {
         let d = s.val();
         let div = document.createElement('div');
-        div.className = "msg";
-        div.innerHTML = `<img src="${d.a}" class="pfp-msg">
-            <div class="bubble" style="${d.isGold ? 'border:1px solid gold; background:rgba(255,215,0,0.1);' : ''}">
-                <b class="${d.isMe ? 'king-name' : ''}" style="font-size:12px;">${d.u}</b><br>
-                <span style="color:${d.isGold ? 'gold' : 'white'}">${d.t}</span>
+        div.style.display = "flex"; div.style.gap = "10px";
+        div.innerHTML = `<img src="${d.a}" style="width:40px; height:40px; border-radius:50%; border:1px solid gold;">
+            <div class="bubble" style="${d.goldMsg ? 'border:1px solid gold; background:rgba(255,215,0,0.1);' : ''}">
+                <b style="font-size:11px; color:gold;">${d.u}</b><br><span>${d.t}</span>
             </div>`;
-        document.getElementById('chat-scroller').appendChild(div);
-        document.getElementById('chat-scroller').scrollTop = document.getElementById('chat-scroller').scrollHeight;
+        document.getElementById('chat').appendChild(div);
+        document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
     });
 
-    function upAvatar(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => { me.avatar = e.target.result; document.getElementById('me-avatar').src = e.target.result; }; r.readAsDataURL(input.files[0]); } }
-    function upCover(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => { me.cover = e.target.result; document.getElementById('cover-img').src = e.target.result; }; r.readAsDataURL(input.files[0]); } }
+    // سحب القوائم (Swipe)
+    let startX = 0;
+    document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+    document.addEventListener('touchend', e => {
+        let diff = e.changedTouches[0].clientX - startX;
+        if(diff > 100) document.getElementById('side-l').classList.add('active');
+        if(diff < -100) document.getElementById('side-l').classList.remove('active');
+    });
+
+    function upA(i) { if(i.files[0]) { let r = new FileReader(); r.onload = e => { me.img = e.target.result; document.getElementById('a-img').src = e.target.result; }; r.readAsDataURL(i.files[0]); } }
+    function upC(i) { if(i.files[0]) { let r = new FileReader(); r.onload = e => { document.getElementById('c-img').src = e.target.result; }; r.readAsDataURL(i.files[0]); } }
 </script>
 </body>
 </html>
