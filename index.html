@@ -3,74 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CH-ALLOSH SUPREME 👑</title>
+    <title>CH-ALLOSH ULTIMATE 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;900&display=swap');
         :root { --main: #ff6a00; --bg: #000; --bot: #00d4ff; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        
         body { background: var(--bg); color: white; overflow: hidden; position: fixed; width: 100%; height: 100%; }
 
-        /* خلفية النجوم */
-        .stars-bg { position: fixed; inset: 0; background: radial-gradient(white, rgba(255,255,255,.1) 1px, transparent 20px); background-size: 100px 100px; animation: move 50s linear infinite; z-index: -1; }
-        @keyframes move { from { background-position: 0 0; } to { background-position: 500px 1000px; } }
-
-        .top-bar { height: 60px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--main); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
+        /* الهيدر */
+        .top-bar { height: 60px; background: rgba(0,0,0,0.95); border-bottom: 2px solid var(--main); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
         
-        /* قائمة المتصلين الفخمة */
-        .side { position: fixed; top: 60px; bottom: 70px; width: 280px; background: rgba(10,10,10,0.98); left: -280px; transition: 0.4s; z-index: 1500; border-left: 1px solid #333; overflow-y: auto; }
+        /* قائمة المتصلين */
+        .side { position: fixed; top: 60px; bottom: 70px; width: 280px; background: #0a0a0a; left: -280px; transition: 0.4s; z-index: 1500; border-left: 1px solid #222; overflow-y: auto; }
         .side.open { left: 0; }
 
-        /* ستايل علوش الملكي في القائمة */
+        /* ستايل علوش الفخم */
         .allosh-king {
-            font-size: 26px; font-weight: 900; padding: 20px 10px;
+            font-size: 24px; font-weight: 900; padding: 15px;
             background: linear-gradient(90deg, #fff, #ffae00, #ff0000, #fff);
             background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: shine 3s infinite, float 2s infinite alternate;
-            text-align: center; display: block; filter: drop-shadow(0 0 10px rgba(255,106,0,0.5));
+            animation: shine 3s infinite; text-align: center; display: block;
         }
         @keyframes shine { to { background-position: 200% center; } }
-        @keyframes float { from { transform: translateY(0); } to { transform: translateY(-8px); } }
 
-        .bot-box { background: rgba(0,212,255,0.1); border: 1px solid var(--bot); margin: 10px; padding: 10px; border-radius: 15px; text-align: center; }
-
+        /* الشات */
         .chat-view { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; position: absolute; top: 60px; bottom: 70px; width: 100%; }
         .msg-container { display: flex; align-items: flex-start; gap: 10px; }
-        .u-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--main); }
-        .msg-body { flex: 1; background: rgba(25,25,25,0.9); padding: 12px; border-radius: 18px; border-right: 4px solid var(--main); }
+        .u-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--main); object-fit: cover; }
+        .msg-body { flex: 1; background: #151515; padding: 12px; border-radius: 15px; border-right: 4px solid var(--main); }
 
+        /* النافذة المنبثقة */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 3000; }
+        .modal-card { background: white; width: 90%; max-width: 380px; border-radius: 25px; color: #333; overflow: hidden; text-align: center; }
+        .modal-body { padding: 20px; max-height: 500px; overflow-y: auto; }
+
+        /* أزرار الإدارة (مخفية) */
+        #admin-panel { display: none; margin-top: 15px; padding: 10px; border: 2px dashed red; border-radius: 15px; }
+        .admin-btn { background: red; color: white; border: none; padding: 8px; margin: 4px; border-radius: 8px; width: 45%; cursor: pointer; }
+
+        .input-box { width: 100%; padding: 10px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; }
         .bottom-bar { position: fixed; bottom: 0; height: 70px; width: 100%; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; }
         #in { flex: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 25px; color: white; padding: 0 15px; outline: none; }
     </style>
 </head>
 <body>
 
-<div class="stars-bg"></div>
+<div id="settings-modal" class="modal">
+    <div class="modal-card">
+        <div style="padding:15px; background:#f8f9fa; font-weight:bold;">⚙️ الملف الشخصي</div>
+        <div class="modal-body">
+            <img id="p-img" onclick="adminClick()" src="" style="width:90px; height:90px; border-radius:50%; border:3px solid var(--main); cursor:pointer;">
+            <p id="p-rank" style="color:var(--main); font-weight:bold; margin-top:5px;"></p>
+            <button onclick="changePhoto()" style="margin:10px 0; padding:5px 15px; background:#eee; border:none; border-radius:8px;">تغيير الصورة 📷</button>
+            
+            <hr>
+            <p style="font-weight:bold; margin-top:10px;">زخرف اسمك بنفسك:</p>
+            <input type="text" id="custom-name" class="input-box" placeholder="اكتب اسمك المزخرف هنا...">
+            <button onclick="saveCustomName()" style="width:100%; padding:10px; background:var(--main); color:white; border:none; border-radius:10px;">حفظ الزخرفة ✨</button>
+
+            <div id="admin-panel">
+                <p style="color:red; font-weight:bold;">🛡️ لوحة الإمبراطور</p>
+                <button class="admin-btn" onclick="db.ref('msgs_v8').remove()">مسح الشات 🧹</button>
+                <button class="admin-btn" onclick="alert('تم تفعيل الحماية القصوى')">حماية 🛡️</button>
+            </div>
+        </div>
+        <button onclick="closeM()" style="width:100%; padding:15px; background:#000; color:white; border:none; font-weight:bold;">إغلاق</button>
+    </div>
+</div>
 
 <div class="top-bar">
-    <button onclick="toggleSide()" style="background:none; border:none; font-size:28px; color:white;">👥</button>
-    <div style="color:var(--main); font-weight:900;">EMPIRE ALLOSH 👑</div>
-    <button onclick="location.reload()" style="background:none; border:none; font-size:22px;">🔄</button>
+    <button onclick="toggleSide()" style="background:none; border:none; font-size:26px; color:white;">👥</button>
+    <div style="color:var(--main); font-weight:900;">CH-ALLOSH KING 👑</div>
+    <button onclick="openM()" style="background:none; border:none; font-size:26px; color:white;">⚙️</button>
 </div>
 
 <div class="chat-view" id="chat-box"></div>
 
-<div id="side-users" class="side">
-    <div style="padding:15px;">
-        <div class="bot-box">
-            <b style="color:var(--bot);">🛡️ حارس الإمبراطورية</b><br>
-            <small style="color:#2ed573;">نظام الحماية فعال</small>
+<div id="side-u" class="side">
+    <div style="padding:20px;">
+        <div style="background:rgba(0,212,255,0.1); padding:10px; border-radius:12px; border:1px solid var(--bot); text-align:center; margin-bottom:15px;">
+            <b style="color:var(--bot);">🛡️ بوت الحماية</b><br><small>نشط دائماً</small>
         </div>
-        <hr style="border:0.1px solid #222;">
+        <h3>👤 المتصلون</h3><hr style="border:0.1px solid #222; margin:10px 0;">
         <div id="u-list"></div>
     </div>
 </div>
 
 <div class="bottom-bar">
-    <button onclick="changePhoto()" style="background:none; border:none; font-size:24px;">📷</button>
-    <input type="text" id="in" placeholder="تكلم يا إمبراطور..." onkeypress="if(event.key==='Enter') send()">
+    <input type="text" id="in" placeholder="تكلم يا ملك..." onkeypress="if(event.key==='Enter') send()">
     <button onclick="send()" style="background:var(--main); border:none; width:50px; height:50px; border-radius:50%; color:white;">🚀</button>
 </div>
 
@@ -79,60 +101,71 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // استرجاع وحماية رتبة علوش
-    let saved = JSON.parse(localStorage.getItem('allosh_final_fix')) || {
-        id: "allosh_king_" + Math.random().toString(16).slice(2,6),
-        name: "عـلـ★ـش",
+    let clicks = 0;
+    let me = JSON.parse(localStorage.getItem('allosh_final_v8')) || {
+        id: "u_" + Math.random().toString(16).slice(2,8),
+        name: "علوش",
         avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        rank: "صاحب الشات 👑"
+        rank: "عضو"
     };
 
-    // تأكيد الرتبة في كل مرة
-    if(saved.name.includes("علوش") || saved.name.includes("عـلـ★ـش")) {
-        saved.rank = "صاحب الشات 👑";
+    function openM() { 
+        document.getElementById('settings-modal').style.display='flex'; 
+        document.getElementById('p-img').src = me.avatar;
+        document.getElementById('p-rank').innerText = me.rank;
+        document.getElementById('custom-name').value = me.name;
+    }
+    function closeM() { document.getElementById('settings-modal').style.display='none'; }
+    function toggleSide() { document.getElementById('side-u').classList.toggle('open'); }
+
+    // نظام الإدارة السري (5 ضغطات)
+    function adminClick() {
+        clicks++;
+        if(clicks >= 5) {
+            let pass = prompt("أدخل رمز الإدارة السري:");
+            if(pass === "1234") {
+                document.getElementById('admin-panel').style.display = 'block';
+                me.rank = "صاحب الشات 👑";
+                save();
+                alert("أهلاً بك يا إمبراطور ✅");
+            }
+            clicks = 0;
+        }
     }
 
-    let me = saved;
+    function saveCustomName() {
+        let val = document.getElementById('custom-name').value;
+        if(val) { me.name = val; save(); alert("تم حفظ زخرفتك بنجاح!"); }
+    }
 
-    function toggleSide() { document.getElementById('side-users').classList.toggle('open'); }
-    function save() { localStorage.setItem('allosh_final_fix', JSON.stringify(me)); db.ref('online_v7/'+me.id).set(me); }
+    function save() {
+        localStorage.setItem('allosh_final_v8', JSON.stringify(me));
+        db.ref('users_v8/'+me.id).set(me);
+    }
 
     function start() {
         save();
-        db.ref('online_v7/'+me.id).onDisconnect().remove();
+        db.ref('users_v8/'+me.id).onDisconnect().remove();
 
-        // قائمة المتصلين
-        db.ref('online_v7').on('value', s => {
+        db.ref('users_v8').on('value', s => {
             let h = "";
             s.forEach(u => {
                 let d = u.val();
                 if(d.rank.includes("صاحب")) {
-                    h += `<div class="allosh-king">✨ ${d.name} ✨</div>`;
+                    h += `<div class="allosh-king">${d.name}</div>`;
                 } else {
-                    h += `<div style="padding:12px; color:#ccc; border-bottom:1px solid #111;">● ${d.name} <br><small style="color:#666">${d.rank}</small></div>`;
+                    h += `<div style="padding:10px; color:#ccc; border-bottom:1px solid #111;">● ${d.name}</div>`;
                 }
             });
             document.getElementById('u-list').innerHTML = h;
         });
 
-        // استقبال الرسائل + حماية البوت
-        db.ref('chat_v7').limitToLast(40).on('child_added', s => {
+        db.ref('msgs_v8').limitToLast(40).on('child_added', s => {
             let d = s.val();
             let box = document.getElementById('chat-box');
-            
-            // البوت يحمي الشات بس ما يلمسك
-            if(!d.rank.includes("صاحب") && (d.text.includes("http") || d.text.includes("www"))) {
-                return; // منع الروابط للأعضاء فقط
-            }
-
             let div = document.createElement('div');
             div.className = "msg-container";
-            div.innerHTML = `
-                <img src="${d.avatar}" class="u-avatar">
-                <div class="msg-body">
-                    <b style="color:var(--main); font-size:13px;">${d.sender}</b> <small style="color:#555; font-size:9px;">(${d.rank})</small>
-                    <div style="color:#eee; margin-top:5px;">${d.text}</div>
-                </div>`;
+            div.innerHTML = `<img src="${d.avatar}" class="u-avatar"><div class="msg-body"><b style="color:var(--main); font-size:13px;">${d.sender}</b><div style="color:#eee; margin-top:5px;">${d.text}</div></div>`;
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         });
@@ -141,7 +174,7 @@
     function send() {
         let i = document.getElementById('in');
         if(!i.value) return;
-        db.ref('chat_v7').push({ sender: me.name, text: i.value, avatar: me.avatar, rank: me.rank });
+        db.ref('msgs_v8').push({ sender: me.name, text: i.value, avatar: me.avatar, rank: me.rank });
         i.value = "";
     }
 
@@ -149,7 +182,7 @@
         let i = document.createElement('input'); i.type='file'; i.accept='image/*';
         i.onchange = e => {
             let r = new FileReader();
-            r.onload = ev => { me.avatar = ev.target.result; save(); location.reload(); };
+            r.onload = ev => { me.avatar = ev.target.result; save(); document.getElementById('p-img').src = me.avatar; };
             r.readAsDataURL(e.target.files[0]);
         };
         i.click();
