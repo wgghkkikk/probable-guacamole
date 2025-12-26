@@ -3,42 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH SUPREME V42 👑</title>
+    <title>ALLOSH CASINO V43 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #ffd700; --bg: #000; --panel-bg: rgba(15, 15, 20, 0.98); }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        :root { --gold: #ffd700; --bg: #000; --card: rgba(255, 255, 255, 0.05); }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; transition: 0.3s; }
         
         body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
 
-        /* نافذة اليوتيوب المربعة الصغيرة */
-        #yt-win { position: fixed; top: 75px; left: 10px; width: 170px; background: #000; border: 2px solid var(--gold); border-radius: 12px; z-index: 5000; display: none; overflow: hidden; box-shadow: 0 0 15px var(--gold); }
+        /* نافذة اليوتيوب المربعة الصغيرة كما طلبت */
+        #yt-win { position: fixed; top: 75px; left: 10px; width: 170px; background: #000; border: 2px solid var(--gold); border-radius: 12px; z-index: 5000; display: none; overflow: hidden; }
         .win-bar { background: var(--gold); color: #000; padding: 4px 10px; display: flex; justify-content: space-between; font-size: 10px; font-weight: 900; }
 
         /* الهيدر */
-        .header { height: 65px; background: #050505; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
-        .gold-stat { color: var(--gold); font-size: 14px; font-weight: 900; }
+        .header { height: 65px; background: #080808; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
+        .gold-info { color: var(--gold); font-size: 14px; font-weight: 900; background: #111; padding: 3px 10px; border-radius: 20px; border: 1px solid #333; }
 
-        /* القوائم الجانبية */
-        .side { position: fixed; top: 0; bottom: 0; width: 280px; background: var(--panel-bg); z-index: 3000; padding-top: 20px; backdrop-filter: blur(15px); border-right: 1px solid rgba(255,215,0,0.2); }
-        #side-r { right: -285px; } #side-l { left: -285px; border-right: none; border-left: 1px solid rgba(255,215,0,0.2); }
-        .side.active { right: 0 !important; left: 0 !important; }
+        /* القائمة اليسرى المتطورة */
+        .side-l { position: fixed; top: 0; bottom: 0; left: -290px; width: 280px; background: rgba(10,10,15,0.98); z-index: 4000; backdrop-filter: blur(15px); border-right: 1px solid var(--gold); overflow-y: auto; }
+        .side-l.active { left: 0 !important; }
 
-        /* ستايل الميزات داخل القائمة اليسرى */
-        .feature-box { background: rgba(255,255,255,0.03); border: 1px solid #222; border-radius: 12px; margin: 10px; padding: 15px; }
-        .feature-title { color: var(--gold); font-size: 13px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .btn-action { width: 100%; padding: 8px; background: var(--gold); color: #000; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; margin-top: 5px; font-size: 12px; }
+        /* صناديق الميزات */
+        .box { background: var(--card); border: 1px solid #222; border-radius: 15px; margin: 15px 10px; padding: 15px; }
+        .box-h { color: var(--gold); font-size: 12px; border-bottom: 1px solid #333; margin-bottom: 10px; padding-bottom: 5px; text-align: center; }
+        .btn { width: 100%; padding: 8px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; font-size: 11px; margin-top: 5px; }
+        .btn-gold { background: var(--gold); color: #000; }
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
 
         /* الشات */
         #chat-scroller { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .msg { display: flex; gap: 10px; align-items: flex-end; animation: slideUp 0.3s; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } }
-        .pfp { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--gold); }
-        .bubble { background: rgba(255,255,255,0.06); padding: 10px 12px; border-radius: 15px; max-width: 80%; border: 1px solid #1a1a1a; }
+        .msg { display: flex; gap: 10px; align-items: flex-end; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } }
+        .pfp { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--gold); }
+        .bubble { background: rgba(255,255,255,0.06); padding: 10px; border-radius: 15px; max-width: 80%; border: 1px solid #1a1a1a; }
 
-        /* البار السفلي */
         .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #111; display: flex; align-items: center; padding: 0 10px; gap: 8px; }
         #msg-in { flex: 1; height: 45px; background: #0d0d0d; border: 1px solid #222; border-radius: 10px; color: #fff; padding: 0 12px; }
     </style>
@@ -46,51 +46,54 @@
 <body>
 
 <div id="yt-win">
-    <div class="win-bar"><span>YOUTUBE PLAYER</span><button onclick="document.getElementById('yt-win').style.display='none'" style="border:none; background:none; font-weight:900;">X</button></div>
-    <div id="yt-player"></div>
+    <div class="win-bar"><span>YOUTUBE</span><button onclick="document.getElementById('yt-win').style.display='none'" style="border:none; background:none; font-weight:900;">X</button></div>
+    <div id="yt-area"></div>
 </div>
 
 <div class="header">
-    <button onclick="toggleSide('side-l')" style="background:none; border:none; font-size:24px;">⚙️</button>
-    <div style="text-align:center"><b style="color:var(--gold)">ALLOSH ELITE V42</b><br><span class="gold-stat" id="g-count">💰 0</span></div>
-    <button onclick="toggleSide('side-r')" style="background:none; border:none; font-size:24px;">👥</button>
+    <button onclick="document.getElementById('side-l').classList.toggle('active')" style="background:none; border:none; font-size:24px;">⚙️</button>
+    <div style="text-align:center"><b style="color:var(--gold)">ALLOSH V43</b><br><span class="gold-info" id="g-count">💰 0</span></div>
+    <div style="width:40px;"></div>
 </div>
 
-<div id="side-r" class="side">
-    <h3 style="padding:15px; color:var(--gold)">الرادار الملكي</h3>
-    <div id="online-list" style="padding:10px;"></div>
-</div>
-
-<div id="side-l" class="side">
-    <div style="text-align:center; padding:10px;">
-        <img id="me-pfp" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:70px; border-radius:10px; border:2px solid var(--gold); cursor:pointer;" onclick="document.getElementById('f').click()">
-        <input type="file" id="f" hidden onchange="updateP(this)">
-        <h4 id="me-name" style="margin-top:5px;">الإمبراطور علوش</h4>
+<div id="side-l" class="side-l">
+    <div style="text-align:center; padding:20px; border-bottom:1px solid #222;">
+        <img id="me-pfp" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:70px; border-radius:12px; border:2px solid var(--gold); cursor:pointer;" onclick="document.getElementById('f').click()">
+        <input type="file" id="f" hidden onchange="updateAvatar(this)">
+        <h4 style="margin-top:10px;">الإمبراطور علوش</h4>
     </div>
 
-    <div class="feature-box">
-        <div class="feature-title">🎲 مراهنات الذهب</div>
-        <p style="font-size:10px; color:#aaa; margin-bottom:5px;">راهن بـ 100 ذهبة وتوقع (فوق/تحت 50)</p>
+    <div class="box">
+        <div class="box-h">👊 حجر ورقة مقص (50💰)</div>
+        <div class="game-grid">
+            <button class="btn btn-gold" onclick="playRPS('✊')">✊</button>
+            <button class="btn btn-gold" onclick="playRPS('✋')">✋</button>
+            <button class="btn btn-gold" onclick="playRPS('✌️')">✌️</button>
+        </div>
+        <p id="rps-result" style="font-size:10px; text-align:center; margin-top:10px; color:var(--gold);"></p>
+    </div>
+
+    <div class="box">
+        <div class="box-h">🎲 مراهنة الـ 100 ذهبة</div>
         <div style="display:flex; gap:5px;">
-            <button class="btn-action" onclick="bet('high')">فوق 50</button>
-            <button class="btn-action" onclick="bet('low')" style="background:#555; color:white;">تحت 50</button>
+            <button class="btn btn-gold" onclick="bet('high')">فوق 50</button>
+            <button class="btn btn-gold" onclick="bet('low')" style="background:#444; color:white;">تحت 50</button>
         </div>
     </div>
 
-    <div class="feature-box">
-        <div class="feature-title">🛒 المتجر الملكي</div>
-        <button class="btn-action" onclick="buy('color','#ff00ff')">اسم بنفسجي (500💰)</button>
-        <button class="btn-action" onclick="buy('title','الملك')" style="background:#00f2ff;">لقب الملك (1000💰)</button>
+    <div class="box">
+        <div class="box-h">🛒 المتجر الملكي</div>
+        <button class="btn btn-gold" onclick="buy('color','#00ff00')">اسم أخضر (500💰)</button>
+        <button class="btn btn-gold" onclick="buy('title','الجنرال')">لقب الجنرال (1000💰)</button>
     </div>
 
-    <button onclick="db.ref('supreme_v42').remove()" style="color:red; background:none; border:none; width:100%; margin-top:20px; font-size:12px;">تصفير السجلات 🧹</button>
+    <button onclick="document.getElementById('side-l').classList.remove('active')" style="width:90%; margin:5%; padding:10px; background:red; color:white; border:none; border-radius:10px; font-weight:900;">إغلاق القائمة</button>
 </div>
 
 <div id="chat-scroller"></div>
 
 <div class="footer">
-    <button onclick="toggleSide('side-l')" style="background:none; border:none; font-size:24px;">💎</button>
-    <input type="text" id="msg-in" placeholder="اكتب لتربح الذهب..." onkeypress="if(event.key==='Enter') push()">
+    <input type="text" id="msg-in" placeholder="اكتب واجمع ثروتك..." onkeypress="if(event.key==='Enter') push()">
     <button onclick="push()" style="background:var(--gold); border:none; padding:10px 20px; border-radius:10px; font-weight:900;">إرسال</button>
 </div>
 
@@ -101,66 +104,67 @@
 
     let me = { 
         name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        gold: parseInt(localStorage.getItem('gold')) || 100,
+        gold: parseInt(localStorage.getItem('gold')) || 200,
         color: localStorage.getItem('c') || '#ffd700',
         title: localStorage.getItem('t') || 'عضو'
     };
-
-    function toggleSide(id) {
-        document.querySelectorAll('.side').forEach(s => { if(s.id !== id) s.classList.remove('active'); });
-        document.getElementById(id).classList.toggle('active');
-    }
 
     function updateStats() {
         document.getElementById('g-count').innerText = "💰 " + me.gold;
         localStorage.setItem('gold', me.gold);
     }
 
-    // نظام المراهنات
-    function bet(type) {
-        if(me.gold < 100) return alert("رصيدك أقل من 100 ذهبة!");
-        me.gold -= 100;
-        let num = Math.floor(Math.random() * 100) + 1;
-        let win = (type === 'high' && num > 50) || (type === 'low' && num <= 50);
+    // لعبة حجر ورقة مقص
+    function playRPS(userChoice) {
+        if(me.gold < 50) return alert("ذهبك قليل!");
+        me.gold -= 50;
+        const choices = ['✊', '✋', '✌️'];
+        const botChoice = choices[Math.floor(Math.random() * 3)];
+        let res = "";
         
-        if(win) {
-            me.gold += 250;
-            alert("مبروك! الرقم كان " + num + ". ربحت 250 ذهبة! 🎉");
-        } else {
-            alert("للأسف! الرقم كان " + num + ". خسرت المراهنة! 💀");
-        }
+        if(userChoice === botChoice) { res = "تعادل! رجعت لك الـ 50."; me.gold += 50; }
+        else if((userChoice==='✊'&&botChoice==='✌️') || (userChoice==='✋'&&botChoice==='✊') || (userChoice==='✌️'&&botChoice==='✋')) {
+            res = "فزت! البوت اختار " + botChoice + ". ربحت 150💰";
+            me.gold += 150;
+        } else { res = "خسرت! البوت اختار " + botChoice; }
+        
+        document.getElementById('rps-result').innerText = res;
+        updateStats();
+    }
+
+    function bet(type) {
+        if(me.gold < 100) return alert("تحتاج 100 ذهبة!");
+        me.gold -= 100;
+        let n = Math.floor(Math.random() * 100) + 1;
+        let win = (type === 'high' && n > 50) || (type === 'low' && n <= 50);
+        if(win) { me.gold += 250; alert("ربحت! الرقم " + n); }
+        else alert("خسرت! الرقم " + n);
         updateStats();
     }
 
     function buy(type, val) {
-        let price = type === 'color' ? 500 : 1000;
-        if(me.gold >= price) {
-            me.gold -= price;
+        let p = type === 'color' ? 500 : 1000;
+        if(me.gold >= p) {
+            me.gold -= p;
             if(type === 'color') { me.color = val; localStorage.setItem('c', val); }
             else { me.title = val; localStorage.setItem('t', val); }
-            updateStats();
-            alert("تم الشراء بنجاح!");
+            updateStats(); alert("مبروك الشراء!");
         } else alert("ذهبك لا يكفي!");
     }
 
     function push() {
         let i = document.getElementById('msg-in'); if(!i.value) return;
         me.gold += 10; updateStats();
-        db.ref('supreme_v42').push({ u: me.name, t: i.value, a: me.avatar, c: me.color, title: me.title });
+        db.ref('casino_v43').push({ u: me.name, t: i.value, a: me.avatar, c: me.color, title: me.title });
         i.value = "";
     }
 
-    function getYTID(url) {
-        let match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-        return (match && match[2].length === 11) ? match[2] : null;
-    }
-
-    db.ref('supreme_v42').limitToLast(30).on('child_added', s => {
+    db.ref('casino_v43').limitToLast(30).on('child_added', s => {
         let d = s.val();
-        let ytID = getYTID(d.t);
+        let ytID = d.t.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
         if(ytID) {
             document.getElementById('yt-win').style.display = 'block';
-            document.getElementById('yt-player').innerHTML = `<iframe width="100%" height="130" src="https://www.youtube.com/embed/${ytID}" frameborder="0" allowfullscreen></iframe>`;
+            document.getElementById('yt-area').innerHTML = `<iframe width="100%" height="130" src="https://www.youtube.com/embed/${ytID[2]}" frameborder="0" allowfullscreen></iframe>`;
         }
         let area = document.getElementById('chat-scroller');
         let div = document.createElement('div');
@@ -174,7 +178,7 @@
         area.scrollTop = area.scrollHeight;
     });
 
-    function updateP(input) {
+    function updateAvatar(input) {
         if(input.files[0]) {
             let r = new FileReader();
             r.onload = e => { me.avatar = e.target.result; document.getElementById('me-pfp').src = e.target.result; };
