@@ -3,90 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش - السمايلات المتحركة 👑</title>
+    <title>مملكة علوش - النسخة العظمى 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     
     <style>
-        :root { --main: #ffd700; --bg: #000; }
-        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        :root { --main: #ffd700; --bg: #000; --side-w: 220px; }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; overflow: hidden; }
 
-        #master-layout { display: flex; flex: 1; gap: 10px; padding: 10px; overflow: hidden; }
-        .panel { background: #0a0a0a; border: 2px solid #222; border-radius: 15px; display: flex; flex-direction: column; position: relative; }
-        .drag-handle { background: #111; padding: 8px; cursor: move; text-align: center; font-size: 11px; color: var(--main); border-radius: 13px 13px 0 0; font-weight: bold; }
+        /* القائمة اليمنى القابلة للطي */
+        #sidebar { 
+            width: var(--side-w); background: #0a0a0a; border-left: 2px solid var(--main); 
+            transition: 0.4s; flex-shrink: 0; display: flex; flex-direction: column;
+        }
+        #sidebar.closed { margin-right: calc(var(--side-w) * -1); }
 
-        #sidebar { width: 220px; flex-shrink: 0; }
-        #chat-area { flex-grow: 1; }
+        /* المحتوى الرئيسي */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 
-        /* السمايلات المتحركة */
-        .emoji-bar { display: flex; gap: 10px; padding: 8px; background: #111; border-top: 1px solid #333; overflow-x: auto; }
-        .emoji-item { font-size: 24px; cursor: pointer; transition: 0.3s; animation: bounce 2s infinite; }
-        .emoji-item:hover { transform: scale(1.3); }
-
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-
-        /* الشات */
-        #chat-window { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #050505; }
-        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; border: 1px solid #222; }
-        .msg.me { align-self: flex-end; background: #1a1a1a; border-right: 4px solid var(--main); }
-        .msg.bot { align-self: center; border: 1px solid #00f2ff; color: #00f2ff; text-align: center; width: 90%; }
-
-        /* شريط الإدخال */
-        .input-bar { padding: 10px; background: #0a0a0a; display: flex; gap: 8px; border-top: 1px solid #222; align-items: center; }
-        input[type="text"] { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 25px; outline: none; }
-        
-        .btn-action { border: none; padding: 10px; border-radius: 50%; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .refresh-btn { background: #333; color: #fff; width: 40px; height: 40px; }
-        .refresh-btn:hover { background: #555; transform: rotate(180deg); }
-        .send-btn { background: var(--main); color: #000; padding: 10px 20px; border-radius: 25px; }
+        /* لوحة التحكم واليوتيوب */
+        .admin-bar { background: #111; padding: 10px; display: flex; gap: 10px; border-bottom: 1px solid #222; align-items: center; }
+        #yt-area { background: #0a0a0a; padding: 10px; border-bottom: 1px solid var(--main); display: none; }
+        #video-frame { width: 100%; height: 200px; display: none; border-radius: 10px; margin-top: 10px; }
 
         /* المايكات */
-        .mics-row { display: flex; gap: 5px; padding: 10px; background: #0f0f0f; border-bottom: 1px solid #222; }
-        .mic-slot { flex: 1; background: #1a1a1a; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 1px dashed #444; }
+        .mics-grid { display: flex; gap: 5px; padding: 10px; background: #050505; }
+        .mic-box { flex: 1; background: #151515; height: 50px; border: 1px dashed #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+        .mic-box.active { border: 1px solid var(--main); background: #221a00; }
+
+        /* الشات */
+        #chat-window { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px; border-radius: 12px; max-width: 80%; border: 1px solid #222; }
+        .msg.me { align-self: flex-end; background: #1a1a1a; border-right: 4px solid var(--main); }
+
+        /* خانة الإيموجيات المتحركة الصغير */
+        .emoji-box { display: flex; gap: 8px; padding: 5px 10px; background: #111; overflow-x: auto; border-top: 1px solid #222; }
+        .emoji-gif { width: 30px; height: 30px; cursor: pointer; transition: 0.2s; }
+        .emoji-gif:hover { transform: scale(1.2); }
+
+        /* منطقة الإدخال */
+        .input-area { padding: 10px; background: #000; display: flex; gap: 8px; align-items: center; border-top: 1px solid #222; }
+        input[type="text"] { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 10px 15px; border-radius: 20px; outline: none; }
+        
+        .btn { background: var(--main); border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .toggle-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 100; background: var(--main); border: none; width: 30px; height: 60px; border-radius: 5px 0 0 5px; cursor: pointer; opacity: 0.7; }
     </style>
 </head>
 <body>
 
-    <div id="master-layout">
-        <div id="sidebar" class="panel">
-            <div class="drag-handle">✥ الملوك ✥</div>
-            <div id="online-list" style="padding: 10px;"></div>
+    <button class="toggle-btn" onclick="toggleSidebar()">◀</button>
+
+    <div class="main-content">
+        <div class="admin-bar">
+            <button class="btn" onclick="toggleYT()">📺 يوتيوب</button>
+            <button class="btn" onclick="location.reload()">🔄 تحديث</button>
+            <span id="bot-status" style="color:#00f2ff; font-size:12px;">🤖 البوت متصل</span>
         </div>
 
-        <div id="chat-area" class="panel">
-            <div class="drag-handle">✥ مجلس الإمبراطور علوش ✥</div>
-            
-            <div class="mics-row">
-                <div class="mic-slot" id="s1">🎙️ خالي <button onclick="joinMic(1)">صعود</button></div>
-                <div class="mic-slot" id="s2">🎙️ خالي <button onclick="joinMic(2)">صعود</button></div>
-                <div class="mic-slot" id="s3">🎙️ خالي <button onclick="joinMic(3)">صعود</button></div>
-                <div class="mic-slot" id="s4">🎙️ خالي <button onclick="joinMic(4)">صعود</button></div>
+        <div id="yt-area">
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="yt-inp" placeholder="بحث فيديو..." style="flex:1; background:#000; color:#fff; border:1px solid #333; padding:5px;">
+                <button onclick="searchYT()" class="btn">🔍</button>
             </div>
+            <div id="yt-res" style="display:flex; overflow-x:auto; gap:10px; margin-top:5px;"></div>
+            <div id="video-frame"></div>
+        </div>
 
-            <div id="chat-window"></div>
+        <div class="mics-grid">
+            <div class="mic-box" id="mic1">🎙️ خالي <button onclick="joinMic(1)" style="font-size:8px;">صعود</button></div>
+            <div class="mic-box" id="mic2">🎙️ خالي <button onclick="joinMic(2)" style="font-size:8px;">صعود</button></div>
+            <div class="mic-box" id="mic3">🎙️ خالي <button onclick="joinMic(3)" style="font-size:8px;">صعود</button></div>
+            <div class="mic-box" id="mic4">🎙️ خالي <button onclick="joinMic(4)" style="font-size:8px;">صعود</button></div>
+        </div>
 
-            <div class="emoji-bar">
-                <span class="emoji-item" onclick="addEmoji('🔥')">🔥</span>
-                <span class="emoji-item" onclick="addEmoji('👑')">👑</span>
-                <span class="emoji-item" onclick="addEmoji('😂')">😂</span>
-                <span class="emoji-item" onclick="addEmoji('✨')">✨</span>
-                <span class="emoji-item" onclick="addEmoji('💎')">💎</span>
-                <span class="emoji-item" onclick="addEmoji('🚀')">🚀</span>
-                <span class="emoji-item" onclick="addEmoji('💯')">💯</span>
-                <span class="emoji-item" onclick="addEmoji('🎤')">🎤</span>
-            </div>
+        <div id="chat-window"></div>
 
-            <div class="input-bar">
-                <button class="btn-action refresh-btn" onclick="location.reload()" title="تحديث المملكة">🔄</button>
-                <input type="text" id="mInp" placeholder="تحدث يا ملك...">
-                <button class="btn-action send-btn" onclick="sendMsg()">إرسال</button>
-            </div>
+        <div class="emoji-box">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueW41bmZ6YnN6YnN6YnN6YnN6YnN6YnN6YnN6YnN6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/v6aOebdEG8w3L9LIVr/giphy.gif" class="emoji-gif" onclick="addEmoji('🔥')">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHR4bmZ6YnN6YnN6YnN6YnN6YnN6YnN6YnN6YnN6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/3o7TKVUn7iM8FMEU24/giphy.gif" class="emoji-gif" onclick="addEmoji('😂')">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHR4bmZ6YnN6YnN6YnN6YnN6YnN6YnN6YnN6YnN6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/l41lTfuxV6M2pA9eE/giphy.gif" class="emoji-gif" onclick="addEmoji('👑')">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHR4bmZ6YnN6YnN6YnN6YnN6YnN6YnN6YnN6YnN6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/3o7TKMGpx4SAsZ6Kli/giphy.gif" class="emoji-gif" onclick="addEmoji('💯')">
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="mInp" placeholder="تحدث يا ملك...">
+            <button class="btn" onclick="send()">إرسال</button>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <div style="padding:15px; border-bottom:1px solid #222; text-align:center; color:var(--main); font-weight:bold;">المتواجدون</div>
+        <div id="user-list" style="padding:10px; overflow-y:auto; flex:1;">
+            <div style="color:#00f2ff; margin-bottom:10px;">🤖 بوت المملكة</div>
         </div>
     </div>
 
 <script>
+    const YT_KEY = "AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU";
     const config = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
@@ -98,28 +113,30 @@
     const auth = firebase.auth();
     let myName = "";
 
-    new Sortable(document.getElementById('master-layout'), { handle: '.drag-handle', animation: 200 });
+    // فتح وغلق الجانب
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('closed'); }
+    function toggleYT() { 
+        const area = document.getElementById('yt-area');
+        area.style.display = area.style.display === 'none' ? 'block' : 'none';
+    }
 
     auth.onAuthStateChanged(user => {
         if (user) {
             myName = user.email === "rgrghh77@gmail.com" ? "إمبراطور علوش 👑" : user.email.split('@')[0];
-            db.ref('status/' + user.uid).set({ n: myIdentity = myName });
+            db.ref('status/' + user.uid).set({ n: myName });
             db.ref('status/' + user.uid).onDisconnect().remove();
-            loadChat(); loadUsers(); syncMics();
+            loadChat(); loadUsers(); syncMics(); watchYT();
         } else { window.location.href = "index.html"; }
     });
 
-    function addEmoji(emoji) {
-        document.getElementById('mInp').value += emoji;
-        document.getElementById('mInp').focus();
-    }
+    function addEmoji(e) { document.getElementById('mInp').value += e; }
 
-    function sendMsg() {
+    function send() {
         const i = document.getElementById('mInp');
         if(!i.value.trim()) return;
         db.ref('msgs').push({ u: myName, t: i.value, m: myName.includes("👑") });
-        if(i.value.includes("😂")) {
-            setTimeout(() => db.ref('msgs').push({ u: "بوت المملكة 🤖", t: "دوم الضحكة يا ملك! 😂", type: 'bot' }), 1000);
+        if(i.value.includes("بوت")) {
+            setTimeout(()=> db.ref('msgs').push({ u: "بوت المملكة 🤖", t: "لبيك يا ملك علوش!", b: true }), 500);
         }
         i.value = '';
     }
@@ -129,35 +146,53 @@
             const d = snap.val();
             const win = document.getElementById('chat-window');
             const div = document.createElement('div');
-            div.className = `msg ${d.type === 'bot' ? 'bot' : (d.m ? 'me' : 'other')}`;
-            div.innerHTML = `<small style="color:var(--main);">${d.u}</small><br>${d.t}`;
+            div.className = `msg ${d.b ? 'bot' : (d.m ? 'me' : 'other')}`;
+            div.style.color = d.b ? "#00f2ff" : "#fff";
+            div.innerHTML = `<small style="color:var(--main)">${d.u}</small><br>${d.t}`;
             win.appendChild(div);
             win.scrollTop = win.scrollHeight;
         });
     }
 
+    async function searchYT() {
+        const q = document.getElementById('yt-inp').value;
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&type=video&maxResults=5&key=${YT_KEY}`);
+        const data = await res.json();
+        const div = document.getElementById('yt-res');
+        div.innerHTML = '';
+        data.items.forEach(v => {
+            div.innerHTML += `<div onclick="play('${v.id.videoId}')" style="cursor:pointer; min-width:80px;"><img src="${v.snippet.thumbnails.default.url}" width="80"></div>`;
+        });
+    }
+    function play(id) { db.ref('live').set({ id: id, on: true }); }
+    function watchYT() {
+        db.ref('live').on('value', snap => {
+            const v = snap.val();
+            const frame = document.getElementById('video-frame');
+            if(v && v.on) {
+                frame.style.display = 'block';
+                frame.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${v.id}?autoplay=1" frameborder="0"></iframe>`;
+            }
+        });
+    }
+
     function loadUsers() {
         db.ref('status').on('value', snap => {
-            const list = document.getElementById('online-list');
-            list.innerHTML = `<div style="color:#00f2ff; font-weight:bold; margin-bottom:10px;">🤖 بوت المملكة</div>`;
-            snap.forEach(u => {
-                list.innerHTML += `<div style="font-size:12px; margin-bottom:5px;">🟢 ${u.val().n}</div>`;
-            });
+            const list = document.getElementById('user-list');
+            list.innerHTML = `<div style="color:#00f2ff; margin-bottom:10px;">🤖 بوت المملكة</div>`;
+            snap.forEach(u => { list.innerHTML += `<div style="padding:5px; font-size:12px;">🟢 ${u.val().n}</div>`; });
         });
     }
 
     function joinMic(n) {
         const ref = db.ref('mics/s' + n);
-        ref.once('value', s => {
-            if(s.val() && s.val().n === myName) ref.remove();
-            else if(!s.val()) ref.set({ n: myName });
-        });
+        ref.once('value', s => { if(s.val() && s.val().n === myName) ref.remove(); else if(!s.val()) ref.set({ n: myName }); });
     }
 
     function syncMics() {
         for(let i=1; i<=4; i++) {
             db.ref('mics/s' + i).on('value', s => {
-                const el = document.getElementById('s' + i);
+                const el = document.getElementById('mic' + i);
                 if(s.val()) el.innerHTML = `🎤 ${s.val().n} <button onclick="joinMic(${i})" style="font-size:8px;">X</button>`;
                 else el.innerHTML = `🎙️ خالي <button onclick="joinMic(${i})" style="font-size:8px;">صعود</button>`;
             });
