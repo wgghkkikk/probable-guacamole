@@ -3,79 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH AURA V33 👑</title>
+    <title>MASTER CONTROL V34 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --king: #ffd700; --aura: #00ffcc; --bg: #050505; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
+        :root { --main: #ffd700; --bg: #000; --glass: rgba(255,255,255,0.05); }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; transition: 0.3s; }
         
         body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
         
-        /* تأثير النيون السائل في الخلفية */
-        .liquid-bg { position: fixed; inset: 0; background: linear-gradient(45deg, #000, #0a0a2a, #000); z-index: -2; }
-        .aura-spot { position: fixed; width: 400px; height: 400px; background: var(--aura); filter: blur(180px); opacity: 0.1; bottom: -100px; right: -100px; z-index: -1; animation: float 8s infinite alternate; }
-        @keyframes float { from { transform: translate(0,0); } to { transform: translate(-50px, -50px); } }
+        /* الخلفية الديناميكية */
+        #dynamic-bg { position: fixed; inset: 0; z-index: -2; background: radial-gradient(circle, #1a1a2e 0%, #000 100%); }
 
-        /* الهيدر الماسي */
-        .nav-diamond { height: 75px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--king); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 2000; box-shadow: 0 0 30px rgba(255,215,0,0.1); }
-        .nav-diamond b { font-size: 20px; color: var(--king); text-shadow: 0 0 10px var(--king); }
+        /* هيدر التحكم */
+        .nav-master { height: 75px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--main); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
+        .nav-master b { font-size: 20px; color: var(--main); text-shadow: 0 0 10px var(--main); }
 
         /* القوائم الجانبية */
-        .side-cosmos { position: fixed; top: 75px; bottom: 90px; width: 290px; background: rgba(10,10,15,0.98); border: 1px solid var(--king); border-radius: 25px; transition: 0.5s ease; z-index: 1500; backdrop-filter: blur(20px); }
-        #cosmo-r { right: -310px; }
-        #cosmo-l { left: -310px; }
-        .side-cosmos.active { right: 15px !important; left: 15px !important; }
+        .side-ctrl { position: fixed; top: 75px; bottom: 85px; width: 280px; background: rgba(5,5,5,0.98); border: 1px solid var(--main); border-radius: 20px; z-index: 1500; backdrop-filter: blur(15px); padding: 20px; }
+        #ctrl-r { right: -300px; }
+        #ctrl-l { left: -300px; }
+        .side-ctrl.active { right: 10px !important; left: 10px !important; }
 
         /* الشات */
-        #chat-scroller { position: absolute; top: 75px; bottom: 90px; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .msg-aura { display: flex; gap: 12px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        #chat-scroller { position: absolute; top: 75px; bottom: 85px; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .msg-box { display: flex; gap: 12px; animation: slideUp 0.3s ease; align-items: flex-end; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        .pfp-aura { width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--king); padding: 2px; background: #000; }
-        .bubble-aura { background: rgba(255,255,255,0.06); padding: 12px 18px; border-radius: 20px; max-width: 78%; border: 1px solid rgba(255,255,255,0.05); }
-        .special-text { font-size: 18px; color: var(--king); font-weight: 900; text-shadow: 0 0 8px var(--king); }
+        .pfp { width: 45px; height: 45px; border-radius: 12px; border: 2px solid var(--main); }
+        .bubble { background: var(--glass); padding: 12px 18px; border-radius: 18px; max-width: 80%; border: 1px solid rgba(255,255,255,0.05); position: relative; }
+        .king-msg { border: 1px solid var(--main); box-shadow: 0 0 10px rgba(255,215,0,0.2); background: rgba(255,215,0,0.05); }
+        .whisper { border: 1px solid #ff00ff; color: #ff00ff; font-style: italic; }
+
+        /* أزرار التحكم بالثيم */
+        .theme-btn { padding: 8px; border: 1px solid #333; background: none; color: white; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 12px; }
 
         /* البار السفلي */
-        .input-bar { position: fixed; bottom: 15px; left: 15px; right: 15px; height: 65px; background: rgba(255,255,255,0.05); border-radius: 20px; border: 1px solid var(--king); backdrop-filter: blur(15px); display: flex; align-items: center; padding: 0 15px; gap: 10px; z-index: 2000; }
-        #msg-in { flex: 1; background: none; border: none; color: white; height: 100%; font-size: 16px; }
-        .send-btn { width: 45px; height: 45px; background: var(--king); border-radius: 15px; border: none; font-weight: 900; color: black; cursor: pointer; }
+        .bottom-shelf { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; display: flex; align-items: center; padding: 0 15px; gap: 10px; border-top: 1px solid #111; z-index: 2000; }
+        #input-main { flex: 1; height: 50px; background: #0d0d0d; border: 1px solid #222; border-radius: 15px; color: white; padding: 0 15px; }
+        .btn-push { width: 50px; height: 50px; background: var(--main); border-radius: 15px; border: none; font-weight: 900; color: black; }
     </style>
 </head>
 <body>
 
-<div class="liquid-bg"></div>
-<div class="aura-spot"></div>
+<div id="dynamic-bg"></div>
 
-<div class="nav-diamond">
-    <button onclick="toggleS('cosmo-l')" style="background:none; border:none; font-size:26px;">💎</button>
-    <b>ALLOSH AURA V33</b>
-    <button onclick="toggleS('cosmo-r')" style="background:none; border:none; font-size:26px;">📡</button>
+<div class="nav-master">
+    <button onclick="toggleSide('ctrl-l')" style="background:none; border:none; font-size:26px;">⚙️</button>
+    <b>ALLOSH MASTER V34</b>
+    <button onclick="toggleSide('ctrl-r')" style="background:none; border:none; font-size:26px;">👥</button>
 </div>
 
-<div id="cosmo-r" class="side-cosmos">
-    <div style="padding:20px; color:var(--king); font-weight:900; border-bottom:1px solid #222;">رادار المملكة</div>
-    <div id="online-list" style="padding:10px;"></div>
+<div id="ctrl-r" class="side-ctrl">
+    <h3 style="color:var(--main); margin-bottom:15px;">رادار الملوك</h3>
+    <div id="user-list"></div>
 </div>
 
-<div id="cosmo-l" class="side-cosmos">
-    <div style="padding:30px; text-align:center;">
-        <img id="my-pfp" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:100px; height:100px; border-radius:50%; border:3px solid var(--king); cursor:pointer;" onclick="document.getElementById('f-up').click()">
-        <input type="file" id="f-up" hidden onchange="updateMe(this)">
-        <h3 style="margin-top:10px;">علوش الإمبراطور</h3>
-        <p style="color:var(--aura); font-size:12px;">نظام هالة الشات: مُفعل ✨</p>
-        <hr style="margin:25px 0; opacity:0.1;">
-        <button onclick="clearChat()" style="width:100%; padding:15px; background:none; border:1px solid red; color:red; border-radius:15px;">مسح الأرشيف 🧹</button>
+<div id="ctrl-l" class="side-ctrl">
+    <div style="text-align:center;">
+        <img id="my-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:90px; height:90px; border-radius:15px; border:2px solid var(--main); cursor:pointer;" onclick="document.getElementById('file-in').click()">
+        <input type="file" id="file-in" hidden onchange="updatePfp(this)">
+        <h3 style="margin:10px 0;">الإمبراطور علوش</h3>
+        <hr style="opacity:0.1; margin:15px 0;">
+        <p style="font-size:12px; margin-bottom:10px;">تحكم بالخلفية 🎭</p>
+        <button class="theme-btn" onclick="setBg('radial-gradient(circle, #1a1a2e 0%, #000 100%)')">ليلي</button>
+        <button class="theme-btn" onclick="setBg('linear-gradient(45deg, #200122 0%, #6f0000 100%)')">ملكي</button>
+        <button class="theme-btn" onclick="setBg('linear-gradient(to top, #09203f 0%, #537895 100%)')">هادئ</button>
+        <button onclick="clearChat()" style="width:100%; padding:12px; background:rgba(255,0,0,0.1); border:1px solid red; color:red; border-radius:12px; margin-top:20px;">تصفير النظام 🧹</button>
     </div>
 </div>
 
 <div id="chat-scroller"></div>
 
-<div class="input-bar">
-    <button style="background:none; border:none; font-size:24px;">🎖️</button>
-    <input type="text" id="msg-in" placeholder="ألقِ كلمتك الملكية..." onkeypress="if(event.key==='Enter') send()">
-    <button class="send-btn" onclick="send()">🚀</button>
+<div class="bottom-shelf">
+    <button onclick="location.reload()" style="background:none; border:none; font-size:24px;">🔄</button>
+    <input type="text" id="input-main" placeholder="أمرك مطاع يا سيدي..." onkeypress="if(event.key==='Enter') push()">
+    <button class="btn-push" onclick="push()">🚀</button>
 </div>
 
 <script>
@@ -83,57 +87,54 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let user = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", status: "king" };
+    let user = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", king: true };
 
-    function toggleS(id) {
-        document.querySelectorAll('.side-cosmos').forEach(s => { if(s.id !== id) s.classList.remove('active'); });
+    function toggleSide(id) {
+        document.querySelectorAll('.side-ctrl').forEach(s => { if(s.id !== id) s.classList.remove('active'); });
         document.getElementById(id).classList.toggle('active');
     }
 
-    function updateMe(input) {
+    function setBg(grad) { document.getElementById('dynamic-bg').style.background = grad; }
+
+    function updatePfp(input) {
         if(input.files[0]) {
             let r = new FileReader();
-            r.onload = e => { user.avatar = e.target.result; document.getElementById('my-pfp').src = e.target.result; };
+            r.onload = e => { user.avatar = e.target.result; document.getElementById('my-avatar').src = e.target.result; };
             r.readAsDataURL(input.files[0]);
         }
     }
 
-    function send() {
-        let i = document.getElementById('msg-in'); if(!i.value) return;
-        db.ref('aura_v33').push({ u: user.name, t: i.value, a: user.avatar, s: user.status });
+    function push() {
+        let i = document.getElementById('input-main'); if(!i.value) return;
+        let isWhisper = i.value.startsWith('سر ');
+        db.ref('master_v34').push({ u: user.name, t: i.value, a: user.avatar, k: user.king, w: isWhisper });
         i.value = "";
     }
 
-    db.ref('aura_v33').limitToLast(40).on('child_added', s => {
+    db.ref('master_v34').limitToLast(40).on('child_added', s => {
         let d = s.val();
-        let box = document.getElementById('chat-scroller');
+        let sc = document.getElementById('chat-scroller');
         let div = document.createElement('div');
-        div.className = "msg-aura";
-        
-        // ميزة النص السحري (تكبير الخط إذا بدأ بنجمة)
-        let isSpecial = d.t.startsWith('*');
-        let textToShow = isSpecial ? d.t.substring(1) : d.t;
-        let textStyle = isSpecial ? 'special-text' : '';
-
+        div.className = "msg-box";
         div.innerHTML = `
-            <img src="${d.a}" class="pfp-aura">
-            <div class="bubble-aura">
-                <b style="color:var(--king); font-size:11px;">${d.u} 🎖️</b><br>
-                <span class="${textStyle}" style="font-size:15px;">${textToShow}</span>
+            <img src="${d.a}" class="pfp">
+            <div class="bubble ${d.k?'king-msg':''} ${d.w?'whisper':''}">
+                <b style="color:var(--main); font-size:11px;">${d.u}</b><br>
+                <span>${d.t}</span>
             </div>`;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
+        sc.appendChild(div);
+        sc.scrollTop = sc.scrollHeight;
     });
 
-    db.ref('aura_presence/'+user.name).set(true);
-    db.ref('aura_presence/'+user.name).onDisconnect().remove();
-    db.ref('aura_presence').on('value', s => {
-        let l = document.getElementById('online-list'); l.innerHTML = "";
-        s.forEach(u => { l.innerHTML += `<div style="padding:12px; border-bottom:1px solid #111;">👑 ${u.key}</div>`; });
+    db.ref('presence_v34/'+user.name).set(true);
+    db.ref('presence_v34/'+user.name).onDisconnect().remove();
+    db.ref('presence_v34').on('value', s => {
+        let l = document.getElementById('user-list'); l.innerHTML = "";
+        s.forEach(u => { l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111;">👑 ${u.key}</div>`; });
     });
 
-    function clearChat() { if(confirm("مسح الشات؟")) db.ref('aura_v33').remove(); }
-    document.getElementById('chat-scroller').onclick = () => document.querySelectorAll('.side-cosmos').forEach(s => s.classList.remove('active'));
+    function clearChat() { if(confirm("مسح السجلات؟")) db.ref('master_v34').remove(); }
+    document.getElementById('chat-scroller').onclick = () => document.querySelectorAll('.side-ctrl').forEach(s => s.classList.remove('active'));
 </script>
 </body>
 </html>
