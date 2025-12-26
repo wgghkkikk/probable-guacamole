@@ -3,32 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش | V142 👑</title>
+    <title>مملكة علوش | V143 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
         body { background: #000; color: white; font-family: 'Cairo', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { width: 90%; max-width: 380px; background: #111; padding: 30px; border-radius: 20px; border: 2px solid #ffd700; text-align: center; }
+        .card { width: 90%; max-width: 380px; background: #111; padding: 30px; border-radius: 20px; border: 2px solid #ffd700; text-align: center; box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); }
         input { width: 100%; padding: 14px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: white; text-align: center; font-size: 16px; outline: none; }
         .btn-gold { width: 100%; padding: 14px; background: #ffd700; color: #000; border: none; border-radius: 50px; font-weight: 900; cursor: pointer; margin-top: 10px; font-size: 16px; }
-        #status { margin-top: 15px; font-size: 13px; font-weight: bold; padding: 10px; border-radius: 10px; }
+        #status-box { margin-top: 15px; font-size: 14px; padding: 10px; border-radius: 10px; min-height: 20px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2 style="color:#ffd700;">دخول المملكة 👑</h2>
-    <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <h1 style="color:#ffd700; font-size: 24px;">دخول المملكة 👑</h1>
+    <input type="email" id="email" placeholder="إيميلك (rgrghh7@gmail.com)">
     <input type="password" id="pass" placeholder="كلمة المرور">
     
-    <button class="btn-gold" onclick="startAuth('login')">دخول مباشر</button>
-    <button class="btn-gold" style="background:#222; color:white;" onclick="startAuth('register')">إنشاء حساب جديد</button>
+    <button class="btn-gold" onclick="runAuth('login')">دخول مباشر</button>
+    <button class="btn-gold" style="background:#222; color:white;" onclick="runAuth('register')">إنشاء حساب جديد</button>
     
-    <div id="status"></div>
+    <div id="status-box"></div>
 </div>
 
 <script>
+    // البيانات المسحوبة حرفياً من صورك الأخيرة لضمان المطابقة
     const firebaseConfig = {
         apiKey: "AIzaSyDnigkb4U-RE71r_Zy3tHAV9wWWe2L3nFQ", 
         authDomain: "masterchat-f2da9.firebaseapp.com",
@@ -39,26 +40,33 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    async function startAuth(mode) {
-        const s = document.getElementById('status');
+    async function runAuth(type) {
+        const box = document.getElementById('status-box');
         const email = document.getElementById('email').value.trim();
         const pass = document.getElementById('pass').value.trim();
 
-        if(!email || !pass) { s.style.color = "orange"; s.innerText = "🚨 اكتب البيانات!"; return; }
+        if(!email || !pass) { box.style.color="orange"; box.innerText="🚨 اكتب البيانات!"; return; }
 
-        s.style.color = "gold"; s.innerText = "جاري الاتصال... ⏳";
+        box.style.color="gold"; box.innerText="جاري محاولة الاتصال... ⏳";
 
         try {
-            if(mode === 'register') {
+            if(type === 'register') {
                 await auth.createUserWithEmailAndPassword(email, pass);
-                s.style.color = "#00ff00"; s.innerText = "✅ تم إنشاء الحساب! اضغط دخول.";
+                box.style.color="#00ff00"; box.innerText="✅ مبروك! تم التسجيل. اضغط دخول.";
             } else {
                 await auth.signInWithEmailAndPassword(email, pass);
-                s.style.color = "#00ff00"; s.innerText = "🔓 تم الدخول بنجاح يا ملك!";
+                box.style.color="#00ff00"; box.innerText="🔓 تم الدخول بنجاح يا ملك!";
             }
-        } catch (error) {
-            s.style.color = "#ff4444";
-            s.innerText = "⚠️ " + error.message;
+        } catch (err) {
+            console.error(err);
+            box.style.color="#ff4444";
+            
+            // إذا استمر خطأ API Key، سنعرف السبب هنا
+            if (err.message.includes("API key")) {
+                box.innerText = "❌ خطأ في مفتاح السيرفر. يرجى الانتظار 5 دقائق وتحديث الصفحة.";
+            } else {
+                box.innerText = "⚠️ " + err.message;
+            }
         }
     }
 </script>
