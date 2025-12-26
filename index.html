@@ -3,189 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CH-ALLOSH FINAL SUPREME 👑</title>
+    <title>CH-ALLOSH SUPREME V16 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;900&display=swap');
-        :root { --main: #ff6a00; --bg: #000; --bot: #00d4ff; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
+        :root { --main: #ff6a00; --bot: #00d4ff; --bg: #0b0f15; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        
-        /* خلفية النجوم الثابتة والمتحركة */
         body { background: #000; color: white; overflow: hidden; position: fixed; width: 100%; height: 100%; }
-        .stars { position: fixed; width: 100%; height: 100%; background: url('https://www.transparenttextures.com/patterns/stardust.png'); z-index: -1; animation: moveStars 50s linear infinite; }
+        
+        /* خلفية النجوم المتحركة */
+        .stars { position: fixed; inset: 0; background: url('https://www.transparenttextures.com/patterns/stardust.png'); z-index: -1; animation: moveStars 60s linear infinite; }
         @keyframes moveStars { from { background-position: 0 0; } to { background-position: 1000px 1000px; } }
 
-        /* الهيدر */
-        .top-bar { height: 60px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--main); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; }
-        
-        /* القائمة الجانبية للمتصلين */
-        .side { position: fixed; top: 60px; bottom: 85px; width: 280px; background: rgba(10,10,10,0.95); left: -280px; transition: 0.3s; z-index: 1500; border-left: 1px solid #333; overflow-y: auto; backdrop-filter: blur(10px); }
-        .side.open { left: 0; }
+        /* الهيدر العلوي */
+        .header { height: 60px; background: rgba(15,15,15,0.95); display: flex; align-items: center; justify-content: space-around; border-bottom: 2px solid var(--main); z-index: 1000; }
+        .h-icon { width: 30px; height: 30px; cursor: pointer; }
 
-        /* ستايل علوش الملكي */
-        .allosh-king-container { text-align: center; padding: 20px 10px; }
-        .big-crown { font-size: 50px; display: block; animation: crownPulse 1.5s infinite; filter: drop-shadow(0 0 15px gold); }
-        @keyframes crownPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-        .allosh-name { font-size: 26px; font-weight: 900; background: linear-gradient(to right, #fff, gold, #ff6a00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* القوائم الجانبية (يمين ويسار) */
+        .side { position: fixed; top: 60px; bottom: 85px; width: 280px; background: rgba(10,10,10,0.98); transition: 0.3s; z-index: 1500; border: 1px solid #333; overflow-y: auto; }
+        #side-r { right: -280px; border-left: 2px solid var(--main); }
+        #side-l { left: -280px; border-right: 2px solid var(--main); }
+        .side.open { right: 0 !important; left: 0 !important; }
+
+        /* التاج والملك علوش */
+        .king-zone { text-align: center; padding: 20px; }
+        .big-crown { font-size: 55px; display: block; animation: pulse 1.5s infinite; filter: drop-shadow(0 0 10px gold); }
+        .king-name { font-size: 26px; font-weight: 900; background: linear-gradient(to right, #fff, gold, #ff6a00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
         /* الشات */
         .chat-view { position: absolute; top: 60px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .msg-container { display: flex; align-items: flex-start; gap: 10px; }
-        .u-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--main); object-fit: cover; }
-        .msg-body { flex: 1; background: rgba(30,30,30,0.8); padding: 12px; border-radius: 15px; border-right: 4px solid var(--main); }
-        .msg-img { max-width: 100%; border-radius: 10px; margin-top: 8px; }
+        .msg-wrap { display: flex; gap: 10px; align-items: flex-start; }
+        .u-img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--main); object-fit: cover; }
+        .msg-body { background: rgba(30,30,30,0.8); padding: 10px; border-radius: 15px; border-right: 4px solid var(--main); max-width: 75%; position: relative; }
+        .bot-style { border-right: 4px solid var(--bot) !important; background: rgba(0,212,255,0.1) !important; }
+
+        /* الإيموجيات المتحركة GIF */
+        #emoji-panel { position: absolute; bottom: 85px; width: 100%; height: 250px; background: #111; border-top: 2px solid var(--main); display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 15px; overflow-y: auto; z-index: 2000; }
+        .gif-item { width: 100%; cursor: pointer; transition: 0.2s; }
 
         /* البار السفلي */
-        .bottom-bar { position: fixed; bottom: 0; height: 85px; width: 100%; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 8px; z-index: 2000; }
-        #in { flex: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 25px; color: white; padding: 0 15px; outline: none; }
-        .btn-action { background: none; border: none; font-size: 26px; cursor: pointer; color: white; }
-
-        /* لوحة الإيموجيات المتحركة */
-        #emoji-panel { display: none; position: absolute; bottom: 90px; left: 10px; right: 10px; background: #111; border: 1px solid var(--main); border-radius: 15px; padding: 10px; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .emoji-gif { width: 100%; cursor: pointer; transition: 0.2s; border-radius: 8px; }
-
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 4000; }
-        .modal-card { background: white; width: 90%; max-width: 380px; border-radius: 25px; color: #333; padding: 20px; text-align: center; }
+        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; z-index: 2000; }
+        #msg-in { flex: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 25px; color: white; padding: 0 15px; outline: none; }
+        .btn-act { background: none; border: none; font-size: 28px; cursor: pointer; color: white; }
     </style>
 </head>
 <body>
 
 <div class="stars"></div>
 
-<div id="settings-modal" class="modal">
-    <div class="modal-card">
-        <h3 style="margin-bottom:15px;">⚙️ الإعدادات</h3>
-        <img id="p-img" onclick="adminCheck()" src="" style="width:90px; height:90px; border-radius:50%; border:3px solid var(--main); cursor:pointer;">
-        <input type="text" id="custom-name" style="width:100%; padding:12px; margin:15px 0; border:1px solid #ddd; border-radius:12px; text-align:center;" placeholder="اكتب زخرفتك هنا...">
-        <button onclick="changePhoto()" style="padding:10px; border:none; background:#eee; border-radius:10px; margin-bottom:10px; width:100%;">تغيير الصورة 📷</button>
-        <button onclick="saveProfile()" style="width:100%; padding:15px; background:var(--main); color:white; border:none; border-radius:12px; font-weight:bold;">حفظ الزخرفة ✨</button>
-        <button onclick="closeM()" style="width:100%; padding:10px; background:#000; color:white; border:none; border-radius:12px; margin-top:10px;">إغلاق</button>
+<div class="header">
+    <img src="https://cdn-icons-png.flaticon.com/512/3580/3580229.png" class="h-icon" onclick="location.reload()">
+    <div style="color:var(--main); font-weight:900; font-size:18px;">ALLOSH SUPREME</div>
+    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="h-icon" onclick="toggleSide('side-l')">
+    <img src="https://cdn-icons-png.flaticon.com/512/880/880594.png" class="h-icon" onclick="toggleSide('side-r')">
+</div>
+
+<div id="side-r" class="side">
+    <div id="u-list"></div>
+    <div style="padding:15px; text-align:center; color:var(--bot); border-top:1px solid #333;">
+        <b>🤖 علوش بوت</b><br><small>نظام الحماية والترحيب جاهز</small>
     </div>
 </div>
 
-<div class="top-bar">
-    <button onclick="toggleSide()" class="btn-action">👥</button>
-    <div style="color:var(--main); font-weight:900; font-size:20px;">ALLOSH SUPREME</div>
-    <button onclick="location.reload()" class="btn-action">🔄</button>
-</div>
-
-<div class="chat-view" id="chat-box"></div>
-
-<div id="side-menu" class="side">
-    <div style="padding:15px;">
-        <div id="bot-status" style="background:rgba(0,212,255,0.1); border:1px solid var(--bot); padding:10px; border-radius:15px; text-align:center; margin-bottom:20px;">
-            <b style="color:var(--bot);">🛡️ بوت الحماية الملكي</b><br><small>مراقب الشات نشط</small>
-        </div>
-        <div id="u-list"></div>
+<div id="side-l" class="side">
+    <div style="height:120px; background:linear-gradient(to bottom, var(--main), #000);"></div>
+    <div style="text-align:center; margin-top:-45px; padding:15px;">
+        <img id="my-avatar" src="" style="width:90px; height:90px; border-radius:50%; border:4px solid #111;">
+        <h2 id="my-name">...</h2>
+        <p style="color:gold;">صاحب الشات 👑</p>
+        <hr style="margin:20px 0; opacity:0.1;">
+        <button onclick="clearChat()" style="width:100%; padding:12px; background:red; color:white; border:none; border-radius:10px; margin-bottom:10px;">مسح الشات 🧹</button>
+        <button onclick="lockChat()" style="width:100%; padding:12px; background:orange; color:white; border:none; border-radius:10px;">قفل الشات 🔒</button>
     </div>
 </div>
 
 <div id="emoji-panel">
-    <img class="emoji-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp4Z2R0NXJscHB4Y25xZ3R5ZnN3bTZqZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v6aOebdclIYBkPjn9D/giphy.gif" onclick="sendEmoji(this.src)">
-    <img class="emoji-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnRwaGN4NnlyZ3N5ZzR4ZzR4ZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/L2S1Y7Z9Xf3mD5uB5y/giphy.gif" onclick="sendEmoji(this.src)">
-    <img class="emoji-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnZ4ZzR4ZzR4ZzR4ZzR4ZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3o7TKVUn7iM8FMEU24/giphy.gif" onclick="sendEmoji(this.src)">
-    <img class="emoji-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZnRwaGN4NnlyZ3N5ZzR4ZzR4ZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/8vIFoK3N6R4FwK2vC7/giphy.gif" onclick="sendEmoji(this.src)">
+    <img class="gif-item" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnZ4Z2R0NXJscHB4Y25xZ3R5ZnN3bTZqZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v6aOebdclIYBkPjn9D/giphy.gif" onclick="sendGif(this.src)">
+    <img class="gif-item" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp4Z2R0NXJscHB4Y25xZ3R5ZnN3bTZqZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/L2S1Y7Z9Xf3mD5uB5y/giphy.gif" onclick="sendGif(this.src)">
+    <img class="gif-item" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp4Z2R0NXJscHB4Y25xZ3R5ZnN3bTZqZzR4ZzR4ZzR4ZzR4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/8vIFoK3N6R4FwK2vC7/giphy.gif" onclick="sendGif(this.src)">
 </div>
 
-<div class="bottom-bar">
-    <button class="btn-action" style="color:var(--main); font-weight:bold;" onclick="sendPhoto()">➕</button>
-    <button class="btn-action" onclick="toggleEmojiPanel()">😊</button>
-    <input type="text" id="in" placeholder="اكتب يا إمبراطور..." onkeypress="if(event.key==='Enter') send()">
-    <button class="btn-action" onclick="send()">🚀</button>
-    <button onclick="openM()" class="btn-action">⚙️</button>
-</div>
+<div class="chat-view" id="chat-box"></div>
 
-<script>
-    const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(config);
-    const db = firebase.database();
-
-    let adminClicks = 0;
-    let me = JSON.parse(localStorage.getItem('allosh_supreme_v10')) || {
-        id: "u_" + Math.random().toString(16).slice(2,8),
-        name: "علوش",
-        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        rank: "عضو"
-    };
-
-    function saveProfile() {
-        me.name = document.getElementById('custom-name').value || "علوش";
-        if(me.name.includes("علوش") || me.name.includes("عـلـ★ـش")) me.rank = "صاحب الشات 👑";
-        localStorage.setItem('allosh_supreme_v10', JSON.stringify(me));
-        db.ref('users_v10/'+me.id).set(me);
-        alert("تم الحفظ بنجاح!");
-    }
-
-    function toggleSide() { document.getElementById('side-menu').classList.toggle('open'); }
-    function openM() { document.getElementById('settings-modal').style.display='flex'; document.getElementById('p-img').src = me.avatar; document.getElementById('custom-name').value = me.name; }
-    function closeM() { document.getElementById('settings-modal').style.display='none'; }
-    function toggleEmojiPanel() { let p = document.getElementById('emoji-panel'); p.style.display = (p.style.display==='grid'?'none':'grid'); }
-
-    function adminCheck() { adminClicks++; if(adminClicks>=5) { let p = prompt("الرمز السري:"); if(p==="1234") { me.rank="صاحب الشات 👑"; saveProfile(); alert("تم تفعيل الإدارة ✅"); } adminClicks=0; } }
-
-    function start() {
-        db.ref('users_v10/'+me.id).set(me);
-        db.ref('users_v10/'+me.id).onDisconnect().remove();
-
-        db.ref('users_v10').on('value', s => {
-            let h = "";
-            s.forEach(u => {
-                let d = u.val();
-                if(d.rank.includes("صاحب")) {
-                    h += `<div class="allosh-king-container"><span class="big-crown">👑</span><span class="allosh-name">${d.name}</span></div>`;
-                } else {
-                    h += `<div style="padding:10px; border-bottom:1px solid #222;">● ${d.name} <br><small style="color:gray">${d.rank}</small></div>`;
-                }
-            });
-            document.getElementById('u-list').innerHTML = h;
-        });
-
-        db.ref('msgs_v10').limitToLast(30).on('child_added', s => {
-            let d = s.val();
-            let box = document.getElementById('chat-box');
-            let div = document.createElement('div');
-            div.className = "msg-container";
-            let content = d.type === 'img' ? `<img src="${d.text}" class="msg-img">` : d.text;
-            div.innerHTML = `<img src="${d.avatar}" class="u-avatar">
-                             <div class="msg-body"><b style="color:var(--main)">${d.sender}</b><br>${content}</div>`;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
-        });
-    }
-
-    function send() { 
-        let i = document.getElementById('in'); if(!i.value) return;
-        db.ref('msgs_v10').push({ sender: me.name, text: i.value, avatar: me.avatar, rank: me.rank, type: 'text' });
-        i.value = ""; 
-    }
-
-    function sendEmoji(url) {
-        db.ref('msgs_v10').push({ sender: me.name, text: url, avatar: me.avatar, rank: me.rank, type: 'img' });
-        toggleEmojiPanel();
-    }
-
-    function sendPhoto() {
-        let i = document.createElement('input'); i.type='file'; i.accept='image/*';
-        i.onchange = e => {
-            let r = new FileReader();
-            r.onload = ev => { db.ref('msgs_v10').push({ sender: me.name, text: ev.target.result, avatar: me.avatar, rank: me.rank, type: 'img' }); };
-            r.readAsDataURL(e.target.files[0]);
-        };
-        i.click();
-    }
-
-    function changePhoto() {
-        let i = document.createElement('input'); i.type='file'; i.accept='image/*';
-        i.onchange = e => {
-            let r = new FileReader();
-            r.onload = ev => { me.avatar = ev.target.result; saveProfile(); location.reload(); };
-            r.readAsDataURL(e.target.files[0]);
-        };
-        i.click();
-    }
-
-    start();
-</script>
-</body>
-</html>
+<div class="footer">
