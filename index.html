@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CH-ALLOSH INFINITY 👑</title>
+    <title>إدارة علوش الملكية 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -16,29 +16,24 @@
         .content { position: absolute; top: 60px; bottom: 70px; width: 100%; display: flex; }
         .chat-view { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
 
-        /* رسائل النظام */
+        /* رسائل النظام والإدارة */
         .sys-msg { align-self: center; background: rgba(255,106,0,0.1); color: var(--main); padding: 5px 20px; border-radius: 20px; font-size: 11px; margin: 5px 0; border: 1px solid rgba(255,106,0,0.2); }
 
-        /* فقاعة الرسالة المطورة */
         .msg-container { display: flex; align-items: flex-start; gap: 10px; }
-        .u-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--main); object-fit: cover; background: #222; }
+        .u-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--main); object-fit: cover; }
         .msg-body { flex: 1; background: #161616; padding: 10px; border-radius: 15px; border-right: 4px solid var(--main); position: relative; }
-        .u-info { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
-        .r-tag { font-size: 9px; background: var(--main); color: white; padding: 1px 5px; border-radius: 4px; }
+        .r-tag { font-size: 9px; background: var(--main); color: white; padding: 1px 5px; border-radius: 4px; margin-left: 5px; }
 
-        /* القوائم الجانبية */
         .side { position: fixed; top: 60px; bottom: 70px; width: 270px; background: var(--card); transition: 0.3s; z-index: 1500; border: 1px solid #222; overflow-y: auto; }
         #side-u { left: -270px; } #side-u.open { left: 0; }
         
-        /* النافذة المنبثقة (التحديث الداخلي) */
+        /* النافذة المنبثقة للادارة */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 3000; }
         .modal-card { background: white; width: 92%; max-width: 380px; border-radius: 25px; color: #333; overflow: hidden; }
-        .modal-body { padding: 20px; max-height: 500px; overflow-y: auto; text-align: center; }
-        
-        /* أزرار الزخرفة */
-        .z-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .z-btn { background: #f5f5f5; border: 1px solid #ddd; padding: 10px; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: bold; }
-        .z-btn:hover { background: var(--main); color: white; }
+        .modal-body { padding: 20px; text-align: center; }
+        .admin-btn { background: #ff4757; color: white; border: none; padding: 10px; border-radius: 12px; margin: 5px; cursor: pointer; width: 45%; font-weight: bold; }
+        .admin-btn.lock { background: #2f3542; }
+        .admin-btn.clear { background: #ffa502; }
 
         .bottom-bar { position: fixed; bottom: 0; height: 70px; width: 100%; background: #0a0a0a; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; gap: 10px; z-index: 1000; }
         #in { flex: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; border-radius: 25px; color: white; padding: 0 15px; outline: none; }
@@ -46,50 +41,34 @@
 </head>
 <body>
 
-<div id="m-modal" class="modal">
+<div id="admin-modal" class="modal">
     <div class="modal-card">
-        <div style="padding:15px; background:#f8f9fa; font-weight:bold; border-bottom:1px solid #eee;">⚙️ إعدادات الإمبراطورية</div>
+        <div style="padding:15px; background:#f1f2f6; font-weight:bold; text-align:center;">🛡️ لوحة تحكم الإمبراطور</div>
         <div class="modal-body">
-            <img id="p-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--main); margin-bottom:10px;">
-            <div id="p-rank" style="font-size:12px; color:var(--main); font-weight:bold;">الرتبة: صاحب الشات 👑</div>
-            <button onclick="changePhoto()" style="margin:10px 0; padding:5px 15px; border-radius:10px; border:none; background:#eee; cursor:pointer;">تغيير الصورة 📷</button>
-            
-            <hr style="margin:15px 0; border:0; border-top:1px solid #eee;">
-            <p style="font-weight:bold;">قائمة الزخرفات (اللانهاية):</p>
-            <div class="z-grid">
-                <button class="z-btn" onclick="setN('عـلـ★ـش')">عـلـ★ـش</button>
-                <button class="z-btn" onclick="setN('☬علوش☬')">☬علوش☬</button>
-                <button class="z-btn" onclick="setN('亗علوش亗')">亗علوش亗</button>
-                <button class="z-btn" onclick="setN('『علوش』')">『علوش』</button>
-                <button class="z-btn" onclick="setN('★彡علوش彡★')">★彡علوش彡★</button>
-                <button class="z-btn" onclick="setN('░علوش░')">░علوش░</button>
-                <button class="z-btn" onclick="setN('〆علوش〆')">〆علوش〆</button>
-                <button class="z-btn" onclick="setN('♛علوش♛')">♛علوش♛</button>
-                <button class="z-btn" onclick="setN('⫷علوش⫸')">⫷علوش⫸</button>
-                <button class="z-btn" onclick="setN('父علوش父')">父علوش父</button>
-                <button class="z-btn" onclick="setN('⚡علوش⚡')">⚡علوش⚡</button>
-                <button class="z-btn" onclick="setN('💎علوش💎')">💎علوش💎</button>
-            </div>
-            <button onclick="location.reload()" style="width:100%; margin-top:15px; padding:10px; border-radius:10px; background:#000; color:#fff; border:none;">تحديث النظام 🔄</button>
+            <p style="margin-bottom:10px; font-weight:bold;">تحكم في الشات العام:</p>
+            <button class="admin-btn clear" onclick="clearChat()">تنظيف الشات 🧹</button>
+            <button class="admin-btn lock" id="lock-btn" onclick="toggleLock()">قفل الشات 🔒</button>
+            <hr style="margin:15px 0;">
+            <p style="margin-bottom:10px; font-weight:bold;">الأعضاء المتصلون (اضغط للإجراء):</p>
+            <div id="admin-user-list"></div>
         </div>
-        <button onclick="closeM()" style="width:100%; padding:15px; background:var(--main); color:white; border:none; font-weight:bold;">تم الحفظ ✅</button>
+        <button onclick="closeAdmin()" style="width:100%; padding:15px; background:var(--main); color:white; border:none; font-weight:bold;">خروج</button>
     </div>
 </div>
 
 <div class="top-bar">
     <button onclick="toggleS()" style="background:none; border:none; font-size:24px; color:white;">👥</button>
-    <div style="color:var(--main); font-weight:bold;">CH-ALLOSH SUPREME</div>
-    <button onclick="openM()" style="background:none; border:none; font-size:24px; color:white;">⚙️</button>
+    <div style="color:var(--main); font-weight:bold;">AL-LOSH ADMIN 👑</div>
+    <button onclick="openAdmin()" style="background:none; border:none; font-size:24px; color:white;">🛠️</button>
 </div>
 
 <div class="content">
-    <div id="side-u" class="side"><div style="padding:20px;"><h3>👤 المتصلون</h3><hr><div id="u-list"></div></div></div>
+    <div id="side-u" class="side"><div style="padding:20px;"><h3>👤 المتواجدون</h3><hr><div id="u-list"></div></div></div>
     <div class="chat-view" id="chat-box"></div>
 </div>
 
 <div class="bottom-bar">
-    <button onclick="sendPic()" style="background:none; border:none; font-size:24px; color:var(--main);">➕</button>
-    <input type="text" id="in" placeholder="اكتب رسالتك يا ملك..." onkeypress="if(event.key==='Enter') send()">
+    <input type="text" id="in" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') send()">
     <button onclick="send()" style="background:var(--main); border:none; width:45px; height:45px; border-radius:50%; color:white;">🚀</button>
 </div>
 
@@ -99,92 +78,94 @@
     const db = firebase.database();
 
     let me = { 
-        name: "علوش", 
+        id: "id_" + Math.random().toString(16).slice(2),
+        name: "علوش الإمبراطور 👑", 
         color: "#ff6a00", 
         avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        rank: "صاحب الشات 👑"
+        rank: "المدير العام",
+        isMuted: false
     };
 
-    function openM() { document.getElementById('m-modal').style.display='flex'; }
-    function closeM() { document.getElementById('m-modal').style.display='none'; }
+    let chatLocked = false;
+
+    function openAdmin() { document.getElementById('admin-modal').style.display='flex'; updateAdminList(); }
+    function closeAdmin() { document.getElementById('admin-modal').style.display='none'; }
     function toggleS() { document.getElementById('side-u').classList.toggle('open'); }
 
-    function setN(n) { me.name = n; sync(); }
-    function sync() { db.ref('p_inf/'+me.name).set(me); }
-
     function start() {
-        // إشعار الدخول
-        db.ref('m_inf').push({ sys: true, text: `👑 الإمبراطور ${me.name} دخل الآن` });
-        
-        sync();
-        db.ref('p_inf/'+me.name).onDisconnect().remove();
-
-        // قائمة المتصلين
-        db.ref('p_inf').on('value', s => {
-            let h = "";
-            s.forEach(u => h += `<div style="padding:10px; color:${u.val().color}">● ${u.val().name} <small>(${u.val().rank})</small></div>`);
-            document.getElementById('u-list').innerHTML = h;
+        // مراقبة حالة القفل
+        db.ref('settings/locked').on('value', s => {
+            chatLocked = s.val() || false;
+            document.getElementById('lock-btn').innerText = chatLocked ? "فتح الشات 🔓" : "قفل الشات 🔒";
+            if(chatLocked) addSysMsg("🚨 تم قفل الشات من قبل الإدارة");
+            else addSysMsg("✅ تم فتح الشات للجميع");
         });
 
-        // رسائل الدردشة
-        db.ref('m_inf').limitToLast(40).on('child_added', s => {
+        db.ref('p_admin/'+me.id).set(me);
+        db.ref('p_admin/'+me.id).onDisconnect().remove();
+
+        // سماع الرسائل
+        db.ref('m_admin').limitToLast(40).on('child_added', s => {
             let d = s.val();
             let box = document.getElementById('chat-box');
+            let div = document.createElement('div');
+            div.className = d.sys ? "sys-msg" : "msg-container";
             
             if(d.sys) {
-                let div = document.createElement('div');
-                div.className = "sys-msg";
                 div.innerText = d.text;
-                box.appendChild(div);
             } else {
-                let div = document.createElement('div');
-                div.className = "msg-container";
-                let content = d.text;
-                if(content.startsWith('IMG:')) content = `<img src="${content.replace('IMG:','')}" style="width:100%; border-radius:10px; margin-top:5px;">`;
-
                 div.innerHTML = `
-                    <img src="${d.avatar || me.avatar}" class="u-avatar">
+                    <img src="${d.avatar}" class="u-avatar">
                     <div class="msg-body">
-                        <div class="u-info"><span class="r-tag">${d.rank || 'عضو'}</span><b style="color:${d.color}">${d.sender}</b></div>
-                        <div>${content}</div>
+                        <div><span class="r-tag">${d.rank}</span><b style="color:${d.color}">${d.sender}</b></div>
+                        <div style="margin-top:5px;">${d.text}</div>
                     </div>
                 `;
-                box.appendChild(div);
             }
+            box.appendChild(div);
             box.scrollTop = box.scrollHeight;
+        });
+
+        // مراقبة الطرد والكتم (تلقائي)
+        db.ref('p_admin/'+me.id).on('value', s => {
+            if(!s.exists()) { location.reload(); alert("تم طردك من الشات!"); }
+            if(s.val() && s.val().isMuted) me.isMuted = true;
+            else me.isMuted = false;
         });
     }
 
     function send() {
+        if(chatLocked && me.name !== "علوش الإمبراطور 👑") return alert("الشات مقفل حالياً!");
+        if(me.isMuted) return alert("أنت مكتوم من قبل الإدارة!");
+        
         let i = document.getElementById('in');
         if(!i.value) return;
-        db.ref('m_inf').push({ sender: me.name, color: me.color, text: i.value, avatar: me.avatar, rank: me.rank });
+        db.ref('m_admin').push({ sender: me.name, color: me.color, text: i.value, avatar: me.avatar, rank: me.rank });
         i.value = "";
     }
 
-    function changePhoto() {
-        let i = document.createElement('input'); i.type='file'; i.accept='image/*';
-        i.onchange = e => {
-            let r = new FileReader();
-            r.onload = ev => {
-                me.avatar = ev.target.result;
-                document.getElementById('p-img').src = me.avatar;
-                sync();
-            };
-            r.readAsDataURL(e.target.files[0]);
-        };
-        i.click();
+    // وظائف الإدارة
+    function updateAdminList() {
+        db.ref('p_admin').once('value', s => {
+            let h = "";
+            s.forEach(u => {
+                if(u.key !== me.id) {
+                    h += `<div style="margin-bottom:10px; border-bottom:1px solid #eee; padding:5px;">
+                        <span>${u.val().name}</span><br>
+                        <button onclick="kickUser('${u.key}')" style="color:red; background:none; border:none; cursor:pointer;">[طرد]</button>
+                        <button onclick="muteUser('${u.key}', ${!u.val().isMuted})" style="color:orange; background:none; border:none; cursor:pointer;">[${u.val().isMuted ? 'إلغاء كتم' : 'كتم'}]</button>
+                    </div>`;
+                }
+            });
+            document.getElementById('admin-user-list').innerHTML = h || "لا يوجد أعضاء للمراقبة";
+        });
     }
 
-    function sendPic() {
-        let i = document.createElement('input'); i.type='file'; i.accept='image/*';
-        i.onchange = e => {
-            let r = new FileReader();
-            r.onload = ev => db.ref('m_inf').push({ sender: me.name, color: me.color, text: 'IMG:'+ev.target.result, avatar: me.avatar, rank: me.rank });
-            r.readAsDataURL(e.target.files[0]);
-        };
-        i.click();
-    }
+    function kickUser(id) { db.ref('p_admin/'+id).remove(); updateAdminList(); }
+    function muteUser(id, status) { db.ref('p_admin/'+id+'/isMuted').set(status); updateAdminList(); }
+    function clearChat() { db.ref('m_admin').remove(); addSysMsg("🧹 تم تنظيف الشات بواسطة المدير"); }
+    function toggleLock() { db.ref('settings/locked').set(!chatLocked); }
+    function addSysMsg(t) { db.ref('m_admin').push({ sys: true, text: t }); }
 
     start();
 </script>
