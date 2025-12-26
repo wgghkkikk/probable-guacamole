@@ -3,90 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH ELITE V27 👑</title>
+    <title>ALLOSH SMART THRONE V28 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #ffd700; --royal-blue: #00d4ff; --dark: #020202; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
+        :root { --main: #d4af37; --bg: #050505; --accent: #ff0055; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; transition: 0.3s ease; }
         
-        body { background: var(--dark); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
+        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
         
-        /* تأثيرات الخلفية النيون */
-        .neon-bg { position: fixed; inset: 0; background: radial-gradient(circle at top, #111, #000); z-index: -2; }
-        .grid-lines { position: fixed; inset: 0; background-image: linear-gradient(rgba(255,215,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,215,0,0.05) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; }
+        /* تأثير الجزيئات المتساقطة */
+        .particles { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
 
         /* الهيدر */
-        .header { height: 65px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
-        
-        /* القوائم الجانبية */
-        .side-menu { position: fixed; top: 65px; bottom: 85px; width: 280px; background: rgba(5,5,5,0.98); border: 1px solid var(--gold); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1500; backdrop-filter: blur(20px); }
-        #menu-r { right: -285px; border-radius: 20px 0 0 20px; }
-        #menu-l { left: -285px; border-radius: 0 20px 20px 0; }
-        .side-menu.open { right: 0 !important; left: 0 !important; }
+        .top-nav { height: 70px; background: rgba(0,0,0,0.95); border-bottom: 2px solid var(--main); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; box-shadow: 0 0 20px rgba(212,175,55,0.2); }
+        .crown-icon { font-size: 30px; filter: drop-shadow(0 0 10px var(--main)); cursor: pointer; }
 
-        /* الشات الرئيسي */
-        #chat-window { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
-        .msg-box { display: flex; gap: 12px; animation: slideUp 0.3s ease; }
-        .u-avatar { width: 50px; height: 50px; border-radius: 12px; border: 2px solid var(--gold); object-fit: cover; }
-        .pulse-gold { animation: goldPulse 2s infinite; }
-        @keyframes goldPulse { 0% { box-shadow: 0 0 0px var(--gold); } 50% { box-shadow: 0 0 15px var(--gold); } 100% { box-shadow: 0 0 0px var(--gold); } }
+        /* القوائم */
+        .side-bar { position: fixed; top: 70px; bottom: 85px; width: 280px; background: rgba(10,10,10,0.98); border: 1px solid var(--main); z-index: 1500; backdrop-filter: blur(15px); }
+        #side-r { right: -285px; border-radius: 20px 0 0 20px; }
+        #side-l { left: -285px; border-radius: 0 20px 20px 0; }
+        .side-bar.active { right: 0 !important; left: 0 !important; }
 
-        .bubble { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 15px; max-width: 80%; border: 1px solid rgba(255,255,255,0.1); position: relative; }
-        .owner-bubble { background: rgba(255,215,0,0.05); border-right: 4px solid var(--gold); }
+        /* ساحة الدردشة */
+        #chat-area { position: absolute; top: 70px; bottom: 85px; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+        .msg-entry { display: flex; gap: 12px; align-items: flex-end; animation: fadeInUp 0.4s ease; }
+        .pfp { width: 45px; height: 45px; border-radius: 12px; border: 2px solid var(--main); box-shadow: 0 0 10px rgba(212,175,55,0.3); }
+        .txt-bubble { background: rgba(255,255,255,0.06); padding: 12px 16px; border-radius: 20px 20px 0 20px; max-width: 75%; position: relative; border: 1px solid rgba(255,255,255,0.05); }
+        .owner-bubble { border-right: 4px solid var(--accent); background: rgba(255,0,85,0.05); text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+        .timestamp { font-size: 9px; color: #666; margin-top: 5px; display: block; text-align: left; }
 
         /* البار السفلي */
-        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 2px solid #1a1a1a; display: flex; align-items: center; padding: 0 15px; gap: 10px; z-index: 2000; }
-        #msg-in { flex: 1; height: 50px; background: #111; border: 1px solid #333; border-radius: 15px; color: white; padding: 0 15px; }
-        .btn-action { font-size: 24px; cursor: pointer; color: var(--gold); background: none; border: none; transition: 0.2s; }
-        .btn-action:active { transform: scale(0.8); }
+        .bottom-shelf { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; display: flex; align-items: center; padding: 0 15px; gap: 12px; border-top: 1px solid #111; z-index: 2000; }
+        #text-in { flex: 1; height: 50px; background: #0a0a0a; border: 1px solid #222; border-radius: 15px; color: white; padding: 0 15px; font-size: 15px; }
+        #text-in:focus { border-color: var(--main); box-shadow: 0 0 10px rgba(212,175,55,0.2); }
+        .send-pill { padding: 10px 20px; background: var(--main); border: none; border-radius: 12px; font-weight: 900; cursor: pointer; color: black; }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="neon-bg"></div>
-<div class="grid-lines"></div>
-
-<div class="header">
-    <button class="btn-action" onclick="toggleM('menu-l')">⚙️</button>
+<div class="top-nav">
+    <div class="crown-icon" onclick="toggleMenu('side-l')">👤</div>
     <div style="text-align:center">
-        <div style="color:var(--gold); font-weight:900; font-size:18px; text-shadow: 0 0 10px gold;">ALLOSH ROYAL V27</div>
-        <div id="typing" style="font-size:10px; color:var(--royal-blue); opacity:0;">أحدهم يكتب الآن...</div>
+        <div style="color:var(--main); font-weight:900; font-size:18px;">ALLOSH THRONE V28</div>
+        <div id="online-tag" style="font-size:10px; color:#4caf50;">● النظام نشط وبانتظارك</div>
     </div>
-    <button class="btn-action" onclick="toggleM('menu-r')">👥</button>
+    <div class="crown-icon" onclick="toggleMenu('side-r')">👥</div>
 </div>
 
-<div id="menu-r" class="side-menu">
-    <div style="padding:20px; color:var(--gold); font-weight:900; border-bottom:1px solid #222;">الملوك المتصلون</div>
-    <div id="user-list" style="padding:10px;"></div>
+<div id="side-r" class="side-bar">
+    <div style="padding:20px; color:var(--main); font-weight:900; border-bottom:1px solid #222;">قائمة العظماء</div>
+    <div id="users-list" style="padding:10px;"></div>
 </div>
 
-<div id="menu-l" class="side-menu">
+<div id="side-l" class="side-bar">
     <div style="padding:30px; text-align:center;">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" id="p-img" style="width:100px; border:3px solid var(--gold); border-radius:20px; cursor:pointer;" onclick="document.getElementById('f-up').click()">
-        <input type="file" id="f-up" style="display:none;" accept="image/*" onchange="updatePic(this)">
-        <h3 style="margin-top:10px; color:var(--gold);">علوش</h3>
-        <p style="font-size:12px; opacity:0.6;">المزاج: <span style="color:var(--royal-blue);">إمبراطور 👑</span></p>
-        <hr style="margin:25px 0; opacity:0.1;">
-        <div style="background:#111; padding:10px; border-radius:10px; border:1px solid #333;">
-            <p style="font-size:10px; margin-bottom:5px;">موسيقى العرش 🎵</p>
-            <audio id="bg-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3"></audio>
-            <button onclick="document.getElementById('bg-music').play()" style="padding:5px; font-size:10px;">تشغيل</button>
-            <button onclick="document.getElementById('bg-music').pause()" style="padding:5px; font-size:10px;">إيقاف</button>
-        </div>
-        <button onclick="clearChat()" style="width:100%; padding:15px; background:none; border:1px solid red; color:red; border-radius:12px; margin-top:20px;">مسح السجلات 🧹</button>
+        <img id="my-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:100px; height:100px; border:3px solid var(--main); border-radius:25px; cursor:pointer;" onclick="document.getElementById('img-upload').click()">
+        <input type="file" id="img-upload" hidden accept="image/*" onchange="previewImg(this)">
+        <h3 style="margin-top:10px;">الإمبراطور علوش</h3>
+        <button onclick="changeTheme()" style="margin-top:15px; width:100%; padding:10px; background:none; border:1px solid var(--main); color:var(--main); border-radius:10px;">تبديل الثيم 🎭</button>
+        <button onclick="clearSystem()" style="margin-top:10px; width:100%; padding:10px; background:none; border:1px solid var(--accent); color:var(--accent); border-radius:10px;">تطهير العرش 🧹</button>
     </div>
 </div>
 
-<div id="chat-window"></div>
+<div id="chat-area"></div>
 
-<div class="footer">
-    <button class="btn-action" onclick="alert('ارفع صورة من الملف الشخصي')">📷</button>
-    <input type="text" id="msg-in" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') send()" oninput="handleTyping()">
-    <button class="btn-action" onclick="send()">🚀</button>
+<div class="bottom-shelf">
+    <button style="background:none; border:none; font-size:25px;" onclick="alert('قريباً: متجر الرموز')">💎</button>
+    <input type="text" id="text-in" placeholder="أدخل مرسومك الملكي..." onkeypress="if(event.key==='Enter') pushData()">
+    <button class="send-pill" onclick="pushData()">إرسال</button>
 </div>
 
 <script>
@@ -94,61 +82,77 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let me = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", owner: true };
+    let user = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", isKing: true };
 
-    function toggleM(id) {
-        document.querySelectorAll('.side-menu').forEach(m => { if(m.id !== id) m.classList.remove('open'); });
-        document.getElementById(id).classList.toggle('open');
+    function toggleMenu(id) {
+        document.querySelectorAll('.side-bar').forEach(s => { if(s.id !== id) s.classList.remove('active'); });
+        document.getElementById(id).classList.toggle('active');
     }
 
-    function updatePic(input) {
+    function changeTheme() {
+        const root = document.documentElement;
+        const current = getComputedStyle(root).getPropertyValue('--main').trim();
+        if(current === '#d4af37') {
+            root.style.setProperty('--main', '#8a2be2');
+            root.style.setProperty('--accent', '#00f2ff');
+        } else {
+            root.style.setProperty('--main', '#d4af37');
+            root.style.setProperty('--accent', '#ff0055');
+        }
+    }
+
+    function previewImg(input) {
         if(input.files[0]) {
             let reader = new FileReader();
-            reader.onload = e => { me.avatar = e.target.result; document.getElementById('p-img').src = e.target.result; };
+            reader.onload = e => { user.avatar = e.target.result; document.getElementById('my-avatar').src = e.target.result; };
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    function handleTyping() {
-        db.ref('typing/'+me.name).set(true);
-        setTimeout(() => db.ref('typing/'+me.name).remove(), 2000);
-    }
-
-    db.ref('typing').on('value', s => {
-        let t = document.getElementById('typing');
-        t.style.opacity = s.exists() ? "1" : "0";
-    });
-
-    function send() {
-        let input = document.getElementById('msg-in'); if(!input.value) return;
-        db.ref('elite_v27').push({ user: me.name, text: input.value, avatar: me.avatar, isOwner: me.owner });
+    function pushData() {
+        let input = document.getElementById('text-in');
+        if(!input.value) return;
+        let now = new Date();
+        db.ref('throne_v28').push({
+            u: user.name,
+            t: input.value,
+            a: user.avatar,
+            k: user.isKing,
+            time: now.getHours() + ":" + (now.getMinutes()<10?'0':'') + now.getMinutes()
+        });
         input.value = "";
     }
 
-    db.ref('elite_v27').limitToLast(30).on('child_added', s => {
+    db.ref('throne_v28').limitToLast(40).on('child_added', s => {
         let d = s.val();
-        let win = document.getElementById('chat-window');
+        let area = document.getElementById('chat-area');
         let div = document.createElement('div');
-        div.className = "msg-box";
+        div.className = "msg-entry";
         div.innerHTML = `
-            <img src="${d.avatar}" class="u-avatar ${d.isOwner?'pulse-gold':''}">
-            <div class="bubble ${d.isOwner?'owner-bubble':''}">
-                <b style="color:var(--gold); font-size:11px;">${d.user}</b><br>
-                <span style="font-size:14px;">${d.text}</span>
+            <img src="${d.a}" class="pfp">
+            <div class="txt-bubble ${d.k?'owner-bubble':''}">
+                <b style="color:var(--main); font-size:12px;">${d.u}</b><br>
+                <span>${d.t}</span>
+                <span class="timestamp">${d.time}</span>
             </div>`;
-        win.appendChild(div);
-        win.scrollTop = win.scrollHeight;
+        area.appendChild(div);
+        area.scrollTop = area.scrollHeight;
     });
 
-    // قائمة المتصلين
-    db.ref('online_v27/'+me.name).set(true);
-    db.ref('online_v27/'+me.name).onDisconnect().remove();
-    db.ref('online_v27').on('value', s => {
-        let list = document.getElementById('user-list'); list.innerHTML = "";
-        s.forEach(u => { list.innerHTML += `<div style="padding:12px; border-bottom:1px solid #111;">👑 ${u.key} <small style="color:var(--royal-blue); font-size:9px;">متصل الآن</small></div>`; });
+    // إدارة الحضور
+    db.ref('presence_v28/'+user.name).set(true);
+    db.ref('presence_v28/'+user.name).onDisconnect().remove();
+    db.ref('presence_v28').on('value', s => {
+        let list = document.getElementById('users-list'); list.innerHTML = "";
+        s.forEach(u => { list.innerHTML += `<div style="padding:12px; border-bottom:1px solid #111;">👑 ${u.key}</div>`; });
     });
 
-    function clearChat() { if(confirm("مسح الشات؟")) db.ref('elite_v27').remove(); }
+    function clearSystem() { if(confirm("هل تريد مسح سجلات العرش؟")) db.ref('throne_v28').remove(); }
+
+    // إغلاق القوائم عند لمس الشاشة
+    document.getElementById('chat-area').addEventListener('click', () => {
+        document.querySelectorAll('.side-bar').forEach(s => s.classList.remove('active'));
+    });
 </script>
 </body>
 </html>
