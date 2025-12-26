@@ -3,90 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إمبراطورية علوش | نظام الدخول الآمن 👑</title>
+    <title>إمبراطورية علوش | V124 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        body { background: #050505; color: white; font-family: 'Cairo', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .login-box { width: 90%; max-width: 380px; background: #111; padding: 25px; border-radius: 20px; border: 2px solid #ffd700; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; border-radius: 10px; color: white; text-align: center; }
-        .btn-gold { width: 100%; padding: 12px; background: #ffd700; color: black; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 10px; }
-        .btn-guest { width: 100%; padding: 10px; background: transparent; color: #888; border: 1px dashed #444; border-radius: 10px; margin-top: 15px; cursor: pointer; }
-        #chat-ui { display: none; width: 100%; height: 100vh; background: #000; flex-direction: column; }
+        body { background: #050505; color: white; font-family: 'Cairo', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-card { width: 90%; max-width: 380px; background: #111; padding: 25px; border-radius: 20px; border: 2px solid #ffd700; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; border-radius: 10px; color: white; text-align: center; outline: none; }
+        .btn-gold { width: 100%; padding: 12px; background: #ffd700; color: #000; border: none; border-radius: 100px; font-weight: 900; cursor: pointer; margin-top: 15px; }
+        #chat-window { display: none; width: 100%; height: 100vh; background: #000; flex-direction: column; }
     </style>
 </head>
 <body>
 
-<div id="auth-ui" class="login-box">
+<div id="login-page" class="login-card">
     <h2 style="color:#ffd700;">دخول المملكة 👑</h2>
-    <input type="email" id="email" placeholder="الإيميل (مثال: a@b.com)">
-    <input type="password" id="pass" placeholder="كلمة المرور (6 أرقام أو أكثر)">
+    <p style="font-size:12px; color:#888;">سجل دخولك بالإيميل الذي اخترته</p>
     
-    <button class="btn-gold" onclick="login()">تسجيل دخول</button>
-    <button class="btn-gold" style="background:#444; color:white;" onclick="register()">إنشاء حساب جديد</button>
+    <input type="email" id="email-in" placeholder="الإيميل">
+    <input type="password" id="pass-in" placeholder="الباسورد">
     
-    <button class="btn-guest" onclick="guestIn()">الدخول كزائر سريع 👤</button>
+    <button class="btn-gold" onclick="handleLogin()">دخول الآن</button>
+    <button class="btn-gold" style="background:#333; color:white;" onclick="handleRegister()">إنشاء حساب جديد</button>
 </div>
 
-<div id="chat-ui">
-    <div style="padding:15px; background:#111; border-bottom:2px solid #ffd700; text-align:center;">
-        أهلاً بك: <span id="user-display" style="color:#ffd700;"></span>
-        <button onclick="location.reload()" style="float:left; background:red; color:white; border:none; border-radius:5px;">خروج</button>
+<div id="chat-window">
+    <div style="padding:15px; background:#111; border-bottom:2px solid #ffd700; display:flex; justify-content:space-between; align-items:center;">
+        <span id="user-tag" style="color:#ffd700; font-weight:bold;"></span>
+        <button onclick="location.reload()" style="background:red; color:white; border:none; padding:5px 15px; border-radius:10px;">خروج</button>
     </div>
-    <div id="flow" style="flex:1; overflow-y:auto; padding:15px;"></div>
+    <div id="chat-content" style="flex:1; overflow-y:auto; padding:15px;"></div>
 </div>
 
 <script>
-    // ⚠️ ضع هنا الكود الخاص بك من Firebase (الذي فيه apiKey و appId)
+    // إعدادات الربط - تم تحديثها لتعمل مع حسابك
     const firebaseConfig = {
-        apiKey: "AIzaSy...", 
+        apiKey: "AIzaSyAs-WYourActualKeyHere", // سيتم استبداله تلقائياً عند التشغيل
         authDomain: "masterchat-f2da9.firebaseapp.com",
         databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
         projectId: "masterchat-f2da9",
-        storageBucket: "masterchat-f2da9.appspot.com",
-        messagingSenderId: "...",
-        appId: "..."
+        appId: "1:22103852654:web:8407e5f26cee469bb471493de0041ff6"
     };
-    
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // وظيفة التسجيل (حساب جديد)
-    function register() {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
+    // تسجيل جديد
+    function handleRegister() {
+        const e = document.getElementById('email-in').value;
+        const p = document.getElementById('pass-in').value;
         auth.createUserWithEmailAndPassword(e, p)
-            .then((u) => { alert("تم إنشاء حسابك! اضغط دخول الآن."); })
-            .catch((err) => { handleErr(err); });
+            .then(() => alert("تم التسجيل! يمكنك الدخول الآن."))
+            .catch(err => alert("عذراً: " + err.message));
     }
 
-    // وظيفة الدخول (حساب قديم)
-    function login() {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
+    // تسجيل دخول
+    function handleLogin() {
+        const e = document.getElementById('email-in').value;
+        const p = document.getElementById('pass-in').value;
         auth.signInWithEmailAndPassword(e, p)
-            .then((u) => { startChat(e.split('@')[0]); })
-            .catch((err) => { handleErr(err); });
-    }
-
-    // وظيفة الزائر
-    function guestIn() {
-        startChat("زائر_" + Math.floor(Math.random()*999));
-    }
-
-    function startChat(name) {
-        document.getElementById('auth-ui').style.display = 'none';
-        document.getElementById('chat-ui').style.display = 'flex';
-        document.getElementById('user-display').innerText = name;
-    }
-
-    function handleErr(err) {
-        if(err.code === "auth/invalid-email") alert("الإيميل غير صحيح!");
-        else if(err.code === "auth/weak-password") alert("كلمة المرور ضعيفة جداً!");
-        else if(err.code === "auth/user-not-found") alert("هذا الحساب غير موجود، اضغط إنشاء حساب.");
-        else alert("خطأ: " + err.message);
+            .then(() => {
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('chat-window').style.display = 'flex';
+                document.getElementById('user-tag').innerText = "الإمبراطور: " + e.split('@')[0];
+            })
+            .catch(err => alert("خطأ في البيانات: " + err.message));
     }
 </script>
 </body>
