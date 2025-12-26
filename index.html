@@ -3,44 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH ARENA V49 👑</title>
+    <title>ALLOSH CHAMPIONSHIP V50 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #ffd700; --bg: #000; --panel: #f8f9fa; }
+        :root { --gold: #ffd700; --bg: #f0f2f5; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         body { background: #000; color: white; overflow: hidden; height: 100vh; }
 
-        /* نافذة اللعبة (مثل الصورة) */
+        /* نافذة اللعبة الكبيرة */
         #game-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 9000; display: none;
-            justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.95); z-index: 9000; display: none;
+            justify-content: center; align-items: flex-start; padding-top: 20px;
+            overflow-y: auto;
         }
         .game-window {
-            width: 95%; max-width: 600px; background: var(--panel); 
-            border-radius: 15px; overflow: hidden; color: #333; padding-bottom: 20px;
+            width: 98%; max-width: 800px; background: var(--bg); 
+            border-radius: 20px; overflow: hidden; color: #333; padding-bottom: 30px;
+            box-shadow: 0 0 30px var(--gold);
         }
-        .game-header { background: #e9ecef; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
-        .close-btn { background: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; }
+        .game-header { background: #e9ecef; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; }
+        .close-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; }
         
-        .bet-section { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: #fff; margin: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .start-btn { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: 900; }
+        .bet-section { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: #fff; margin: 15px; border-radius: 15px; border: 2px dashed var(--gold); }
+        .start-btn { background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 30px; font-weight: 900; font-size: 18px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        .players-vs { display: flex; gap: 10px; padding: 15px; justify-content: center; align-items: center; }
-        .player-card { flex: 1; background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 15px; text-align: center; }
-        .score { font-size: 32px; font-weight: 900; color: #28a745; margin: 5px 0; }
-        .vs-badge { background: #eee; padding: 5px; border-radius: 50%; font-weight: bold; color: #999; }
+        .players-vs { display: flex; gap: 20px; padding: 20px; justify-content: center; align-items: center; }
+        .player-card { flex: 1; background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 25px; text-align: center; position: relative; }
+        .player-card.active { border-color: #28a745; background: #fafffa; transform: scale(1.05); }
+        .score { font-size: 50px; font-weight: 900; color: #28a745; margin: 10px 0; }
+        .vs-badge { background: #333; color: #fff; padding: 15px; border-radius: 50%; font-weight: 900; font-size: 20px; }
 
-        .dice-area { text-align: center; padding: 20px; }
-        .dice { width: 80px; height: 80px; background: white; border: 4px solid #ddd; border-radius: 15px; display: inline-flex; justify-content: center; align-items: center; font-size: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .dice-area { text-align: center; padding: 30px; background: #fff; margin: 0 15px; border-radius: 20px; }
+        .dice { width: 100px; height: 100px; background: white; border: 5px solid #ddd; border-radius: 20px; display: inline-flex; justify-content: center; align-items: center; font-size: 50px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .dice.rolling { transform: rotate(360deg) scale(1.2); }
         
-        /* الهيدر والشات */
-        .header { height: 60px; background: #111; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
-        #chat-scroller { height: calc(100vh - 145px); overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .footer { height: 85px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 10px; }
-        #msg-in { flex: 1; height: 45px; background: #111; border: 1px solid #333; border-radius: 10px; color: #fff; padding: 0 15px; }
+        .btn-roll { margin-top: 20px; background: #4a69bd; color: white; border: none; padding: 15px 50px; border-radius: 15px; font-weight: 900; font-size: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -48,128 +48,130 @@
 <div id="game-overlay">
     <div class="game-window">
         <div class="game-header">
-            <button class="close-btn" onclick="closeGame()">✖ إغلاق</button>
-            <div style="font-size: 12px; font-weight: bold;">اللعب ضد الكمبيوتر (BOT) <input type="checkbox" id="bot-mode" checked></div>
+            <button class="close-btn" onclick="closeGame()">✖ خروج من المسابقة</button>
+            <div id="status-text" style="font-weight: 900; color: #4a69bd;">انتظار المنافس...</div>
         </div>
 
         <div class="bet-section">
-            <button class="start-btn" onclick="startGame()">اضغط هنا لبدأ اللعب 🎲</button>
+            <button class="start-btn" id="main-start-btn" onclick="requestStart()">إبدأ المسابقة الآن 🏁</button>
             <div style="text-align: left;">
-                <span style="font-size: 12px; color: #666;">قيمة الرهان</span><br>
-                <input type="number" id="game-bet" value="100" style="width: 80px; border: 1px solid #ddd; border-radius: 15px; text-align: center; padding: 5px;">
+                <span style="font-size: 14px; font-weight: bold; color: #555;">رهانك الخاص 💰</span><br>
+                <input type="number" id="custom-bet" placeholder="أدخل المبلغ" style="width: 120px; border: 2px solid #ddd; border-radius: 10px; text-align: center; padding: 10px; font-weight: 900; font-size: 16px;">
             </div>
         </div>
 
         <div class="players-vs">
-            <div class="player-card">
-                <span style="font-size: 14px; font-weight: bold;">اللاعب 1 (أنت)</span>
+            <div class="player-card" id="card-p1">
+                <span style="font-size: 18px; font-weight: bold;">اللاعب 1 (المستضيف)</span>
                 <div class="score" id="p1-score">0</div>
-                <span style="font-size: 10px; color: #999;">آخر رمية: <span id="p1-last">-</span></span>
+                <div style="font-size: 12px; color: #999;">الهدف: 100</div>
             </div>
             <div class="vs-badge">VS</div>
-            <div class="player-card">
-                <span style="font-size: 14px; font-weight: bold;">اللاعب 2 (BOT)</span>
+            <div class="player-card" id="card-p2">
+                <span style="font-size: 18px; font-weight: bold;">اللاعب 2 (المتحدي)</span>
                 <div class="score" id="p2-score">0</div>
-                <span style="font-size: 10px; color: #999;">آخر رمية: <span id="p2-last">-</span></span>
+                <div style="font-size: 12px; color: #999;">الهدف: 100</div>
             </div>
-        </div>
-
-        <div style="background: #e9ecef; margin: 0 15px; padding: 10px; border-radius: 10px; text-align: center; font-size: 12px; color: #555;">
-            اختر قيمة الرهان ثم اضغط "ابدأ اللعب" للبدء فوراً
         </div>
 
         <div class="dice-area">
-            <div class="dice" id="main-dice">?</div><br>
-            <button onclick="roll()" id="roll-btn" style="margin-top: 15px; background: #4a69bd; color: white; border: none; padding: 10px 30px; border-radius: 10px; font-weight: bold; display: none;">ارمي الزهر 🎲</button>
+            <div class="dice" id="the-dice">?</div><br>
+            <button class="btn-roll" id="roll-action-btn" onclick="playerRoll()" style="display:none;">ارمِ الزهر 🎲</button>
+            <p id="turn-msg" style="margin-top:15px; font-weight:bold; color:#666;">اضغط ابدأ اللعب لتفعيل التحدي</p>
         </div>
     </div>
 </div>
 
-<div class="header">
-    <button onclick="document.getElementById('game-overlay').style.display='flex'" style="background:var(--gold); border:none; padding:5px 15px; border-radius:10px; font-weight:900;">🎮 ساحة التحدي</button>
-    <div style="text-align:center;"><b style="color:var(--gold)">ALLOSH ARENA</b><br><small>💰 رصيدك: ∞</small></div>
-    <div style="width:40px;"></div>
+<div style="height: 60px; background: #111; display: flex; align-items: center; justify-content: center; border-bottom: 2px solid var(--gold);">
+    <button onclick="openGame()" style="background:var(--gold); border:none; padding:10px 30px; border-radius:10px; font-weight:900; cursor:pointer;">🏆 دخول المسابقة الكبرى 🏆</button>
 </div>
 
-<div id="chat-scroller"></div>
-
-<div class="footer">
-    <input type="text" id="msg-in" placeholder="اكتب رسالة..." onkeypress="if(event.key==='Enter') push()">
-    <button onclick="push()" style="background:var(--gold); border:none; padding:10px 20px; border-radius:10px; font-weight:900; margin-right:5px;">إرسال</button>
-</div>
+<div id="chat" style="height: calc(100vh - 145px); overflow-y: auto; padding: 20px;"></div>
 
 <script>
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let scores = { p1: 0, p2: 0 };
-    let isGameOver = true;
+    let myRole = null; // p1 or p2
+    let currentTurn = "p1";
+    let gameActive = false;
+    let roomRef = db.ref('match_v50');
 
-    function startGame() {
-        scores = { p1: 0, p2: 0 };
-        document.getElementById('p1-score').innerText = "0";
-        document.getElementById('p2-score').innerText = "0";
-        document.getElementById('roll-btn').style.display = 'inline-block';
-        isGameOver = false;
-        alert("بدأ التحدي! ارمي الزهر للوصول إلى 50 نقطة.");
+    function openGame() {
+        document.getElementById('game-overlay').style.display = 'flex';
+        joinRoom();
     }
 
-    function roll() {
-        if(isGameOver) return;
-        
-        // رمية اللاعب
-        let r1 = Math.floor(Math.random() * 6) + 1;
-        scores.p1 += r1;
-        document.getElementById('main-dice').innerText = r1;
-        document.getElementById('p1-score').innerText = scores.p1;
-        document.getElementById('p1-last').innerText = r1;
-
-        if(scores.p1 >= 50) return end(true);
-
-        // رمية البوت تلقائياً
-        setTimeout(() => {
-            let r2 = Math.floor(Math.random() * 6) + 1;
-            scores.p2 += r2;
-            document.getElementById('main-dice').innerText = r2;
-            document.getElementById('p2-score').innerText = scores.p2;
-            document.getElementById('p2-last').innerText = r2;
-            if(scores.p2 >= 50) end(false);
-        }, 800);
+    function joinRoom() {
+        roomRef.once('value', s => {
+            if(!s.exists() || !s.val().p1) {
+                myRole = "p1";
+                roomRef.update({ p1: "متصل", p1_score: 0, p2_score: 0, turn: "p1", status: "waiting" });
+                document.getElementById('status-text').innerText = "أنت المستضيف (P1) - انتظار صديقك...";
+            } else if(!s.val().p2) {
+                myRole = "p2";
+                roomRef.update({ p2: "متصل", status: "ready" });
+                document.getElementById('status-text').innerText = "أنت المتحدي (P2) - جاهز للعب!";
+            }
+        });
     }
 
-    function end(win) {
-        isGameOver = true;
-        document.getElementById('roll-btn').style.display = 'none';
-        let bet = document.getElementById('game-bet').value;
-        if(win) {
-            alert("كفووو! فزت بالتحدي وربحت " + (bet * 2) + "💰");
-            db.ref('arena_v49').push({ u: "👑 علوش", t: "لقد سحقت البوت وفزت بـ " + (bet * 2) + " ذهبة! 🔥", a: "https://cdn-icons-png.flaticon.com/512/1055/1055823.png", c: "#ffd700" });
-        } else {
-            alert("حظ أوفر! البوت غلبك هذه المرة.");
+    roomRef.on('value', s => {
+        let d = s.val(); if(!d) return;
+        document.getElementById('p1-score').innerText = d.p1_score || 0;
+        document.getElementById('p2-score').innerText = d.p2_score || 0;
+        currentTurn = d.turn;
+
+        if(d.status === "playing") {
+            gameActive = true;
+            document.getElementById('roll-action-btn').style.display = 'inline-block';
+            document.getElementById('turn-msg').innerText = (currentTurn === myRole) ? "دورك الآن! ارمِ الزهر" : "انتظر دور خصمك...";
+            document.getElementById('card-p1').classList.toggle('active', currentTurn === "p1");
+            document.getElementById('card-p2').classList.toggle('active', currentTurn === "p2");
         }
-    }
 
-    function closeGame() { document.getElementById('game-overlay').style.display = 'none'; }
+        if(d.last_dice) {
+            document.getElementById('the-dice').innerText = d.last_dice;
+        }
 
-    function push() {
-        let i = document.getElementById('msg-in'); if(!i.value) return;
-        db.ref('arena_v49').push({ u: "علوش", t: i.value, a: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", c: "#ffd700" });
-        i.value = "";
-    }
-
-    db.ref('arena_v49').limitToLast(20).on('child_added', s => {
-        let d = s.val();
-        let div = document.createElement('div');
-        div.innerHTML = `<div style="display:flex; gap:10px; margin-bottom:10px;">
-            <img src="${d.a}" style="width:35px; height:35px; border-radius:50%; border:1px solid gold;">
-            <div style="background:rgba(255,255,255,0.1); padding:8px; border-radius:10px;">
-                <b style="color:${d.c}; font-size:12px;">${d.u}</b><br><span style="color:#eee; font-size:14px;">${d.t}</span>
-            </div>
-        </div>`;
-        document.getElementById('chat-scroller').appendChild(div);
-        document.getElementById('chat-scroller').scrollTop = document.getElementById('chat-scroller').scrollHeight;
+        if(d.p1_score >= 100 || d.p2_score >= 100) {
+            let winner = d.p1_score >= 100 ? "لاعب 1" : "لاعب 2";
+            alert("🎉 انتهت المسابقة! الفائز هو: " + winner);
+            roomRef.remove();
+            location.reload();
+        }
     });
+
+    function requestStart() {
+        let bet = document.getElementById('custom-bet').value;
+        if(!bet) return alert("يا ملك، حدد مبلغ الرهان أولاً!");
+        roomRef.update({ status: "playing", bet: bet });
+    }
+
+    function playerRoll() {
+        if(!gameActive || currentTurn !== myRole) return;
+
+        let roll = Math.floor(Math.random() * 6) + 1;
+        let scoreKey = myRole + "_score";
+        
+        roomRef.once('value', s => {
+            let newScore = (s.val()[scoreKey] || 0) + roll;
+            roomRef.update({
+                [scoreKey]: newScore,
+                last_dice: roll,
+                turn: (myRole === "p1" ? "p2" : "p1")
+            });
+        });
+
+        document.getElementById('the-dice').classList.add('rolling');
+        setTimeout(() => document.getElementById('the-dice').classList.remove('rolling'), 200);
+    }
+
+    function closeGame() {
+        roomRef.remove();
+        document.getElementById('game-overlay').style.display = 'none';
+    }
 </script>
 </body>
 </html>
