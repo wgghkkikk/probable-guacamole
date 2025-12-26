@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش - كوكب النجوم 👑</title>
+    <title>مملكة علوش - لوحة السيطرة 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -11,33 +11,151 @@
         :root { --gold: #ffd700; --bg: #000; --panel: #0d0d0d; }
         body { background: var(--bg); color: #fff; font-family: 'Tahoma', sans-serif; margin: 0; overflow: hidden; }
 
-        /* الأجنحة المعكوسة */
-        .side { width: 270px; height: 100vh; background: var(--panel); position: fixed; transition: 0.5s; z-index: 2000; top: 0; border: 1px solid #222; }
-        #side-right { right: -272px; }
-        #side-left { left: -272px; }
-        .side.open { right: 0 !important; left: 0 !important; }
+        /* لوحة التحكم السرية */
+        #admin-panel { position: fixed; bottom: -100%; left: 0; width: 100%; height: 70%; background: #111; border-top: 3px solid var(--gold); z-index: 5000; transition: 0.5s; padding: 20px; border-radius: 30px 30px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.8); }
+        #admin-panel.open { bottom: 0; }
+        .admin-btn { width: 100%; padding: 15px; background: #222; border: 1px solid var(--gold); color: #fff; margin-bottom: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; }
 
-        /* الشات والرسائل */
-        #main-view { height: 100vh; display: flex; flex-direction: column; position: relative; }
-        #chat-win { flex: 1; overflow-y: auto; padding: 20px; background: radial-gradient(circle, #151515 0%, #000 100%); position: relative; } /* إضافة position: relative; للنجوم */
+        /* الشات والخلفية */
+        #chat-win { height: 80vh; overflow-y: auto; padding: 20px; background: radial-gradient(circle, #151515 0%, #000 100%); position: relative; }
+        .stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 3s infinite alternate; }
 
-        /* تأثير النجوم المتحركة */
-        .stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
-        .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle var(--duration) infinite ease-in-out alternate; opacity: 0; }
-
-        @keyframes twinkle {
-            0% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(0.7); }
-        }
-
-        /* رسائل الشات */
-        .msg { display: flex; gap: 12px; margin-bottom: 20px; position: relative; z-index: 1; } /* لجعل الرسائل فوق النجوم */
+        /* تصميم الرسائل */
+        .msg { display: flex; gap: 12px; margin-bottom: 20px; position: relative; z-index: 1; }
         .msg.me { flex-direction: row-reverse; }
-        .u-img { width: 50px; height: 50px; border-radius: 12px; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; }
-        .bubble { max-width: 75%; background: #1a1a1a; padding: 12px 16px; border-radius: 18px; border: 1px solid #333; line-height: 1.6; }
-        .me .bubble { border-color: var(--gold); background: #221d00; }
-        .u-name { font-size: 12px; color: var(--gold); font-weight: bold; margin-bottom: 5px; display: block; }
+        .u-img { width: 50px; height: 50px; border-radius: 12px; border: 2px solid var(--gold); object-fit: cover; }
+        .bubble { max-width: 75%; background: #1a1a1a; padding: 12px; border-radius: 15px; border: 1px solid #333; }
+        .u-name { font-size: 11px; color: var(--gold); font-weight: bold; }
 
-        /* شريط الكتابة الضخم */
-        .bar { background: #0a0a0a; padding: 15px 20px
+        /* شريط الإدخال */
+        .bar { background: #0a0a0a; padding: 15px; display: flex; gap: 10px; align-items: center; border-top: 1px solid #222; }
+        #mInp { flex: 1; background: #161616; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 30px; outline: none; }
+
+        /* المتصلون */
+        .side { width: 260px; height: 100vh; background: var(--panel); position: fixed; top: 0; transition: 0.4s; z-index: 2000; }
+        #side-right { right: -262px; }
+        .side.open { right: 0 !important; }
+        .user-item { display: flex; align-items: center; gap: 10px; padding: 12px; border-bottom: 1px solid #222; }
+
+        @keyframes twinkle { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body onclick="closeAll()">
+
+    <div id="admin-panel" onclick="event.stopPropagation()">
+        <h2 style="color:var(--gold); text-align:center;">👑 لوحة تحكم الإمبراطور</h2>
+        <button class="admin-btn" onclick="clearChat()">🧨 تصفير الشات بالكامل</button>
+        <button class="admin-btn" onclick="sendAdminMsg()">📢 إرسال تنبيه ملكي لكل الأعضاء</button>
+        <button class="admin-btn" onclick="resetUsers()">🧹 تنظيف قائمة المتصلين الوهميين</button>
+        <button class="admin-btn" style="border-color:red; color:red;" onclick="document.getElementById('admin-panel').classList.remove('open')">إغلاق اللوحة</button>
+    </div>
+
+    <div id="side-right" class="side" onclick="event.stopPropagation()">
+        <div style="padding:15px; background:var(--gold); color:#000; font-weight:bold; text-align:center;">👥 الأعضاء الحقيقيون</div>
+        <div id="user-list"></div>
+    </div>
+
+    <div id="main-view">
+        <div style="padding:15px; background:#111; display:flex; justify-content:space-between; align-items:center;">
+            <div style="width:40px;"></div>
+            <b onmousedown="adminTimer()" onmouseup="clearTimer()" style="color:var(--gold); font-size:18px; cursor:pointer;">مملكة علوش 👑</b>
+            <button onclick="openUsers(event)" style="background:none; border:none; font-size:25px; cursor:pointer;">👥</button>
+        </div>
+
+        <div id="chat-win">
+            <div class="stars" id="star-box"></div>
+        </div>
+
+        <div class="bar" onclick="event.stopPropagation()">
+            <button onclick="document.getElementById('side-right').classList.toggle('open')" style="background:none; border:none; font-size:22px;">⚙️</button>
+            <input type="text" id="mInp" placeholder="اكتب رسالتك...">
+            <button onclick="send()" style="background:none; border:none; font-size:25px;">🚀</button>
+        </div>
+    </div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
+        authDomain: "masterchat-f2da9.firebaseapp.com",
+        databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
+        projectId: "masterchat-f2da9"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+    let myID, myD = {}, pressTimer;
+
+    auth.onAuthStateChanged(u => {
+        if(u) {
+            myID = u.uid;
+            db.ref('users/'+myID).on('value', s => {
+                myD = s.val() || { n: "عضو", av: "https://via.placeholder.com/100" };
+                // تحديث حالة الاتصال الحقيقية فقط
+                const statusRef = db.ref('status/'+myID);
+                statusRef.set({ n: myD.n, av: myD.av, online: true });
+                statusRef.onDisconnect().remove(); // يحذف العضو فوراً عند إغلاق الصفحة
+            });
+            init();
+        }
+    });
+
+    // لوحة التحكم تفتح بالضغط المطول (3 ثواني) على الاسم
+    function adminTimer() { pressTimer = window.setTimeout(() => { document.getElementById('admin-panel').classList.add('open'); }, 2000); }
+    function clearTimer() { clearTimeout(pressTimer); }
+
+    function openUsers(e) { e.stopPropagation(); document.getElementById('side-right').classList.add('open'); }
+    function closeAll() { document.getElementById('side-right').classList.remove('open'); }
+
+    function send() {
+        const t = document.getElementById('mInp').value;
+        if(!t) return;
+        db.ref('main_msgs').push({ uid: myID, n: myD.n, av: myD.av, t: t });
+        document.getElementById('mInp').value = '';
+    }
+
+    function init() {
+        // عرض الرسائل
+        db.ref('main_msgs').limitToLast(40).on('child_added', s => {
+            const d = s.val();
+            const div = document.createElement('div');
+            div.className = `msg ${d.uid === myID ? 'me' : ''}`;
+            div.innerHTML = `<img src="${d.av}" class="u-img"><div class="bubble"><span class="u-name">${d.n}</span><br>${d.t}</div>`;
+            document.getElementById('chat-win').appendChild(div);
+            document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
+        });
+
+        // عرض المتصلين الحقيقيين فقط
+        db.ref('status').on('value', s => {
+            const l = document.getElementById('user-list');
+            l.innerHTML = '';
+            s.forEach(u => {
+                l.innerHTML += `<div class="user-item">
+                    <img src="${u.val().av}" style="width:35px; height:35px; border-radius:50%; border:1px solid var(--gold);">
+                    <span>${u.val().n}</span>
+                    <div style="width:8px; height:8px; background:#0f0; border-radius:50%; margin-right:auto;"></div>
+                </div>`;
+            });
+        });
+
+        // توليد النجوم
+        for(let i=0; i<40; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = star.style.height = Math.random()*3+'px';
+            star.style.top = Math.random()*100+'%';
+            star.style.left = Math.random()*100+'%';
+            document.getElementById('star-box').appendChild(star);
+        }
+    }
+
+    // وظائف لوحة التحكم
+    function clearChat() { if(confirm("هل تريد تصفير الشات؟")) db.ref('main_msgs').remove(); }
+    function sendAdminMsg() { 
+        const msg = prompt("اكتب التنبيه الإداري:");
+        if(msg) db.ref('main_msgs').push({ uid: 'admin', n: '⚠️ تنبيه إداري', av: 'https://cdn-icons-png.flaticon.com/512/179/179386.png', t: msg });
+    }
+    function resetUsers() { if(confirm("سيتم تنظيف القائمة من أي أسماء عالقة؟")) db.ref('status').remove(); }
+</script>
+</body>
+</html>
