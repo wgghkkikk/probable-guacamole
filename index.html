@@ -5,47 +5,98 @@
     <title>مملكة علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #000; color: #ffd700; font-family: sans-serif; text-align: center; padding-top: 50px; }
-        .box { background: #111; padding: 30px; border-radius: 20px; border: 2px solid #ffd700; display: inline-block; width: 300px; box-shadow: 0 0 20px #ffd70055; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; text-align: center; background: #222; color: #fff; }
+        body { background: #000; color: #ffd700; font-family: sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .box { background: #111; padding: 20px; border-radius: 15px; border: 2px solid #ffd700; width: 100%; max-width: 400px; box-shadow: 0 0 20px #ffd70044; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #222; color: #fff; text-align: center; }
         .btn { width: 95%; padding: 12px; background: #ffd700; color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        #status { margin-top: 15px; font-weight: bold; }
+        #chat-screen { display: none; } /* مخفي حتى يسجل دخول */
+        #msg-box { height: 350px; overflow-y: auto; background: #0a0a0a; border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid #222; text-align: right; }
+        .msg { margin-bottom: 10px; padding: 5px; border-bottom: 1px solid #222; }
+        .user-tag { color: #ffd700; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div class="box">
+
+    <div id="auth-screen" class="box">
         <h2>دخول المملكة 👑</h2>
-        <input type="email" id="email" placeholder="البريد الإلكتروني">
+        <input type="email" id="email" placeholder="بريدك الإلكتروني">
         <input type="password" id="pass" placeholder="كلمة المرور">
         <button class="btn" onclick="login()">دخول الآن</button>
-        <div id="status"></div>
+        <p id="status" style="font-size: 13px; margin-top: 10px;"></p>
+    </div>
+
+    <div id="chat-screen" class="box">
+        <h3 style="margin: 0 0 10px 0;">غرفة الدردشة 💬</h3>
+        <div id="msg-box"></div>
+        <div style="display: flex; gap: 5px;">
+            <input type="text" id="m-text" placeholder="اكتب هنا..." style="margin:0; flex:1;">
+            <button class="btn" onclick="send()" style="width: 70px;">إرسال</button>
+        </div>
+        <button onclick="logout()" style="background:none; border:none; color:red; margin-top:15px; cursor:pointer;">تسجيل خروج</button>
     </div>
 
 <script>
-    // البيانات الصحيحة 100% من صورتك الأخيرة
-    const firebaseConfig = {
+    // بياناتك الرسمية من الصور
+    const config = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ", 
         authDomain: "masterchat-f2da9.firebaseapp.com",
         databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
         projectId: "masterchat-f2da9"
     };
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(config);
+
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // نظام التبديل التلقائي
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('chat-screen').style.display = 'block';
+            load();
+        } else {
+            document.getElementById('auth-screen').style.display = 'block';
+            document.getElementById('chat-screen').style.display = 'none';
+        }
+    });
 
     function login() {
-        const s = document.getElementById('status');
         const e = document.getElementById('email').value.trim();
         const p = document.getElementById('pass').value.trim();
-        s.innerText = "جاري فتح البوابات... ⏳";
-
-        firebase.auth().signInWithEmailAndPassword(e, p)
-            .then(() => s.innerHTML = "<span style='color:lime'>🔓 مبروك! انفتحت الأبواب.</span>")
-            .catch(() => {
-                firebase.auth().createUserWithEmailAndPassword(e, p)
-                    .then(() => s.innerHTML = "<span style='color:lime'>✅ تم تسجيلك بنجاح!</span>")
-                    .catch(err => s.innerHTML = "<span style='color:red'>⚠️ " + err.message + "</span>");
-            });
+        const s = document.getElementById('status');
+        if(!e || !p) { s.innerText = "🚨 املأ البيانات"; return; }
+        
+        s.innerText = "جاري فتح المملكة... ⏳";
+        auth.signInWithEmailAndPassword(e, p).catch(() => {
+            auth.createUserWithEmailAndPassword(e, p).catch(err => s.innerText = "⚠️ " + err.message);
+        });
     }
+
+    function send() {
+        const t = document.getElementById('m-text').value;
+        if(t) {
+            db.ref('msgs').push({
+                u: auth.currentUser.email.split('@')[0],
+                t: t,
+                time: Date.now()
+            });
+            document.getElementById('m-text').value = '';
+        }
+    }
+
+    function load() {
+        const box = document.getElementById('msg-box');
+        box.innerHTML = ''; // تنظيف
+        db.ref('msgs').limitToLast(30).on('child_added', snap => {
+            const d = snap.val();
+            box.innerHTML += `<div class="msg"><span class="user-tag">@${d.u}</span><br><span style="color:white">${d.t}</span></div>`;
+            box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    function logout() { auth.signOut(); }
 </script>
 </body>
 </html>
