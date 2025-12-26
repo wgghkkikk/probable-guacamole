@@ -1,12 +1,13 @@
-<style>
-    .rank-owner { color: #ff0000; text-shadow: 0 0 5px red; font-weight: 900; }
-    .rank-admin { color: #00ff00; font-weight: bold; }
-    .verify-badge { width: 15px; margin-right: 5px; }
-    .msg-owner { background: rgba(255, 0, 0, 0.1) !important; border: 1px solid red !important; }
-</style>
+<div id="gift-shop" style="display:none; position:fixed; bottom:100px; background:#111; padding:20px; border-radius:20px; z-index:5000; border:2px solid gold;">
+    <img src="https://cdn-icons-png.flaticon.com/512/2558/2558671.png" width="50" onclick="sendGift('👑')">
+    <img src="https://cdn-icons-png.flaticon.com/512/1053/1053181.png" width="50" onclick="sendGift('🌹')">
+    <img src="https://cdn-icons-png.flaticon.com/512/744/744465.png" width="50" onclick="sendGift('💎')">
+</div>
 <script>
-    function checkRank(user) {
-        if(user.name === "علوش") return '<span class="rank-owner">المالك 👑</span> <img src="https://cdn-icons-png.flaticon.com/512/7641/7641727.png" class="verify-badge">';
-        return '<span class="rank-admin">عضو مميز</span>';
+    function sendGift(type) {
+        let msg = `أرسل هدية: ${type}`;
+        db.ref('msgs').push({sender: me.name, text: msg, type: 'gift'});
+        document.getElementById('gift-shop').style.display = 'none';
     }
-</script>
+</script
+    
