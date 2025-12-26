@@ -3,158 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE EMPIRE V18 👑</title>
+    <title>GALAXY CHAT V19 🌌</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
+        :root { --neon: #00f2ff; --purple: #7000ff; --pink: #ff007f; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         
-        :root {
-            --royal-gold: linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            --glass: rgba(255, 255, 255, 0.05);
-            --neon-blue: #00d4ff;
+        /* خلفية فضاء متحركة */
+        body { 
+            background: #020205; color: white; overflow: hidden; height: 100vh;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
         }
 
-        body {
-            background: #050505;
-            color: #e0e0e0;
-            font-family: 'Cairo', sans-serif;
-            margin: 0; overflow: hidden;
-            height: 100vh;
-            background-image: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+        /* تأثير التوهج للواجهة */
+        .glass-header {
+            height: 65px; background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0,242,255,0.2);
+            display: flex; align-items: center; justify-content: space-around;
         }
 
-        /* خلفية الجزيئات */
-        #particles-js { position: fixed; inset: 0; z-index: -1; }
-
-        /* الهيدر الملكي */
-        .royal-header {
-            height: 70px;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px;
-            border-bottom: 1px solid rgba(184, 134, 11, 0.3);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        /* نظام الرتب المضيئة */
+        .badge-owner {
+            background: linear-gradient(90deg, var(--neon), var(--purple));
+            padding: 2px 10px; border-radius: 20px; font-size: 11px;
+            box-shadow: 0 0 10px var(--neon);
         }
 
-        .logo-text {
-            font-size: 22px; font-weight: 900;
-            background: var(--royal-gold);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 5px rgba(184,134,11,0.5));
+        /* رسائل الفقاعات الزجاجية */
+        #chat-flow {
+            height: calc(100vh - 150px); overflow-y: auto; padding: 20px;
+            display: flex; flex-direction: column; gap: 15px;
         }
 
-        /* نظام الرسائل الفخم */
-        #chat-window {
-            height: calc(100vh - 155px);
-            overflow-y: auto;
-            padding: 20px;
-            scroll-behavior: smooth;
-        }
-
-        .message-card {
-            background: var(--glass);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 12px;
-            margin-bottom: 15px;
-            display: flex; gap: 12px;
-            max-width: 85%;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        .owner-aura {
-            width: 50px; height: 50px; border-radius: 50%;
-            border: 2px solid gold;
-            box-shadow: 0 0 15px gold;
-            animation: pulseAura 2s infinite;
-        }
-
-        @keyframes pulseAura {
-            0% { box-shadow: 0 0 5px gold; }
-            50% { box-shadow: 0 0 20px gold; }
-            100% { box-shadow: 0 0 5px gold; }
-        }
-
-        /* شريط الإعلانات المتحرك */
-        .marquee-box {
-            background: rgba(184, 134, 11, 0.1);
-            color: gold;
-            padding: 5px 0;
-            font-size: 13px;
-            border-bottom: 1px solid rgba(184,134,11,0.2);
-        }
-
-        /* البار السفلي */
-        .input-container {
-            height: 85px;
-            background: rgba(10,10,10,0.95);
-            display: flex; align-items: center;
-            padding: 0 15px; gap: 10px;
-        }
-
-        #main-input {
-            flex: 1; height: 50px;
+        .bubble {
+            max-width: 80%; padding: 12px; border-radius: 20px;
             background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(184,134,11,0.3);
-            border-radius: 30px;
-            color: #fff; padding: 0 20px;
-            outline: none; transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative; animation: popUp 0.3s ease;
         }
 
-        #main-input:focus { border-color: gold; box-shadow: 0 0 10px rgba(184,134,11,0.3); }
-
-        .action-btn {
-            width: 50px; height: 50px;
-            background: var(--royal-gold);
-            border: none; border-radius: 50%;
-            color: #000; font-size: 20px;
-            cursor: pointer; font-weight: 900;
+        .my-msg { border-right: 3px solid var(--neon); align-self: flex-start; }
+        
+        /* شريط الكتابة النيون */
+        .input-zone {
+            position: fixed; bottom: 0; width: 100%; height: 85px;
+            background: rgba(0,0,0,0.8); display: flex; align-items: center;
+            padding: 0 15px; gap: 12px; border-top: 1px solid rgba(112,0,255,0.3);
         }
 
-        /* لوحة التحكم الجانبية */
-        .admin-drawer {
-            position: fixed; top: 0; left: -300px;
-            width: 300px; height: 100%;
-            background: #0a0a0a;
-            z-index: 5000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-right: 2px solid gold;
-            padding: 25px;
+        #msg-input {
+            flex: 1; height: 45px; background: rgba(255,255,255,0.07);
+            border: 1px solid var(--purple); border-radius: 12px;
+            color: white; padding: 0 15px; outline: none;
+            box-shadow: inset 0 0 5px var(--purple);
         }
-        .admin-drawer.open { left: 0; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .send-btn {
+            width: 45px; height: 45px; border-radius: 12px;
+            background: var(--purple); border: none; color: white;
+            box-shadow: 0 0 15px var(--purple); cursor: pointer;
+        }
+
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="particles-js"></div>
-
-<div class="marquee-box">
-    <marquee id="global-notice">👑 أهلاً بكم في حضرة الإمبراطور علوش - يرجى الالتزام بالقوانين 👑</marquee>
+<div class="glass-header">
+    <div style="font-size: 24px; cursor: pointer;">☄️</div>
+    <div style="font-weight: 900; letter-spacing: 2px; color: var(--neon); text-shadow: 0 0 10px var(--neon);">ALLOSH GALAXY</div>
+    <div style="font-size: 24px; cursor: pointer;" onclick="clearData()">🧹</div>
 </div>
 
-<div class="royal-header">
-    <button onclick="toggleAdmin()" style="background:none; border:none; color:gold; font-size:24px;">☰</button>
-    <div class="logo-text">ALLOSH EMPIRE</div>
-    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="location.reload()" style="width:40px; border-radius:50%; border:1px solid gold;">
-</div>
+<div id="chat-flow"></div>
 
-<div id="drawer" class="admin-drawer">
-    <h2 style="color:gold;">⚙️ لوحة العرش</h2>
-    <hr style="opacity:0.1;">
-    <button onclick="clearChat()" style="width:100%; padding:15px; background:rgba(255,0,0,0.1); color:red; border:1px solid red; border-radius:10px; margin-top:20px;">مسح السجلات 🧹</button>
-    <button onclick="updateNotice()" style="width:100%; padding:15px; background:rgba(0,212,255,0.1); color:var(--neon-blue); border:1px solid var(--neon-blue); border-radius:10px; margin-top:10px;">تغيير الإعلان 📢</button>
-</div>
-
-<div id="chat-window"></div>
-
-<div class="input-container">
-    <button class="action-btn" onclick="openGifts()" style="background:none; color:gold; font-size:30px;">🎁</button>
-    <input type="text" id="main-input" placeholder="تحدث يا إمبراطور..." onkeypress="if(event.key==='Enter') sendMessage()">
-    <button class="action-btn" onclick="sendMessage()">🚀</button>
+<div class="input-zone">
+    <button style="background:none; border:none; font-size:25px;">💠</button>
+    <input type="text" id="msg-input" placeholder="أرسل رسالة إلى المجرة..." onkeypress="if(event.key==='Enter') pushMsg()">
+    <button class="send-btn" onclick="pushMsg()">🚀</button>
 </div>
 
 <script>
@@ -162,69 +90,38 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let user = {
-        name: "علوش",
-        role: "إمبراطور 👑",
-        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-    };
+    const me = { name: "علوش", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", rank: "إمبراطور" };
 
-    function toggleAdmin() { document.getElementById('drawer').classList.toggle('open'); }
-
-    function sendMessage() {
-        let input = document.getElementById('main-input');
+    function pushMsg() {
+        let input = document.getElementById('msg-input');
         if(!input.value) return;
-        db.ref('empire_msgs').push({
-            name: user.name,
+        db.ref('galaxy_msgs').push({
+            user: me.name,
             text: input.value,
-            role: user.role,
-            avatar: user.avatar,
-            time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
+            avatar: me.avatar,
+            rank: me.rank
         });
         input.value = "";
     }
 
-    db.ref('empire_msgs').limitToLast(50).on('child_added', s => {
+    db.ref('galaxy_msgs').limitToLast(40).on('child_added', s => {
         let d = s.val();
-        let win = document.getElementById('chat-window');
+        let flow = document.getElementById('chat-flow');
         let div = document.createElement('div');
-        div.className = "message-card";
-        
+        div.className = "bubble my-msg";
         div.innerHTML = `
-            <img src="${d.avatar}" class="owner-aura">
-            <div style="flex:1">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <b style="color:gold; font-size:14px;">${d.name} <span style="font-size:10px; color:#aaa; font-weight:normal;">[${d.role}]</span></b>
-                    <small style="color:#666; font-size:10px;">${d.time}</small>
-                </div>
-                <div style="margin-top:5px; line-height:1.6;">${d.text}</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                <img src="${d.avatar}" style="width:30px; border-radius:50%; border:1px solid var(--neon);">
+                <b style="color:var(--neon); font-size:13px;">${d.user}</b>
+                <span class="badge-owner">${d.rank}</span>
             </div>
+            <div style="font-size:15px; color:#e0e0e0;">${d.text}</div>
         `;
-        win.appendChild(div);
-        win.scrollTop = win.scrollHeight;
+        flow.appendChild(div);
+        flow.scrollTop = flow.scrollHeight;
     });
 
-    function clearChat() { if(confirm("هل تريد تصفير الشات بالكامل؟")) db.ref('empire_msgs').remove(); }
-    
-    function updateNotice() {
-        let n = prompt("اكتب الإعلان الجديد:");
-        if(n) db.ref('empire_settings/notice').set(n);
-    }
-
-    db.ref('empire_settings/notice').on('value', s => {
-        if(s.val()) document.getElementById('global-notice').innerText = "👑 " + s.val() + " 👑";
-    });
-
-    // بوت الترحيب
-    setTimeout(() => {
-        let win = document.getElementById('chat-window');
-        let div = document.createElement('div');
-        div.className = "message-card";
-        div.style.border = "1px solid var(--neon-blue)";
-        div.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" style="width:50px;"> 
-        <div><b style="color:var(--neon-blue)">البوت الملكي 🤖</b><br>نظام الشات الفخم V18 قيد التشغيل.. السمع والطاعة يا إمبراطور!</div>`;
-        win.appendChild(div);
-        win.scrollTop = win.scrollHeight;
-    }, 2000);
+    function clearData() { if(confirm("تصفير بيانات المجرة؟")) db.ref('galaxy_msgs').remove(); }
 </script>
 </body>
 </html>
