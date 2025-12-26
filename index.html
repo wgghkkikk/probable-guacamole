@@ -3,169 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إمبراطورية علوش الملكية 👑</title>
+    <title>CH-ALLOSH SUPREME 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #0a0a0a; --panel: #161616; --accent: #1e1e1e; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Cairo', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        :root { --gold: #ffd700; --bg: #050505; --panel: #121212; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Cairo', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* شريط الإشعارات والتحكم العلوي */
+        .top-nav { height: 50px; background: var(--panel); border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
+        .master-btns span { margin: 0 10px; cursor: pointer; font-size: 20px; }
 
-        /* صفحة تسجيل الدخول */
-        #login-page { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: var(--panel); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 320px; text-align: center; }
-        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #222; color: white; box-sizing: border-box; }
-        .login-card button { background: var(--gold); border: none; padding: 12px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
-
-        /* الهيكل الرئيسي */
-        .top-bar { height: 60px; background: var(--panel); border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
-        #main-box { display: flex; flex: 1; position: relative; }
-
-        /* القوائم الجانبية */
-        .side { width: 0; transition: 0.3s; background: var(--panel); overflow: hidden; white-space: nowrap; position: relative; z-index: 100; }
-        .side.open { width: 260px; border-left: 1px solid #222; border-right: 1px solid #222; }
+        /* الهيكل الأساسي للقوائم */
+        #wrapper { display: flex; flex: 1; overflow: hidden; position: relative; }
+        .sidebar { width: 0; transition: 0.4s; background: var(--panel); overflow-y: auto; white-space: nowrap; position: relative; }
+        .sidebar.active { width: 280px; border: 1px solid #222; }
 
         /* منطقة الدردشة */
-        .chat-view { flex: 1; display: flex; flex-direction: column; background: #0f0f0f; }
-        #chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-container { flex: 1; display: flex; flex-direction: column; background: #000; }
+        #chat-window { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
 
-        /* تصميم اسم الماستر المتحرك */
-        .master-name {
-            background: linear-gradient(90deg, #ffd700, #ffffff, #ffd700);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shine 2s linear infinite;
-            font-weight: bold;
-        }
-        @keyframes shine { to { background-position: 200% center; } }
+        /* تصميم الرتب والأسماء المتحركة */
+        .name-master { background: linear-gradient(to right, #ffd700, #ff0000, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: anim 2s linear infinite; font-weight: bold; font-size: 1.1em; }
+        @keyframes anim { 0%{filter: hue-rotate(0deg);} 100%{filter: hue-rotate(360deg);} }
+        
+        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; color: #000; font-weight: bold; }
+        .bg-master { background: var(--gold); }
+        .bg-admin { background: #ff00ff; }
+        .bg-mod { background: #00ffff; }
 
-        /* أدوات الماستر فوق */
-        .master-tools { display: flex; gap: 10px; font-size: 18px; }
+        /* المنشورات واليوميات */
+        .post-card { background: #1a1a1a; padding: 10px; border-radius: 8px; margin: 10px; border-right: 3px solid var(--gold); }
 
-        /* الملف الشخصي والمنشورات */
-        .profile-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; }
-        .post { background: var(--accent); padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; border-right: 3px solid var(--gold); }
+        /* رسائل الصور واليوتيوب */
+        .chat-img { max-width: 200px; border-radius: 10px; border: 1px solid var(--gold); }
+        .yt-frame { width: 100%; max-width: 300px; height: 180px; border-radius: 10px; }
 
-        /* أسفل الشات */
-        .footer { padding: 15px; background: var(--panel); display: flex; gap: 10px; align-items: center; }
-        #msg-in { flex: 1; background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 25px; outline: none; }
-        .plus-btn { background: #333; color: white; width: 40px; height: 40px; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; }
-
-        .btn-gold { color: var(--gold); cursor: pointer; font-size: 22px; }
+        /* الفوتر */
+        .footer { padding: 10px; background: var(--panel); display: flex; gap: 10px; align-items: center; }
+        #msg-input { flex: 1; background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 20px; outline: none; }
+        .add-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); background: none; cursor: pointer; font-size: 20px; }
     </style>
 </head>
 <body>
 
-<div id="login-page">
-    <div class="login-card">
-        <h2 style="color:var(--gold)">شات علوش 👑</h2>
-        <input type="text" id="u-name" placeholder="اسمك المستعار">
-        <input type="password" id="u-pass" placeholder="كلمة السر (للمسؤولين فقط)">
-        <button onclick="login()">دخول الإمبراطورية</button>
+<div class="top-nav">
+    <div onclick="toggleSide('left')">⚙️ المميزات</div>
+    <div class="master-btns" id="m-tools" style="display:none">
+        <span onclick="sendAlert('📢 إعلان ملكي: الشات منور بوجودكم!')">📣</span>
+        <span onclick="sendAlert('🚨 صافرة إنذار: يرجى الالتزام بالقوانين!')">🔔</span>
     </div>
+    <div class="name-master">إمبراطورية علوش</div>
+    <div onclick="toggleSide('right')">👥 المتصلين</div>
 </div>
 
-<div class="top-bar">
-    <div class="btn-gold" onclick="toggleSide('left')">☰</div>
-    <div class="master-tools" id="m-tools" style="display:none;">
-        <span onclick="alert('صافرة انذار! 📢')">📢</span>
-        <span onclick="alert('إعلان عام! 📣')">📣</span>
-    </div>
-    <div id="logo" class="master-name">CH-ALLOSH</div>
-    <div class="btn-gold" onclick="toggleSide('right')">👥</div>
-</div>
-
-<div id="main-box">
-    <div id="side-right" class="side">
+<div id="wrapper">
+    <div id="side-left" class="sidebar">
         <div style="padding: 20px;">
-            <h4 style="color:var(--gold)">● المتصلون الآن</h4>
-            <div id="online-users"></div>
+            <center>
+                <img id="my-avatar" src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" style="width:80px; border:2px solid var(--gold); border-radius:50%;">
+                <h3 id="my-name-display">الملف الشخصي</h3>
+                <button onclick="changeAvatar()" class="badge">تغيير الصورة</button>
+            </center>
+            <hr>
+            <h4>📖 يومياتي</h4>
+            <input type="text" id="post-in" placeholder="بماذا تفكر؟" style="width:80%; background:#222; color:white; border:1px solid #444; padding:5px;">
+            <button onclick="addPost()" class="badge bg-master">نشر</button>
+            <div id="diary-area"></div>
         </div>
     </div>
 
-    <div class="chat-view">
-        <div id="chat-msgs"></div>
+    <div class="chat-container">
+        <div id="chat-window"></div>
         <div class="footer">
-            <button class="plus-btn" onclick="document.getElementById('fileIn').click()">+</button>
-            <input type="file" id="fileIn" style="display:none">
-            <input type="text" id="msg-in" placeholder="اكتب هنا...">
+            <button class="add-btn" onclick="uploadTool()">+</button>
+            <input type="text" id="msg-input" placeholder="اكتب رسالتك هنا...">
             <button onclick="sendMsg()" style="background:var(--gold); border:none; padding:10px 20px; border-radius:20px; font-weight:bold;">إرسال</button>
         </div>
     </div>
 
-    <div id="side-left" class="side">
+    <div id="side-right" class="sidebar">
         <div style="padding: 20px;">
-            <div id="my-info" style="text-align:center;">
-                <img src="https://via.placeholder.com/60" class="profile-img">
-                <h3 id="display-name"></h3>
-            </div>
-            <hr style="border:0; border-top:1px solid #333;">
-            <h4 style="color:var(--gold)">📖 اليوميات (المنشورات)</h4>
-            <div id="posts-area"></div>
+            <h4>👥 المتواجدون الآن</h4>
+            <div id="user-list"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // ربط Firebase
     const config = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let myUser = { name: "", role: "عضو" };
+    let user = { name: "", role: "عضو", avatar: "" };
 
-    function login() {
-        let name = document.getElementById('u-name').value;
-        let pass = document.getElementById('u-pass').value;
-        if(!name) return;
-
-        myUser.name = name;
-        if(name === "علوش" && pass === "Allosh#King@2025") {
-            myUser.role = "الماستر";
-            document.getElementById('m-tools').style.display = 'flex';
+    // دخول
+    window.onload = () => {
+        let n = prompt("ادخل اسمك يا ملك:");
+        if(!n) location.reload();
+        user.name = n;
+        if(n === "علوش") {
+            let p = prompt("باسورد الماستر:");
+            if(p === "Allosh#King@2025") {
+                user.role = "الماستر";
+                document.getElementById('m-tools').style.display = "block";
+            }
         }
-
-        document.getElementById('login-page').style.display = 'none';
-        document.getElementById('display-name').innerText = name;
-        initApp();
+        document.getElementById('my-name-display').innerText = n;
+        initChat();
     }
 
-    function toggleSide(s) {
-        document.getElementById('side-'+s).classList.toggle('open');
-    }
+    function toggleSide(id) { document.getElementById('side-'+id).classList.toggle('active'); }
 
-    function initApp() {
+    function initChat() {
         // تسجيل التواجد
-        db.ref('online/' + myUser.name).set(myUser);
-        db.ref('online/' + myUser.name).onDisconnect().remove();
+        db.ref('online/' + user.name).set(user);
+        db.ref('online/' + user.name).onDisconnect().remove();
 
-        // عرض المتصلين
-        db.ref('online').on('value', snap => {
-            let out = "";
-            snap.forEach(u => {
+        // المتصلين
+        db.ref('online').on('value', s => {
+            let html = "";
+            s.forEach(u => {
                 let d = u.val();
-                out += `<div style="margin:10px 0" class="${d.role==='الماستر'?'master-name':''}">● ${d.name}</div>`;
+                html += `<div style="margin:10px" onclick="adminAction('${d.name}')">
+                    <span class="badge ${d.role==='الماستر'?'bg-master':'bg-member'}">${d.role}</span>
+                    <span class="${d.role==='الماستر'?'name-master':''}">${d.name}</span>
+                </div>`;
             });
-            document.getElementById('online-users').innerHTML = out;
+            document.getElementById('user-list').innerHTML = html;
         });
 
-        // الشات
-        db.ref('messages').limitToLast(50).on('child_added', snap => {
-            let d = snap.val();
-            let area = document.getElementById('chat-msgs');
+        // الرسائل
+        db.ref('messages').limitToLast(30).on('child_added', s => {
+            let d = s.val();
+            let area = document.getElementById('chat-window');
             let div = document.createElement('div');
-            let isM = d.role === "الماستر";
-            div.innerHTML = `<b class="${isM?'master-name':''}">${d.sender}:</b> ${d.content}`;
+            
+            let content = d.msg;
+            if(content.includes('http') && (content.includes('.jpg') || content.includes('.png') || content.includes('.gif'))) {
+                content = `<img src="${content}" class="chat-img">`;
+            } else if(content.includes('youtube.com/watch?v=')) {
+                let id = content.split('v=')[1];
+                content = `<iframe class="yt-frame" src="https://www.youtube.com/embed/${id}" frameborder="0"></iframe>`;
+            }
+
+            div.innerHTML = `<b class="${d.role==='الماستر'?'name-master':''}">${d.sender}:</b> <span>${content}</span>`;
             area.appendChild(div);
             area.scrollTop = area.scrollHeight;
         });
     }
 
     function sendMsg() {
-        let inpt = document.getElementById('msg-in');
-        if(!inpt.value) return;
-        db.ref('messages').push({ sender: myUser.name, role: myUser.role, content: inpt.value });
-        inpt.value = "";
+        let m = document.getElementById('msg-input').value;
+        if(!m) return;
+        db.ref('messages').push({ sender: user.name, role: user.role, msg: m });
+        document.getElementById('msg-input').value = "";
+    }
+
+    function uploadTool() {
+        let link = prompt("ضع رابط الصورة أو الفيديو هنا لرفعه:");
+        if(link) { document.getElementById('msg-input').value = link; sendMsg(); }
+    }
+
+    function sendAlert(txt) { db.ref('messages').push({ sender: "📢 إعلان", role: "الماستر", msg: txt }); }
+
+    function addPost() {
+        let p = document.getElementById('post-in').value;
+        if(p) {
+            db.ref('posts').push({ name: user.name, text: p });
+            document.getElementById('post-in').value = "";
+        }
+    }
+
+    db.ref('posts').on('value', s => {
+        let out = "";
+        s.forEach(p => { let d = p.val(); out += `<div class="post-card"><b>${d.name}:</b><br>${d.text}</div>`; });
+        document.getElementById('diary-area').innerHTML = out;
+    });
+
+    function adminAction(target) {
+        if(user.role === "الماستر" && target !== user.name) {
+            let action = prompt("1: جعل مشرف | 2: طرد");
+            if(action === "1") db.ref('online/'+target+'/role').set('مشرف');
+            if(action === "2") db.ref('kicked/'+target).set(true);
+        }
     }
 </script>
 </body>
