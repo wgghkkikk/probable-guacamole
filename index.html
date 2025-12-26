@@ -3,41 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إمبراطورية علوش V97 👑</title>
+    <title>إمبراطورية علوش V98 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --main-color: #ffd700; --chat-bg: #0b0b0b; --bubble-bg: #161616; }
+        :root { --main-color: #ffd700; --chat-bg: #0b0b0b; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        body { background: var(--chat-bg); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: 0.3s; }
+        body { background: var(--chat-bg); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* اسم المالك المضيء بألوان غير مطروقة */
+        /* اسم المالك المضيء */
         .owner-glow { 
-            font-size: 1.4rem !important; 
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 10px #ff00ea, 0 0 20px #00e1ff, 0 0 30px #ff00ea;
-            animation: color-cycle 3s infinite linear;
+            text-shadow: 0 0 10px #ff00ea, 0 0 20px #00e1ff;
+            animation: glow-anim 2s infinite alternate;
         }
-        @keyframes color-cycle { 
-            0% { filter: hue-rotate(0deg); } 
-            100% { filter: hue-rotate(360deg); } 
-        }
+        @keyframes glow-anim { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
 
-        /* ثيم داير مايدور الملف */
+        /* إطار الصورة المطور */
         .avatar-frame {
-            position: relative; width: 90px; height: 90px; margin: 0 auto;
-            border-radius: 50%; padding: 4px;
-            background: linear-gradient(45deg, #ff00ea, #00e1ff, #ffd700, #ff00ea);
-            background-size: 400%; animation: frame-anim 5s infinite linear;
+            position: relative; width: 100px; height: 100px; margin: 0 auto;
+            border-radius: 50%; padding: 5px;
+            background: linear-gradient(45deg, #ff00ea, #00e1ff, #ffd700);
+            background-size: 400%; animation: frame-spin 4s infinite linear;
+            cursor: pointer;
         }
-        @keyframes frame-anim { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .avatar-frame img { width: 100%; height: 100%; border-radius: 50%; background: #000; }
+        @keyframes frame-spin { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        .avatar-frame img { width: 100%; height: 100%; border-radius: 50%; background: #000; object-fit: cover; }
 
-        /* الهيدر والقوائم */
-        .header { height: 60px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--main-color); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
-        .side { position: fixed; top: 0; bottom: 0; width: 280px; background: #0e0e0e; z-index: 10000; transition: 0.4s; visibility: hidden; overflow-y: auto; padding: 20px; }
+        .header { height: 60px; background: #000; border-bottom: 2px solid var(--main-color); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1001; }
+        
+        .side { position: fixed; top: 0; bottom: 0; width: 280px; background: #0e0e0e; z-index: 10000; transition: 0.3s; visibility: hidden; overflow-y: auto; padding: 20px; }
         #side-r { right: -285px; border-left: 2px solid var(--main-color); }
         #side-l { left: -285px; border-right: 2px solid var(--main-color); }
         .side.active { visibility: visible; transform: translateX(0); }
@@ -45,18 +42,17 @@
         #side-l.active { transform: translateX(280px); }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9000; display: none; }
 
-        /* الشات */
-        #chat-flow { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 120px; }
-        .bubble { background: var(--bubble-bg); padding: 12px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); max-width: 85%; position: relative; }
+        /* الشات وفيديو يوتيوب المربع */
+        #chat-flow { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 110px; }
+        .bubble { background: #161616; padding: 12px; border-radius: 15px; border: 1px solid #222; max-width: 85%; position: relative; }
+        .yt-small { width: 180px; height: 180px; border-radius: 10px; border: 2px solid var(--main-color); margin-top: 8px; display: block; }
 
-        /* الفوتر المرفوع */
+        /* الفوتر المحسن */
         .footer { position: fixed; bottom: 0; left: 0; right: 0; height: 100px; background: #000; border-top: 2px solid var(--main-color); display: flex; align-items: center; padding: 0 15px 35px 15px; z-index: 9999; }
         #msg-in { flex: 1; height: 50px; background: #111; border: 1px solid #333; border-radius: 25px; color: #fff; padding: 0 20px; }
-        .send-btn { background: var(--main-color); color: black; border: none; height: 50px; padding: 0 25px; border-radius: 25px; font-weight: 900; margin-right: 10px; }
+        .send-btn { background: var(--main-color); color: #000; border: none; height: 50px; padding: 0 25px; border-radius: 25px; font-weight: 900; margin-right: 10px; cursor: pointer; }
 
-        /* أدوات التخصيص */
-        .control-box { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-        .color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; display: inline-block; margin: 5px; }
+        .bot-tag { color: #00ffcc; font-size: 11px; background: rgba(0,255,204,0.1); padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -64,41 +60,39 @@
 <div id="overlay" onclick="closeSides()"></div>
 
 <div class="header">
-    <button onclick="openSide('side-l')" style="background:none; border:none; font-size:24px; color:white;">⚙️</button>
-    <div id="top-title" style="color:var(--main-color); font-weight:900; font-size:20px;">إمبراطورية علوش</div>
-    <button onclick="openSide('side-r')" style="background:none; border:none; font-size:24px; color:white;">👥</button>
+    <button onclick="openSide('side-l')" style="background:none; border:none; font-size:24px;">⚙️</button>
+    <div style="color:var(--main-color); font-weight:900; font-size:18px;">إمبراطورية علوش 👑</div>
+    <button onclick="openSide('side-r')" style="background:none; border:none; font-size:24px;">👥</button>
 </div>
 
 <div id="side-r" class="side">
-    <h3 style="text-align:center; color:var(--main-color); margin-bottom:20px;">👥 المتواجدون</h3>
-    <div id="on-list"></div>
+    <h3 style="text-align:center; color:var(--main-color); margin-bottom:15px;">👤 المتصلون</h3>
+    <div id="on-list">
+        <div style="padding:10px; border-bottom:1px solid #222;">
+            <span class="bot-tag">BOT</span> 🤖 بوت الإمبراطورية
+        </div>
+    </div>
 </div>
 
 <div id="side-l" class="side">
-    <div class="avatar-frame">
-        <img id="my-av" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    <div class="avatar-frame" onclick="document.getElementById('file-up').click()">
+        <img id="my-av-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
     </div>
-    <h2 id="display-name" style="text-align:center; margin-top:15px; color:white;">الاسم</h2>
+    <input type="file" id="file-up" hidden onchange="changePhoto(this)">
+    <p style="text-align:center; font-size:10px; color:gray; margin-top:5px;">اضغط لتغيير الصورة</p>
     
-    <div class="control-box" style="margin-top:20px;">
-        <p style="color:var(--main-color); font-size:13px; margin-bottom:8px;">💎 زخرفة اسمك الشخصية:</p>
-        <input type="text" id="my-decor" style="width:100%; padding:10px; background:#000; color:white; border:1px solid #444; border-radius:8px;" placeholder="مثلاً: ⚡" oninput="saveMe()">
-    </div>
-
-    <div class="control-box">
-        <p style="color:var(--main-color); font-size:13px; margin-bottom:8px;">🎨 اختيار ثيم الشات:</p>
-        <div class="color-btn" style="background:#ffd700;" onclick="changeTheme('#ffd700', '#0b0b0b')"></div>
-        <div class="color-btn" style="background:#ff00ea;" onclick="changeTheme('#ff00ea', '#1a001a')"></div>
-        <div class="color-btn" style="background:#00e1ff;" onclick="changeTheme('#00e1ff', '#000d1a')"></div>
-        <div class="color-btn" style="background:#ff4500;" onclick="changeTheme('#ff4500', '#1a0800')"></div>
-        <div class="color-btn" style="background:#32cd32;" onclick="changeTheme('#32cd32', '#051a05')"></div>
+    <h2 id="my-name-display" style="text-align:center; margin-top:10px;">الاسم</h2>
+    
+    <div style="background:#1a1a1a; padding:15px; border-radius:10px; margin-top:20px;">
+        <p style="color:var(--main-color); font-size:12px;">💎 زخرفة اسمك:</p>
+        <input type="text" id="decor-in" style="width:100%; padding:10px; background:#000; border:1px solid #444; color:#fff; border-radius:8px; margin-top:5px;" placeholder="ضع رمزك هنا.." oninput="updateMe()">
     </div>
 </div>
 
 <div id="chat-flow"></div>
 
 <div class="footer">
-    <input type="text" id="msg-in" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') sendMsg()">
+    <input type="text" id="msg-in" placeholder="اكتب رسالتك أو رابط يوتيوب..." onkeypress="if(event.key==='Enter') sendMsg()">
     <button class="send-btn" onclick="sendMsg()">إرسال</button>
 </div>
 
@@ -107,58 +101,73 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let myName = prompt("اكتب اسمك للدخول إلى الإمبراطورية:") || "زائر";
-    let myData = { name: myName, decor: "", color: "#ffd700" };
+    let uName = prompt("ادخل اسمك الملكي:") || "زائر";
+    let me = { name: uName, decor: "", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
 
-    // تحميل البيانات المحفوظة
     window.onload = () => {
-        document.getElementById('display-name').innerText = myName;
-        if(myName === "علوش") document.getElementById('display-name').className = "owner-glow";
-        db.ref('online_v97/' + myName).set(myData);
-        db.ref('online_v97/' + myName).onDisconnect().remove();
+        document.getElementById('my-name-display').innerText = uName;
+        if(uName === "علوش") document.getElementById('my-name-display').className = "owner-glow";
+        db.ref('online_v98/' + uName).set(me);
+        db.ref('online_v98/' + uName).onDisconnect().remove();
     };
 
-    function saveMe() {
-        myData.decor = document.getElementById('my-decor').value;
-        db.ref('online_v97/' + myName).update(myData);
+    function updateMe() {
+        me.decor = document.getElementById('decor-in').value;
+        db.ref('online_v98/' + uName).update(me);
     }
 
-    function changeTheme(main, bg) {
-        document.documentElement.style.setProperty('--main-color', main);
-        document.documentElement.style.setProperty('--chat-bg', bg);
-        myData.color = main;
-        db.ref('online_v97/' + myName).update(myData);
+    function changePhoto(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                me.img = e.target.result;
+                document.getElementById('my-av-img').src = me.img;
+                db.ref('online_v98/' + uName).update(me);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function getYTId(url) {
+        let reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        let match = url.match(reg);
+        return (match && match[2].length == 11) ? match[2] : null;
     }
 
     function sendMsg() {
         let i = document.getElementById('msg-in'); if(!i.value) return;
-        db.ref('chat_v97').push({ u: myName, t: i.value, d: myData.decor, c: myData.color });
+        let vid = getYTId(i.value);
+        db.ref('chat_v98').push({ u: uName, t: i.value, d: me.decor, a: me.img, vid: vid });
         i.value = "";
     }
 
-    db.ref('chat_v97').limitToLast(20).on('child_added', s => {
-        let d = s.val();
+    db.ref('chat_v98').limitToLast(15).on('child_added', s => {
+        let data = s.val();
+        let isO = data.u === "علوش";
         let div = document.createElement('div');
-        div.style.marginBottom = "15px";
-        let isOwner = d.u === "علوش";
+        div.style.display="flex"; div.style.gap="10px"; div.style.marginBottom="15px";
+        
         div.innerHTML = `
-            <div class="bubble" style="border-right: 3px solid ${d.c}">
-                <b class="${isOwner ? 'owner-glow' : ''}" style="color:${isOwner ? '' : d.c}">
-                    ${isOwner ? '👑 المالك علوش' : (d.d + ' ' + d.u + ' ' + d.d)}
+            <img src="${data.a}" style="width:40px; height:40px; border-radius:50%; border:1px solid var(--main-color);">
+            <div class="bubble">
+                <b class="${isO?'owner-glow':''}" style="color:${isO?'':'#ffd700'}">
+                    ${isO ? '👑 مالك الشات: علوش' : (data.d + ' ' + data.u + ' ' + data.d)}
                 </b>
-                <div style="margin-top:5px; color:#eee;">${d.t}</div>
+                <div style="margin-top:5px; word-break:break-word;">${data.t}</div>
+                ${data.vid ? `<iframe class="yt-small" src="https://www.youtube.com/embed/${data.vid}" frameborder="0" allowfullscreen></iframe>` : ''}
             </div>`;
         document.getElementById('chat-flow').appendChild(div);
         document.getElementById('chat-flow').scrollTop = document.getElementById('chat-flow').scrollHeight;
     });
 
-    db.ref('online_v97').on('value', s => {
-        let l = document.getElementById('on-list'); l.innerHTML = "";
+    db.ref('online_v98').on('value', s => {
+        let l = document.getElementById('on-list');
+        l.innerHTML = `<div style="padding:10px; border-bottom:1px solid #222;"><span class="bot-tag">BOT</span> 🤖 بوت الإمبراطورية</div>`;
         s.forEach(u => {
             let user = u.val();
             let isO = u.key === "علوش";
-            l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:${isO?'#fff':user.color}" class="${isO?'owner-glow':''}">
-                ● ${user.decor} ${u.key} ${user.decor}
+            l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222;" class="${isO?'owner-glow':''}">
+                ● ${isO ? '👑 مالك الشات: علوش' : (user.decor + ' ' + u.key + ' ' + user.decor)}
             </div>`;
         });
     });
