@@ -3,36 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALLOSH BET V47 👑</title>
+    <title>ALLOSH DICE V48 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        :root { --gold: #ffd700; --bg: #000; --panel: rgba(15, 15, 20, 0.98); }
+        :root { --gold: #ffd700; --bg: #000; --panel: rgba(10, 10, 15, 0.98); }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; transition: 0.3s; }
         
         body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
 
         /* الهيدر */
         .header { height: 65px; background: #050505; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
-        .gold-info { color: var(--gold); font-size: 14px; font-weight: 900; background: #111; padding: 5px 12px; border-radius: 20px; border: 1px solid #333; }
+        .gold-info { color: var(--gold); font-size: 13px; font-weight: 900; background: #111; padding: 4px 12px; border-radius: 20px; border: 1px solid #333; }
 
-        /* القوائم الجانبية (اليمين واليسار) */
+        /* القوائم الجانبية */
         .side { position: fixed; top: 0; bottom: 0; width: 260px; background: var(--panel); z-index: 4000; backdrop-filter: blur(15px); }
         #side-r { right: -270px; border-left: 1px solid var(--gold); }
         #side-l { left: -270px; border-right: 1px solid var(--gold); overflow-y: auto; }
         .side.active { right: 0 !important; left: 0 !important; }
 
         /* الشات */
-        #chat-scroller { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .msg { display: flex; gap: 10px; align-items: flex-end; animation: slideUp 0.3s; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } }
-        .pfp { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--gold); }
+        #chat-scroller { position: absolute; top: 65px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle, #111, #000); }
+        .msg { display: flex; gap: 10px; align-items: flex-end; animation: pop 0.3s; }
+        @keyframes pop { from { transform: scale(0.9); opacity: 0; } }
+        .pfp { width: 42px; height: 42px; border-radius: 12px; border: 2px solid var(--gold); }
         .bubble { background: rgba(255,255,255,0.06); padding: 10px 15px; border-radius: 15px; max-width: 80%; border: 1px solid #1a1a1a; }
-        .bet-msg { background: linear-gradient(45deg, #1a1a00, #332b00) !important; border: 1px solid var(--gold) !important; color: var(--gold); font-weight: 900; }
+        
+        /* تصميم رسالة الرهان */
+        .bet-win { background: linear-gradient(45deg, #004400, #008800) !important; color: #fff !important; border: 1px solid #0f0 !important; font-weight: 900; }
+        .bet-lose { background: linear-gradient(45deg, #440000, #880000) !important; color: #fff !important; border: 1px solid #f00 !important; }
 
         /* البار السفلي */
-        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #111; display: flex; align-items: center; padding: 0 10px; gap: 8px; z-index: 2000; }
+        .footer { position: fixed; bottom: 0; width: 100%; height: 85px; background: #000; border-top: 1px solid #111; display: flex; align-items: center; padding: 0 10px; gap: 8px; }
         #msg-in { flex: 1; height: 45px; background: #0d0d0d; border: 1px solid #222; border-radius: 10px; color: #fff; padding: 0 12px; }
         .btn-send { background: var(--gold); border: none; padding: 10px 20px; border-radius: 10px; font-weight: 900; cursor: pointer; }
     </style>
@@ -40,37 +43,39 @@
 <body>
 
 <div class="header">
-    <button onclick="toggleS('side-l')" style="background:none; border:none; font-size:24px;">⚙️</button>
-    <div style="text-align:center"><b style="color:var(--gold)">ALLOSH BET V47</b><br><span class="gold-info">💰 رصيدك: ∞</span></div>
-    <button onclick="toggleS('side-r')" style="background:none; border:none; font-size:24px;">👥</button>
+    <button onclick="toggleSide('side-l')" style="background:none; border:none; font-size:24px;">⚙️</button>
+    <div style="text-align:center"><b style="color:var(--gold)">ALLOSH DICE V48</b><br><span class="gold-info">💰 رصيدك: ∞</span></div>
+    <button onclick="toggleSide('side-r')" style="background:none; border:none; font-size:24px;">👥</button>
 </div>
 
 <div id="side-r" class="side">
-    <h3 style="padding:20px; color:var(--gold); border-bottom:1px solid #222; text-align:center;">المتواجدون حالياً</h3>
+    <h3 style="padding:20px; color:var(--gold); border-bottom:1px solid #222; text-align:center;">المتواجدون 👥</h3>
     <div id="online-list" style="padding:15px;"></div>
 </div>
 
 <div id="side-l" class="side">
-    <div style="padding:20px; text-align:center;">
-        <img id="my-pfp" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:70px; border-radius:10px; border:2px solid var(--gold); cursor:pointer;" onclick="document.getElementById('f').click()">
+    <div style="padding:25px; text-align:center;">
+        <img id="my-pfp" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:80px; border-radius:15px; border:2px solid var(--gold); cursor:pointer;" onclick="document.getElementById('f').click()">
         <input type="file" id="f" hidden onchange="updateProfile(this)">
-        <h3 style="margin:10px 0; color:var(--gold);">الملك علوش</h3>
+        <h3 style="margin:10px 0; color:var(--gold);">الإمبراطور علوش 👑</h3>
         <hr style="opacity:0.1; margin:15px 0;">
-        <p style="font-size:12px; color:#aaa; margin-bottom:10px;">🎮 طريقة الرهان للشات:</p>
-        <div style="background:#111; padding:10px; border-radius:8px; font-size:11px; text-align:right;">
-            اكتب: <b>رهان [المبلغ]</b><br>
-            مثال: رهان 500<br>
-            <i>النتيجة تظهر فوراً للجميع!</i>
+        <p style="font-size:12px; color:var(--gold);">🎲 كيف تلعب الشمرة؟</p>
+        <div style="background:rgba(255,215,0,0.1); padding:10px; border-radius:8px; font-size:11px; margin-top:10px;">
+            اكتب: <b>شمر [المبلغ]</b><br>
+            مثال: <b>شمر 1000</b><br><br>
+            - من 51 لـ 90: تربح الضعف 2x<br>
+            - من 91 لـ 100: تربح 5 أضعاف 5x 🔥<br>
+            - أقل من 50: تخسر 💀
         </div>
-        <button onclick="toggleS('side-l')" style="width:100%; margin-top:20px; padding:10px; background:red; color:white; border:none; border-radius:8px;">إغلاق القائمة</button>
+        <button onclick="toggleSide('side-l')" style="width:100%; margin-top:20px; padding:10px; background:red; color:white; border:none; border-radius:8px; font-weight:900;">إغلاق</button>
     </div>
 </div>
 
 <div id="chat-scroller"></div>
 
 <div class="footer">
-    <input type="text" id="msg-in" placeholder="اكتب رهان [المبلغ] لتجربة حظك..." onkeypress="if(event.key==='Enter') pushMsg()">
-    <button class="btn-send" onclick="pushMsg()">إرسال</button>
+    <input type="text" id="msg-in" placeholder="اكتب شمر [المبلغ] وارمِ الزهر..." onkeypress="if(event.key==='Enter') send()">
+    <button class="btn-send" onclick="send()">إرسال</button>
 </div>
 
 <script>
@@ -81,54 +86,68 @@
     let me = { 
         name: "علوش", 
         avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        gold: 9999999,
+        gold: 9999999, // رصيد المالك لا ينتهي
         color: "#ffd700"
     };
 
-    function toggleS(id) {
+    function toggleSide(id) {
         document.querySelectorAll('.side').forEach(s => { if(s.id !== id) s.classList.remove('active'); });
         document.getElementById(id).classList.toggle('active');
     }
 
-    function pushMsg() {
+    function send() {
         let i = document.getElementById('msg-in');
         let text = i.value.trim();
         if(!text) return;
 
-        // إرسال الرسالة العادية
-        db.ref('bet_v47').push({ u: me.name, t: text, a: me.avatar, c: me.color, type: 'normal' });
+        // إرسال الرسالة الأصلية
+        db.ref('dice_v48').push({ u: me.name, t: text, a: me.avatar, c: me.color, type: 'normal' });
 
-        // فحص إذا كان هناك رهان
-        if(text.startsWith("رهان ")) {
-            let amount = parseInt(text.replace("رهان ", ""));
+        // فحص لعبة الشمر
+        if(text.startsWith("شمر ")) {
+            let amount = parseInt(text.replace("شمر ", ""));
             if(!isNaN(amount) && amount > 0) {
-                setTimeout(() => { processBet(amount); }, 500);
+                setTimeout(() => { rollDice(amount); }, 800);
             }
         }
         i.value = "";
     }
 
-    function processBet(amt) {
-        let win = Math.random() > 0.6; // نسبة الفوز 40%
-        let resText = "";
-        if(win) {
-            resText = `🎊 مبروك! [ ${me.name} ] كسب الرهان وربح ${amt * 2} ذهبة! 🎉`;
+    function rollDice(amt) {
+        let score = Math.floor(Math.random() * 100) + 1;
+        let resultMsg = "";
+        let resultType = "";
+        let botImg = "https://cdn-icons-png.flaticon.com/512/1055/1055823.png";
+
+        if(score > 90) {
+            resultMsg = `👑 شمرة ملكية! الرقم هو [ ${score} ]. فزت بالجائزة الكبرى ${amt * 5} ذهبة! 🏆`;
+            resultType = "bet-win";
+        } else if(score > 50) {
+            resultMsg = `✅ شمرة ناجحة! الرقم هو [ ${score} ]. ربحت ${amt * 2} ذهبة.`;
+            resultType = "bet-win";
         } else {
-            resText = `💀 للأسف! [ ${me.name} ] خسر ${amt} ذهبة في الرهان.`;
+            resultMsg = `💀 شمرة حزينة! الرقم هو [ ${score} ]. خسرت رهانك.`;
+            resultType = "bet-lose";
         }
-        db.ref('bet_v47').push({ u: "كازينو المملكة", t: resText, a: "https://cdn-icons-png.flaticon.com/512/1055/1055823.png", c: "#ff0000", type: 'bet' });
+
+        db.ref('dice_v48').push({ 
+            u: "زهر المملكة 🎲", 
+            t: resultMsg, 
+            a: botImg, 
+            c: "#fff", 
+            type: resultType 
+        });
     }
 
-    db.ref('bet_v47').limitToLast(30).on('child_added', s => {
+    db.ref('dice_v48').limitToLast(30).on('child_added', s => {
         let d = s.val();
         let sc = document.getElementById('chat-scroller');
         let div = document.createElement('div');
         div.className = "msg";
-        let isBet = d.type === 'bet';
         
         div.innerHTML = `
             <img src="${d.a}" class="pfp">
-            <div class="bubble ${isBet ? 'bet-msg' : ''}">
+            <div class="bubble ${d.type}">
                 <b style="color:${d.c}; font-size:11px;">${d.u}</b><br>
                 <span>${d.t}</span>
             </div>`;
@@ -136,14 +155,14 @@
         sc.scrollTop = sc.scrollHeight;
     });
 
-    // تحديث قائمة المتصلين
-    db.ref('online_v47/'+me.name).set(true);
-    db.ref('online_v47/'+me.name).onDisconnect().remove();
-    db.ref('online_v47').on('value', s => {
+    // تحديث المتصلين
+    db.ref('online_v48/'+me.name).set(true);
+    db.ref('online_v48/'+me.name).onDisconnect().remove();
+    db.ref('online_v48').on('value', s => {
         let list = document.getElementById('online-list');
         list.innerHTML = "";
         s.forEach(u => {
-            list.innerHTML += `<div style="padding:8px; border-bottom:1px solid #111; font-size:13px;">🟢 ${u.key}</div>`;
+            list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111; font-size:13px; color:#fff;">🟢 ${u.key}</div>`;
         });
     });
 
