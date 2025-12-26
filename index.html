@@ -1,25 +1,26 @@
-// دالة رفع الصور من الملفات مباشرة
-function triggerMedia() {
-    // إنشاء عنصر اختيار ملفات مخفي برمجياً
-    const filePicker = document.createElement('input');
-    filePicker.type = 'file';
-    filePicker.accept = 'image/*'; // يسمح بالصور فقط
+/* تنسيق الهيكل لجعل القائمة على اليمين */
+#main-wrapper {
+    display: flex;
+    flex-direction: row-reverse; /* يضع القائمة على اليمين */
+    height: calc(100vh - 60px);
+    overflow: hidden;
+}
 
-    filePicker.onchange = e => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                // إرسال كود الصورة إلى قاعدة البيانات فوراً
-                const base64Image = event.target.result;
-                db.ref('msgs_v3').push({
-                    sender: currentUser.name,
-                    role: currentUser.role,
-                    text: "IMG_V3:" + base64Image // وسم خاص للصور
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-    filePicker.click(); // يفتح ملفات جهازك فوراً بدون تدخل من "الموقع"
+#side-right {
+    width: 0; /* البداية تكون مغلقة */
+    transition: 0.4s;
+    background: #121212;
+    overflow-y: auto;
+    border-left: 0px solid var(--gold);
+}
+
+#side-right.open {
+    width: 250px; /* العرض عند الفتح */
+    border-left: 2px solid var(--gold);
+}
+
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
