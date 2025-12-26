@@ -3,85 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحكم إمبراطورية علوش 👑</title>
+    <title>إمبراطورية علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --main: #ffd700; --bg: #000; --side-w: 200px; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --main: #ffd700; --bg: #000; --side-w: 250px; }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* لوحة التحكم المخفية */
-        #master-panel { 
-            position: fixed; top: 10%; left: 10%; right: 10%; bottom: 10%; 
-            background: rgba(15,15,15,0.95); border: 2px solid var(--main); 
-            z-index: 9999; border-radius: 20px; padding: 20px; display: none; overflow-y: auto;
-            box-shadow: 0 0 50px var(--main);
-        }
-
-        /* قائمة المتصلين المرنة */
+        /* القائمة الجانبية الماركة */
         #sidebar { 
-            width: var(--side-w); background: #0a0a0a; border: 1px solid var(--main);
-            position: relative; transition: 0.5s; display: flex; flex-direction: column;
+            width: var(--side-w); background: rgba(10, 10, 10, 0.98); border-left: 1px solid var(--main); 
+            padding: 20px; box-sizing: border-box; transition: 0.4s; flex-shrink: 0;
+        }
+        .user-card { padding: 12px; border-radius: 12px; background: #1a1a1a; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; border: 1px solid #333; }
+        .online-dot { width: 10px; height: 10px; background: #00ff00; border-radius: 50%; box-shadow: 0 0 8px #00ff00; }
+        .name-glow { color: var(--main); font-weight: bold; text-shadow: 0 0 5px var(--main); }
+
+        /* منطقة الدردشة الرئيسية */
+        .main-chat { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        .header { background: #111; padding: 15px; border-bottom: 1px solid var(--main); display: flex; justify-content: space-between; align-items: center; }
+        #live-area { display: none; height: 260px; background: #000; border-bottom: 2px solid var(--main); }
+        #chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: #000; }
+        
+        /* تصميم الرسائل الملكية */
+        .msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; position: relative; animation: fadeIn 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .msg.me { align-self: flex-end; background: #222; border-right: 4px solid var(--main); border-bottom-right-radius: 4px; }
+        .msg.other { align-self: flex-start; background: #1a1a1a; border-left: 4px solid #fff; border-bottom-left-radius: 4px; }
+        .u-info { font-size: 0.85em; color: var(--main); font-weight: bold; margin-bottom: 5px; }
+
+        /* لوحة التحكم الاحترافية */
+        #admin-panel { 
+            position: fixed; top: 10%; left: 10%; right: 10%; bottom: 10%; 
+            background: rgba(10, 10, 10, 0.99); border: 2px solid var(--main); 
+            z-index: 9999; border-radius: 20px; padding: 25px; display: none; overflow-y: auto;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
         }
 
-        .main-chat { flex: 1; display: flex; flex-direction: column; background: #000; }
-        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        
-        /* الرسائل */
-        .msg { padding: 10px; border-radius: 12px; max-width: 80%; background: #111; border: 1px solid #222; position: relative; }
-        .msg.me { align-self: flex-end; border-color: var(--main); }
-        .del-msg { color: red; cursor: pointer; float: left; font-weight: bold; display: none; }
+        .input-bar { padding: 15px 20px; background: #111; border-top: 1px solid #222; display: flex; gap: 12px; }
+        input[type="text"] { flex-grow: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #333; background: #000; color: #fff; outline: none; }
+        .btn-send { background: var(--main); color: #000; border: none; padding: 10px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-send:hover { transform: scale(1.05); }
 
-        /* أزرار التحكم */
-        .admin-only { display: none; }
-        .control-btn { background: var(--main); color: #000; border: none; padding: 10px; margin: 5px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 150px; }
-        .toggle-gear { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--main); padding: 10px; }
+        .yt-item { cursor: pointer; width: 140px; background: #1a1a1a; padding: 5px; border-radius: 8px; transition: 0.3s; }
+        .yt-item:hover { background: #333; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <div id="admin-panel">
+        <h2 style="text-align:center; color:var(--main); margin-top:0;">👑 إدارة الإمبراطورية 🛠️</h2>
+        <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:20px;">
+            <button onclick="clearChat()" style="background:#ff4444; color:white; padding:12px 20px; border-radius:10px; border:none; cursor:pointer; font-weight:bold;">مسح الشات بالكامل 🧨</button>
+            <button onclick="toggleSide()" style="background:var(--main); color:#000; padding:12px 20px; border-radius:10px; border:none; cursor:pointer; font-weight:bold;">نقل القائمة (يمين/يسار) ↔️</button>
+            <button onclick="stopLive()" style="background:#555; color:white; padding:12px 20px; border-radius:10px; border:none; cursor:pointer; font-weight:bold;">إغلاق البث ❌</button>
+        </div>
+        
+        <div style="background:#111; padding:20px; border-radius:15px; border:1px solid #333;">
+            <h3 style="color:var(--main); margin-top:0;">بحث يوتيوب الملكي 🔍</h3>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="yt-query" placeholder="ابحث عن فيديو أو بث مباشر...">
+                <button onclick="searchYT()" style="background:var(--main); border:none; padding:10px 25px; border-radius:30px; font-weight:bold; cursor:pointer;">بحث</button>
+            </div>
+            <div id="yt-results" style="margin-top:20px; display:flex; flex-wrap:wrap; gap:15px; justify-content:center;"></div>
+        </div>
+        
+        <button onclick="closePanel()" style="display:block; margin:30px auto 0; padding:12px 40px; border-radius:10px; background:#fff; color:#000; font-weight:bold; border:none; cursor:pointer;">إغلاق لوحة التحكم</button>
+    </div>
+
     <div id="sidebar">
-        <h3 style="text-align:center; color:var(--main);">المتصلون 🇮🇶</h3>
-        <div id="online-list" style="padding:10px;"></div>
+        <h3 style="text-align:center; color:var(--main); margin-top:0;">المتصلون 🇮🇶</h3>
+        <hr style="border:0.5px solid #333; margin-bottom:20px;">
+        <div id="online-users"></div>
     </div>
 
     <div class="main-chat">
-        <div style="background:#111; display:flex; justify-content:space-between; align-items:center; padding:5px 15px; border-bottom:1px solid #222;">
-            <button class="admin-only toggle-gear" onclick="togglePanel()">⚙️</button>
-            <h2 style="margin:0; color:var(--main); font-size:18px;">مملكة علوش 👑</h2>
-            <div id="clock" style="font-size:12px; color:gray;"></div>
+        <div class="header">
+            <button id="gear-btn" onclick="openPanel()" style="background:none; border:none; font-size:26px; cursor:pointer; display:none;">⚙️</button>
+            <h2 style="margin:0;">مملكة علوش 👑</h2>
+            <div id="timer" style="font-size:14px; color:#888; font-weight:bold;"></div>
+        </div>
+
+        <div id="live-area">
+            <div id="yt-player" style="width:100%; height:100%;"></div>
         </div>
 
         <div id="chat-box"></div>
 
-        <div style="padding:15px; background:#111; display:flex; gap:10px;">
-            <button onclick="document.getElementById('fInp').click()" style="background:none; border:none; font-size:20px; cursor:pointer;">📎</button>
-            <input type="file" id="fInp" accept="image/*" style="display:none" onchange="uploadFile(this)">
-            <input type="text" id="mInp" placeholder="تحدث مع الإمبراطور..." style="flex:1; background:#000; color:#fff; border:1px solid #333; padding:10px; border-radius:20px; outline:none;">
-            <button onclick="send()" style="background:var(--main); border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">إرسال</button>
+        <div class="input-bar">
+            <button onclick="document.getElementById('fInp').click()" style="background:none; border:none; font-size:24px; cursor:pointer;">📎</button>
+            <input type="file" id="fInp" style="display:none" onchange="upImg(this)">
+            <input type="text" id="mInp" placeholder="اكتب رسالتك للملك علوش...">
+            <button class="btn-send" onclick="send()">إرسال</button>
         </div>
-    </div>
-
-    <div id="master-panel">
-        <h2 style="color:var(--main); text-align:center;">🛠️ لوحة تحكم الإمبراطور</h2>
-        <hr border="1" color="#333">
-        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:20px;">
-            <button class="control-btn" onclick="setSide('right')">القائمة يمين ➡️</button>
-            <button class="control-btn" onclick="setSide('left')">القائمة يسار ⬅️</button>
-            <button class="control-btn" onclick="hideElement('sidebar')">حذف القائمة 🗑️</button>
-            <button class="control-btn" onclick="location.reload()">إظهار القائمة 🔄</button>
-            <button class="control-btn" onclick="changeTheme('#ff0000')">ثيم أحمر 🔴</button>
-            <button class="control-btn" onclick="changeTheme('#ffd700')">ثيم ذهبي 🟡</button>
-            <button class="control-btn" onclick="changeTheme('#00f2ff')">ثيم نيون 🔵</button>
-            <button class="control-btn" style="background:red; color:white;" onclick="clearAll()">مسح الشات 🧨</button>
-        </div>
-        <button onclick="togglePanel()" style="display:block; margin:30px auto; padding:10px 40px; border-radius:10px; background:#fff; font-weight:bold;">إغلاق اللوحة</button>
     </div>
 
 <script>
+    // مفتاح اليوتيوب الخاص بك الذي أرسلته
+    const YT_KEY = "AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU"; 
+
     const config = {
-        apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ", 
+        apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
         databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
         projectId: "masterchat-f2da9"
@@ -90,29 +114,20 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    function togglePanel() {
-        const p = document.getElementById('master-panel');
-        p.style.display = p.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function setSide(dir) {
-        document.body.style.flexDirection = dir === 'right' ? 'row-reverse' : 'row';
-    }
-
-    function hideElement(id) { document.getElementById(id).style.display = 'none'; }
-
-    function changeTheme(color) { document.documentElement.style.setProperty('--main', color); }
-
-    function clearAll() { if(confirm("حذف كل الرسائل؟")) db.ref('msgs').remove(); }
-
     auth.onAuthStateChanged(user => {
         if (user) {
             const isMe = user.email === "rgrghh77@gmail.com";
-            if(isMe) document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-            const name = isMe ? "علوش 👑" : user.email.split('@')[0];
-            db.ref('online/' + user.uid).set({ n: name }).onDisconnect().remove();
-            loadChat(isMe);
+            if(isMe) document.getElementById('gear-btn').style.display = 'block';
+            
+            const name = isMe ? "إمبراطور علوش 👑" : "عضو@" + user.email.split('@')[0];
+            
+            // تحديث حالة الاتصال مع الاسم الصحيح لتجنب undefined
+            db.ref('status/' + user.uid).set({ n: name, s: "online" });
+            db.ref('status/' + user.uid).onDisconnect().remove();
+            
+            loadChat();
             loadUsers();
+            watchLive();
         } else { window.location.href = "index.html"; }
     });
 
@@ -120,55 +135,123 @@
         const i = document.getElementById('mInp');
         if(i.value.trim()) {
             db.ref('msgs').push({
-                u: auth.currentUser.email === "rgrghh77@gmail.com" ? "علوش 👑" : auth.currentUser.email.split('@')[0],
+                u: auth.currentUser.email === "rgrghh77@gmail.com" ? "إمبراطور علوش 👑" : "عضو@" + auth.currentUser.email.split('@')[0],
                 t: i.value,
-                a: auth.currentUser.email === "rgrghh77@gmail.com",
-                type: 'text'
+                m: auth.currentUser.email === "rgrghh77@gmail.com",
+                time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'})
             });
             i.value = '';
         }
     }
 
-    function uploadFile(input) {
-        if (input.files && input.files[0]) {
-            const r = new FileReader();
-            r.onload = e => {
-                db.ref('msgs').push({
-                    u: auth.currentUser.email === "rgrghh77@gmail.com" ? "علوش 👑" : auth.currentUser.email.split('@')[0],
-                    t: e.target.result,
-                    type: 'image'
+    function loadChat() {
+        db.ref('msgs').limitToLast(50).on('child_added', snap => {
+            const d = snap.val();
+            if(!d.u || d.u === "undefined") return; // تجاهل الرسائل التالفة
+            
+            const box = document.getElementById('chat-box');
+            const div = document.createElement('div');
+            div.className = `msg ${d.m ? 'me' : 'other'}`;
+            div.innerHTML = `
+                <div class="u-info">${d.u}</div>
+                <div style="word-break: break-word;">${d.t}</div>
+                <div style="font-size:10px; opacity:0.6; margin-top:8px; text-align:left;">${d.time || ''}</div>
+            `;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        });
+        
+        // إعادة تحميل الصفحة عند مسح الشات من قبل الآدمن
+        db.ref('msgs').on('child_removed', () => { location.reload(); });
+    }
+
+    function loadUsers() {
+        db.ref('status').on('value', snap => {
+            const list = document.getElementById('online-users');
+            list.innerHTML = '';
+            snap.forEach(c => {
+                const u = c.val();
+                if(u.n && u.n !== "undefined") {
+                    list.innerHTML += `
+                        <div class="user-card">
+                            <div class="online-dot"></div>
+                            <span class="name-glow">${u.n}</span>
+                            <span style="font-size:12px;">🇮🇶</span>
+                        </div>`;
+                }
+            });
+        });
+    }
+
+    // --- نظام يوتيوب المتطور ---
+    async function searchYT() {
+        const q = document.getElementById('yt-query').value;
+        if(!q) return;
+        
+        try {
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&type=video&maxResults=6&key=${YT_KEY}`);
+            const data = await res.json();
+            const container = document.getElementById('yt-results');
+            container.innerHTML = '';
+            
+            if(data.items) {
+                data.items.forEach(v => {
+                    container.innerHTML += `
+                        <div class="yt-item" onclick="playVideo('${v.id.videoId}')">
+                            <img src="${v.snippet.thumbnails.medium.url}" width="100%" style="border-radius:5px;">
+                            <p style="font-size:11px; margin:5px 0; height:30px; overflow:hidden;">${v.snippet.title}</p>
+                        </div>`;
                 });
-            };
-            r.readAsDataURL(input.files[0]);
+            }
+        } catch (e) { alert("تأكد من تفعيل API Key بشكل صحيح في جوجل كونسول"); }
+    }
+
+    function playVideo(id) {
+        db.ref('live').set({ id: id, active: true });
+        closePanel();
+    }
+
+    function stopLive() {
+        db.ref('live').set({ active: false });
+        alert("تم إيقاف البث");
+    }
+
+    function watchLive() {
+        db.ref('live').on('value', snap => {
+            const v = snap.val();
+            const area = document.getElementById('live-area');
+            if(v && v.active) {
+                area.style.display = 'block';
+                document.getElementById('yt-player').innerHTML = `
+                    <iframe width="100%" height="100%" 
+                        src="https://www.youtube.com/embed/${v.id}?autoplay=1" 
+                        frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
+                    </iframe>`;
+            } else {
+                area.style.display = 'none';
+                document.getElementById('yt-player').innerHTML = '';
+            }
+        });
+    }
+
+    // --- وظائف التحكم الإضافية ---
+    function openPanel() { document.getElementById('admin-panel').style.display = 'block'; }
+    function closePanel() { document.getElementById('admin-panel').style.display = 'none'; }
+    
+    function clearChat() {
+        if(confirm("هل أنت متأكد من مسح جميع الرسائل في المملكة؟")) {
+            db.ref('msgs').remove();
         }
     }
 
-    function loadChat(isMe) {
-        db.ref('msgs').on('child_added', snap => {
-            const d = snap.val();
-            const id = snap.key;
-            const div = document.createElement('div');
-            div.className = `msg ${d.a ? 'me' : 'other'}`;
-            const delBtn = isMe ? `<span class="del-msg" style="display:inline" onclick="deleteMsg('${id}')">×</span>` : '';
-            const content = d.type === 'image' ? `<img src="${d.t}" style="width:100%; border-radius:8px;">` : d.t;
-            div.innerHTML = `${delBtn}<b style="color:var(--main); font-size:11px; display:block;">${d.u}</b>${content}`;
-            document.getElementById('chat-box').appendChild(div);
-            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-        });
-        db.ref('msgs').on('child_removed', () => location.reload());
+    function toggleSide() { 
+        const body = document.body;
+        body.style.flexDirection = body.style.flexDirection === 'row-reverse' ? 'row' : 'row-reverse';
     }
 
-    function deleteMsg(id) { if(confirm("حذف هذه الرسالة؟")) db.ref('msgs').child(id).remove(); }
-
-    function loadUsers() {
-        db.ref('online').on('value', snap => {
-            const uBox = document.getElementById('online-list');
-            uBox.innerHTML = '';
-            snap.forEach(c => { uBox.innerHTML += `<div style="margin-bottom:8px; font-size:13px;">🟢 ${c.val().n} 🇮🇶</div>`; });
-        });
-    }
-
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    setInterval(() => { 
+        document.getElementById('timer').innerText = new Date().toLocaleTimeString('ar-EG'); 
+    }, 1000);
 </script>
 </body>
 </html>
