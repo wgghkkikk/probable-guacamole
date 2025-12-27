@@ -1,49 +1,57 @@
-<div id="tiktok-wrapper" style="height: 90vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 20px; border: 2px solid gold; scroll-behavior: smooth;">
+<div id="tiktok-wrapper" style="height: 90vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 20px; border: 2px solid gold;">
     <div id="video-stream"></div>
 </div>
 
 <script>
-    // مكتبة فيديوهات متنوعة (قصائد، ترندات، يوميات)
-    var kingdomVids = [
-        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "مقاطع دينية وحسينية 🏴", likes: "800K" },
-        { url: "https://www.w3schools.com/html/mov_bbb.mp4", user: "علوش_الإمبراطور", bio: "إمبراطور البرمجة 👑", likes: "1.5M" },
-        { url: "https://www.w3schools.com/html/movie.mp4", user: "المصمم_العراقي", bio: "يوميات وتصاميم 🇮🇶", likes: "400K" }
+    // مكتبة المملكة المتنوعة (حسينية، ناس، إمبراطورية)
+    var videoPool = [
+        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", name: "خادم_الحسين", bio: "مقاطع دينية وحسينية 🏴", likes: "1.2M" },
+        { url: "https://www.w3schools.com/html/mov_bbb.mp4", name: "علوش_الإمبراطور", bio: "ملك البرمجة الحصري 👑", likes: "2.5M" },
+        { url: "https://www.w3schools.com/html/movie.mp4", name: "إمبراطورية_علوش", bio: "يوميات المملكة 🇮🇶", likes: "900K" },
+        { url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", name: "فانز_علوش", bio: "تصاميم ملكية 🔥", likes: "500K" }
     ];
 
     var stream = document.getElementById('video-stream');
-    
-    // دالة بناء المقاطع لضمان ظهور البيانات بدلاً من الأكواد
-    function buildVideos() {
-        stream.innerHTML = "";
-        kingdomVids.forEach(function(v) {
+
+    // دالة بناء المقاطع - تكرر المقاطع لتجعلها "عالم وناس"
+    function addVideos(count) {
+        for (var i = 0; i < count; i++) {
+            var v = videoPool[Math.floor(Math.random() * videoPool.length)];
             var post = document.createElement('div');
             post.style.height = "90vh";
             post.style.scrollSnapAlign = "start";
             post.style.position = "relative";
             post.style.borderBottom = "4px solid #111";
 
-            // التركيب اليدوي لمنع ظهور نصوص مثل ${v.user}
-            var html = '<video width="100%" height="100%" loop autoplay muted style="object-fit:cover;"><source src="' + v.url + '" type="video/mp4"></video>';
+            // التركيب بطريقة الجمع (+) لضمان ظهور الأسماء بدلاً من الرموز
+            var content = '<video width="100%" height="100%" loop autoplay muted style="object-fit:cover;"><source src="' + v.url + '" type="video/mp4"></video>';
             
-            // أزرار التفاعل
-            html += '<div style="position:absolute; right:15px; bottom:120px; text-align:center; color:white; z-index:100; display:flex; flex-direction:column; gap:20px;">';
-            html += '  <div onclick="this.style.color=\'red\'" style="font-size:35px; cursor:pointer;">❤️</div>';
-            html += '  <div style="font-weight:bold;">' + v.likes + '</div>';
-            html += '  <div onclick="alert(\'فتح تعليقات ' + v.user + '\')" style="font-size:35px; cursor:pointer;">💬</div>';
-            html += '  <div style="font-weight:bold;">' + Math.floor(Math.random()*99) + 'K</div>';
-            html += '</div>';
+            content += '<div style="position:absolute; right:15px; bottom:120px; text-align:center; color:white; z-index:100; display:flex; flex-direction:column; gap:20px;">';
+            content += '  <div onclick="this.style.color=\'red\'" style="font-size:35px; cursor:pointer;">❤️</div>';
+            content += '  <div style="font-weight:bold;">' + v.likes + '</div>';
+            content += '  <div onclick="alert(\'التعليقات مفعلة لهذا المقطع\')" style="font-size:35px; cursor:pointer;">💬</div>';
+            content += '  <div style="font-weight:bold;">' + Math.floor(Math.random()*99) + 'K</div>';
+            content += '  <div style="background:gold; color:black; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>';
+            content += '</div>';
 
-            // معلومات الحساب والوصف
-            html += '<div style="position:absolute; bottom:40px; left:20px; color:white; text-shadow:2px 2px 8px #000; z-index:100;">';
-            html += '  <h3 style="margin:0; color:gold;">@' + v.user + '</h3>';
-            html += '  <p style="margin:8px 0; font-weight:bold;">' + v.bio + '</p>';
-            html += '  <div style="background:rgba(255,255,255,0.2); padding:5px 10px; border-radius:15px; font-size:12px; display:inline-block;">🎵 الصوت الأصلي - مملكة علوش</div>';
-            html += '</div>';
+            content += '<div style="position:absolute; bottom:40px; left:20px; color:white; text-shadow:2px 2px 8px #000; z-index:100;">';
+            content += '  <h3 style="margin:0; color:gold;">@' + v.name + '</h3>';
+            content += '  <p style="margin:5px 0; font-weight:bold;">' + v.bio + '</p>';
+            content += '</div>';
 
-            post.innerHTML = html;
+            post.innerHTML = content;
             stream.appendChild(post);
-        });
+        }
     }
 
-    buildVideos();
+    // تحميل أول 10 مقاطع متنوعة عند البدء
+    addVideos(10);
+
+    // حساس التمرير اللانهائي - كلما وصلت لآخر مقطع يضيف 10 غيرهم
+    document.getElementById('tiktok-wrapper').addEventListener('scroll', function(e) {
+        var el = e.target;
+        if (el.scrollHeight - el.scrollTop <= el.clientHeight + 100) {
+            addVideos(10);
+        }
+    });
 </script>
