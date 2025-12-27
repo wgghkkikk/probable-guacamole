@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش الذهبية 👑</title>
+    <title>مملكة علوش المستقرة 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     
     <style>
         :root { --gold: #ffd700; }
@@ -18,129 +17,127 @@
         }
         @keyframes moveBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        .app-view { display: flex; flex-direction: column; height: 100vh; }
-        .nav-bar { background: rgba(0,0,0,0.85); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
-        
-        #chat-window { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .app { display: flex; flex-direction: column; height: 100vh; }
+        .header { background: rgba(0,0,0,0.85); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
+        #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .bubble { max-width: 80%; padding: 12px; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid #333; backdrop-filter: blur(5px); }
         .me { align-self: flex-start; border-right: 4px solid var(--gold); background: rgba(255,215,0,0.1); }
 
-        .input-area { background: #000; padding: 12px; display: flex; align-items: center; border-top: 1px solid #222; direction: ltr !important; }
-        #msg-input { flex: 1; background: #111; color: #fff; padding: 14px; border-radius: 25px; border: 1px solid #444; outline: none; text-align: right; direction: rtl !important; font-size: 16px; margin-left: 10px; }
-        .btn-send { background: none; border: none; font-size: 32px; cursor: pointer; padding: 0; transition: 0.2s; }
-        .btn-send:active { transform: scale(0.8); }
+        .footer { background: #000; padding: 12px; display: flex; align-items: center; border-top: 1px solid #222; direction: ltr !important; }
+        #mInp { flex: 1; background: #111; color: #fff; padding: 14px; border-radius: 25px; border: 1px solid #444; outline: none; text-align: right; direction: rtl !important; font-size: 16px; margin-left: 10px; }
+        .send-btn { background: none; border: none; font-size: 32px; cursor: pointer; padding: 0; }
 
-        .side-panel { position: fixed; top: 0; width: 280px; height: 100vh; background: rgba(10,10,10,0.98); transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); }
-        #panel-l { left: -285px; } #panel-r { right: -285px; }
-        .is-open { left: 0 !important; right: 0 !important; }
+        /* القوائم الجانبية */
+        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: rgba(10,10,10,0.98); transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); }
+        #side-l { left: -285px; } #side-r { right: -285px; }
+        .open { left: 0 !important; right: 0 !important; }
         .box { background: rgba(255,215,0,0.05); margin: 10px; padding: 15px; border-radius: 10px; border: 1px solid #333; }
         .btn-gold { width: 100%; padding: 10px; margin: 5px 0; background: #1a1a1a; color: #fff; border: 1px solid var(--gold); border-radius: 8px; cursor: pointer; }
     </style>
 </head>
-<body onclick="closePanels()">
+<body onclick="closeAll()">
 
-    <div class="app-view">
-        <div class="nav-bar">
-            <button onclick="toggleP('l', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">⚙️</button>
-            <b style="color:var(--gold); text-shadow: 0 0 10px var(--gold);">مملكة علوش 👑</b>
-            <button onclick="toggleP('r', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">👥</button>
+    <div class="app">
+        <div class="header">
+            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">⚙️</button>
+            <b style="color:var(--gold)">مملكة علوش 👑</b>
+            <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">👥</button>
         </div>
 
-        <div id="chat-window"></div>
+        <div id="chat-win"></div>
 
-        <div class="input-area" onclick="event.stopPropagation()">
-            <button class="btn-send" onclick="finalSend()">🚀</button>
-            <input type="text" id="msg-input" placeholder="تحدث يا ملك..." onkeydown="if(event.key==='Enter') finalSend()">
+        <div class="footer" onclick="event.stopPropagation()">
+            <button class="send-btn" onclick="sendNow()">🚀</button>
+            <input type="text" id="mInp" placeholder="تحدث يا ملك..." onkeydown="if(event.key==='Enter') sendNow()">
         </div>
     </div>
 
-    <div id="panel-l" class="side-panel" onclick="event.stopPropagation()">
+    <div id="side-l" class="side" onclick="event.stopPropagation()">
         <h3 style="text-align:center; color:var(--gold);">⚙️ الإعدادات</h3>
         <div class="box">
-            <small style="color:var(--gold)">🤖 بوت المسابقات</small>
-            <button class="btn-gold" onclick="startQuiz()">سؤال سريع</button>
-        </div>
-        <div class="box">
             <small style="color:var(--gold)">✨ زخرفة الاسم</small>
-            <input type="text" id="z-input" oninput="doZ()" placeholder="اسمك..." style="width:100%; background:#000; color:#fff; border:1px solid #444; padding:8px; margin-top:5px; box-sizing:border-box;">
+            <input type="text" id="zInp" oninput="doZ()" placeholder="اسمك..." style="width:100%; background:#000; color:#fff; border:1px solid #444; padding:8px; margin-top:5px; box-sizing:border-box;">
             <div id="z-area" style="margin-top:10px;"></div>
         </div>
+        <div class="box"><button class="btn-gold" onclick="location.reload()">تحديث الشات 🔄</button></div>
     </div>
 
-    <div id="panel-r" class="side-panel" onclick="event.stopPropagation()">
+    <div id="side-r" class="side" onclick="event.stopPropagation()">
         <h3 style="text-align:center; color:var(--gold);">👥 المتصلون</h3>
-        <div id="user-list"></div>
+        <div id="u-list"></div>
     </div>
 
 <script>
+    // 1. الإعدادات (رابط مباشر)
     const firebaseConfig = {
-        apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
-        authDomain: "masterchat-f2da9.firebaseapp.com",
-        databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
-        projectId: "masterchat-f2da9"
+        databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com"
     };
-
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const auth = firebase.auth();
 
-    let myID, myName = "علوش", qAns = "";
+    // اسم افتراضي (سيتم تغييره بالزخرفة)
+    let currentUserName = localStorage.getItem('chatName') || "علوش";
+    let myUniqueId = localStorage.getItem('chatId') || "ID_" + Math.floor(Math.random() * 1000000);
+    localStorage.setItem('chatId', myUniqueId);
 
-    auth.signInAnonymously().then(u => {
-        myID = u.user.uid;
-        db.ref('users/'+myID).on('value', s => {
-            if(s.val()) myName = s.val().n;
-            db.ref('status/'+myID).set({ n: myName });
-            db.ref('status/'+myID).onDisconnect().remove();
+    // 2. تحديث التواجد
+    db.ref('status/' + myUniqueId).set({ n: currentUserName });
+    db.ref('status/' + myUniqueId).onDisconnect().remove();
+
+    // 3. وظيفة الإرسال الفورية (بدون انتظار Auth)
+    function sendNow() {
+        const inp = document.getElementById('mInp');
+        const txt = inp.value.trim();
+        if(!txt) return;
+
+        db.ref('main_msgs').push({
+            uid: myUniqueId,
+            n: currentUserName,
+            t: txt,
+            time: Date.now()
+        }).then(() => {
+            inp.value = "";
+            inp.focus();
+        }).catch(err => {
+            console.error(err);
+            alert("حدث خطأ بسيط، يرجى تحديث الصفحة.");
         });
-        initChat();
+    }
+
+    // 4. تحميل الرسائل
+    db.ref('main_msgs').limitToLast(40).on('child_added', s => {
+        const d = s.val();
+        const div = document.createElement('div');
+        div.className = `bubble ${d.uid === myUniqueId ? 'me' : ''}`;
+        div.style.marginBottom = "8px";
+        div.innerHTML = `<b style="color:var(--gold); font-size:11px;">${d.n}</b><br>${d.t}`;
+        document.getElementById('chat-win').appendChild(div);
+        document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
     });
 
-    function finalSend() {
-        const inp = document.getElementById('msg-input');
-        const val = inp.value.trim();
-        if(!val) return;
+    // 5. تحميل قائمة المتصلين
+    db.ref('status').on('value', s => {
+        const l = document.getElementById('u-list'); l.innerHTML = '';
+        s.forEach(u => { l.innerHTML += `<div style="padding:12px; border-bottom:1px solid #222;">🟢 ${u.val().n}</div>`; });
+    });
 
-        if (qAns !== "" && val === qAns) {
-            db.ref('main_msgs').push({ n: "🤖 بوت المملكة", t: `✅ كفو ${myName}، جواب صح!`, isBot: true });
-            qAns = "";
-        } else {
-            db.ref('main_msgs').push({ uid: myID, n: myName, t: val, time: Date.now() });
-        }
-        inp.value = ""; inp.focus();
-    }
-
-    function initChat() {
-        db.ref('main_msgs').limitToLast(50).on('child_added', s => {
-            const d = s.val();
-            const div = document.createElement('div');
-            div.className = `bubble ${d.uid === myID ? 'me' : ''}`;
-            div.style.marginBottom = "8px";
-            div.innerHTML = `<b style="color:var(--gold); font-size:11px;">${d.n}</b><br>${d.t}`;
-            document.getElementById('chat-window').appendChild(div);
-            document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
-        });
-        db.ref('status').on('value', s => {
-            const l = document.getElementById('user-list'); l.innerHTML = '';
-            s.forEach(u => { l.innerHTML += `<div style="padding:15px; border-bottom:1px solid #222;">🟢 ${u.val().n}</div>`; });
-        });
-    }
-
-    function toggleP(id, e) { e.stopPropagation(); closePanels(); document.getElementById('panel-'+id).classList.add('is-open'); }
-    function closePanels() { document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('is-open')); }
+    // وظائف القوائم
+    function toggleS(id, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+id).classList.toggle('open'); }
+    function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
     
     function doZ() {
-        const v = document.getElementById('z-input').value;
+        const v = document.getElementById('zInp').value;
         const res = document.getElementById('z-area');
         if(!v) return;
         const styles = [`👑 ${v} 👑`, `〆${v}〆`, `『${v}』` ];
-        res.innerHTML = styles.map(s => `<div class="btn-gold" onclick="db.ref('users/'+myID).update({n:'${s}'}); alert('تم التغيير');">${s}</div>`).join('');
+        res.innerHTML = styles.map(s => `<div class="btn-gold" onclick="changeName('${s}')">${s}</div>`).join('');
     }
 
-    function startQuiz() {
-        qAns = "بغداد";
-        db.ref('main_msgs').push({ n: "🤖 بوت المملكة", t: "❓ ما هي عاصمة العراق؟", isBot: true });
-        closePanels();
+    function changeName(newName) {
+        currentUserName = newName;
+        localStorage.setItem('chatName', newName);
+        db.ref('status/' + myUniqueId).update({ n: newName });
+        alert('تم تغيير اسمك إلى: ' + newName);
     }
 </script>
 </body>
