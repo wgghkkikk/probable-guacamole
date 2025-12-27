@@ -3,48 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - الإصدار الذهبي 👑</title>
+    <title>مملكة علوش V8 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --gold: #ffd700; --bg: #000; }
-        
-        /* الثيمات المتحركة */
-        body { margin: 0; overflow: hidden; height: 100vh; font-family: sans-serif; transition: 1s; background: #000; color: #fff; }
-        
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; transition: 0.5s; }
         .theme-laser { background: linear-gradient(-45deg, #000, #1a0033, #001a33, #000); background-size: 400% 400%; animation: gradient 10s ease infinite; }
-        .theme-neon { background: linear-gradient(-45deg, #050505, #002200, #220000, #050505); background-size: 400% 400%; animation: gradient 10s ease infinite; }
-        .theme-gold-move { background: linear-gradient(-45deg, #000, #1a1600, #332b00, #000); background-size: 400% 400%; animation: gradient 10s ease infinite; }
-
         @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-
-        /* الواجهة */
-        .app { display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 10; }
-        .header { background: rgba(0,0,0,0.8); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
         
+        .app { display: flex; flex-direction: column; height: 100vh; }
+        .header { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { display: flex; gap: 10px; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .msg { display: flex; gap: 10px; margin-bottom: 5px; }
         .msg.me { flex-direction: row-reverse; }
         .u-img { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--gold); }
-        .bubble { max-width: 75%; background: rgba(20,20,20,0.9); padding: 10px; border-radius: 15px; border: 1px solid #333; }
-        .me .bubble { border-color: var(--gold); background: rgba(40, 35, 0, 0.8); }
+        .bubble { max-width: 75%; background: #151515; padding: 10px; border-radius: 12px; border: 1px solid #333; }
+        .me .bubble { border-color: var(--gold); background: #1a1600; }
 
-        /* القوائم الجانبية */
-        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: rgba(10,10,10,0.95); transition: 0.4s; z-index: 2000; overflow-y: auto; }
+        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: #0a0a0a; transition: 0.3s; z-index: 2000; overflow-y: auto; }
         #side-l { left: -285px; border-right: 2px solid var(--gold); }
         #side-r { right: -285px; border-left: 2px solid var(--gold); }
         .side.open { left: 0 !important; right: 0 !important; }
 
         .footer { background: #000; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #222; }
         #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #333; outline: none; }
-        
-        .box { background: rgba(255,255,255,0.05); margin: 10px; padding: 12px; border-radius: 10px; border: 1px solid #222; }
-        .btn-theme { padding: 8px; border: none; border-radius: 5px; cursor: pointer; color: #fff; font-size: 11px; }
     </style>
 </head>
-<body class="theme-gold-move" onclick="closeAll()">
+<body class="theme-laser" onclick="closeAll()">
 
     <div class="app">
         <div class="header">
@@ -52,89 +39,79 @@
             <b style="color:var(--gold)">مملكة علوش 👑</b>
             <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:24px;">👥</button>
         </div>
-
         <div id="chat-win"></div>
-
         <div class="footer" onclick="event.stopPropagation()">
-            <input type="text" id="mInp" placeholder="تكلم يا ملك..." onkeypress="if(event.key==='Enter') send()">
-            <button onclick="send()" style="background:none; border:none; font-size:24px;">🚀</button>
+            <input type="text" id="mInp" placeholder="اكتب هنا..." onkeydown="if(event.key==='Enter') send()">
+            <button onclick="send()" style="background:none; border:none; font-size:24px; cursor:pointer;">🚀</button>
         </div>
     </div>
 
     <div id="side-l" class="side" onclick="event.stopPropagation()">
-        <div style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #222;">👑 إعدادات المملكة</div>
-        
-        <div class="box">
-            <small style="color:var(--gold)">🎨 الثيمات المتحركة</small>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:10px;">
-                <button class="btn-theme" style="background:linear-gradient(45deg, #300, #000);" onclick="changeTheme('laser')">الليزر</button>
-                <button class="btn-theme" style="background:linear-gradient(45deg, #020, #000);" onclick="changeTheme('neon')">النيون</button>
-                <button class="btn-theme" style="background:linear-gradient(45deg, #220, #000);" onclick="changeTheme('gold-move')">الملكي</button>
-            </div>
-        </div>
-
-        <div class="box">
-            <small style="color:var(--gold)">🤖 بوت المسابقات</small>
-            <button onclick="startQuiz(); closeAll();" style="width:100%; margin-top:5px; padding:8px; background:#222; color:#fff; border:1px solid #444;">اطرح سؤال</button>
-        </div>
-
-        <div class="box">
-            <small style="color:var(--gold)">✨ زخرفة الاسم</small>
-            <input type="text" id="nick" placeholder="اسمك هنا..." oninput="doDecor()" style="width:90%; padding:5px; margin-top:5px; background:#000; color:#fff; border:1px solid #333;">
-            <div id="decor-box"></div>
-        </div>
-
-        <div id="admin-p" style="display:none;" class="box">
-            <small style="color:red">🔱 الإدارة</small>
-            <button onclick="db.ref('main_msgs').remove()" style="width:100%; background:red; color:#fff; border:none; padding:8px; margin-top:5px;">تصفير الشات</button>
+        <div style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #222;">🔧 المميزات</div>
+        <div style="padding:15px;">
+            <button onclick="startQuiz(); closeAll();" style="width:100%; padding:10px; background:#222; color:#fff; border:1px solid #444; margin-bottom:10px;">🤖 سؤال بوت</button>
+            <p style="font-size:12px; color:var(--gold);">✨ الثيمات:</p>
+            <button onclick="document.body.className=''" style="padding:5px; background:#000; color:#fff;">كلاسيك</button>
+            <button onclick="document.body.className='theme-laser'" style="padding:5px; background:#1a0033; color:#fff;">ليزر</button>
         </div>
     </div>
 
     <div id="side-r" class="side" onclick="event.stopPropagation()">
-        <div style="padding:20px; text-align:center; color:var(--gold); font-weight:bold;">المتواجدون 👥</div>
+        <div style="padding:20px; text-align:center; color:var(--gold); font-weight:bold;">👥 المتصلون</div>
         <div id="user-list"></div>
     </div>
 
 <script>
+    // تكوين الفيربيس
     const firebaseConfig = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
         databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
         projectId: "masterchat-f2da9"
     };
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
 
     let myID, myD = { n: "علوش", av: "https://via.placeholder.com/40" };
     let currentAnswer = "";
-    const quizBank = [{q:"عاصمة العراق؟", a:"بغداد"}, {q:"أطول نهر؟", a:"النيل"}];
 
+    // تسجيل الدخول
     auth.signInAnonymously().then(u => {
         myID = u.user.uid;
-        db.ref('users/'+myID).on('value', s => {
-            myD = s.val() || myD;
-            if(myD.n === "علوش") document.getElementById('admin-p').style.display = 'block';
-            db.ref('status/'+myID).set({ n: myD.n, av: myD.av });
-            db.ref('status/'+myID).onDisconnect().remove();
-        });
+        db.ref('status/'+myID).set({ n: myD.n, av: myD.av });
+        db.ref('status/'+myID).onDisconnect().remove();
         initChat();
     });
 
-    // دالة الإرسال المصلحة
+    // --- وظيفة الإرسال المصلحة 100% ---
     function send() {
-        const input = document.getElementById('mInp');
-        const t = input.value.trim();
-        if(!t) return;
+        const inp = document.getElementById('mInp');
+        const txt = inp.value.trim();
+        
+        if (txt === "") return;
 
-        if (currentAnswer !== "" && t === currentAnswer) {
-            db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: `🎉 كفو يا ${myD.n}، جواب صح!`, isBot: true });
+        // إذا كان هناك سؤال من البوت
+        if (currentAnswer !== "" && txt === currentAnswer) {
+            db.ref('main_msgs').push({
+                n: "بوت المملكة 🤖",
+                t: "✅ أحسنت يا " + myD.n + "! الجواب صح.",
+                isBot: true
+            });
             currentAnswer = "";
         } else {
-            db.ref('main_msgs').push({ uid: myID, n: myD.n, av: myD.av, t: t });
+            // إرسال رسالة عادية
+            db.ref('main_msgs').push({
+                uid: myID,
+                n: myD.n,
+                av: myD.av,
+                t: txt,
+                time: Date.now()
+            });
         }
-        input.value = '';
-        input.focus();
+
+        inp.value = ""; // تصفير الخانة
+        inp.focus(); // إبقاء التركيز على الخانة للكتابة مرة أخرى
     }
 
     function initChat() {
@@ -157,26 +134,18 @@
             s.forEach(u => {
                 l.innerHTML += `<div style="display:flex; align-items:center; gap:10px; padding:12px; border-bottom:1px solid #111;">
                 <img src="${u.val().av}" style="width:30px; height:30px; border-radius:50%; border:1px solid var(--gold);">
-                <span>${u.val().n}</span><div style="width:8px; height:8px; background:#0f0; border-radius:50%; margin-right:auto;"></div></div>`;
+                <span>${u.val().n}</span></div>`;
             });
         });
     }
 
-    function changeTheme(t) { document.body.className = 'theme-' + t; }
     function startQuiz() {
-        const r = quizBank[Math.floor(Math.random()*quizBank.length)];
-        currentAnswer = r.a;
-        db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: "❓ سؤال: " + r.q, isBot: true });
+        currentAnswer = "بغداد"; // مثال سريع
+        db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: "❓ ما هي عاصمة العراق؟", isBot: true });
     }
+
     function toggleS(s, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+s).classList.add('open'); }
     function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
-    function doDecor() {
-        const v = document.getElementById('nick').value;
-        const b = document.getElementById('decor-box');
-        if(!v) return;
-        const ss = [`👑 ${v} 👑`, `『 ${v} 』`, `〆${v}〆` ];
-        b.innerHTML = ss.map(s => `<div onclick="db.ref('users/'+myID).update({n:'${s}'}); alert('تم!');" style="padding:5px; cursor:pointer;">${s}</div>`).join('');
-    }
 </script>
 </body>
 </html>
