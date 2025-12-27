@@ -1,23 +1,40 @@
-<div id="king-panel" style="position: fixed; top: 10px; right: 10px; z-index: 9999; color: gold; font-family: 'Arial';">
-    <div class="karma-display">
-        <span>🏆 نظام الكارما: </span>
-        <span id="karma-count">1000</span>
-    </div>
+<div id="king-dashboard" style="position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); border: 2px solid gold; padding: 15px; border-radius: 15px; z-index: 10000; display: none; color: gold; font-family: 'Arial';">
+    <h3 style="margin-top: 0; text-align: center;">👑 لوحة تحكم الملك</h3>
+    <hr style="border-color: gold;">
     
-    <div id="secret-ink" style="opacity: 0; cursor: pointer;" onclick="this.style.opacity=1">
-        📜 رسالة الملك السرية: "تم توثيق 70 ميزة بنجاح"
+    <div style="margin-bottom: 10px;">
+        <span>🏆 رصيد الكارما: </span>
+        <span id="karma-val" style="font-weight: bold;">1000</span>
     </div>
+
+    <button onclick="addKarma()" style="background: gold; color: black; border: none; padding: 5px 10px; cursor: pointer; width: 100%; margin-bottom: 5px; font-weight: bold;">➕ زيادة الكارما (7+)</button>
+    <button onclick="changeWeather()" style="background: darkblue; color: white; border: none; padding: 5px 10px; cursor: pointer; width: 100%; margin-bottom: 5px;">🌩️ تغيير طقس المملكة</button>
+    <button onclick="toggleAura()" style="background: purple; color: white; border: none; padding: 5px 10px; cursor: pointer; width: 100%;">🎵 تفعيل الهالة الصوتية</button>
+    
+    <p style="font-size: 10px; margin-top: 10px; color: #aaa;">* ميزة 70: سجلات الزمن مفعلة</p>
 </div>
 
-<script>
-    // تفعيل الهالة الصوتية عند التفاعل
-    document.addEventListener('click', function() {
-        console.log("Audio Aura Activated: مرحبا بك في مملكة علوش");
-        // زيادة الكارما مع كل تفاعل ملكي
-        let count = document.getElementById('karma-count');
-        count.innerText = parseInt(count.innerText) + 7;
-    });
+<div id="secret-trigger" onclick="openDashboard()" style="position: fixed; top: 0; left: 0; width: 50px; height: 50px; cursor: pointer; z-index: 10001;"></div>
 
-    // سجلات الزمن (Time Travel Logs)
-    console.log("Log: مملكة علوش انتقلت للعالمية بـ 70 ميزة - 2025-12-28");
+<script>
+    function openDashboard() {
+        var dash = document.getElementById('king-dashboard');
+        dash.style.display = (dash.style.display === 'none') ? 'block' : 'none';
+        console.log("Time Travel Log: الملك دخل لوحة التحكم");
+    }
+
+    function addKarma() {
+        let val = document.getElementById('karma-val');
+        val.innerText = parseInt(val.innerText) + 7;
+        alert("تمت زيادة الكارما الملكية! 🏆");
+    }
+
+    function changeWeather() {
+        document.body.style.filter = "hue-rotate(90deg) contrast(1.2)";
+        alert("تم تغيير طقس المملكة بنجاح! 🌩️");
+    }
+
+    function toggleAura() {
+        alert("الهالة الصوتية (Audio Aura) تعمل الآن بصوت: مملكة علوش 🎵");
+    }
 </script>
