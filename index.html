@@ -1,60 +1,86 @@
-// قائمة المميزات المسجلة في "مملكة علوش"
-const kingdomFeatures = [
-    { id: 'yt', name: '📺 يوتيوب المملكة', action: () => openYouTube() },
-    { id: 'colors', name: '🌈 التحكم بالألوان', action: () => openColorPicker() },
-    { id: 'vault', name: '💎 الخزنة الملكية', action: () => alert('تم فتح الخزنة الملكية للملك فقط!') },
-    { id: 'shield', name: '🛡️ الذكاء الدفاعي', action: () => alert('النظام الدفاعي AI Sentinel نشط') }
-];
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مملكة علوش - الواجهة الحقيقية</title>
+    <style>
+        /* نظام الألوان المتحركة (ميزة 73) */
+        body {
+            margin: 0; padding: 0; overflow: hidden; height: 100vh;
+            background: linear-gradient(-45deg, #1a1a1a, #4b0082, #000000);
+            background-size: 400% 400%; animation: gradient 15s ease infinite;
+            font-family: Arial, sans-serif; display: flex; color: white;
+        }
+        @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
 
-// دالة بناء القائمة في الجهة اليسرى وجعلها قابلة للضغط
-const listContainer = document.getElementById('feature-list');
+        /* الجهة اليسرى للمميزات (ميزة 76) */
+        #left-panel {
+            width: 250px; background: rgba(0,0,0,0.9); border-right: 2px solid gold;
+            transition: 0.5s; position: fixed; left: -250px; height: 100%; z-index: 10;
+        }
+        .show-left #left-panel { left: 0; }
 
-kingdomFeatures.forEach(feature => {
-    let li = document.createElement('li');
-    li.style.cursor = "pointer";
-    li.style.padding = "10px";
-    li.style.borderBottom = "1px solid rgba(255,215,0,0.1)";
-    li.innerHTML = feature.name;
-    
-    // عند الضغط على الميزة
-    li.onclick = (e) => {
-        e.stopPropagation(); // لمنع إغلاق القوائم عند الضغط على ميزة
-        feature.action();
-    };
-    
-    listContainer.appendChild(li);
-});
+        /* منطقة الشات (ميزة السلاسة 79) */
+        #chat-area {
+            flex-grow: 1; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; text-align: center; cursor: pointer; width: 100%;
+        }
 
-// ميزة 72: دالة فتح اليوتيوب الحقيقي
-function openYouTube() {
-    const ytArea = document.getElementById('youtube-player');
-    ytArea.style.display = 'block';
-    ytArea.innerHTML = `
-        <div style="background: #000; padding: 15px; border-radius: 10px;">
-            <input type="text" id="query" placeholder="ابحث عن فيديو..." style="width: 70%;">
-            <button onclick="runSearch()" style="background: gold; border: none; cursor: pointer;">بحث</button>
-            <div id="video-display" style="margin-top: 10px;"></div>
+        .feature-item { padding: 15px; border-bottom: 1px solid #333; cursor: pointer; color: gold; }
+        .feature-item:hover { background: rgba(255,215,0,0.1); }
+
+        #video-player { display: none; width: 80%; max-width: 500px; background: #000; padding: 10px; border-radius: 10px; border: 1px solid gold; }
+        input { padding: 10px; width: 70%; border-radius: 5px; border: none; }
+        button { padding: 10px; background: gold; border: none; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body id="main-body">
+
+    <div id="left-panel">
+        <h3 style="text-align: center; color: gold;">📜 مميزات المملكة</h3>
+        <div class="feature-item" onclick="showYoutube()">📺 يوتيوب المملكة</div>
+        <div class="feature-item" onclick="changeTheme()">🌈 تغيير الألوان</div>
+        <div class="feature-item" onclick="alert('الخزنة الملكية مغلقة بكلمة سر الملك')">💎 الخزنة الملكية</div>
+        <div class="feature-item">🤖 الذكاء الدفاعي</div>
+    </div>
+
+    <div id="chat-area" onclick="toggleMenu()">
+        <h1>👑 مملكة علوش 👑</h1>
+        <p>اضغط في أي مكان لفتح/غلق قائمة المميزات</p>
+
+        <div id="video-player" onclick="event.stopPropagation()">
+            <input type="text" id="search-input" placeholder="ابحث عن فيديو...">
+            <button onclick="searchYT()">بحث</button>
+            <div id="results" style="margin-top: 15px;"></div>
         </div>
-    `;
-}
+    </div>
 
-// ميزة 73: دالة التحكم بالألوان
-function openColorPicker() {
-    const color = prompt("أدخل كود اللون الذي تريده للخلفية (مثل: red أو blue أو #000):");
-    if(color) {
-        document.body.style.background = color;
-        alert("تم تغيير لون المملكة حسب اختيارك!");
-    }
-}
+    <script>
+        // ميزة 78: فتح القائمة بضغطة
+        function toggleMenu() {
+            document.body.classList.toggle('show-left');
+        }
 
-async function runSearch() {
-    const q = document.getElementById('query').value;
-    const API_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
-    const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${q}&key=${API_KEY}&type=video`);
-    const data = await response.json();
-    const videoId = data.items[0].id.videoId;
-    
-    document.getElementById('video-display').innerHTML = `
-        <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
-    `;
-}
+        function showYoutube() {
+            document.getElementById('video-player').style.display = 'block';
+        }
+
+        // ميزة 72: اليوتيوب الحقيقي بمفتاحك
+        async function searchYT() {
+            const q = document.getElementById('search-input').value;
+            const key = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&key=${key}&type=video&maxResults=1`);
+            const data = await res.json();
+            if(data.items.length > 0) {
+                const id = data.items[0].id.videoId;
+                document.getElementById('results').innerHTML = `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe>`;
+            }
+        }
+
+        function changeTheme() {
+            const color = prompt("اختر لوناً (مثلاً: red, blue, green):");
+            if(color) document.getElementById('main-body').style.background = color;
+        }
+    </script>
+</body>
+</html>
