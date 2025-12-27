@@ -3,43 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - الإصدار المصلح 👑</title>
+    <title>مملكة علوش V7 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --gold: #ffd700; --bg: #000; }
         body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; }
-        .app { display: flex; flex-direction: column; height: 100vh; }
+        
+        .app { display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 5; }
         .header { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
+        
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { display: flex; gap: 10px; margin-bottom: 10px; }
+        .msg { display: flex; gap: 10px; margin-bottom: 5px; }
         .msg.me { flex-direction: row-reverse; }
-        .u-img { width: 45px; height: 45px; border-radius: 12px; border: 2px solid var(--gold); object-fit: cover; }
-        .bubble { max-width: 75%; background: #1a1a1a; padding: 10px; border-radius: 12px; border: 1px solid #333; }
-        .me .bubble { border-color: var(--gold); background: #221d00; }
-        .footer { background: #000; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #222; }
+        .u-img { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--gold); }
+        .bubble { max-width: 75%; background: #151515; padding: 10px; border-radius: 12px; border: 1px solid #333; position: relative; }
+        .me .bubble { border-color: var(--gold); background: #1a1600; }
+
+        /* القوائم الجانبية */
+        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: #0a0a0a; transition: 0.3s; z-index: 2000; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        #side-l { left: -285px; border-right: 2px solid var(--gold); }
+        #side-r { right: -285px; border-left: 2px solid var(--gold); }
+        .side.open { left: 0 !important; right: 0 !important; }
+
+        .footer { background: #000; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #222; z-index: 10; }
         #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #333; outline: none; }
-        /* ستايل البوت */
-        .bot-msg .bubble { background: linear-gradient(45deg, #001f3f, #0074D9) !important; border-color: #7FDBFF !important; }
+        
+        .feature-item { background: #111; margin: 10px; padding: 12px; border-radius: 10px; border: 1px solid #222; }
     </style>
 </head>
-<body>
+<body onclick="closeAll()">
 
-<div class="app">
-    <div class="header">
-        <b style="color:var(--gold)">👑 مملكة علوش</b>
-        <span id="user-count" style="font-size:12px;">المتصلين: 0</span>
+    <div class="app" id="app-ui">
+        <div class="header">
+            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px; cursor:pointer;">⚙️</button>
+            <b style="color:var(--gold)">مملكة علوش 👑</b>
+            <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:24px; cursor:pointer;">👥</button>
+        </div>
+
+        <div id="chat-win"></div>
+
+        <div class="footer" onclick="event.stopPropagation()">
+            <input type="text" id="mInp" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') send()">
+            <button onclick="send()" style="background:none; border:none; font-size:22px; cursor:pointer;">🚀</button>
+        </div>
     </div>
-    <div id="chat-win"></div>
-    <div class="footer">
-        <input type="text" id="mInp" placeholder="اكتب 'اسئلة' لتشغيل البوت..." onkeypress="if(event.key==='Enter') send()">
-        <button onclick="send()" style="background:none; border:none; font-size:24px; cursor:pointer;">🚀</button>
+
+    <div id="side-l" class="side" onclick="event.stopPropagation()">
+        <div style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #222;">🔧 قائمة المميزات</div>
+        
+        <div class="feature-item">
+            <small style="color:var(--gold)">🤖 بوت المسابقات</small>
+            <button onclick="startQuiz(); closeAll();" style="width:100%; margin-top:5px; padding:8px; background:#222; color:#fff; border:1px solid #444; border-radius:5px;">سؤال جديد</button>
+        </div>
+
+        <div class="feature-item">
+            <small style="color:var(--gold)">✨ زخرفة الاسم</small>
+            <input type="text" id="nameStyle" placeholder="اكتب اسمك..." oninput="showDecor()" style="width:90%; padding:5px; margin-top:5px;">
+            <div id="decor-results"></div>
+        </div>
+
+        <div class="feature-item">
+            <small style="color:var(--gold)">🎨 الثيمات</small>
+            <button onclick="document.body.style.background='#200'" style="background:red; width:30px; height:30px; border-radius:50%; border:none;"></button>
+            <button onclick="document.body.style.background='#002'" style="background:blue; width:30px; height:30px; border-radius:50%; border:none;"></button>
+            <button onclick="document.body.style.background='#000'" style="background:#000; width:30px; height:30px; border-radius:50%; border:1px solid #fff;"></button>
+        </div>
+
+        <div id="admin-area" style="display:none;" class="feature-item">
+            <small style="color:red">🔱 لوحة الإدارة</small>
+            <button onclick="db.ref('main_msgs').remove()" style="width:100%; background:red; color:#fff; padding:8px; border:none; margin-top:5px;">تصفير الشات</button>
+        </div>
+
+        <div style="padding:20px; text-align:center;">
+            <button onclick="auth.signOut().then(()=>location.reload())" style="color:gray; background:none; border:none;">تسجيل خروج</button>
+        </div>
     </div>
-</div>
+
+    <div id="side-r" class="side" onclick="event.stopPropagation()">
+        <div style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #222;">المتواجدون 👥</div>
+        <div id="user-list"></div>
+    </div>
 
 <script>
-    // 1. إعدادات فيربيسا (استخدم بياناتك)
     const firebaseConfig = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
@@ -50,30 +97,32 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    let myID, myD = { n: "علوش", av: "https://via.placeholder.com/100" };
+    let myID, myD = { n: "علوش", av: "https://via.placeholder.com/40", rank: "member" };
     let currentAnswer = "";
-    const quizBank = [
-        { q: "ما هي عاصمة العراق؟", a: "بغداد" },
-        { q: "ما هو أطول نهر في العالم؟", a: "النيل" },
-        { q: "كم عدد ألوان قوس قزح؟", a: "7" },
-        { q: "ما هو كوكب الأحمر؟", a: "المريخ" }
-    ];
+    const quizBank = [{q:"ما عاصمة العراق؟", a:"بغداد"}, {q:"أطول نهر بالعالم؟", a:"النيل"}, {q:"كم لون بقوس قزح؟", a:"7"}];
 
-    // 2. تسجيل الدخول التلقائي
     auth.signInAnonymously().then(u => {
         myID = u.user.uid;
-        initApp();
+        // ميزة الإدارة لعلوش
+        db.ref('users/'+myID).on('value', s => {
+            myD = s.val() || myD;
+            if(u.user.email === "alloush@boss.com" || myD.n === "علوش") {
+                document.getElementById('admin-area').style.display = 'block';
+                myD.rank = "admin";
+            }
+            db.ref('status/'+myID).set({ n: myD.n, av: myD.av });
+            db.ref('status/'+myID).onDisconnect().remove();
+        });
+        initChat();
     });
 
     function send() {
         const t = document.getElementById('mInp').value.trim();
         if(!t) return;
 
-        // فحص أوامر البوت
-        if (t === "اسئلة" || t === "أسئلة") {
-            startQuiz();
-        } else if (currentAnswer !== "" && t === currentAnswer) {
-            db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: "✅ جواب صح! كفو منك يا بطل.", isBot: true });
+        // التحقق من جواب البوت
+        if (currentAnswer !== "" && t === currentAnswer) {
+            db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: `✅ جواب صح يا ${myD.n}!`, isBot: true });
             currentAnswer = "";
         } else {
             db.ref('main_msgs').push({ uid: myID, n: myD.n, av: myD.av, t: t });
@@ -82,26 +131,59 @@
     }
 
     function startQuiz() {
-        const random = quizBank[Math.floor(Math.random() * quizBank.length)];
-        currentAnswer = random.a;
-        db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: "❓ سؤال: " + random.q, isBot: true });
+        const r = quizBank[Math.floor(Math.random()*quizBank.length)];
+        currentAnswer = r.a;
+        db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: "❓ سؤال: " + r.q, isBot: true });
     }
 
-    function initApp() {
-        db.ref('main_msgs').limitToLast(20).on('child_added', s => {
+    function initChat() {
+        db.ref('main_msgs').limitToLast(30).on('child_added', s => {
             const d = s.val();
             const div = document.createElement('div');
-            div.className = `msg ${d.uid === myID ? 'me' : ''} ${d.isBot ? 'bot-msg' : ''}`;
+            div.className = `msg ${d.uid === myID ? 'me' : ''}`;
             div.innerHTML = `
                 <img src="${d.av || 'https://cdn-icons-png.flaticon.com/512/4712/4712035.png'}" class="u-img">
                 <div class="bubble">
-                    <b style="display:block; font-size:10px; color:var(--gold);">${d.n}</b>
+                    <b style="font-size:10px; color:var(--gold); display:block;">${d.n}</b>
                     ${d.t}
-                </div>
-            `;
+                </div>`;
             document.getElementById('chat-win').appendChild(div);
             document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
         });
+
+        db.ref('status').on('value', s => {
+            const l = document.getElementById('user-list'); l.innerHTML = '';
+            s.forEach(u => {
+                l.innerHTML += `<div style="display:flex; align-items:center; gap:10px; padding:12px; border-bottom:1px solid #111;">
+                <img src="${u.val().av}" style="width:30px; height:30px; border-radius:50%; border:1px solid var(--gold);">
+                <span>${u.val().n}</span><div style="width:8px; height:8px; background:#0f0; border-radius:50%; margin-right:auto;"></div></div>`;
+            });
+        });
+    }
+
+    // دوال القوائم
+    function toggleS(s, e) {
+        e.stopPropagation();
+        const side = document.getElementById('side-'+s);
+        const isOpen = side.classList.contains('open');
+        closeAll();
+        if(!isOpen) side.classList.add('open');
+    }
+
+    function closeAll() {
+        document.querySelectorAll('.side').forEach(s => s.classList.remove('open'));
+    }
+
+    function showDecor() {
+        const val = document.getElementById('nameStyle').value;
+        const res = document.getElementById('decor-results');
+        if(!val) return;
+        const styles = [`👑 ${val} 👑`, `〆${val}〆`, `『${val}』` ];
+        res.innerHTML = styles.map(s => `<div onclick="applyN('${s}')" style="cursor:pointer; padding:5px; border-bottom:1px solid #222;">${s}</div>`).join('');
+    }
+    function applyN(s) {
+        db.ref('users/'+myID).update({ n: s });
+        alert("تم تغيير اسمك يا ملك!");
     }
 </script>
 </body>
