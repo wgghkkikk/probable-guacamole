@@ -1,40 +1,74 @@
-<div id="king-dashboard" style="position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); border: 2px solid gold; padding: 15px; border-radius: 15px; z-index: 10000; display: none; color: gold; font-family: 'Arial';">
-    <h3 style="margin-top: 0; text-align: center;">👑 لوحة تحكم الملك</h3>
-    <hr style="border-color: gold;">
-    
-    <div style="margin-bottom: 10px;">
-        <span>🏆 رصيد الكارما: </span>
-        <span id="karma-val" style="font-weight: bold;">1000</span>
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>مملكة علوش - الإمبراطورية</title>
+    <style>
+        body { margin: 0; background: black; color: white; font-family: 'Arial', sans-serif; overflow: hidden; }
+        .tiktok-video { height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; background: url('https://via.placeholder.com/1080x1920/000/gold?text=Alloosh+Kingdom') no-repeat center center; background-size: cover; }
+        
+        /* ميزة 70: واجهة الملك */
+        .king-info { position: absolute; bottom: 80px; left: 20px; text-shadow: 2px 2px 5px black; }
+        .king-info h2 { color: gold; margin: 0; }
+        
+        /* نظام الكارما (Karma System) */
+        .karma-badge { position: absolute; top: 20px; right: 20px; background: rgba(255, 215, 0, 0.2); padding: 10px 20px; border-radius: 20px; border: 1px solid gold; color: gold; font-weight: bold; }
+        
+        /* لوحة التحكم السرية (Invisible Ink Logic) */
+        #admin-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); border: 3px solid gold; padding: 30px; border-radius: 20px; display: none; z-index: 9999; text-align: center; }
+        .btn-king { background: gold; color: black; border: none; padding: 10px 20px; margin: 5px; cursor: pointer; font-weight: bold; border-radius: 5px; }
+        
+        /* الهالة الصوتية (Audio Aura) */
+        .aura-pulse { position: absolute; bottom: 20px; left: 20px; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 50px; font-size: 12px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+    </style>
+</head>
+<body onclick="playAura()">
+
+    <div class="tiktok-video">
+        <div class="karma-badge">🏆 الكارما: <span id="k-count">1000</span></div>
+        
+        <div class="king-info">
+            <h2>علوش_الإمبراطور@</h2>
+            <p>ملك البرمجة - ميزة 70 👑</p>
+            <p>أجواء المملكة والناس 🇮🇶</p>
+        </div>
+
+        <div class="aura-pulse">🎵 الصوت الأصلي - مملكة علوش</div>
     </div>
 
-    <button onclick="addKarma()" style="background: gold; color: black; border: none; padding: 5px 10px; cursor: pointer; width: 100%; margin-bottom: 5px; font-weight: bold;">➕ زيادة الكارما (7+)</button>
-    <button onclick="changeWeather()" style="background: darkblue; color: white; border: none; padding: 5px 10px; cursor: pointer; width: 100%; margin-bottom: 5px;">🌩️ تغيير طقس المملكة</button>
-    <button onclick="toggleAura()" style="background: purple; color: white; border: none; padding: 5px 10px; cursor: pointer; width: 100%;">🎵 تفعيل الهالة الصوتية</button>
-    
-    <p style="font-size: 10px; margin-top: 10px; color: #aaa;">* ميزة 70: سجلات الزمن مفعلة</p>
-</div>
+    <div id="admin-panel">
+        <h1 style="color: gold;">👑 لوحة التحكم الإمبراطورية</h1>
+        <button class="btn-king" onclick="updateKarma(77)">➕ زيادة الكارما العظمى</button>
+        <button class="btn-king" onclick="toggleWeather()">🌩️ تغيير طقس المملكة</button>
+        <button class="btn-king" onclick="alert('سجلات الزمن: تم توثيق النصر!')">📜 سجلات الزمن</button>
+        <br><br>
+        <button onclick="closePanel()" style="background: none; color: white; border: 1px solid white; cursor: pointer;">إغلاق</button>
+    </div>
 
-<div id="secret-trigger" onclick="openDashboard()" style="position: fixed; top: 0; left: 0; width: 50px; height: 50px; cursor: pointer; z-index: 10001;"></div>
+    <div style="position:fixed; top:0; left:0; width:40px; height:40px; cursor:pointer;" onclick="openPanel()"></div>
 
-<script>
-    function openDashboard() {
-        var dash = document.getElementById('king-dashboard');
-        dash.style.display = (dash.style.display === 'none') ? 'block' : 'none';
-        console.log("Time Travel Log: الملك دخل لوحة التحكم");
-    }
+    <script>
+        let karma = 1000;
+        
+        function openPanel() { document.getElementById('admin-panel').style.display = 'block'; }
+        function closePanel() { document.getElementById('admin-panel').style.display = 'none'; }
+        
+        function updateKarma(val) {
+            karma += val;
+            document.getElementById('k-count').innerText = karma;
+            console.log("Log: ترفيع الكارما الملكية إلى " + karma);
+        }
 
-    function addKarma() {
-        let val = document.getElementById('karma-val');
-        val.innerText = parseInt(val.innerText) + 7;
-        alert("تمت زيادة الكارما الملكية! 🏆");
-    }
+        function toggleWeather() {
+            document.body.style.filter = document.body.style.filter ? "" : "contrast(1.5) hue-rotate(45deg)";
+            alert("تم تفعيل طقس المملكة الجديد!");
+        }
 
-    function changeWeather() {
-        document.body.style.filter = "hue-rotate(90deg) contrast(1.2)";
-        alert("تم تغيير طقس المملكة بنجاح! 🌩️");
-    }
-
-    function toggleAura() {
-        alert("الهالة الصوتية (Audio Aura) تعمل الآن بصوت: مملكة علوش 🎵");
-    }
-</script>
+        function playAura() {
+            console.log("Audio Aura: ترحيب ملكي!");
+            // هنا يتم تشغيل الصوت الأصلي
+        }
+    </script>
+</body>
+</html>
