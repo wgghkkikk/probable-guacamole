@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - البحث الذكي 👑</title>
+    <title>مملكة علوش - بوابة الدخول 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -11,26 +11,23 @@
         :root { --gold: #ffd700; --bg: #000; }
         body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; }
         
-        /* الخلفية والنجوم */
+        /* شاشة الدخول */
+        #login-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s; }
+        .login-card { background: #111; padding: 30px; border-radius: 20px; border: 1px solid var(--gold); text-align: center; width: 85%; max-width: 350px; }
+        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #000; color: #fff; text-align: center; }
+        
+        /* النجوم */
         #star-field { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         .star { position: absolute; background: #fff; border-radius: 50%; animation: blink 2s infinite; }
         @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        /* الشاشة الرئيسية */
-        .app { display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 10; }
+        /* الواجهة */
+        .app { display: none; flex-direction: column; height: 100vh; position: relative; z-index: 10; }
         .header { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
         
-        /* مشغل اليوتيوب العائم */
         #yt-float { position: absolute; top: 70px; left: 10px; width: 200px; height: 120px; background: #000; border: 2px solid var(--gold); border-radius: 10px; z-index: 1000; display: none; overflow: hidden; }
-        #yt-float iframe { width: 100%; height: 100%; border: none; }
-        .close-btn { position: absolute; top: 0; right: 0; background: red; color: #fff; padding: 2px 8px; cursor: pointer; z-index: 1001; font-size: 12px; font-weight: bold; }
-
-        /* البحث عن يوتيوب */
         #search-box { display: none; background: #111; padding: 15px; border-bottom: 1px solid var(--gold); }
-        #search-box input { width: 70%; padding: 10px; border-radius: 5px; border: none; }
-        #search-box button { width: 25%; padding: 10px; background: var(--gold); border: none; border-radius: 5px; font-weight: bold; }
 
-        /* الشات */
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .msg { display: flex; gap: 10px; }
         .msg.me { flex-direction: row-reverse; }
@@ -38,13 +35,11 @@
         .bubble { max-width: 75%; background: rgba(30,30,30,0.9); padding: 10px; border-radius: 12px; border: 1px solid #333; }
         .me .bubble { border-color: var(--gold); background: #221d00; }
 
-        /* الأجنحة الجانبية */
         .side { position: fixed; top: 0; width: 280px; height: 100vh; background: #0a0a0a; transition: 0.4s; z-index: 2000; }
         #side-l { left: -282px; border-right: 2px solid var(--gold); }
         #side-r { right: -282px; border-left: 2px solid var(--gold); }
         .side.open { left: 0 !important; right: 0 !important; }
 
-        /* شريط الكتابة */
         .footer { background: #000; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #222; }
         #mInp { flex: 1; background: #1a1a1a; color: #fff; padding: 12px; border-radius: 20px; border: 1px solid #333; outline: none; }
     </style>
@@ -53,12 +48,25 @@
 
     <div id="star-field"></div>
 
+    <div id="login-screen">
+        <div class="login-card">
+            <h2 style="color:var(--gold)">مملكة علوش 👑</h2>
+            <p style="font-size: 12px; color: #888;">ادخل اسمك لتبدأ الدردشة</p>
+            <input type="text" id="user-n" placeholder="اسمك هنا..." value="علوش">
+            <label style="display:block; background:#222; padding:10px; border-radius:10px; cursor:pointer; font-size: 13px; margin-top: 10px; border: 1px dashed var(--gold);">
+                📸 اختر صورة بروفايلك
+                <input type="file" id="user-av" hidden accept="image/*" onchange="handleLoginImg(this)">
+            </label>
+            <button onclick="enterKingdom()" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; margin-top:20px; font-weight:bold; cursor:pointer;">دخول المملكة</button>
+        </div>
+    </div>
+
     <div id="yt-float">
-        <span class="close-btn" onclick="this.parentElement.style.display='none'">إغلاق</span>
+        <span onclick="this.parentElement.style.display='none'" style="position:absolute; top:0; right:0; background:red; padding:2px 8px; font-size:10px; cursor:pointer; z-index:1001;">X</span>
         <div id="player-frame"></div>
     </div>
 
-    <div class="app">
+    <div class="app" id="app-ui">
         <div class="header">
             <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px;">⚙️</button>
             <b style="color:var(--gold)">مملكة علوش</b>
@@ -66,8 +74,8 @@
         </div>
 
         <div id="search-box" onclick="event.stopPropagation()">
-            <input type="text" id="yt-query" placeholder="ابحث عن فيديو...">
-            <button onclick="searchYT()">بحث</button>
+            <input type="text" id="yt-query" placeholder="ابحث عن فيديو..." style="width:70%; padding:10px; border-radius:5px;">
+            <button onclick="searchYT()" style="width:25%; padding:10px; background:var(--gold); border:none; font-weight:bold; border-radius:5px;">بحث</button>
         </div>
 
         <div id="chat-win"></div>
@@ -79,17 +87,11 @@
     </div>
 
     <div id="side-l" class="side" onclick="event.stopPropagation()">
-        <div style="padding:20px; text-align:center; background:#111; color:var(--gold); font-weight:bold;">⚙️ الإعدادات</div>
+        <div style="padding:20px; text-align:center; background:#111; color:var(--gold); font-weight:bold;">⚙️ لوحة التحكم</div>
         <div style="padding:20px; text-align:center;">
-            <img id="my-av" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--gold); object-fit:cover;">
-            <input type="text" id="new-n" placeholder="تغيير الاسم" style="width:100%; padding:10px; margin-top:10px; background:#1a1a1a; color:#fff; border:1px solid #333;">
-            <label style="display:block; margin-top:10px; padding:10px; background:#222; border:1px dashed var(--gold); cursor:pointer;">
-                📷 تغيير الصورة
-                <input type="file" hidden accept="image/*" onchange="loadImg(this)">
-            </label>
-            <button onclick="saveProf()" style="width:100%; padding:12px; background:var(--gold); border:none; margin-top:10px; font-weight:bold;">حفظ الملف</button>
-            <hr style="border:0.1px solid #222; margin:20px 0;">
-            <button onclick="document.getElementById('search-box').style.display='block'; closeAll();" style="width:100%; padding:12px; background:#ff0000; color:#fff; border:none; font-weight:bold; border-radius:5px;">📺 ابحث وشغل يوتيوب للكل</button>
+            <img id="my-av-ui" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--gold); object-fit:cover;">
+            <h3 id="my-n-ui" style="margin:10px 0;"></h3>
+            <button onclick="document.getElementById('search-box').style.display='block'; closeAll();" style="width:100%; padding:12px; background:red; color:#fff; border:none; font-weight:bold; border-radius:5px;">📺 بث يوتيوب للكل</button>
             <button onclick="db.ref('main_msgs').remove()" style="width:100%; padding:10px; background:none; color:#555; border:none; margin-top:20px;">تصفير الشات</button>
         </div>
     </div>
@@ -109,18 +111,40 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
-    let myID, myD = {}, tempImg = "";
+    let myID, myD = { n: "علوش", av: "https://via.placeholder.com/100" };
+
+    function handleLoginImg(input) {
+        const file = input.files[0];
+        if(file) {
+            const r = new FileReader();
+            r.onload = (e) => myD.av = e.target.result;
+            r.readAsDataURL(file);
+        }
+    }
+
+    function enterKingdom() {
+        myD.n = document.getElementById('user-n').value || "عضو";
+        auth.signInAnonymously().then(() => {
+            document.getElementById('login-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-ui').style.display = 'flex';
+            }, 500);
+        });
+    }
 
     auth.onAuthStateChanged(u => {
         if(u) {
             myID = u.uid;
+            db.ref('users/'+myID).update(myD);
             db.ref('users/'+myID).on('value', s => {
-                myD = s.val() || { n: "عضو جديد", av: "https://via.placeholder.com/100" };
-                document.getElementById('my-av').src = myD.av;
-                db.ref('status/'+myID).set({ n: myD.n, av: myD.av });
+                const data = s.val();
+                document.getElementById('my-av-ui').src = data.av;
+                document.getElementById('my-n-ui').innerText = data.n;
+                db.ref('status/'+myID).set({ n: data.n, av: data.av });
                 db.ref('status/'+myID).onDisconnect().remove();
             });
-            init();
+            initApp();
             makeStars();
         }
     });
@@ -128,28 +152,9 @@
     function toggleS(s, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+s).classList.add('open'); }
     function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
 
-    function loadImg(input) {
-        const file = input.files[0];
-        if(file) {
-            const r = new FileReader();
-            r.onload = (e) => { tempImg = e.target.result; document.getElementById('my-av').src = tempImg; };
-            r.readAsDataURL(file);
-        }
-    }
-
-    function saveProf() {
-        const n = document.getElementById('new-n').value;
-        const up = {}; if(n) up.n = n; if(tempImg) up.av = tempImg;
-        db.ref('users/'+myID).update(up);
-        alert("تم الحفظ 👑");
-        closeAll();
-    }
-
     function searchYT() {
         const q = document.getElementById('yt-query').value;
         if(!q) return;
-        // هنا نقوم بمحاكاة البحث وتوليد رابط مباشر (بما أن البحث الحقيقي يتطلب API Key معقد)
-        // سنستخدم ميزة "البحث المباشر" في يوتيوب
         const searchURL = "https://www.youtube.com/embed?listType=search&list=" + encodeURIComponent(q);
         db.ref('yt_sync').set({ url: searchURL, time: Date.now() });
         document.getElementById('search-box').style.display = 'none';
@@ -162,7 +167,7 @@
         document.getElementById('mInp').value = '';
     }
 
-    function init() {
+    function initApp() {
         db.ref('main_msgs').limitToLast(40).on('child_added', s => {
             const d = s.val();
             const div = document.createElement('div');
