@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
         :root { --gold: #ffd700; }
         body { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; height: 100vh; transition: 1s; }
@@ -22,17 +23,17 @@
         .bubble { max-width: 80%; padding: 12px; border-radius: 15px; background: rgba(30,30,30,0.8); border: 1px solid #444; word-wrap: break-word; }
         .me { align-self: flex-start; border-color: var(--gold); background: rgba(60,50,0,0.6); }
 
+        /* 🚀 منطقة الإرسال - ترتيب صحيح لمنع انقلاب الأيقونة */
+        .footer { background: #000; padding: 10px; display: flex; flex-direction: row; align-items: center; gap: 10px; border-top: 1px solid #333; direction: ltr !important; }
+        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #444; outline: none; text-align: right; font-size: 16px; direction: rtl !important; }
+        .send-btn { background: none; border: none; font-size: 28px; cursor: pointer; padding: 0 10px; } 
+
         /* القوائم الجانبية */
         .side { position: fixed; top: 0; width: 280px; height: 100vh; background: rgba(5,5,5,0.98); transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); overflow-y: auto; }
         #side-l { left: -285px; } 
         #side-r { right: -285px; }
         .side.open { left: 0 !important; right: 0 !important; }
 
-        /* 🚀 إصلاح منطقة الإرسال والاتجاهات */
-        .footer { background: #000; padding: 10px; display: flex; flex-direction: row-reverse; align-items: center; gap: 10px; border-top: 1px solid #333; }
-        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #444; outline: none; text-align: right; font-size: 16px; }
-        .send-btn { background: none; border: none; font-size: 28px; cursor: pointer; padding: 0 10px; transform: scaleX(-1); } /* قلب الأيقونة لضبط الاتجاه */
-        
         .box { background: rgba(255,255,255,0.05); margin: 10px; padding: 10px; border-radius: 8px; border: 1px solid #333; }
         .btn-act { width: 100%; padding: 8px; margin: 5px 0; background: #222; color: #fff; border: 1px solid var(--gold); border-radius: 5px; cursor: pointer; }
     </style>
@@ -78,6 +79,7 @@
     </div>
 
 <script>
+    // 2. ربط قاعدة البيانات (Firebase)
     const firebaseConfig = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
@@ -91,6 +93,7 @@
     let myID, myD = { n: "علوش" };
     let currentQuizAns = "";
 
+    // 3. نظام الدخول
     auth.signInAnonymously().then(u => {
         myID = u.user.uid;
         db.ref('users/'+myID).on('value', s => {
@@ -101,7 +104,7 @@
         initChat();
     });
 
-    // ✅ حل مشكلة الإرسال وتصفير الخانة فوراً
+    // 4. وظيفة الإرسال المصلحة 🚀
     function sendMsg() {
         const inp = document.getElementById('mInp');
         const txt = inp.value.trim();
@@ -114,8 +117,8 @@
             db.ref('main_msgs').push({ uid: myID, n: myD.n, t: txt, time: Date.now() });
         }
         
-        inp.value = ""; // تمسح فوراً
-        setTimeout(() => inp.focus(), 50); // إبقاء الكيبورد مفتوحاً
+        inp.value = ""; // تمسح الخانة فوراً
+        inp.focus(); 
     }
 
     function initChat() {
@@ -136,6 +139,7 @@
 
     function toggleS(s, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+s).classList.add('open'); }
     function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
+    
     function doZakhrafa() {
         const v = document.getElementById('zInp').value;
         const res = document.getElementById('zakhrafa-results');
@@ -143,6 +147,7 @@
         const styles = [`👑 ${v} 👑`, `〆${v}〆`, `『${v}』` ];
         res.innerHTML = styles.map(s => `<div class="btn-act" onclick="db.ref('users/'+myID).update({n:'${s}'}); alert('تم التغيير يا ملك');">${s}</div>`).join('');
     }
+
     function startQuiz() {
         currentQuizAns = "بغداد";
         db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: "❓ ما هي عاصمة العراق؟", isBot: true });
