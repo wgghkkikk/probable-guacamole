@@ -1,126 +1,113 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش - الإصدار الأخير</title>
+    <title>مملكة علوش | نظام البحث الملكي</title>
     <style>
-        /* إجبار الخلفية السوداء ومنع البياض */
-        html, body { 
-            margin: 0; 
-            padding: 0; 
-            background-color: #000 !important; 
-            color: gold; 
-            font-family: Arial, sans-serif; 
-            overflow: hidden; 
-            height: 100vh;
-            width: 100vw;
-        }
-
-        /* الجهات الجانبية بتصميم ثابت */
-        .side-panel {
-            position: fixed;
-            top: 0;
-            width: 260px;
-            height: calc(100vh - 80px);
-            background: rgba(10, 10, 10, 0.98) !important;
-            border: 2px solid gold;
-            padding: 15px;
-            overflow-y: auto;
-            z-index: 1000;
-            transition: 0.5s;
-        }
-        #left-features { left: 0; }
-        #right-online { right: 0; }
+        body { margin: 0; background-color: #000 !important; color: gold; font-family: Arial; height: 100vh; overflow: hidden; }
+        
+        .side-panel { position: fixed; top: 0; width: 280px; height: calc(100vh - 80px); background: rgba(10,10,10,0.98); border: 1px solid gold; z-index: 1000; transition: 0.5s; padding: 15px; overflow-y: auto; }
+        #left-panel { left: 0; }
+        #right-panel { right: 0; }
         .hide-left { transform: translateX(-105%); }
         .hide-right { transform: translateX(105%); }
 
-        /* منطقة الوسط (اليوتيوب والمحتوى) */
-        .center-stage {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-        }
+        /* منطقة الشات */
+        #chat-box { height: 70%; overflow-y: auto; border-bottom: 1px solid #333; margin-bottom: 10px; padding: 5px; }
+        .msg { margin-bottom: 8px; padding: 5px; border-radius: 5px; background: rgba(255,215,0,0.05); }
 
-        /* خانة الكتابة الملكية */
-        #input-zone {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 80px;
-            background: #050505;
-            border-top: 2px solid gold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
+        /* خانة البحث واليوتيوب في الميزات */
+        .yt-search-box { margin-bottom: 15px; border: 1px solid gold; padding: 5px; border-radius: 5px; }
+        .yt-card { position: relative; width: 100%; margin-top: 10px; border: 1px solid gold; border-radius: 8px; overflow: hidden; background: #050505; }
+        .close-vid { position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer; font-weight: bold; padding: 2px 8px; z-index: 10; }
 
-        input {
-            width: 50%;
-            padding: 12px;
-            border-radius: 20px;
-            border: 1px solid gold;
-            background: #000;
-            color: gold;
-            outline: none;
-        }
+        .footer-input { position: fixed; bottom: 0; width: 100%; height: 80px; background: #050505; border-top: 2px solid gold; display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        input { width: 60%; padding: 12px; border-radius: 20px; border: 1px solid gold; background: #000; color: gold; outline: none; }
     </style>
 </head>
 <body>
 
-    <div id="left-features" class="side-panel">
-        <h2 style="text-align:center;">📜 الميزات 70</h2>
-        <ul style="list-style:none; padding:0; font-size:14px; line-height:2;">
+    <div id="left-panel" class="side-panel">
+        <h3 style="text-align:center;">📜 الميزات واليوتيوب</h3>
+        <div class="yt-search-box">
+            <input type="text" id="yt-query" placeholder="ابحث في يوتيوب..." style="width: 80%; font-size: 12px;">
+            <button onclick="searchYoutube()" style="background:gold; border:none; cursor:pointer;">🔍</button>
+        </div>
+        <div id="video-list">
+            </div>
+        <hr color="gold">
+        <ul style="font-size: 13px;">
             <li>✅ نظام الكارما: 1205</li>
             <li>✅ بوت الحماية: نشط</li>
-            <li>✅ اليوتيوب الملكي</li>
-            <li>✅ شفرة الملك: علوش</li>
         </ul>
     </div>
 
-    <div class="center-stage" onclick="toggleSides()">
-        <h1 style="font-size:40px; margin-bottom:10px; text-shadow: 0 0 15px gold;">مملكة علوش</h1>
-        
-        <div style="border: 2px solid gold; border-radius: 10px; overflow: hidden; background: #000;">
-            <iframe id="king-yt" width="500" height="280" src="https://www.youtube.com/embed/6c8GAumRx_4" frameborder="0" allowfullscreen></iframe>
-        </div>
-        
-        <p style="color:#444; margin-top:10px;">(اضغط هنا لطي/فتح القوائم)</p>
+    <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;" onclick="toggleSides()">
+        <h1 style="font-size: 45px; text-shadow: 0 0 20px gold;">مملكة علوش</h1>
+        <div id="karma-display" style="font-size: 20px;">🏆 الكارما: 1205</div>
     </div>
 
-    <div id="right-online" class="side-panel">
-        <h2 style="text-align:center;">👥 المتصلون</h2>
-        <div id="users">
-            <p style="font-weight:bold;">👑 علوش_الإمبراطور <span style="font-size:10px; border:1px solid gold; padding:2px;">ORIGINAL</span></p>
-            <p style="color:#00ffea;">🤖 BOT_GUARD (نظام الحماية)</p>
-            <hr border="0.5" color="gold">
-            <p>👤 جاري تحديث المتصلين...</p>
+    <div id="right-panel" class="side-panel">
+        <h3 style="text-align:center;">💬 الشات الملكي</h3>
+        <div id="chat-box">
+            <div class="msg" style="color: #00ffea;">🤖 بوت الحماية: المملكة مؤمنة يا ملك.</div>
+        </div>
+        <div id="users-list" style="font-size: 12px; color: #888;">
+            <p>👑 علوش_الإمبراطور (متصل)</p>
         </div>
     </div>
 
-    <div id="input-zone">
-        <input type="text" id="order-input" placeholder="اكتب 'علوش' لتفعيل المفتاح...">
-        <button onclick="checkKey()" style="background:gold; border:none; margin-left:10px; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">إرسال</button>
+    <div class="footer-input">
+        <input type="text" id="main-input" placeholder="اكتب رسالتك أو أمرك هنا...">
+        <button onclick="sendMsg()" style="background:gold; border:none; margin-left:10px; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">إرسال ⚡</button>
     </div>
 
     <script>
-        function toggleSides() {
-            document.getElementById('left-features').classList.toggle('hide-left');
-            document.getElementById('right-online').classList.toggle('hide-right');
+        // حل مشكلة اختفاء الرسالة: إضافة الرسالة للشات قبل مسح الخانة
+        function sendMsg() {
+            const input = document.getElementById('main-input');
+            const chatBox = document.getElementById('chat-box');
+            const val = input.value.trim();
+
+            if (val !== "") {
+                // إضافة الرسالة إلى الشات لتبقى ظاهرة
+                const newMsg = document.createElement('div');
+                newMsg.className = 'msg';
+                newMsg.innerHTML = `<b>أنت:</b> ${val}`;
+                chatBox.appendChild(newMsg);
+                
+                // التمرير لأسفل الشات
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // تنفيذ أمر الشفرة
+                if(val === "علوش") { alert("👑 تم تفعيل مفتاح الملك!"); }
+
+                // مسح الخانة بعد التأكد من الإرسال
+                input.value = "";
+            }
         }
 
-        function checkKey() {
-            let val = document.getElementById('order-input').value;
-            if(val === "علوش") {
-                alert("تم تفعيل المفتاح! أهلاً بك يا ملك.");
-                document.body.style.boxShadow = "inset 0 0 100px gold";
-                setTimeout(() => document.body.style.boxShadow = "none", 1000);
+        // نظام بحث اليوتيوب المصغر
+        function searchYoutube() {
+            const query = document.getElementById('yt-query').value;
+            const videoList = document.getElementById('video-list');
+            
+            if(query !== "") {
+                // إنشاء مربع مقطع صغير (Card)
+                const card = document.createElement('div');
+                card.className = 'yt-card';
+                card.innerHTML = `
+                    <button class="close-vid" onclick="this.parentElement.remove()">X</button>
+                    <iframe width="100%" height="150" src="https://www.youtube.com/embed?listType=search&list=${query}" frameborder="0" allowfullscreen></iframe>
+                `;
+                videoList.prepend(card); // إضافة المقطع الجديد في الأعلى
+                document.getElementById('yt-query').value = "";
             }
-            document.getElementById('order-input').value = "";
+        }
+
+        function toggleSides() {
+            document.getElementById('left-panel').classList.toggle('hide-left');
+            document.getElementById('right-panel').classList.toggle('hide-right');
         }
     </script>
 </body>
