@@ -2,68 +2,174 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم الدردشة</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تطبيق مملكة علوش 👑</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        :root { --main: #ffd700; --bg: #000; --dark: #121212; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+
+        /* خلفية النجوم */
+        #star-field { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .star { position: absolute; background: #fff; border-radius: 50%; animation: pulse 2s infinite alternate; }
+        @keyframes pulse { from { opacity: 0.2; } to { opacity: 1; } }
+
+        /* واجهة التطبيق */
+        .app-container { display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 10; }
+        
+        /* الهيدر */
+        .app-header { background: rgba(18, 18, 18, 0.9); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        .app-header b { font-size: 20px; color: var(--main); text-shadow: 0 0 10px var(--main); }
+
+        /* ساحة الشات */
+        #chat-win { flex: 1; overflow-y: auto; padding: 15px; scroll-behavior: smooth; }
+        .msg { display: flex; gap: 10px; margin-bottom: 15px; animation: slideIn 0.3s ease; }
+        .msg.me { flex-direction: row-reverse; }
+        .u-img { width: 45px; height: 45px; border-radius: 12px; border: 2px solid var(--main); object-fit: cover; }
+        .bubble { max-width: 75%; background: rgba(30, 30, 30, 0.85); padding: 10px 15px; border-radius: 15px; position: relative; font-size: 15px; border: 1px solid #222; }
+        .me .bubble { background: #2c2500; border-color: var(--main); }
+        .u-name { font-size: 11px; color: var(--main); font-weight: bold; margin-bottom: 4px; display: block; }
+
+        /* شريط الكتابة السفلي (Mobile Style) */
+        .app-bar { background: #121212; padding: 10px; display: flex; gap: 8px; align-items: center; border-top: 1px solid #222; }
+        #mInp { flex: 1; background: #1e1e1e; border: 1px solid #333; color: #fff; padding: 12px 18px; border-radius: 25px; outline: none; font-size: 16px; }
+        .send-btn { background: var(--main); border: none; width: 45px; height: 45px; border-radius: 50%; color: #000; font-size: 20px; cursor: pointer; }
+
+        /* القوائم المنبثقة */
+        .sheet { position: fixed; bottom: -100%; left: 0; width: 100%; height: 80%; background: #0f0f0f; border-top: 2px solid var(--main); border-radius: 25px 25px 0 0; z-index: 2000; transition: 0.4s; padding: 20px; }
+        .sheet.open { bottom: 0; }
+        .sheet-header { text-align: center; color: var(--main); font-weight: bold; margin-bottom: 20px; font-size: 18px; }
+        
+        .user-item { display: flex; align-items: center; gap: 15px; padding: 12px; background: #1a1a1a; border-radius: 10px; margin-bottom: 10px; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body>
-    <div class="dashboard">
-        <aside class="sidebar">
-            <h2>لوحة الإدارة</h2>
-            <ul>
-                <li class="active">الرئيسية</li>
-                <li>إدارة المستخدمين</li>
-                <li>الغرف</li>
-                <li>التقارير</li>
-                <li>الإعدادات</li>
-            </ul>
-        </aside>
+<body onclick="closeSheets()">
 
-        <main class="main-content">
-            <header>
-                <h1>إحصائيات الشات الحالية</h1>
-            </header>
+    <div id="star-field"></div>
 
-            <section class="stats-cards">
-                <div class="card">
-                    <h3>المتصلين الآن</h3>
-                    <p class="number">125</p>
-                </div>
-                <div class="card">
-                    <h3>إجمالي الرسائل</h3>
-                    <p class="number">14,205</p>
-                </div>
-                <div class="card">
-                    <h3>المحظورين</h3>
-                    <p class="number">12</p>
-                </div>
-            </section>
+    <div class="app-container">
+        <div class="app-header">
+            <span onclick="openSheet('admin', event)" style="font-size: 22px;">⚙️</span>
+            <b onclick="location.reload()">مملكة علوش</b>
+            <span onclick="openSheet('users', event)" style="font-size: 22px;">👥</span>
+        </div>
 
-            <section class="user-table">
-                <h3>أحدث المستخدمين المتصلين</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>الاسم</th>
-                            <th>الحالة</th>
-                            <th>الإجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>أحمد محمد</td>
-                            <td class="status-online">متصل</td>
-                            <td><button class="btn-ban">حظر</button></td>
-                        </tr>
-                        <tr>
-                            <td>سارة خالد</td>
-                            <td class="status-offline">غير متصل</td>
-                            <td><button class="btn-ban">حظر</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-        </main>
+        <div id="chat-win"></div>
+
+        <div class="app-bar" onclick="event.stopPropagation()">
+            <span onclick="openSheet('profile', event)" id="my-avatar-btn" style="cursor:pointer">👤</span>
+            <input type="text" id="mInp" placeholder="اكتب هنا...">
+            <button class="send-btn" onclick="send()">🚀</button>
+        </div>
     </div>
+
+    <div id="sheet-users" class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-header">المتواجدون الآن</div>
+        <div id="user-list"></div>
+    </div>
+
+    <div id="sheet-profile" class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-header">تعديل ملفك</div>
+        <input type="text" id="new-n" placeholder="اسمك الجديد" style="width:100%; padding:15px; background:#1a1a1a; border:1px solid #333; color:#fff; border-radius:10px; margin-bottom:15px;">
+        <label style="display:block; background:var(--main); color:#000; padding:15px; text-align:center; border-radius:10px; font-weight:bold; cursor:pointer;">
+            📸 اختر صورة من الاستوديو
+            <input type="file" accept="image/*" style="display:none;" onchange="uploadImg(this)">
+        </label>
+        <button onclick="saveProfile()" style="width:100%; margin-top:20px; padding:15px; background:#fff; border:none; border-radius:10px; font-weight:bold;">حفظ وإغلاق</button>
+    </div>
+
+    <div id="sheet-admin" class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-header">لوحة التحكم</div>
+        <button onclick="db.ref('main_msgs').remove()" style="width:100%; padding:15px; background:red; color:#fff; border:none; border-radius:10px; margin-bottom:10px;">🧨 حذف كل الرسائل</button>
+        <button onclick="db.ref('status').remove()" style="width:100%; padding:15px; background:#222; color:#fff; border:1px solid #444; border-radius:10px;">🧹 تنظيف المتصلين</button>
+    </div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
+        authDomain: "masterchat-f2da9.firebaseapp.com",
+        databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
+        projectId: "masterchat-f2da9"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+    let myID, myD = {}, tempImg = "";
+
+    auth.onAuthStateChanged(u => {
+        if(u) {
+            myID = u.uid;
+            db.ref('users/'+myID).on('value', s => {
+                myD = s.val() || { n: "علوش جديد", av: "https://via.placeholder.com/100" };
+                db.ref('status/'+myID).set({ n: myD.n, av: myD.av });
+                db.ref('status/'+myID).onDisconnect().remove();
+                document.getElementById('my-avatar-btn').innerHTML = `<img src="${myD.av}" style="width:35px; height:35px; border-radius:50%; border:1px solid var(--main);">`;
+            });
+            init();
+            genStars();
+        }
+    });
+
+    function openSheet(id, e) { e.stopPropagation(); closeSheets(); document.getElementById('sheet-'+id).classList.add('open'); }
+    function closeSheets() { document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open')); }
+
+    function uploadImg(input) {
+        const file = input.files[0];
+        if(file) {
+            const r = new FileReader();
+            r.onload = (e) => tempImg = e.target.result;
+            r.readAsDataURL(file);
+        }
+    }
+
+    function saveProfile() {
+        const n = document.getElementById('new-n').value;
+        const up = {}; if(n) up.n = n; if(tempImg) up.av = tempImg;
+        if(Object.keys(up).length > 0) db.ref('users/'+myID).update(up);
+        closeSheets();
+    }
+
+    function send() {
+        const t = document.getElementById('mInp').value;
+        if(!t) return;
+        db.ref('main_msgs').push({ uid: myID, n: myD.n, av: myD.av, t: t });
+        document.getElementById('mInp').value = '';
+    }
+
+    function init() {
+        db.ref('main_msgs').limitToLast(30).on('child_added', s => {
+            const d = s.val();
+            const div = document.createElement('div');
+            div.className = `msg ${d.uid === myID ? 'me' : ''}`;
+            div.innerHTML = `<img src="${d.av}" class="u-img"><div class="bubble"><span class="u-name">${d.n}</span>${d.t}</div>`;
+            document.getElementById('chat-win').appendChild(div);
+            document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
+        });
+
+        db.ref('status').on('value', s => {
+            const l = document.getElementById('user-list'); l.innerHTML = '';
+            s.forEach(u => {
+                l.innerHTML += `<div class="user-item">
+                    <img src="${u.val().av}" style="width:40px; height:40px; border-radius:50%;">
+                    <span>${u.val().n}</span><div style="width:10px; height:10px; background:#0f0; border-radius:50%; margin-right:auto;"></div>
+                </div>`;
+            });
+        });
+    }
+
+    function genStars() {
+        for(let i=0; i<40; i++) {
+            const s = document.createElement('div'); s.className = 'star';
+            s.style.width = s.style.height = Math.random()*3+'px';
+            s.style.top = Math.random()*100+'%'; s.style.left = Math.random()*100+'%';
+            document.getElementById('star-field').appendChild(s);
+        }
+    }
+</script>
 </body>
 </html>
