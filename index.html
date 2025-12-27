@@ -1,41 +1,52 @@
-<script>
-    // ميزة 74: نظام الرتب الذكي
-    const ranks = [
-        { title: "🛡️ جنرال البرمجة", color: "#ff4500" },
-        { title: "⚔️ حارس المملكة", color: "#00ced1" },
-        { title: "📜 مؤرخ الميزات", color: "#da70d6" },
-        { title: "👤 مواطن ملكي", color: "#ffffff" }
-    ];
-
-    function updateOnlineUsers() {
-        const list = document.getElementById('users-list');
-        const users = ["زيد", "حمزة", "ليلى", "نور", "صقر", "عباس"];
-        
-        // إضافة مستخدم برتبة عشوائية
-        const randomUser = users[Math.floor(Math.random() * users.length)];
-        const randomRank = ranks[Math.floor(Math.random() * ranks.length)];
-        
-        const userElement = document.createElement('p');
-        userElement.style.color = randomRank.color;
-        userElement.innerHTML = `<span>${randomRank.title}</span> | ${randomUser}`;
-        
-        list.appendChild(userElement);
-        if(list.children.length > 10) list.removeChild(list.children[1]); // الحفاظ على الملك في الأعلى
-    }
-
-    // تشغيل نظام الرتب كل 4 ثواني
-    setInterval(updateOnlineUsers, 4000);
-</script>
-
 <style>
-    /* تحسين مظهر الميزات في الجهة اليسرى */
-    #features-list li {
-        padding: 5px;
-        border-bottom: 1px solid rgba(255, 215, 0, 0.1);
-        transition: 0.3s;
+    /* تحسين التنقل السلس */
+    #features-list, #online-users {
+        transition: transform 0.5s ease-in-out, opacity 0.5s ease;
     }
-    #features-list li:hover {
-        background: rgba(255, 215, 0, 0.1);
-        transform: translateX(5px);
+    .side-hidden {
+        transform: translateX(-110%); /* لليسار */
+        opacity: 0;
+    }
+    .side-right-hidden {
+        transform: translateX(110%); /* لليمن */
+        opacity: 0;
+    }
+    /* وسم الإمبراطور الخاص */
+    .king-medal {
+        background: linear-gradient(45deg, gold, #fff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 10px;
+        border: 1px solid gold;
+        padding: 0 4px;
+        border-radius: 4px;
+        margin-left: 5px;
     }
 </style>
+
+<script>
+    // ميزة 75: نظام التحكم بالشاشة (الفتح والإغلاق)
+    function toggleSides() {
+        const leftSide = document.getElementById('features-list');
+        const rightSide = document.getElementById('online-users');
+        
+        leftSide.classList.toggle('side-hidden');
+        rightSide.classList.toggle('side-right-hidden');
+        
+        console.log("Time Travel Log: الملك قام بتغيير وضع عرض الواجهة");
+    }
+
+    // تحديث اسم الملك بالأوسمة الملكية
+    window.onload = function() {
+        const kingElement = document.querySelector('#users-list p');
+        if(kingElement) {
+            kingElement.innerHTML = `👑 علوش_الإمبراطور <span class="king-medal">MVP</span><span class="king-medal">ORIGINAL</span>`;
+        }
+    }
+</script>
+
+<div id="main-content" onclick="toggleSides()" style="flex: 1; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 5;">
+    <h1 style="color: gold; text-shadow: 0 0 20px gold;">مملكة علوش</h1>
+    <p style="color: #aaa; font-size: 12px;">(اضغط هنا لإخفاء/إظهار القوائم)</p>
+    <p>🏆 نظام الكارما: <span id="k-count">1205</span></p>
+</div>
