@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - الإصدار الملكي 👑</title>
+    <title>مملكة علوش - الإصدار الجانبي 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #050505; --panel: #111; }
+        :root { --gold: #ffd700; --bg: #000; --panel: #0d0d0d; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
@@ -17,48 +17,50 @@
         .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 3s infinite alternate; }
         @keyframes twinkle { from { opacity: 0.2; } to { opacity: 1; } }
 
-        /* الحاوية الرئيسية */
+        /* الواجهة */
         .app { display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 10; }
-
-        /* الهيدر */
-        .header { background: rgba(18, 18, 18, 0.95); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
+        .header { background: rgba(15, 15, 15, 0.95); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); box-shadow: 0 2px 10px rgba(255, 215, 0, 0.2); }
         .header b { font-size: 20px; color: var(--gold); text-shadow: 0 0 10px var(--gold); }
 
         /* الشات */
-        #chat-win { flex: 1; overflow-y: auto; padding: 15px; background: transparent; }
-        .msg { display: flex; gap: 10px; margin-bottom: 15px; }
+        #chat-win { flex: 1; overflow-y: auto; padding: 15px; background: transparent; display: flex; flex-direction: column; gap: 12px; }
+        .msg { display: flex; gap: 10px; align-items: flex-end; }
         .msg.me { flex-direction: row-reverse; }
         .u-img { width: 45px; height: 45px; border-radius: 12px; border: 2px solid var(--gold); object-fit: cover; }
-        .bubble { max-width: 75%; background: rgba(30, 30, 30, 0.9); padding: 10px 15px; border-radius: 15px; border: 1px solid #333; position: relative; }
+        .bubble { max-width: 75%; background: rgba(30, 30, 30, 0.9); padding: 10px 15px; border-radius: 15px; border: 1px solid #333; position: relative; font-size: 15px; }
         .me .bubble { border-color: var(--gold); background: #221d00; }
-        .u-name { font-size: 11px; color: var(--gold); font-weight: bold; margin-bottom: 4px; display: block; }
+        .u-name { font-size: 11px; color: var(--gold); font-weight: bold; margin-bottom: 3px; display: block; }
 
-        /* الأجنحة (الجهات) */
-        .side-panel { position: fixed; top: 0; width: 280px; height: 100vh; background: var(--panel); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2000; border-left: 1px solid #222; border-right: 1px solid #222; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        #side-left { left: -282px; } /* جهة التحكم */
-        #side-right { right: -282px; } /* جهة المتصلين */
+        /* القوائم الجانبية (الأجنحة) */
+        .side-panel { position: fixed; top: 0; width: 280px; height: 100vh; background: var(--panel); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2000; box-shadow: 0 0 20px #000; }
+        
+        #side-left { left: -282px; border-right: 2px solid var(--gold); } /* تطلع من اليسار */
+        #side-right { right: -282px; border-left: 2px solid var(--gold); } /* تطلع من اليمين */
+        
         .side-panel.open { left: 0 !important; right: 0 !important; }
-        .panel-head { padding: 20px; background: var(--gold); color: #000; font-weight: bold; text-align: center; font-size: 18px; }
+
+        .panel-head { padding: 20px; background: #1a1a1a; color: var(--gold); font-weight: bold; text-align: center; border-bottom: 1px solid #333; font-size: 18px; }
 
         /* شريط الكتابة */
-        .footer { background: #000; padding: 12px; display: flex; gap: 10px; border-top: 2px solid #222; }
-        #mInp { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px 20px; border-radius: 30px; outline: none; }
-        .btn-icon { background: none; border: none; font-size: 24px; color: var(--gold); cursor: pointer; }
+        .footer { background: #000; padding: 12px; display: flex; gap: 10px; border-top: 2px solid #222; align-items: center; }
+        #mInp { flex: 1; background: #161616; border: 1px solid #333; color: #fff; padding: 14px 20px; border-radius: 30px; outline: none; font-size: 16px; }
+        .btn-icon { background: none; border: none; font-size: 26px; color: var(--gold); cursor: pointer; }
 
-        /* أزرار التحكم */
-        .admin-btn { width: 90%; margin: 10px auto; padding: 15px; display: block; background: #222; border: 1px solid var(--gold); color: #fff; border-radius: 10px; font-weight: bold; }
-        .user-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid #222; }
+        /* عناصر التحكم */
+        .admin-item { width: 90%; margin: 10px auto; padding: 15px; background: #222; border: 1px solid #444; color: #fff; border-radius: 10px; text-align: center; font-weight: bold; cursor: pointer; }
+        .admin-item:active { background: var(--gold); color: #000; }
+        .user-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid #222; }
     </style>
 </head>
-<body onclick="closePanels()">
+<body onclick="closeAll()">
 
     <div id="star-field"></div>
 
     <div class="app">
         <div class="header">
-            <span onclick="toggleSide('left', event)" class="btn-icon">⚙️</span>
+            <button onclick="toggleSide('left', event)" class="btn-icon">⚙️</button>
             <b>مملكة علوش</b>
-            <span onclick="toggleSide('right', event)" class="btn-icon">👥</span>
+            <button onclick="toggleSide('right', event)" class="btn-icon">👥</button>
         </div>
 
         <div id="chat-win"></div>
@@ -70,17 +72,16 @@
     </div>
 
     <div id="side-left" class="side-panel" onclick="event.stopPropagation()">
-        <div class="panel-head">⚙️ لوحة التحكم</div>
+        <div class="panel-head">⚙️ إعدادات الإمبراطور</div>
         <div style="padding: 10px;">
-            <button class="admin-btn" onclick="openEdit()">👤 تعديل بروفايلي</button>
-            <button class="admin-btn" onclick="db.ref('main_msgs').remove()">🧨 تصفير الشات</button>
-            <button class="admin-btn" onclick="db.ref('status').remove()">🧹 تنظيف المتصلين</button>
-            
-            <div id="edit-box" style="display:none; padding:10px; background:#000; border-radius:10px; margin-top:10px;">
-                <input type="text" id="new-n" placeholder="اسم جديد" style="width:100%; padding:10px; margin-bottom:10px;">
-                <input type="file" id="f-inp" onchange="upImg(this)" style="font-size:12px; margin-bottom:10px;">
-                <button onclick="saveP()" style="width:100%; background:var(--gold); border:none; padding:10px; border-radius:5px; font-weight:bold;">حفظ</button>
+            <div class="admin-item" onclick="showEdit()">👤 تعديل بروفايلي</div>
+            <div id="edit-area" style="display:none; padding:10px; background:#000; border-radius:10px; margin-bottom:10px;">
+                <input type="text" id="new-n" placeholder="اسمك الجديد" style="width:100%; padding:10px; margin-bottom:10px; border-radius:5px;">
+                <input type="file" id="img-f" onchange="pickImg(this)" style="font-size:12px; margin-bottom:10px;">
+                <button onclick="saveP()" style="width:100%; background:var(--gold); padding:10px; border:none; border-radius:5px; font-weight:bold;">تحديث الآن</button>
             </div>
+            <div class="admin-item" style="color: red; border-color: red;" onclick="clearMsgs()">🧨 تصفير الشات</div>
+            <div class="admin-item" onclick="clearUsers()">🧹 تنظيف المتصلين</div>
         </div>
     </div>
 
@@ -105,17 +106,17 @@
         if(u) {
             myID = u.uid;
             db.ref('users/'+myID).on('value', s => {
-                myD = s.val() || { n: "علوش جديد", av: "https://via.placeholder.com/100" };
+                myD = s.val() || { n: "عضو جديد", av: "https://via.placeholder.com/100" };
                 db.ref('status/'+myID).set({ n: myD.n, av: myD.av });
                 db.ref('status/'+myID).onDisconnect().remove();
             });
-            init();
-            genStars();
+            initChat();
+            stars();
         }
     });
 
-    function toggleSide(side, e) { e.stopPropagation(); closePanels(); document.getElementById('side-'+side).classList.add('open'); }
-    function closePanels() { document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open')); }
+    function toggleSide(side, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+side).classList.add('open'); }
+    function closeAll() { document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open')); }
 
     function send() {
         const t = document.getElementById('mInp').value;
@@ -124,7 +125,7 @@
         document.getElementById('mInp').value = '';
     }
 
-    function init() {
+    function initChat() {
         db.ref('main_msgs').limitToLast(40).on('child_added', s => {
             const d = s.val();
             const div = document.createElement('div');
@@ -137,16 +138,19 @@
         db.ref('status').on('value', s => {
             const l = document.getElementById('user-list'); l.innerHTML = '';
             s.forEach(u => {
-                l.innerHTML += `<div class="user-item"><img src="${u.val().av}" style="width:40px; height:40px; border-radius:50%; border:1px solid var(--gold);"><span>${u.val().n}</span><div style="width:8px; height:8px; background:#0f0; border-radius:50%; margin-right:auto;"></div></div>`;
+                l.innerHTML += `<div class="user-row"><img src="${u.val().av}" style="width:40px; height:40px; border-radius:50%; border:1px solid var(--gold);"><span>${u.val().n}</span><div style="width:10px; height:10px; background:#0f0; border-radius:50%; margin-right:auto;"></div></div>`;
             });
         });
     }
 
-    function openEdit() { document.getElementById('edit-box').style.display = 'block'; }
-    function upImg(i) { const f=i.files[0]; if(f){ const r=new FileReader(); r.onload=(e)=>tempImg=e.target.result; r.readAsDataURL(f); } }
-    function saveP() { const n=document.getElementById('new-n').value; const u={}; if(n)u.n=n; if(tempImg)u.av=tempImg; db.ref('users/'+myID).update(u); closePanels(); }
+    function showEdit() { document.getElementById('edit-area').style.display = 'block'; }
+    function pickImg(i) { const f=i.files[0]; if(f){ const r=new FileReader(); r.onload=(e)=>tempImg=e.target.result; r.readAsDataURL(f); } }
+    function saveP() { const n=document.getElementById('new-n').value; const u={}; if(n)u.n=n; if(tempImg)u.av=tempImg; db.ref('users/'+myID).update(u); closeAll(); }
+    
+    function clearMsgs() { if(confirm("تصفير الشات؟")) db.ref('main_msgs').remove(); }
+    function clearUsers() { if(confirm("تنظيف المتصلين؟")) db.ref('status').remove(); }
 
-    function genStars() {
+    function stars() {
         for(let i=0; i<50; i++) {
             const s = document.createElement('div'); s.className = 'star';
             s.style.width = s.style.height = Math.random()*3+'px';
