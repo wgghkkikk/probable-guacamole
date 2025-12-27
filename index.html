@@ -1,66 +1,49 @@
-// مكتبة المحتوى الملكي المتنوعة
-var kingdomLibrary = [
-    { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "مقاطع دينية وحسينية 🏴", likes: "500K" },
-    { url: "https://www.w3schools.com/html/mov_bbb.mp4", user: "علوش_الإمبراطور", bio: "ملك البرمجة الحصري 👑", likes: "2M" },
-    { url: "https://www.w3schools.com/html/movie.mp4", user: "بنت_بغداد", bio: "يوميات عراقية 🇮🇶", likes: "1.2M" },
-    { url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", user: "المصمم_الملكي", bio: "ترندات وتصاميم حديثة 🔥", likes: "900K" }
-];
+<div id="tiktok-wrapper" style="height: 90vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 20px; border: 2px solid gold; scroll-behavior: smooth;">
+    <div id="video-stream"></div>
+</div>
 
-// مصفوفة تعليقات وهمية لتبدو كأنها من "عالم وناس"
-var fakeComments = [
-    "الله يحفظك يا ملك", "مقطع روعة استمر", "يا حسين مظلوم 🏴", "عاشت ايدك علوش", 
-    "منور الإمبراطورية", "ترند جديد؟", "مبدع دائماً", "تحية من البصرة"
-];
+<script>
+    // مكتبة فيديوهات متنوعة (قصائد، ترندات، يوميات)
+    var kingdomVids = [
+        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "مقاطع دينية وحسينية 🏴", likes: "800K" },
+        { url: "https://www.w3schools.com/html/mov_bbb.mp4", user: "علوش_الإمبراطور", bio: "إمبراطور البرمجة 👑", likes: "1.5M" },
+        { url: "https://www.w3schools.com/html/movie.mp4", user: "المصمم_العراقي", bio: "يوميات وتصاميم 🇮🇶", likes: "400K" }
+    ];
 
-function addRealVarietyVideos(count) {
     var stream = document.getElementById('video-stream');
-    for (var i = 0; i < count; i++) {
-        var v = kingdomLibrary[Math.floor(Math.random() * kingdomLibrary.length)];
-        var post = document.createElement('div');
-        post.style.height = "90vh";
-        post.style.scrollSnapAlign = "start";
-        post.style.position = "relative";
-        post.style.background = "#000";
-        post.style.borderBottom = "5px solid #111";
+    
+    // دالة بناء المقاطع لضمان ظهور البيانات بدلاً من الأكواد
+    function buildVideos() {
+        stream.innerHTML = "";
+        kingdomVids.forEach(function(v) {
+            var post = document.createElement('div');
+            post.style.height = "90vh";
+            post.style.scrollSnapAlign = "start";
+            post.style.position = "relative";
+            post.style.borderBottom = "4px solid #111";
 
-        post.innerHTML = `
-            <video width="100%" height="100%" loop autoplay muted style="object-fit:cover;">
-                <source src="${v.url}" type="video/mp4">
-            </video>
+            // التركيب اليدوي لمنع ظهور نصوص مثل ${v.user}
+            var html = '<video width="100%" height="100%" loop autoplay muted style="object-fit:cover;"><source src="' + v.url + '" type="video/mp4"></video>';
             
-            <div style="position:absolute; right:15px; bottom:120px; text-align:center; color:white; z-index:100; display:flex; flex-direction:column; gap:15px;">
-                <div style="width:50px; height:50px; border-radius:50%; border:2px solid gold; overflow:hidden; margin-bottom:10px;">
-                    <img src="https://ui-avatars.com/api/?name=${v.user}&background=random" width="100%">
-                </div>
-                <div onclick="this.style.color='red'" style="font-size:35px; cursor:pointer;">❤️</div>
-                <div style="font-weight:bold;">${v.likes}</div>
-                <div onclick="openKingComments('${v.user}')" style="font-size:35px; cursor:pointer;">💬</div>
-                <div style="font-weight:bold;">${Math.floor(Math.random()*500)}</div>
-                <div style="background:gold; color:black; border-radius:50%; width:30px; height:30px; font-weight:bold; cursor:pointer; margin:0 auto;">+</div>
-            </div>
+            // أزرار التفاعل
+            html += '<div style="position:absolute; right:15px; bottom:120px; text-align:center; color:white; z-index:100; display:flex; flex-direction:column; gap:20px;">';
+            html += '  <div onclick="this.style.color=\'red\'" style="font-size:35px; cursor:pointer;">❤️</div>';
+            html += '  <div style="font-weight:bold;">' + v.likes + '</div>';
+            html += '  <div onclick="alert(\'فتح تعليقات ' + v.user + '\')" style="font-size:35px; cursor:pointer;">💬</div>';
+            html += '  <div style="font-weight:bold;">' + Math.floor(Math.random()*99) + 'K</div>';
+            html += '</div>';
 
-            <div style="position:absolute; bottom:40px; left:20px; color:white; text-shadow:2px 2px 8px #000; z-index:100;">
-                <h3 style="margin:0; color:gold;">@${v.user}</h3>
-                <p style="margin:5px 0; font-size:14px;">${v.bio}</p>
-                <div style="background:rgba(255,255,255,0.2); padding:5px 10px; border-radius:15px; font-size:12px; display:inline-block;">🎵 الصوت الأصلي - مملكة علوش</div>
-            </div>
-        `;
-        stream.appendChild(post);
+            // معلومات الحساب والوصف
+            html += '<div style="position:absolute; bottom:40px; left:20px; color:white; text-shadow:2px 2px 8px #000; z-index:100;">';
+            html += '  <h3 style="margin:0; color:gold;">@' + v.user + '</h3>';
+            html += '  <p style="margin:8px 0; font-weight:bold;">' + v.bio + '</p>';
+            html += '  <div style="background:rgba(255,255,255,0.2); padding:5px 10px; border-radius:15px; font-size:12px; display:inline-block;">🎵 الصوت الأصلي - مملكة علوش</div>';
+            html += '</div>';
+
+            post.innerHTML = html;
+            stream.appendChild(post);
+        });
     }
-}
 
-// دالة تفتح نافذة تعليقات فيها "ناس"
-function openKingComments(user) {
-    var commentSection = `
-        <div style="position:fixed; bottom:0; width:100%; height:50%; background:white; border-radius:20px 20px 0 0; z-index:2000; color:black; padding:20px; overflow-y:auto;">
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #ddd; padding-bottom:10px;">
-                <b>التعليقات على منشور ${user}</b>
-                <button onclick="this.parentElement.parentElement.remove()" style="background:none; border:none; font-size:20px;">X</button>
-            </div>
-            <div id="comment-list" style="margin-top:15px;">
-                ${fakeComments.map(c => `<p style="margin:10px 0; border-bottom:1px solid #f0f0f0; padding-bottom:5px;"><b>فانز_المملكة:</b> ${c}</p>`).join('')}
-            </div>
-        </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', commentSection);
-}
+    buildVideos();
+</script>
