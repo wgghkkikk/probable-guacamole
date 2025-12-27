@@ -1,33 +1,42 @@
-<div id="live-indicator" style="position: absolute; top: 20px; left: 20px; background: red; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; animation: blink 1s infinite; z-index: 20;">● LIVE</div>
+<div id="king-layout" style="display: flex; justify-content: space-between; height: 100vh; padding: 20px; box-sizing: border-box;">
 
-<div id="comments-scroller" style="position: absolute; bottom: 150px; left: 20px; width: 250px; height: 100px; overflow: hidden; color: #ccc; font-size: 14px; z-index: 15;">
-    <div id="comments-content">
-        <p>👑 عاشق بغداد: منور يا إمبراطور</p>
-        <p>🔥 مبرمج عالمي: أقوى كود شفته بحياتي</p>
-        <p>✨ معجب: الميزة 70 خرافية!</p>
+    <div id="features-list" style="width: 250px; background: rgba(0,0,0,0.8); border: 2px solid gold; border-radius: 15px; padding: 15px; overflow-y: auto;">
+        <h3 style="color: gold; text-align: center; border-bottom: 1px solid gold;">📜 ميزات الإمبراطورية</h3>
+        <ul style="list-style: none; padding: 0; font-size: 13px;">
+            <li>✅ 1. الهالة الصوتية (Audio Aura)</li>
+            <li>✅ 2. الشات المغناطيسي (Magnetic Chat)</li>
+            <li>✅ 3. سجلات الزمن (Time Travel Logs)</li>
+            <li>✅ 4. المبارزة الحية (Live Gladiator)</li>
+            <li>✅ 5. طقس المملكة</li>
+            <li>✅ 6. الحبر السري (Invisible Ink)</li>
+            <li>✅ 7. نظام الكارما الملكي</li>
+            <li style="color: gold; font-weight: bold;">... ميزة 70: خاتم الملك تم تفعيله!</li>
+        </ul>
+    </div>
+
+    <div id="main-content" style="flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+        <h1 style="color: gold; text-shadow: 0 0 20px gold;">مملكة علوش</h1>
+        <p>نظام الكارما: <span id="k-count">1205</span></p>
+    </div>
+
+    <div id="online-users" style="width: 250px; background: rgba(0,0,0,0.8); border: 2px solid #ff0050; border-radius: 15px; padding: 15px; overflow-y: auto;">
+        <h3 style="color: #ff0050; text-align: center; border-bottom: 1px solid #ff0050;">👥 شعب المملكة</h3>
+        <div id="users-list" style="font-size: 14px;">
+            <p style="color: gold;">👑 علوش_الإمبراطور (متصل)</p>
+            <p>👤 حارس المملكة (متصل)</p>
+            <p>👤 عاشق بغداد (متصل)</p>
+            </div>
     </div>
 </div>
 
-<style>
-    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-    #comments-content p { animation: slideUp 5s linear infinite; margin: 5px 0; }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(-100%); } }
-</style>
-
 <script>
-    // ميزة 71: حماية الإمبراطورية
-    document.addEventListener('contextmenu', event => event.preventDefault()); 
-    console.log("Security: درع حماية مملكة علوش مفعل 🛡️");
-
-    // ميزة 72: نظام التعليقات الذكي
-    const names = ["حمزة", "زيد", "ليلى", "نور", "صقر"];
-    const texts = ["عاش الملك", "تصميم أسطوري", "هذا المبرمج مو طبيعي", "المملكة نورت"];
-    
+    // إضافة زوار وهميين كل فترة لإظهار التفاعل
     setInterval(() => {
-        let commentBox = document.getElementById('comments-content');
-        let newP = document.createElement('p');
-        newP.innerText = "👤 " + names[Math.floor(Math.random()*names.length)] + ": " + texts[Math.floor(Math.random()*texts.length)];
-        commentBox.appendChild(newP);
-        if(commentBox.children.length > 5) commentBox.removeChild(commentBox.children[0]);
-    }, 4000);
+        const users = ["زيد", "حمزة", "ليلى", "نور", "صقر"];
+        const list = document.getElementById('users-list');
+        const newUser = document.createElement('p');
+        newUser.innerText = "👤 " + users[Math.floor(Math.random() * users.length)] + " (دخل الآن)";
+        list.appendChild(newUser);
+        if(list.children.length > 8) list.removeChild(list.children[1]);
+    }, 5000);
 </script>
