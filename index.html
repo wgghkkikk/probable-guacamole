@@ -1,4 +1,4 @@
-// ميزة 1: تيك توك المملكة (المحرك المطور)
+// ميزة 1: محرك تيك توك المملكة المطور
 let tiktokData = [
     { id: 1, src: "https://www.w3schools.com/html/mov_bbb.mp4", user: "علوش_الإمبراطور", likes: 1200, comments: [] },
     { id: 2, src: "https://www.w3schools.com/html/horse.mp4", user: "فارس_المملكة", likes: 850, comments: [] },
@@ -20,9 +20,9 @@ function openTikTok() {
 
 function renderTikToks() {
     const stream = document.getElementById('video-stream');
-    stream.innerHTML = ""; // تنظيف الشاشة قبل الرندر
+    stream.innerHTML = ""; 
 
-    tiktokData.forEach((video, index) => {
+    tiktokData.forEach((video) => {
         const post = document.createElement('div');
         post.className = 'tiktok-post';
         post.style = "height: 100%; scroll-snap-align: start; position: relative; border-bottom: 5px solid #111;";
@@ -49,14 +49,12 @@ function renderTikToks() {
                     <input type="text" id="input-${video.id}" placeholder="اكتب تعليقك..." style="flex-grow:1; background:#222; border:1px solid gold; color:white; border-radius:10px; padding:5px;">
                     <button onclick="postComment(${video.id})" style="background:gold; border:none; padding:5px 10px; border-radius:10px; cursor:pointer;">نشر</button>
                 </div>
-                <button onclick="this.parentElement.style.display='none'" style="width:100%; background:none; color:gray; border:none; margin-top:5px; cursor:pointer;">إغلاق</button>
             </div>
         `;
         stream.appendChild(post);
     });
 }
 
-// دالة اللايك الحقيقية
 function handleLike(id) {
     const video = tiktokData.find(v => v.id === id);
     video.likes += 1;
@@ -65,20 +63,15 @@ function handleLike(id) {
     btn.querySelector('small').innerText = video.likes;
 }
 
-// دالة إظهار صندوق التعليقات
 function showCommentBox(id) {
     const box = document.getElementById(`comment-box-${id}`);
     box.style.display = box.style.display === 'none' ? 'block' : 'none';
 }
 
-// دالة نشر التعليق الحقيقي
 function postComment(id) {
     const input = document.getElementById(`input-${id}`);
     const list = document.getElementById(`list-${id}`);
-    const video = tiktokData.find(v => v.id === id);
-    
     if(input.value.trim() !== "") {
-        video.comments.push(input.value);
         const div = document.createElement('div');
         div.style = "padding:3px; border-bottom:1px solid #333;";
         div.innerHTML = `<span style="color:gold;">الملك:</span> ${input.value}`;
