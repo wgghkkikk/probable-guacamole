@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>مملكة علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -10,32 +10,39 @@
     <style>
         :root { --gold: #ffd700; --red: #ff3333; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; }
 
-        /* الشاشة الرئيسية */
         .app { display: flex; flex-direction: column; height: 100vh; position: relative; background: radial-gradient(circle at top, #1a0033, #000); }
         .header { height: 60px; background: #000; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 100; }
         .nav-btn { background: none; border: none; color: var(--gold); font-size: 30px; cursor: pointer; }
 
-        /* نافذة اليوتيوب */
-        #yt-box { width: 160px; height: 100px; position: fixed; top: 70px; left: 10px; z-index: 90; border: 2px solid var(--gold); border-radius: 8px; background: #000; display: none; }
+        /* 📺 نافذة اليوتيوب - تم تحسين الظهور */
+        #yt-box { 
+            width: 180px; height: 110px; position: fixed; top: 70px; left: 10px; 
+            z-index: 500; border: 2px solid var(--gold); border-radius: 10px; 
+            background: #000; display: none; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        .close-yt { position: absolute; top: 0; right: 0; background: rgba(255,0,0,0.8); color: #fff; border: none; font-size: 12px; cursor: pointer; padding: 2px 6px; z-index: 501; border-bottom-left-radius: 5px; }
 
         /* منطقة الشات */
-        #chat-win { flex: 1; overflow-y: auto; padding: 15px 15px 120px 15px; display: flex; flex-direction: column; gap: 10px; }
+        #chat-win { flex: 1; overflow-y: auto; padding: 15px 15px 100px 15px; display: flex; flex-direction: column; gap: 10px; }
         .bubble { max-width: 85%; padding: 10px; border-radius: 15px; border: 1px solid #333; display: flex; align-items: center; gap: 8px; background-size: 200%; animation: moveG 5s linear infinite; }
         @keyframes moveG { 0%{background-position:0%} 100%{background-position:100%} }
         .admin-style { border: 2px solid var(--gold) !important; box-shadow: 0 0 10px var(--gold); }
         .c-img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
 
-        /* خانة الكتابة */
-        .footer { position: fixed; bottom: 25px; left: 10px; right: 10px; height: 55px; background: #1a1a1a; border-radius: 30px; border: 2px solid #444; display: flex; align-items: center; padding: 0 10px; z-index: 50; }
-        #mInp { flex: 1; background: transparent; border: none; color: #fff; font-size: 16px; padding: 10px; }
+        /* 🚀 خانة الكتابة - تم إنزالها للأسفل قليلاً */
+        .footer { 
+            position: fixed; bottom: 10px; left: 10px; right: 10px; 
+            height: 55px; background: #1a1a1a; border-radius: 30px; 
+            border: 2px solid #444; display: flex; align-items: center; padding: 0 10px; z-index: 50;
+        }
+        #mInp { flex: 1; background: transparent; border: none; color: #fff; font-size: 16px; padding: 10px; outline: none; }
 
-        /* القوائم الجانبية */
+        /* القوائم */
         .menu { position: fixed; top: 0; width: 80%; height: 100%; background: #0a0a0a; z-index: 1000; transition: 0.3s; border: 1px solid var(--gold); display: none; overflow-y: auto; }
         .menu.show { display: block; }
         #menu-l { left: 0; } #menu-r { right: 0; }
-
         .box { padding: 15px; border-bottom: 1px solid #222; }
         .btn-style { width: 100%; padding: 12px; background: #111; color: var(--gold); border: 1px solid var(--gold); border-radius: 10px; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
         .inp-style { width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid #444; border-radius: 8px; margin-bottom: 10px; }
@@ -48,11 +55,15 @@
     <div class="app">
         <div class="header">
             <button onclick="openL()" class="nav-btn">🎨</button>
-            <b id="main-title" style="color:var(--gold)">مملكة علوش 👑</b>
+            <b style="color:var(--gold)">مملكة علوش 👑</b>
             <button onclick="openR()" class="nav-btn">👥</button>
         </div>
 
-        <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0"></iframe></div>
+        <div id="yt-box">
+            <button class="close-yt" onclick="document.getElementById('yt-box').style.display='none'">X</button>
+            <iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay"></iframe>
+        </div>
+
         <div id="chat-win" onclick="closeAll()"></div>
 
         <div class="footer">
@@ -65,27 +76,22 @@
         <div class="box">
             <center>
                 <img id="my-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:70px; height:70px; border-radius:50%; border:2px solid var(--gold);" onclick="document.getElementById('f-inp').click()">
-                <p style="font-size:11px; color:#888;">اضغط لتغيير الصورة</p>
                 <input type="file" id="f-inp" hidden accept="image/*" onchange="upload(this)">
                 <h3 id="u-status" style="color:var(--gold); margin:5px 0;">عضو ملكي</h3>
             </center>
             <input type="text" id="newName" class="inp-style" placeholder="تغيير الاسم...">
             <button class="btn-style" onclick="save()">حفظ البيانات ✅</button>
         </div>
-
         <div class="box">
-            <h4 style="color:var(--gold)">🌈 لون الدردشة</h4>
+            <h4 style="color:var(--gold)">🎬 بحث يوتيوب</h4>
+            <input type="text" id="ytInp" class="inp-style" placeholder="اكتب اسم الأغنية...">
+            <button class="btn-style" onclick="ytSearch()">تشغيل الأغنية 📡</button>
+        </div>
+        <div class="box">
+            <h4 style="color:var(--gold)">🌈 الألوان</h4>
             <div id="palette" class="p-grid"></div>
         </div>
-
         <div class="box">
-            <h4 style="color:var(--gold)">🎬 يوتيوب</h4>
-            <input type="text" id="ytSearch" class="inp-style" placeholder="ابحث عن أغنية...">
-            <button class="btn-style" onclick="ytSearch()">تشغيل 📡</button>
-        </div>
-
-        <div class="box">
-            <h4 style="color:var(--red)">⚙️ لوحة المالك</h4>
             <button class="btn-style" style="border-color:red; color:red;" onclick="adminLogin()">🔑 دخول الملك</button>
             <button class="btn-style" style="display:none; background:red; color:#fff;" id="clear-btn" onclick="clearChat()">🧹 مسح الشات</button>
         </div>
@@ -94,7 +100,7 @@
 
     <div id="menu-r" class="menu">
         <div class="box">
-            <h3 style="text-align:center; color:var(--gold);">👥 المتصلون الآن</h3>
+            <h3 style="text-align:center; color:var(--gold);">👥 المتصلون</h3>
             <div id="u-list"></div>
             <button class="btn-style" style="margin-top:20px;" onclick="closeAll()">رجوع ✖</button>
         </div>
@@ -103,10 +109,9 @@
 <script>
     const API_KEY = "AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU";
     const firebaseConfig = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ID ثابت للجهاز لمنع تكرار الأسماء
     let uID = localStorage.getItem('chatId') || "ID_" + Math.floor(Math.random()*999999);
     localStorage.setItem('chatId', uID);
 
@@ -121,7 +126,6 @@
     }
     updateUI();
 
-    // توليد الألوان
     const pal = document.getElementById('palette');
     for(let i=0; i<70; i++) {
         let g = `linear-gradient(45deg, hsl(${i*5.1},70%,40%), hsl(${(i*5.1)+45},70%,40%))`;
@@ -150,26 +154,20 @@
         closeAll();
     }
 
-    // نظام المالك
     function adminLogin() {
-        let p = prompt("رمز المالك السري:");
-        if(p === "1234") { // الرمز هو 1234
-            mySet.r = "admin";
-            mySet.n = "المالك علوش 👑";
-            save();
-            location.reload();
-        } else { alert("الرمز خطأ!"); }
+        let p = prompt("رمز الملك:");
+        if(p === "1234") { mySet.r = "admin"; mySet.n = "المالك علوش 👑"; save(); location.reload(); }
     }
 
-    function clearChat() { if(confirm("مسح كل الرسائل؟")) db.ref('main_msgs').remove(); }
-
-    // يوتيوب
     async function ytSearch() {
-        const q = document.getElementById('ytSearch').value.trim();
+        const q = document.getElementById('ytInp').value.trim();
         if(!q) return;
         const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}&maxResults=1`);
         const data = await res.json();
-        if(data.items.length > 0) db.ref('yt_sync').set({ id: data.items[0].id.videoId });
+        if(data.items.length > 0) {
+            db.ref('yt_sync').set({ id: data.items[0].id.videoId, t: Date.now() });
+            closeAll();
+        }
     }
 
     db.ref('yt_sync').on('value', s => {
@@ -197,21 +195,20 @@
         document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
     });
 
-    // عرض المتصلين بدون تكرار
     db.ref('status').on('value', s => {
         const l = document.getElementById('u-list'); l.innerHTML = '';
         s.forEach(u => {
             let user = u.val();
             l.innerHTML += `<div style="padding:10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #222;">
                 <img src="${user.img}" style="width:30px; height:30px; border-radius:50%; border:1px solid var(--gold);">
-                <span style="color:${user.r === 'admin' ? 'var(--gold)' : '#fff'}">${user.r === 'admin' ? '👑' : ''} ${user.n}</span>
+                <span style="color:${user.r === 'admin' ? 'var(--gold)' : '#fff'}">${user.n}</span>
             </div>`;
         });
     });
 
-    // تحديث الحالة عند الدخول والخروج
     db.ref('status/'+uID).set({n:mySet.n, img:mySet.img, r:mySet.r});
     db.ref('status/'+uID).onDisconnect().remove();
+    function clearChat() { if(confirm("مسح؟")) db.ref('main_msgs').remove(); }
 </script>
 </body>
 </html>
