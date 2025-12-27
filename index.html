@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - البحث الذكي 👑</title>
+    <title>مملكة علوش - رادار اليوتيوب 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -20,13 +20,13 @@
         .app { display: flex; flex-direction: column; height: 100vh; }
         .header { background: rgba(0,0,0,0.85); padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
         
-        /* 📺 مربع اليوتيوب الصغير */
+        /* 📺 المربع الصغير (المصلح) */
         #yt-box { 
-            width: 160px; height: 100px; 
-            position: fixed; top: 65px; left: 10px; 
+            width: 180px; height: 110px; 
+            position: fixed; top: 70px; left: 10px; 
             z-index: 1000; border: 2px solid var(--gold); 
-            border-radius: 8px; overflow: hidden; background: #000;
-            box-shadow: 0 0 10px var(--gold); display: none;
+            border-radius: 8px; background: #000;
+            box-shadow: 0 0 15px var(--gold); display: none;
         }
         #yt-box.active { display: block; }
 
@@ -43,7 +43,7 @@
         .open { left: 0 !important; right: 0 !important; }
         .box { background: rgba(255,215,0,0.03); margin: 8px; padding: 12px; border-radius: 8px; border: 1px solid #222; }
         .btn-gold { width: 100%; padding: 10px; margin: 5px 0; background: #111; color: #fff; border: 1px solid var(--gold); border-radius: 5px; cursor: pointer; font-size: 13px; }
-        .search-input { width: 100%; padding: 10px; background: #000; border: 1px solid var(--gold); color: #fff; border-radius: 5px; margin-top: 5px; text-align: center; }
+        .search-input { width: 100%; padding: 10px; background: #000; border: 1px solid var(--gold); color: #fff; border-radius: 5px; margin-top: 5px; text-align: center; box-sizing: border-box;}
     </style>
 </head>
 <body onclick="closeAll()">
@@ -56,7 +56,7 @@
         </div>
 
         <div id="yt-box">
-            <iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay"></iframe>
+            <iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
 
         <div id="chat-win"></div>
@@ -68,12 +68,12 @@
     </div>
 
     <div id="side-l" class="side" onclick="event.stopPropagation()">
-        <h3 style="text-align:center; color:var(--gold); font-size: 16px;">🔍 رادار اليوتيوب</h3>
+        <h3 style="text-align:center; color:var(--gold); font-size: 16px;">🔍 بحث يوتيوب</h3>
         <div class="box">
-            <small style="color:var(--gold)">اكتب اسم الأغنية أو الفيديو:</small>
-            <input type="text" id="ytQuery" class="search-input" placeholder="مثلاً: حسام الرسام..">
-            <button class="btn-gold" onclick="searchAndPlay()">بحث وتشغيل للكل 📡</button>
-            <button class="btn-gold" style="border-color:red; color:red;" onclick="stopAll()">إيقاف البث ✖</button>
+            <small style="color:var(--gold)">اكتب اسم الأغنية:</small>
+            <input type="text" id="ytQuery" class="search-input" placeholder="مثلاً: حسام الرسام">
+            <button class="btn-gold" onclick="searchAndPlay()">بحث وبث للجميع 📡</button>
+            <button class="btn-gold" style="border-color:red; color:red;" onclick="stopAll()">إغلاق الفيديو ✖</button>
         </div>
         <div class="box">
             <small style="color:var(--gold)">✨ زخرفة اسمك:</small>
@@ -99,12 +99,12 @@
     db.ref('status/' + uID).set({ n: uName });
     db.ref('status/' + uID).onDisconnect().remove();
 
-    // 🚀 وظيفة البحث والتشغيل الجماعي (بدون رابط)
+    // 🚀 الحل لعدم توفر الفيديو: استخدام البحث عبر Embed برمجياً
     function searchAndPlay() {
         const query = document.getElementById('ytQuery').value.trim();
         if(!query) return;
 
-        // نقوم بإرسال الكلمة لقاعدة البيانات كأمر تشغيل
+        // إرسال الكلمة للجميع
         db.ref('yt_sync').set({
             type: "search",
             keyword: query,
@@ -120,15 +120,14 @@
         closeAll();
     }
 
-    // 📡 الاستماع للبحث المشترك (عندما يبحث أي شخص، يتغير عند الجميع)
     db.ref('yt_sync').on('value', s => {
         const v = s.val();
         const box = document.getElementById('yt-box');
         const iframe = document.getElementById('player');
         
         if(v && v.type === "search") {
-            // نستخدم ميزة Embed Search لجعل يوتيوب يبحث ويشغل تلقائياً
-            iframe.src = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(v.keyword)}&autoplay=1`;
+            // استخدام رابط يوتيوب المخصص للبحث المدمج
+            iframe.src = `https://www.youtube.com/embed/videoseries?listType=search&list=${encodeURIComponent(v.keyword)}&autoplay=1`;
             box.classList.add('active');
         } else {
             iframe.src = "";
@@ -136,7 +135,6 @@
         }
     });
 
-    // الشات
     function sendMsg() {
         const i = document.getElementById('mInp');
         if(!i.value.trim()) return;
