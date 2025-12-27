@@ -7,7 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #000; }
+        :root { --gold: #ffd700; --bg: #000; --vip: #00d4ff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
 
@@ -15,25 +15,17 @@
         .header { height: 60px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
 
         #chat-win { flex: 1; overflow-y: auto; padding: 10px 15px 150px 15px; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 85%; padding: 10px; border-radius: 15px; background: #111; border: 1px solid #222; }
+        .bubble { max-width: 85%; padding: 10px; border-radius: 15px; background: #111; border: 1px solid #222; cursor: pointer; }
         .admin-msg { border: 2px solid var(--gold) !important; }
+        .vip-msg { border: 2px solid var(--vip) !important; }
 
-        /* 📺 منطقة اليوتيوب المحدثة */
-        #yt-container { 
-            position: fixed; top: 70px; left: 10px; width: 180px; height: 120px; 
-            z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; 
-            display: none; background: #000; box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        }
-        #close-yt {
-            position: absolute; top: -10px; right: -10px; background: red; color: white;
-            border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;
-            font-weight: bold; z-index: 1001; display: flex; align-items: center; justify-content: center;
-        }
+        #yt-container { position: fixed; top: 70px; left: 10px; width: 180px; height: 120px; z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; display: none; background: #000; }
+        #close-yt { position: absolute; top: -10px; right: -10px; background: red; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; }
 
         .input-box { position: fixed; bottom: 0; left: 0; right: 0; background: #080808; border-top: 2px solid #333; padding: 10px; z-index: 2000; }
         .footer { display: flex; align-items: center; gap: 10px; }
         #mInp { flex: 1; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 20px; padding: 10px 15px; height: 45px; }
-        .send-btn { background: var(--gold); color: #000; border: none; border-radius: 50%; width: 48px; height: 48px; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .send-btn { background: var(--gold); color: #000; border: none; border-radius: 50%; width: 48px; height: 48px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         .menu { position: fixed; top: 0; width: 75%; height: 100%; background: #0a0a0a; z-index: 3000; border: 1px solid var(--gold); display: none; overflow-y: auto; }
         .menu.show { display: block; }
@@ -95,6 +87,9 @@
     localStorage.setItem('chatId', uID);
     let mySet = JSON.parse(localStorage.getItem('mySet')) || { n: "عضو جديد", img: "https://via.placeholder.com/80", r: "user" };
 
+    // فحص الرتبة من الداتا بيز باستمرار
+    db.ref('users_roles/'+uID).on('value', s => { if(s.val()) { mySet.r = s.val(); localStorage.setItem('mySet', JSON.stringify(mySet)); } });
+
     // دخول المالك (3 ثواني على الترس)
     let timer;
     const setBtn = document.getElementById('setBtn');
@@ -105,12 +100,11 @@
 
     function adminL() { 
         let p = prompt("رمز الإمبراطور:");
-        if(p === "1234") { mySet.r = "admin"; mySet.n = "المالك علوش 👑"; saveP(); location.reload(); }
-    }
-
-    function stopYT() {
-        document.getElementById('yt-container').style.display = 'none';
-        document.getElementById('player').src = "";
+        if(p === "1234") { 
+            mySet.r = "admin"; mySet.n = "المالك علوش 👑"; 
+            db.ref('users_roles/'+uID).set('admin');
+            saveP(); location.reload(); 
+        }
     }
 
     function doSend() {
@@ -148,17 +142,28 @@
         }
     }
 
+    // إدارة الرتب والرسائل
+    function msgAction(k, targetUid, targetName) {
+        if(mySet.r !== 'admin') return;
+        let act = confirm(`التحكم بالعضو ${targetName}:\n- موافق: حذف الرسالة\n- إلغاء: ترقية لمشرف`);
+        if(act) { db.ref('main_msgs/'+k).remove(); } 
+        else { if(confirm("هل تريد ترقية " + targetName + " لمشرف ⭐؟")) { db.ref('users_roles/'+targetUid).set('vip'); alert("تم الترقية!"); } }
+    }
+
     db.ref('main_msgs').on('value', s => {
         const win = document.getElementById('chat-win');
         win.innerHTML = "";
         s.forEach(child => {
             const d = child.val(); const k = child.key;
             const div = document.createElement('div');
-            div.className = `bubble ${d.r === 'admin' ? 'admin-msg' : ''}`;
+            div.className = `bubble ${d.r === 'admin' ? 'admin-msg' : (d.r === 'vip' ? 'vip-msg' : '')}`;
             div.style.alignSelf = d.uid === uID ? 'flex-end' : 'flex-start';
-            let h = `<div style="display:flex; align-items:center; gap:8px;"><img src="${d.img}" style="width:25px;height:25px;border-radius:50%;"><b style="color:var(--gold);font-size:11px;">${d.n}</b>`;
-            if(mySet.r === 'admin') h += `<span onclick="db.ref('main_msgs/${k}').remove()" style="color:red;margin-right:10px;cursor:pointer;">🗑️</span>`;
-            h += `</div>`;
+            div.onclick = () => msgAction(k, d.uid, d.n);
+
+            let h = `<div style="display:flex; align-items:center; gap:8px;">
+                <img src="${d.img}" style="width:25px;height:25px;border-radius:50%;">
+                <b style="color:${d.r==='admin'?'var(--gold)':(d.r==='vip'?'var(--vip)':'#fff')}; font-size:11px;">${d.n} ${d.r==='vip'?'⭐':''}</b>
+            </div>`;
             if(d.t) h += `<div style="margin-top:4px;">${d.t}</div>`;
             if(d.imgMsg) h += `<img src="${d.imgMsg}" style="width:100%;border-radius:10px;margin-top:5px;">`;
             div.innerHTML = h;
@@ -166,6 +171,8 @@
         });
         win.scrollTop = win.scrollHeight;
     });
+
+    function stopYT() { document.getElementById('yt-container').style.display = 'none'; document.getElementById('player').src = ""; }
 
     async function ytS() {
         const q = document.getElementById('ytInp').value;
@@ -182,6 +189,7 @@
 
     db.ref('status/'+uID).set({ n: mySet.n, img: mySet.img, r: mySet.r, online: true });
     db.ref('status/'+uID).onDisconnect().remove();
+
     db.ref('status').on('value', s => {
         const l = document.getElementById('u-list');
         l.innerHTML = "";
@@ -190,12 +198,11 @@
             if(user.online) {
                 l.innerHTML += `<div style="padding:8px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #111;">
                     <img src="${user.img}" style="width:25px; height:25px; border-radius:50%; object-fit:cover;">
-                    <span style="font-size:13px; ${user.r==='admin'?'color:var(--gold);font-weight:bold;':''}">${user.n}</span>
+                    <span style="font-size:13px; color:${user.r==='admin'?'var(--gold)':(user.r==='vip'?'var(--vip)':'#fff')}">${user.n} ${user.r==='vip'?'⭐':''}</span>
                 </div>`;
             }
         });
     });
-    db.ref('main_msgs').on('child_removed', () => location.reload());
 </script>
 </body>
 </html>
