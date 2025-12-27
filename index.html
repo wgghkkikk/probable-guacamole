@@ -8,62 +8,74 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        :root { --gold: #ffd700; }
+        :root { --gold: #ffd700; --chat-bg: rgba(255,255,255,0.1); --name-color: #ffd700; }
         
-        /* ✨ ألوان متحركة للواجهة لا تنتهي */
-        @keyframes bg-flow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* ✨ خلفية كونية متحركة لا تنتهي */
+        @keyframes space-flow {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
         }
 
         body { 
-            margin: 0; padding: 0; background: linear-gradient(-45deg, #000, #1a0033, #001a33, #000);
-            background-size: 400% 400%; animation: bg-flow 15s ease infinite;
-            color: #fff; font-family: sans-serif; overflow: hidden; height: 100vh; 
+            margin: 0; padding: 0; 
+            background: radial-gradient(circle at center, #1a0033, #000, #001a33);
+            background-size: 300% 300%; animation: space-flow 20s linear infinite;
+            color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; 
         }
 
+        /* ✨ أنيميشن للاسم المتحرك */
+        @keyframes rainbow-text {
+            0% { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
+            20% { color: #ffd700; text-shadow: 0 0 5px #ffd700; }
+            40% { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
+            60% { color: #00ffff; text-shadow: 0 0 5px #00ffff; }
+            80% { color: #ff00ff; text-shadow: 0 0 5px #ff00ff; }
+            100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
+        }
+        .magic-name { animation: rainbow-text 3s linear infinite; font-weight: bold; }
+
         .app { display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 10; }
-        .header { background: rgba(0,0,0,0.85); padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
+        .header { background: rgba(0,0,0,0.8); padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); box-shadow: 0 0 15px var(--gold); }
         
-        #yt-box { width: 180px; height: 110px; position: fixed; top: 70px; left: 10px; z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; background: #000; display: none; box-shadow: 0 0 20px var(--gold); }
+        #yt-box { width: 180px; height: 110px; position: fixed; top: 70px; left: 10px; z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; display: none; box-shadow: 0 0 20px var(--gold); }
         #yt-box.active { display: block; }
 
-        #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 85%; padding: 12px; border-radius: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,215,0,0.2); font-size: 14px; backdrop-filter: blur(5px); }
+        #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .bubble { max-width: 85%; padding: 12px; border-radius: 18px; background: var(--chat-bg); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(8px); position: relative; }
         .me { align-self: flex-start; border-right: 4px solid var(--gold); }
 
-        /* 🚀 الصاروخ يمين شغال 100% */
         .footer { background: rgba(0,0,0,0.9); padding: 10px; display: flex; border-top: 1px solid #333; align-items: center; gap: 10px; }
         #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #444; outline: none; }
-        .btn-send { background: none; border: none; font-size: 30px; cursor: pointer; order: 1; transition: 0.3s; }
-        .btn-send:hover { transform: scale(1.2) rotate(-15deg); }
+        .btn-send { background: none; border: none; font-size: 30px; cursor: pointer; order: 1; }
 
-        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: rgba(5, 5, 5, 0.95); transition: 0.4s; z-index: 2000; border: 1px solid var(--gold); overflow-y: auto; }
+        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: rgba(10, 10, 10, 0.98); transition: 0.4s; z-index: 2000; border: 1px solid var(--gold); overflow-y: auto; }
         #side-l { left: -285px; } #side-r { right: -285px; }
         .open { left: 0 !important; right: 0 !important; }
 
         .box { background: rgba(255,215,0,0.05); margin: 10px; padding: 15px; border-radius: 10px; border: 1px solid #333; }
-        .btn-gold { width: 100%; padding: 10px; margin: 5px 0; background: #000; color: var(--gold); border: 1px solid var(--gold); border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-gold { width: 100%; padding: 10px; margin: 5px 0; background: #000; color: var(--gold); border: 1px solid var(--gold); border-radius: 8px; cursor: pointer; font-size: 13px; }
         
-        input[type="text"] { width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid #444; border-radius: 5px; margin-bottom: 10px; }
+        /* 🎨 لوحة الألوان */
+        .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+        .c-btn { height: 30px; border-radius: 5px; border: 1px solid #fff; cursor: pointer; }
     </style>
 </head>
 <body onclick="closeAll()">
 
     <div class="app">
         <div class="header">
-            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">🛠️</button>
+            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">🎨</button>
             <b style="color:var(--gold); text-shadow: 0 0 10px var(--gold);">مملكة علوش 👑</b>
             <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">👥</button>
         </div>
 
-        <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media"></iframe></div>
+        <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay"></iframe></div>
         <div id="chat-win"></div>
 
         <div class="footer" onclick="event.stopPropagation()">
             <button class="btn-send" onclick="sendMsg()">🚀</button>
-            <input type="text" id="mInp" placeholder="اكتب رسالتك يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
+            <input type="text" id="mInp" placeholder="تكلم يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
         </div>
     </div>
 
@@ -74,22 +86,37 @@
 
     <div id="side-l" class="side" onclick="event.stopPropagation()">
         <div class="box">
-            <h4 style="color:var(--gold); margin:0 0 10px 0;">👑 معمل الزخرفة الخاص بك</h4>
-            <input type="text" id="newName" placeholder="اكتب اسمك هنا...">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+            <h4 style="color:var(--gold); margin-bottom:10px;">👑 معمل الاسم والزخرفة</h4>
+            <input type="text" id="newName" placeholder="اكتب اسمك هنا..." style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid #444;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin: 10px 0;">
                 <button class="btn-gold" onclick="applyDeco('💎')">💎</button>
                 <button class="btn-gold" onclick="applyDeco('🔥')">🔥</button>
                 <button class="btn-gold" onclick="applyDeco('『 』')">『 』</button>
-                <button class="btn-gold" onclick="applyDeco('❮ ❯')">❮ ❯</button>
+                <button class="btn-gold" onclick="applyDeco('👑')">👑</button>
             </div>
-            <button class="btn-gold" style="background:var(--gold); color:#000;" onclick="saveMyName()">اعتماد الاسم المزخرف ✅</button>
+            
+            <h5 style="color:var(--gold); margin: 10px 0 5px 0;">🌈 نمط الاسم المتحرك:</h5>
+            <button class="btn-gold" style="background:linear-gradient(to right, red, yellow, green); color:#000;" onclick="setMagicName(true)">تفعيل الاسم السحري ✨</button>
+            <button class="btn-gold" onclick="setMagicName(false)">اسم ثابت</button>
         </div>
 
         <div class="box">
-            <h4 style="color:var(--gold); margin:0 0 10px 0;">🎬 رادار البحث</h4>
-            <input type="text" id="ytSearch" placeholder="اسم الأغنية...">
+            <h4 style="color:var(--gold); margin-bottom:10px;">🎨 ألوان الشات الخاصة بك</h4>
+            <div class="color-grid">
+                <div class="c-btn" style="background:rgba(255,215,0,0.2);" onclick="setChatCol('rgba(255,215,0,0.2)')"></div>
+                <div class="c-btn" style="background:rgba(255,0,0,0.2);" onclick="setChatCol('rgba(255,0,0,0.2)')"></div>
+                <div class="c-btn" style="background:rgba(0,255,0,0.2);" onclick="setChatCol('rgba(0,255,0,0.2)')"></div>
+                <div class="c-btn" style="background:rgba(0,150,255,0.2);" onclick="setChatCol('rgba(0,150,255,0.2)')"></div>
+                <div class="c-btn" style="background:rgba(255,0,255,0.2);" onclick="setChatCol('rgba(255,0,255,0.2)')"></div>
+                <div class="c-btn" style="background:rgba(255,255,255,0.1);" onclick="setChatCol('rgba(255,255,255,0.1)')"></div>
+            </div>
+            <button class="btn-gold" style="margin-top:15px; background:var(--gold); color:#000;" onclick="saveMyProfile()">حفظ الإعدادات الملكية ✅</button>
+        </div>
+
+        <div class="box">
+            <h4 style="color:var(--gold);">🎬 رادار البحث</h4>
+            <input type="text" id="ytSearch" placeholder="اسم الأغنية..." style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid #444;">
             <button class="btn-gold" onclick="searchByAPI()">بث للكل 📡</button>
-            <button class="btn-gold" style="color:red; border-color:red;" onclick="db.ref('yt_sync').set({a:'stop'})">إيقاف ✖</button>
         </div>
     </div>
 
@@ -99,31 +126,29 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let uName = localStorage.getItem('chatName') || "علوش";
     let uID = localStorage.getItem('chatId') || "ID_" + Math.floor(Math.random() * 999999);
     localStorage.setItem('chatId', uID);
-    db.ref('status/' + uID).set({ n: uName });
 
-    // وظيفة الزخرفة الذاتية
+    // إعدادات المستخدم الافتراضية
+    let mySettings = JSON.parse(localStorage.getItem('mySettings')) || { n: "علوش", isMagic: false, col: "rgba(255,255,255,0.1)" };
+    db.ref('status/' + uID).set(mySettings);
+
     function applyDeco(sym) {
         let inp = document.getElementById('newName');
-        if(sym.includes(' ')) {
-            let parts = sym.split(' ');
-            inp.value = parts[0] + inp.value + parts[1];
-        } else {
-            inp.value = sym + inp.value + sym;
-        }
+        if(sym.includes(' ')) { let p = sym.split(' '); inp.value = p[0] + inp.value + p[1]; }
+        else { inp.value = sym + inp.value + sym; }
     }
 
-    function saveMyName() {
+    function setMagicName(val) { mySettings.isMagic = val; }
+    function setChatCol(col) { mySettings.col = col; }
+
+    function saveMyProfile() {
         let n = document.getElementById('newName').value.trim();
-        if(n) {
-            uName = n;
-            localStorage.setItem('chatName', n);
-            db.ref('status/' + uID).set({ n: n });
-            alert("تم تحديث زخرفتك بنجاح يا ملك!");
-            closeAll();
-        }
+        if(n) mySettings.n = n;
+        localStorage.setItem('mySettings', JSON.stringify(mySettings));
+        db.ref('status/' + uID).set(mySettings);
+        alert("تم تحديث مظهرك الملكي!");
+        closeAll();
     }
 
     async function searchByAPI() {
@@ -132,11 +157,8 @@
         try {
             const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&videoEmbeddable=true&key=${API_KEY}&maxResults=1`);
             const data = await res.json();
-            if(data.items.length > 0) {
-                db.ref('yt_sync').set({ a: 'play', id: data.items[0].id.videoId, t: Date.now() });
-                closeAll();
-            }
-        } catch (e) { console.error(e); }
+            if(data.items.length > 0) db.ref('yt_sync').set({ a: 'play', id: data.items[0].id.videoId });
+        } catch (e) { }
     }
 
     db.ref('yt_sync').on('value', s => {
@@ -144,16 +166,13 @@
         if(v && v.a === 'play') {
             document.getElementById('player').src = `https://www.youtube.com/embed/${v.id}?autoplay=1`;
             document.getElementById('yt-box').style.display = 'block';
-        } else {
-            document.getElementById('player').src = "";
-            document.getElementById('yt-box').style.display = 'none';
-        }
+        } else { document.getElementById('yt-box').style.display = 'none'; }
     });
 
     function sendMsg() {
         const i = document.getElementById('mInp');
         if(!i.value.trim()) return;
-        db.ref('main_msgs').push({ uid: uID, n: uName, t: i.value });
+        db.ref('main_msgs').push({ uid: uID, n: mySettings.n, t: i.value, magic: mySettings.isMagic, col: mySettings.col });
         i.value = "";
     }
 
@@ -161,14 +180,18 @@
         const d = s.val();
         const div = document.createElement('div');
         div.className = `bubble ${d.uid === uID ? 'me' : ''}`;
-        div.innerHTML = `<b style="color:var(--gold); font-size:11px; display:block; margin-bottom:5px;">${d.n}</b>${d.t}`;
+        div.style.background = d.col || "rgba(255,255,255,0.1)";
+        div.innerHTML = `<b class="${d.magic ? 'magic-name' : ''}" style="color:var(--gold); font-size:11px; display:block; margin-bottom:5px;">${d.n}</b>${d.t}`;
         document.getElementById('chat-win').appendChild(div);
         document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
     });
 
     db.ref('status').on('value', s => {
         const l = document.getElementById('u-list'); l.innerHTML = '';
-        s.forEach(u => { l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; font-size:14px;">🌟 ${u.val().n}</div>`; });
+        s.forEach(u => { 
+            const ud = u.val();
+            l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222;"><span class="${ud.isMagic ? 'magic-name' : ''}">🌟 ${ud.n}</span></div>`; 
+        });
     });
 
     function toggleS(id, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+id).classList.add('open'); }
