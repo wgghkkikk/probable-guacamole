@@ -3,109 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - الإصدار الفخم 👑</title>
+    <title>مملكة علوش - تحديث القمة 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #000; --accent: #ffd700; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; transition: 0.5s; }
+        :root { --gold: #ffd700; --vip: #ff00ff; --admin: #ff0000; --bg: #000; }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
         
-        /* تأثيرات الثيمات المتحركة */
-        .theme-fire { background: linear-gradient(45deg, #000, #400, #800); animation: fireAnim 5s infinite alternate; }
-        .theme-ocean { background: linear-gradient(45deg, #000, #002, #005); animation: oceanAnim 5s infinite alternate; }
-        @keyframes fireAnim { from { background-color: #000; } to { background-color: #300; } }
-        @keyframes oceanAnim { from { background-color: #000; } to { background-color: #002; } }
+        /* تأثيرات الرتب */
+        .badge { font-size: 9px; padding: 2px 5px; border-radius: 4px; margin-left: 5px; vertical-align: middle; font-weight: bold; }
+        .badge-admin { background: var(--admin); color: #fff; box-shadow: 0 0 5px var(--admin); }
+        .badge-vip { background: var(--vip); color: #fff; }
+        .badge-member { background: #333; color: #ccc; }
 
-        /* بوابة الدخول */
-        #auth-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .auth-card { background: #111; padding: 25px; border-radius: 20px; border: 1px solid var(--gold); text-align: center; width: 85%; max-width: 350px; }
-        .auth-card input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #333; background: #000; color: #fff; text-align: center; }
-        .auth-btn { width: 100%; padding: 14px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        /* المنشن */
+        .mention { background: rgba(255, 215, 0, 0.2); border: 1px solid var(--gold); border-radius: 3px; padding: 0 2px; color: var(--gold); }
 
-        /* التطبيق */
-        .app { display: none; flex-direction: column; height: 100vh; position: relative; z-index: 10; }
-        .header { background: rgba(0,0,0,0.8); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
+        /* واجهة الدردشة */
+        .app { display: flex; flex-direction: column; height: 100vh; }
+        .header { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { display: flex; gap: 10px; }
+        
+        /* فقاعة الرسالة المطورة */
+        .msg { display: flex; gap: 8px; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .msg.me { flex-direction: row-reverse; }
-        .bubble { max-width: 75%; background: rgba(30,30,30,0.9); padding: 10px; border-radius: 12px; border: 1px solid #333; }
+        .u-img { width: 42px; height: 42px; border-radius: 12px; border: 2px solid var(--gold); object-fit: cover; }
+        .bubble { max-width: 75%; background: rgba(25, 25, 25, 0.95); padding: 10px; border-radius: 15px; border: 1px solid #333; position: relative; }
+        .me .bubble { border-color: var(--gold); background: #1a1600; }
+        .u-info { font-size: 11px; margin-bottom: 4px; display: flex; align-items: center; }
 
-        /* القائمة الجانبية المحدثة */
-        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: #0a0a0a; transition: 0.4s; z-index: 2000; overflow-y: auto; }
+        /* القوائم الجانبية */
+        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: #0a0a0a; transition: 0.4s; z-index: 2000; overflow-y: auto; border-left: 1px solid #222; }
         #side-l { left: -282px; border-right: 2px solid var(--gold); }
-        .side.open { left: 0 !important; }
-
-        /* خانة الزخرفة */
-        .decor-box { background: #111; padding: 10px; border-radius: 10px; margin: 10px; border: 1px solid #222; }
-        .decor-item { cursor: pointer; padding: 5px; border-bottom: 1px solid #222; font-size: 14px; }
-        .decor-item:hover { color: var(--gold); }
+        #side-r { right: -282px; border-left: 2px solid var(--gold); }
+        .side.open { left: 0 !important; right: 0 !important; }
 
         /* شريط الكتابة */
-        .footer { background: #000; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #222; }
-        #mInp { flex: 1; background: #1a1a1a; color: #fff; padding: 12px; border-radius: 20px; border: 1px solid #333; outline: none; }
+        .footer { background: #000; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #222; align-items: center; }
+        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #333; outline: none; }
     </style>
 </head>
 <body onclick="closeAll()">
 
-    <div id="auth-screen">
-        <div class="auth-card">
-            <h2 style="color:var(--gold)">دخول المملكة 👑</h2>
-            <input type="email" id="email" placeholder="البريد الإلكتروني">
-            <input type="password" id="pass" placeholder="الرمز السري">
-            <button class="auth-btn" onclick="handleAuth('login')">تسجيل دخول</button>
-            <button onclick="handleAuth('register')" style="background:none; border:none; color:gray; margin-top:10px;">إنشاء حساب جديد</button>
-            <p id="auth-err" style="color:red; font-size:11px;"></p>
-        </div>
-    </div>
-
-    <div class="app" id="app-ui">
+    <div class="app" id="app-ui" style="display:none;">
         <div class="header">
-            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px;">⚙️</button>
-            <b style="color:var(--gold)">مملكة علوش</b>
-            <span onclick="toggleS('r', event)" style="font-size:24px;">👥</span>
+            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:22px;">⚙️</button>
+            <b style="color:var(--gold); text-shadow: 0 0 10px var(--gold);">مملكة علوش</b>
+            <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:22px;">👥</button>
         </div>
+
         <div id="chat-win"></div>
+
         <div class="footer" onclick="event.stopPropagation()">
-            <input type="text" id="mInp" placeholder="تحدث يا ملك...">
-            <button onclick="send()" style="background:none; border:none; font-size:24px;">🚀</button>
+            <button onclick="toggleEmoji()" style="background:none; border:none; font-size:20px;">😊</button>
+            <input type="text" id="mInp" placeholder="تكلم يا بطل..." onkeypress="if(event.key==='Enter') send()">
+            <button onclick="send()" style="background:none; border:none; font-size:22px;">🚀</button>
         </div>
     </div>
 
     <div id="side-l" class="side" onclick="event.stopPropagation()">
-        <div style="padding:15px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #222;">إعدادات المملكة</div>
-        
-        <div class="decor-box">
-            <small style="color:var(--gold)">✨ مزخرف الأسماء</small>
-            <input type="text" id="name-to-style" placeholder="اكتب اسمك هنا..." oninput="styleName()" style="width:100%; padding:8px; margin-top:5px; background:#000; color:#fff; border:1px solid #444; border-radius:5px;">
-            <div id="style-results" style="max-height:100px; overflow:auto; margin-top:5px;"></div>
-        </div>
-
-        <div class="decor-box">
-            <small style="color:var(--gold)">🎨 الثيمات المتحركة</small>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:5px;">
-                <button onclick="setTheme('default')" style="background:#222; color:#fff; border:none; padding:8px; border-radius:5px; font-size:12px;">كلاسيك</button>
-                <button onclick="setTheme('fire')" style="background:#500; color:#fff; border:none; padding:8px; border-radius:5px; font-size:12px;">ناري 🔥</button>
-                <button onclick="setTheme('ocean')" style="background:#005; color:#fff; border:none; padding:8px; border-radius:5px; font-size:12px;">بحري 🌊</button>
-                <button onclick="setTheme('gold')" style="background:#b8860b; color:#fff; border:none; padding:8px; border-radius:5px; font-size:12px;">ملكي 👑</button>
+        <div style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #222;">👑 لوحة التحكم</div>
+        <div style="padding:15px;">
+            <div id="admin-only" style="display:none;">
+                <p style="color:red; font-size:12px;">أدوات الملك فقط:</p>
+                <button onclick="clearChat()" style="width:100%; padding:10px; background:#222; color:red; border:1px solid red; margin-bottom:10px; border-radius:5px;">تصفير الشات</button>
+                <button onclick="pushAnnouncement()" style="width:100%; padding:10px; background:#222; color:var(--gold); border:1px solid var(--gold); border-radius:5px;">إعلان عام 📣</button>
+            </div>
+            <hr style="border:0.1px solid #222;">
+            <p style="font-size:12px; color:gray;">إحصائياتك:</p>
+            <div id="user-stats" style="font-size:13px; background:#111; padding:10px; border-radius:8px;">
+                الرتبة: <span id="my-rank" style="color:var(--gold);">عضو</span><br>
+                الرسائل: <span id="msg-count">0</span>
             </div>
         </div>
-
-        <div id="admin-tools" style="padding:10px; display:none;">
-            <button onclick="db.ref('main_msgs').remove()" style="width:100%; padding:10px; background:#333; color:red; border:none; border-radius:5px;">🧨 تصفير الشات</button>
-        </div>
-
-        <div style="padding:20px; text-align:center;">
-            <button onclick="auth.signOut().then(()=>location.reload())" style="color:gray; background:none; border:none; text-decoration:underline; cursor:pointer;">تسجيل خروج</button>
-        </div>
-    </div>
-
-    <div id="side-r" class="side" style="right:-282px; left:auto; border-left:2px solid var(--gold);">
-        <div style="padding:15px; text-align:center; color:var(--gold); font-weight:bold;">المتواجدون 👥</div>
-        <div id="user-list"></div>
     </div>
 
 <script>
+    // تكوين Firebase (استخدم نفس بياناتك السابقة)
     const firebaseConfig = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
@@ -115,81 +91,116 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
-    let myID, myD = { n: "عضو", av: "https://via.placeholder.com/100" };
-
-    // نظام الزخرفة
-    function styleName() {
-        const val = document.getElementById('name-to-style').value;
-        const res = document.getElementById('style-results');
-        if(!val) { res.innerHTML = ""; return; }
-        const styles = [ `👑 ${val} 👑`, `『 ${val} 』`, `★ ${val} ★`, `꧁ ${val} ꧂`, `〆 ${val} 〆` ];
-        res.innerHTML = styles.map(s => `<div class="decor-item" onclick="applyName('${s}')">${s}</div>`).join('');
-    }
-    function applyName(s) {
-        db.ref('users/'+myID).update({ n: s });
-        alert("تم تغيير اسمك وزخرفته يا ملك! 👑");
-    }
-
-    // نظام الثيمات
-    function setTheme(t) {
-        document.body.className = "theme-" + t;
-        localStorage.setItem('userTheme', t);
-    }
-
-    function handleAuth(type) {
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('pass').value;
-        if(type === 'register') auth.createUserWithEmailAndPassword(email, pass).catch(e => document.getElementById('auth-err').innerText = e.message);
-        else auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById('auth-err').innerText = e.message);
-    }
+    let myID, myD = { n: "عضو", av: "https://via.placeholder.com/100", rank: "member", msgs: 0 };
 
     auth.onAuthStateChanged(u => {
         if(u) {
             myID = u.uid;
-            document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-ui').style.display = 'flex';
-            if(u.email === "alloush@boss.com") document.getElementById('admin-tools').style.display = 'block';
             
+            // تحميل بيانات المستخدم ورتبته
             db.ref('users/'+myID).on('value', s => {
-                myD = s.val() || { n: u.email.split('@')[0], av: "https://via.placeholder.com/100" };
-                db.ref('status/'+myID).set({ n: myD.n, av: myD.av });
+                myD = s.val() || { n: u.email.split('@')[0], av: "https://via.placeholder.com/100", rank: "member", msgs: 0 };
+                
+                // التحقق من الإدارة (علوش)
+                if(u.email === "alloush@boss.com") {
+                    myD.rank = "admin";
+                    document.getElementById('admin-only').style.display = 'block';
+                }
+                
+                document.getElementById('my-rank').innerText = getRankName(myD.rank);
+                document.getElementById('msg-count').innerText = myD.msgs;
+                
+                db.ref('status/'+myID).set({ n: myD.n, av: myD.av, rank: myD.rank });
                 db.ref('status/'+myID).onDisconnect().remove();
             });
             initChat();
-            const savedTheme = localStorage.getItem('userTheme');
-            if(savedTheme) setTheme(savedTheme);
+        } else {
+            // توجيه لصفحة الدخول إذا لم يسجل
+            alert("يرجى تسجيل الدخول أولاً");
         }
     });
 
-    function toggleS(s, e) { e.stopPropagation(); document.querySelectorAll('.side').forEach(p=>p.classList.remove('open')); document.getElementById('side-'+s).classList.add('open'); }
-    function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
+    function getRankName(r) {
+        if(r === 'admin') return "الملك 👑";
+        if(r === 'vip') return "عضو مميز 💎";
+        return "عضو 👤";
+    }
 
     function send() {
-        const t = document.getElementById('mInp').value;
+        const t = document.getElementById('mInp').value.trim();
         if(!t) return;
-        db.ref('main_msgs').push({ uid: myID, n: myD.n, av: myD.av, t: t });
+        
+        // منع السبام (حماية بسيطة)
+        if(t.length > 500) { alert("الرسالة طويلة جداً!"); return; }
+
+        db.ref('main_msgs').push({
+            uid: myID,
+            n: myD.n,
+            av: myD.av,
+            t: t,
+            rank: myD.rank,
+            time: Date.now()
+        });
+
+        // زيادة عدد الرسائل وتطوير الرتبة تلقائياً
+        let newMsgs = (myD.msgs || 0) + 1;
+        let newRank = myD.rank;
+        if(newRank !== 'admin' && newMsgs > 100) newRank = 'vip'; // إذا وصل 100 رسالة يصير VIP
+        
+        db.ref('users/'+myID).update({ msgs: newMsgs, rank: newRank });
+        
         document.getElementById('mInp').value = '';
     }
 
     function initChat() {
-        db.ref('main_msgs').limitToLast(40).on('child_added', s => {
+        db.ref('main_msgs').limitToLast(50).on('child_added', s => {
             const d = s.val();
+            const isMe = d.uid === myID;
+            
+            // معالجة المنشن (إذا أحد كتب اسمك)
+            let text = d.t;
+            if(text.includes(myD.n)) {
+                text = text.replace(myD.n, `<span class="mention">@${myD.n}</span>`);
+                if(!isMe) playMentionSound();
+            }
+
             const div = document.createElement('div');
-            div.className = `msg ${d.uid === myID ? 'me' : ''}`;
-            div.innerHTML = `<img src="${d.av}" style="width:40px;height:40px;border-radius:10px;border:1px solid var(--gold);"><div class="bubble"><b style="font-size:10px;color:var(--gold);display:block;">${d.n}</b>${d.t}</div>`;
+            div.className = `msg ${isMe ? 'me' : ''}`;
+            
+            const badgeClass = d.rank === 'admin' ? 'badge-admin' : (d.rank === 'vip' ? 'badge-vip' : 'badge-member');
+            const badgeName = getRankName(d.rank);
+
+            div.innerHTML = `
+                <img src="${d.av}" class="u-img">
+                <div class="bubble">
+                    <div class="u-info">
+                        <span style="font-weight:bold; color:var(--gold);">${d.n}</span>
+                        <span class="badge ${badgeClass}">${badgeName}</span>
+                    </div>
+                    <div style="word-break:break-word;">${text}</div>
+                </div>
+            `;
             document.getElementById('chat-win').appendChild(div);
             document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
         });
-
-        db.ref('status').on('value', s => {
-            const l = document.getElementById('user-list'); l.innerHTML = '';
-            s.forEach(u => {
-                l.innerHTML += `<div style="display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid #222;">
-                <img src="${u.val().av}" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--gold);">
-                <span>${u.val().n}</span><div style="width:8px;height:8px;background:#0f0;border-radius:50%;margin-right:auto;"></div></div>`;
-            });
-        });
     }
+
+    function playMentionSound() {
+        // يمكن إضافة رابط صوت تنبيه خفيف هنا
+        const audio = new Audio('https://www.soundjay.com/buttons/sounds/button-20.mp3');
+        audio.play().catch(()=>{});
+    }
+
+    function clearChat() {
+        if(confirm("هل أنت متأكد من مسح جميع الرسائل؟")) {
+            db.ref('main_msgs').remove();
+            location.reload();
+        }
+    }
+
+    function toggleS(s, e) { e.stopPropagation(); document.getElementById('side-'+s).classList.toggle('open'); }
+    function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
 </script>
 </body>
 </html>
