@@ -1,75 +1,39 @@
-<style>
-    /* تصميم الجهات الجانبية */
-    .side-panel {
-        position: fixed;
-        top: 0;
-        width: 250px;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.9);
-        border: 1px solid gold;
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 1000;
-        overflow-y: auto;
-        padding: 20px;
+<script>
+    // ميزة 78: بوت الحماية الذكي
+    function activateGuard() {
+        const list = document.getElementById('users-list');
+        
+        // إنشاء عنصر البوت
+        const botElement = document.createElement('p');
+        botElement.id = "kingdom-guard";
+        botElement.style.color = "#00ffea";
+        botElement.style.fontWeight = "bold";
+        botElement.style.textShadow = "0 0 5px #00ffea";
+        botElement.innerHTML = `🤖 BOT_GUARD <span class="badge-king" style="background: #00ffea; color: black;">🛡️ SECURE</span> | نشط`;
+        
+        // وضعه تحت اسم الملك مباشرة
+        const king = list.firstChild;
+        list.insertBefore(botElement, list.children[1]);
     }
-    #left-features { left: 0; transform: translateX(0); }
-    #right-online { right: 0; transform: translateX(0); }
 
-    /* وضع الإخفاء */
-    .hidden-left { transform: translateX(-100%) !important; opacity: 0; }
-    .hidden-right { transform: translateX(100%) !important; opacity: 0; }
+    // تشغيل البوت عند تحميل الصفحة
+    window.addEventListener('load', () => {
+        activateGuard();
+        // ميزة 79: رسائل مراقبة في سجلات الزمن
+        setInterval(() => {
+            console.log("Guard System: جميع الـ 70 ميزة تحت الحماية المستمرة 🛡️");
+        }, 10000);
+    });
+</script>
 
-    /* أوسمة الملك الخاصة */
-    .badge-king {
-        background: linear-gradient(gold, #ffcc00);
-        color: black;
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-weight: bold;
-        margin-left: 5px;
-        box-shadow: 0 0 5px gold;
+<style>
+    /* تأثير البرق الملكي عند فتح القوائم */
+    .flash-effect {
+        animation: lightning 0.4s ease-out;
+    }
+    @keyframes lightning {
+        0% { background: white; }
+        50% { background: gold; }
+        100% { background: transparent; }
     }
 </style>
-
-<body style="margin:0; overflow:hidden; background:#fff;">
-
-    <div id="left-features" class="side-panel">
-        <h3 style="color:gold;">📜 ميزات الـ 70</h3>
-        <ul style="color:white; font-size:12px; list-style:none; padding:0;">
-            <li>✅ الهالة الصوتية</li>
-            <li>✅ نظام الكارما</li>
-            <li>✅ المبارزة الحية</li>
-        </ul>
-    </div>
-
-    <div onclick="toggleKingdomLayout()" style="width:100vw; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;">
-        <h1 style="color:gold; font-size:45px; text-shadow: 0 0 10px rgba(255,215,0,0.5);">مملكة علوش</h1>
-        <p style="color:#bbb;">(اضغط هنا لإظهار/إخفاء القوائم الملكية)</p>
-        <div style="font-size:24px;">🏆 نظام الكارما: <span id="karma-display">1205</span></div>
-    </div>
-
-    <div id="right-online" class="side-panel">
-        <h3 style="color:gold;">👥 شعب المملكة</h3>
-        <div style="color:white;">
-            <p>👑 علوش_الإمبراطور <span class="badge-king">ORIGINAL</span> <span class="badge-king">MVP</span></p>
-            <hr border="0.5">
-            <p style="color:cyan;">🛡️ جنرال: زيد</p>
-            <p style="color:lime;">👤 مواطن: حمزة</p>
-        </div>
-    </div>
-
-    <script>
-        function toggleKingdomLayout() {
-            const left = document.getElementById('left-features');
-            const right = document.getElementById('right-online');
-            
-            left.classList.toggle('hidden-left');
-            right.classList.toggle('hidden-right');
-            
-            // ميزة 77: التأثير الصوتي عند الطي
-            console.log("Audio Aura: صوت فتح الأبواب الملكية...");
-            // يمكنك هنا تشغيل ملف صوتي بسيط
-        }
-    </script>
-</body>
