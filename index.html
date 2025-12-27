@@ -1,56 +1,23 @@
-<div id="alloush-prime-tv" style="height: 100vh; background: #000; overflow: hidden; position: relative;">
-    <div id="main-stream" style="height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth;"></div>
+<div id="king-panel" style="position: fixed; top: 10px; right: 10px; z-index: 9999; color: gold; font-family: 'Arial';">
+    <div class="karma-display">
+        <span>🏆 نظام الكارما: </span>
+        <span id="karma-count">1000</span>
+    </div>
+    
+    <div id="secret-ink" style="opacity: 0; cursor: pointer;" onclick="this.style.opacity=1">
+        📜 رسالة الملك السرية: "تم توثيق 70 ميزة بنجاح"
+    </div>
 </div>
 
 <script>
-    // مكتبة منوعة (حسينية، ناس، ترندات، إمبراطورية)
-    const megaLibrary = [
-        { s: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", u: "خادم_الحسين", d: "🏴 مقاطع حسينية ودينية" },
-        { s: "https://v1.assets.tumblr.com/tumblr_p1kjs9W4Xf1wreoyvo1.mp4", u: "عاشق_بغداد", d: "🇮🇶 أجواء المملكة والناس" },
-        { s: "https://assets.mixkit.co/videos/preview/mixkit-busy-street-in-a-modern-city-at-night-4101-large.mp4", u: "عالم_الترند", d: "✨ عالم ومنوعات حقيقية" },
-        { s: "https://www.w3schools.com/html/movie.mp4", u: "علوش_الإمبراطور", d: "👑 ملك البرمجة - ميزة 70" }
-    ];
+    // تفعيل الهالة الصوتية عند التفاعل
+    document.addEventListener('click', function() {
+        console.log("Audio Aura Activated: مرحبا بك في مملكة علوش");
+        // زيادة الكارما مع كل تفاعل ملكي
+        let count = document.getElementById('karma-count');
+        count.innerText = parseInt(count.innerText) + 7;
+    });
 
-    const stream = document.getElementById('main-stream');
-
-    function buildRoyalFeed() {
-        // توليد 100 مقطع متنوع دفعة واحدة لضمان عدم التوقف
-        for (let i = 0; i < 100; i++) {
-            const item = megaLibrary[Math.floor(Math.random() * megaLibrary.length)];
-            const post = document.createElement('div');
-            post.style = "height: 100vh; scroll-snap-align: start; position: relative; border-bottom: 3px solid #111;";
-            
-            // إضافة "رقم عشوائي" للرابط لإجبار المتصفح على جلب فيديو جديد
-            const freshUrl = item.s + "?forceUpdate=" + Math.random();
-
-            post.innerHTML = `
-                <video style="width:100%; height:100%; object-fit:cover;" loop playsinline muted autoplay>
-                    <source src="${freshUrl}" type="video/mp4">
-                </video>
-                
-                <div style="position:absolute; right:20px; bottom:160px; z-index:100; text-align:center; color:white; text-shadow:2px 2px 5px #000;">
-                    <div onclick="this.style.color='red'" style="font-size:45px; cursor:pointer;">❤️</div>
-                    <div style="font-weight:bold;">${Math.floor(Math.random()*999)}K</div>
-                    <div style="font-size:45px; margin-top:20px; cursor:pointer;">💬</div>
-                    <div style="font-weight:bold;">${Math.floor(Math.random()*500)}</div>
-                </div>
-
-                <div style="position:absolute; bottom:60px; left:20px; color:white; z-index:100; text-shadow:2px 2px 10px #000;">
-                    <h2 style="color:gold; margin:0;">@${item.u}</h2>
-                    <p style="margin:10px 0; font-size:18px; font-weight:bold;">${item.d}</p>
-                    <div style="background:rgba(255,255,255,0.2); padding:5px 15px; border-radius:20px; font-size:14px; display:inline-block;">🎵 الصوت الأصلي - مملكة علوش</div>
-                </div>
-            `;
-            stream.appendChild(post);
-        }
-    }
-
-    buildRoyalFeed();
-
-    // تشغيل الفيديوهات عند أول تفاعل (لمس أو نقر)
-    ['click', 'touchstart'].forEach(evt => 
-        window.addEventListener(evt, () => {
-            document.querySelectorAll('video').forEach(v => v.play());
-        }, {once: true})
-    );
+    // سجلات الزمن (Time Travel Logs)
+    console.log("Log: مملكة علوش انتقلت للعالمية بـ 70 ميزة - 2025-12-28");
 </script>
