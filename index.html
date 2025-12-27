@@ -8,203 +8,175 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --gold: #ffd700; --royal: #ff0055; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; }
 
         .app { display: flex; flex-direction: column; height: 100vh; background: radial-gradient(circle at top, #1a0033, #000); }
         .header { height: 60px; background: #000; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; }
-
-        /* منطقة الدردشة */
-        #chat-win { flex: 1; overflow-y: auto; padding: 15px 15px 130px 15px; display: flex; flex-direction: column; gap: 12px; }
-        .bubble { max-width: 85%; padding: 12px; border-radius: 18px; border: 1px solid #333; position: relative; animation: fadeIn 0.3s; }
-        .admin-style { border: 2px solid var(--gold); box-shadow: 0 0 10px var(--gold); background: linear-gradient(45deg, #222, #000) !important; }
-        .quote-box { background: rgba(255,255,255,0.1); padding: 5px; border-radius: 5px; font-size: 12px; margin-bottom: 5px; border-right: 3px solid var(--gold); }
-        .chat-img-msg { width: 100%; max-width: 200px; border-radius: 10px; margin-top: 5px; }
         
-        /* شريط الكتابة */
-        .footer { position: fixed; bottom: 15px; left: 10px; right: 10px; background: #1a1a1a; border-radius: 30px; border: 2px solid #444; display: flex; align-items: center; padding: 5px 15px; z-index: 900; }
-        #mInp { flex: 1; background: transparent; border: none; color: #fff; font-size: 16px; padding: 10px; outline: none; }
-        .footer-btns { display: flex; gap: 10px; }
+        #chat-win { flex: 1; overflow-y: auto; padding: 15px 15px 130px 15px; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { max-width: 85%; padding: 10px; border-radius: 15px; border: 1px solid #333; position: relative; animation: fadeIn 0.3s; background: rgba(255,255,255,0.05); }
+        .admin-msg { border: 2px solid var(--gold) !important; box-shadow: 0 0 10px var(--gold); }
+        .c-img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
 
-        /* الاقتباس النشط */
-        #active-quote { display: none; background: #222; padding: 10px; border-top: 2px solid var(--gold); position: fixed; bottom: 75px; left: 10px; right: 10px; border-radius: 10px; z-index: 850; }
+        .footer { position: fixed; bottom: 15px; left: 10px; right: 10px; height: 55px; background: #1a1a1a; border-radius: 30px; border: 2px solid #444; display: flex; align-items: center; padding: 0 10px; z-index: 900; }
+        #mInp { flex: 1; background: transparent; border: none; color: #fff; font-size: 16px; padding: 10px; }
 
-        /* القوائم الجانبية */
         .menu { position: fixed; top: 0; width: 85%; height: 100%; background: #0a0a0a; z-index: 2000; transition: 0.3s; border: 1px solid var(--gold); display: none; overflow-y: auto; }
         .menu.show { display: block; }
         #menu-l { left: 0; } #menu-r { right: 0; }
+        
         .btn-style { width: 100%; padding: 12px; background: #111; color: var(--gold); border: 1px solid var(--gold); border-radius: 10px; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
-        
-        .bot-tag { background: #0088ff; color: #fff; font-size: 10px; padding: 2px 5px; border-radius: 4px; margin-right: 5px; }
-        .owner-tag { background: linear-gradient(to left, #ffd700, #ff8c00); color: #000; font-size: 11px; padding: 2px 6px; border-radius: 5px; font-weight: bold; }
-        
-        #yt-box { width: 160px; height: 100px; position: fixed; top: 70px; left: 10px; z-index: 500; border: 2px solid var(--gold); border-radius: 8px; display: none; }
+        .owner-tag { background: linear-gradient(to left, #ffd700, #ff8c00); color: #000; font-size: 10px; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+        .bot-tag { background: #0088ff; color: #fff; font-size: 10px; padding: 2px 5px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="app">
     <div class="header">
-        <button onclick="openL()" style="background:none; border:none; color:var(--gold); font-size:28px;">⚙️</button>
+        <button onclick="openL()" style="background:none; border:none; color:var(--gold); font-size:30px;">🎨</button>
         <b style="color:var(--gold)">مملكة علوش 👑</b>
-        <button onclick="openR()" style="background:none; border:none; color:var(--gold); font-size:28px;">👥</button>
+        <button onclick="openR()" style="background:none; border:none; color:var(--gold); font-size:30px;">👥</button>
     </div>
-
-    <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0"></iframe></div>
-
     <div id="chat-win" onclick="closeAll()"></div>
-
-    <div id="active-quote">
-        <span id="quote-text" style="font-size:12px;"></span>
-        <button onclick="cancelQuote()" style="float:left; background:none; border:none; color:red;">✖</button>
-    </div>
-
     <div class="footer">
-        <input type="file" id="img-file" hidden accept="image/*" onchange="sendImg(this)">
-        <button onclick="document.getElementById('img-file').click()" style="background:none; border:none; font-size:20px;">📷</button>
-        <input type="text" id="mInp" placeholder="تكلم يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
-        <button onclick="sendMsg()" style="background:none; border:none; font-size:24px;">🚀</button>
+        <input type="file" id="msg-img-file" hidden accept="image/*" onchange="sendImgMsg(this)">
+        <button onclick="document.getElementById('msg-img-file').click()" style="background:none; border:none; font-size:20px;">📷</button>
+        <input type="text" id="mInp" placeholder="تكلم..." onkeydown="if(event.key==='Enter') sendMsg()">
+        <button onclick="sendMsg()" style="background:none; border:none; font-size:25px;">🚀</button>
     </div>
 </div>
 
 <div id="menu-l" class="menu">
     <div style="padding: 20px;">
         <center>
-            <img id="my-pic" src="https://via.placeholder.com/80" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--gold);">
-            <h3 id="u-status" style="color:var(--gold);">عضو ملكي</h3>
+            <div style="position:relative; width:90px; height:90px;">
+                <img id="my-pic-display" src="https://via.placeholder.com/90" style="width:90px; height:90px; border-radius:50%; border:3px solid var(--gold); object-fit:cover;">
+                <button onclick="document.getElementById('p-img-file').click()" style="position:absolute; bottom:0; right:0; background:var(--gold); border:none; border-radius:50%; width:30px; height:30px; cursor:pointer;">📸</button>
+            </div>
+            <input type="file" id="p-img-file" hidden accept="image/*" onchange="changeProfilePic(this)">
+            <h3 id="u-status-label" style="color:var(--gold); margin-top:10px;">عضو</h3>
         </center>
-        <input type="text" id="newName" style="width:100%; padding:10px; margin:10px 0; background:#111; border:1px solid #444; color:#fff;" placeholder="تغيير الاسم...">
-        <button class="btn-style" onclick="saveProfile()">حفظ 💾</button>
-        <button class="btn-style" onclick="adminLogin()">🔑 دخول الملك</button>
-        <hr style="border:0.5px solid #222;">
-        <h4 style="color:var(--gold)">🎬 يوتيوب</h4>
-        <input type="text" id="ytInp" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:#fff;" placeholder="اسم الأغنية...">
-        <button class="btn-style" onclick="ytSearch()">تشغيل 📡</button>
-        <button class="btn-style" style="color:red; border-color:red;" onclick="closeAll()">إغلاق ✖</button>
+        <input type="text" id="newName" style="width:100%; padding:12px; margin:15px 0; background:#111; border:1px solid #444; color:#fff; border-radius:8px;" placeholder="غير اسمك...">
+        <button class="btn-style" onclick="updateProfile()">حفظ التعديلات ✅</button>
+        <button class="btn-style" style="border-color:red; color:red;" onclick="adminLogin()">🔑 تسجيل دخول المالك</button>
+        <button class="btn-style" style="margin-top:20px;" onclick="closeAll()">إغلاق ✖</button>
     </div>
 </div>
 
 <div id="menu-r" class="menu">
     <div style="padding: 20px;">
-        <h3 style="text-align:center; color:var(--gold);">👥 المتواجدون</h3>
+        <h3 style="text-align:center; color:var(--gold);">👥 المتصلون حالياً</h3>
         <div id="u-list"></div>
     </div>
 </div>
 
 <script>
-    const API_KEY = "AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU";
     const firebaseConfig = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // نظام الهوية الفريدة (UID)
     let uID = localStorage.getItem('chatId') || "ID_" + Math.floor(Math.random()*999999);
     localStorage.setItem('chatId', uID);
 
-    let mySet = JSON.parse(localStorage.getItem('mySet')) || { n: "علوش", g: "#222", img: "https://via.placeholder.com/80", r: "user" };
-    let currentQuote = null;
+    let mySet = JSON.parse(localStorage.getItem('mySet')) || { 
+        n: "عضو جديد", img: "https://via.placeholder.com/90", r: "user" 
+    };
 
-    function openL() { closeAll(); document.getElementById('menu-l').classList.add('show'); }
-    function openR() { closeAll(); document.getElementById('menu-r').classList.add('show'); }
-    function closeAll() { document.querySelectorAll('.menu').forEach(m => m.classList.remove('show')); }
-
-    function saveProfile() {
-        let n = document.getElementById('newName').value.trim();
-        if(n) mySet.n = n;
-        localStorage.setItem('mySet', JSON.stringify(mySet));
-        db.ref('status/'+uID).set({ n: mySet.n, img: mySet.img, r: mySet.r, last: Date.now() });
-        closeAll();
+    function updateHeader() {
+        document.getElementById('my-pic-display').src = mySet.img;
+        document.getElementById('u-status-label').innerText = mySet.r === 'admin' ? "المالك علوش 👑" : "عضو ملكي ✨";
     }
+    updateHeader();
 
-    function adminLogin() {
-        if(prompt("رمز الملك:") === "1234") { 
-            mySet.r = "admin"; mySet.n = "المالك علوش 👑"; saveProfile(); location.reload(); 
-        }
-    }
-
-    function sendMsg() {
-        const i = document.getElementById('mInp');
-        if(!i.value.trim()) return;
-        db.ref('main_msgs').push({
-            uid: uID, n: mySet.n, t: i.value, img: mySet.img, r: mySet.r, 
-            quote: currentQuote, time: Date.now()
-        });
-        i.value = ""; cancelQuote();
-    }
-
-    function sendImg(input) {
+    // تغيير صورة البروفايل
+    function changeProfilePic(input) {
         if (input.files && input.files[0]) {
             let r = new FileReader();
             r.onload = (e) => {
-                db.ref('main_msgs').push({ uid: uID, n: mySet.n, imgMsg: e.target.result, img: mySet.img, r: mySet.r });
+                mySet.img = e.target.result;
+                updateHeader();
+                updateProfile();
             };
             r.readAsDataURL(input.files[0]);
         }
     }
 
-    function setQuote(name, text) {
-        currentQuote = { n: name, t: text };
-        document.getElementById('quote-text').innerText = "رد على " + name + ": " + text;
-        document.getElementById('active-quote').style.display = 'block';
+    function updateProfile() {
+        let n = document.getElementById('newName').value.trim();
+        if(n) mySet.n = n;
+        localStorage.setItem('mySet', JSON.stringify(mySet));
+        db.ref('status/' + uID).set({ n: mySet.n, img: mySet.img, r: mySet.r, online: true });
+        closeAll();
     }
-    function cancelQuote() { currentQuote = null; document.getElementById('active-quote').style.display = 'none'; }
 
-    function delMsg(key) { if(mySet.r === 'admin') db.ref('main_msgs/'+key).remove(); }
+    function openL() { closeAll(); document.getElementById('menu-l').classList.add('show'); }
+    function openR() { closeAll(); document.getElementById('menu-r').classList.add('show'); }
+    function closeAll() { document.querySelectorAll('.menu').forEach(m => m.classList.remove('show')); }
 
-    db.ref('main_msgs').limitToLast(20).on('child_added', s => {
+    function adminLogin() {
+        if(prompt("كلمة سر المالك:") === "1234") {
+            mySet.r = "admin"; mySet.n = "علوش 👑"; updateProfile(); location.reload();
+        }
+    }
+
+    // إرسال رسالة
+    function sendMsg() {
+        const i = document.getElementById('mInp');
+        if(!i.value.trim()) return;
+        db.ref('main_msgs').push({ uid: uID, n: mySet.n, t: i.value, img: mySet.img, r: mySet.r });
+        i.value = "";
+    }
+
+    function sendImgMsg(input) {
+        if (input.files && input.files[0]) {
+            let r = new FileReader();
+            r.onload = (e) => { db.ref('main_msgs').push({ uid: uID, n: mySet.n, imgMsg: e.target.result, img: mySet.img, r: mySet.r }); };
+            r.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // عرض الرسائل
+    db.ref('main_msgs').limitToLast(15).on('child_added', s => {
         const d = s.val();
-        const key = s.key;
         const div = document.createElement('div');
-        div.className = `bubble ${d.r === 'admin' ? 'admin-style' : ''}`;
+        div.className = `bubble ${d.r === 'admin' ? 'admin-msg' : ''}`;
         div.style.alignSelf = d.uid === uID ? 'flex-end' : 'flex-start';
-        div.onclick = () => setQuote(d.n, d.t || "صورة");
-
-        let html = `<img src="${d.img}" style="width:30px; height:30px; border-radius:50%; vertical-align:middle;"> `;
-        html += `<b style="color:var(--gold); font-size:12px;">${d.n}</b>`;
-        if(mySet.r === 'admin') html += ` <span onclick="delMsg('${key}')" style="cursor:pointer; color:red; font-size:12px;">🗑️</span>`;
         
-        if(d.quote) html += `<div class="quote-box"><b>${d.quote.n}:</b> ${d.quote.t}</div>`;
-        if(d.t) html += `<div style="margin-top:5px;">${d.t}</div>`;
-        if(d.imgMsg) html += `<img src="${d.imgMsg}" class="chat-img-msg">`;
-
-        div.innerHTML = html;
+        let content = `<div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+            <img src="${d.img}" class="c-img"><b style="color:var(--gold); font-size:11px;">${d.n}</b>
+        </div>`;
+        if(d.t) content += `<div>${d.t}</div>`;
+        if(d.imgMsg) content += `<img src="${d.imgMsg}" style="width:100%; border-radius:10px; margin-top:5px;">`;
+        
+        div.innerHTML = content;
         document.getElementById('chat-win').appendChild(div);
         document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
     });
 
-    db.ref('main_msgs').on('child_removed', () => { location.reload(); });
-
-    // نظام المتصلين + البوت
+    // إدارة المتصلين - تنظيف الأسماء القديمة والتكرار
     db.ref('status').on('value', s => {
         const l = document.getElementById('u-list');
-        l.innerHTML = `<div style="padding:10px;"><span class="bot-tag">BOT</span> 🤖 ساهر (بوت المملكة)</div>`;
+        l.innerHTML = `<div style="padding:10px; border-bottom:1px solid #222;"><span class="bot-tag">BOT</span> 🤖 ساهر (البوت الملكي)</div>`;
+        
         s.forEach(u => {
             let user = u.val();
-            let isOwner = user.r === 'admin';
-            l.innerHTML += `<div style="padding:10px; display:flex; align-items:center; gap:10px;">
-                <img src="${user.img}" style="width:30px; height:30px; border-radius:50%; border:1px solid var(--gold);">
-                <span style="${isOwner ? 'color:var(--gold); font-weight:bold;' : ''}">${user.n}</span>
-                ${isOwner ? '<span class="owner-tag">صاحب الشات 👑</span>' : ''}
-            </div>`;
+            if(user.online) {
+                let isOwner = user.r === 'admin';
+                l.innerHTML += `<div style="padding:10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #111;">
+                    <img src="${user.img}" style="width:30px; height:30px; border-radius:50%; border:1px solid var(--gold); object-fit:cover;">
+                    <span style="${isOwner ? 'color:var(--gold); font-weight:bold;' : ''}">${user.n}</span>
+                    ${isOwner ? '<span class="owner-tag">صاحب الشات 👑</span>' : ''}
+                </div>`;
+            }
         });
     });
 
-    async function ytSearch() {
-        const q = document.getElementById('ytInp').value.trim();
-        if(!q) return;
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}&maxResults=1`);
-        const data = await res.json();
-        if(data.items[0]) db.ref('yt_sync').set({ id: data.items[0].id.videoId });
-    }
-
-    db.ref('yt_sync').on('value', s => {
-        if(s.val()) {
-            document.getElementById('player').src = `https://www.youtube.com/embed/${s.val().id}?autoplay=1`;
-            document.getElementById('yt-box').style.display = 'block';
-        }
-    });
-
-    db.ref('status/'+uID).set({ n: mySet.n, img: mySet.img, r: mySet.r, last: Date.now() });
-    db.ref('status/'+uID).onDisconnect().remove();
+    // تحديث الحالة عند الدخول والخروج (تنظيف تلقائي)
+    db.ref('status/' + uID).set({ n: mySet.n, img: mySet.img, r: mySet.r, online: true });
+    db.ref('status/' + uID).onDisconnect().remove(); // يمسح الاسم فور إغلاق الصفحة
 </script>
 </body>
 </html>
