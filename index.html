@@ -1,52 +1,54 @@
-<div id="tiktok-wrapper" style="height: 95vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 20px; border: 3px solid gold;">
-    <div id="video-stream"></div>
+<div id="tiktok-container" style="height: 100vh; background: #000; overflow: hidden; position: relative;">
+    <div id="video-stream" style="height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory;"></div>
 </div>
 
 <script>
-    // مكتبة الروابط المفتوحة (عالم، ناس، وحسينية) لضمان عدم الحظر
-    var vPool = [
-        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "مقاطع حسينية 🏴" },
-        { url: "https://v1.assets.tumblr.com/tumblr_p1kjs9W4Xf1wreoyvo1.mp4", user: "عاشق_بغداد", bio: "أجواء وناس 🇮🇶" },
-        { url: "https://www.w3schools.com/html/movie.mp4", user: "علوش_الإمبراطور", bio: "ملك البرمجة 👑" },
-        { url: "https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-light-12353-large.mp4", user: "ترند_المملكة", bio: "عالم ومنوعات ✨" }
+    // مصفوفة البيانات الملكية - محتوى متنوع (حسيني، عالم، وناس)
+    const kingData = [
+        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "مقاطع دينية وحسينية 🏴" },
+        { url: "https://v1.assets.tumblr.com/tumblr_p1kjs9W4Xf1wreoyvo1.mp4", user: "عاشق_بغداد", bio: "أجواء المملكة والناس 🇮🇶" },
+        { url: "https://www.w3schools.com/html/movie.mp4", user: "علوش_الإمبراطور", bio: "إمبراطور البرمجة العالمي 👑" },
+        { url: "https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-4006-large.mp4", user: "ترند_المملكة", bio: "عالم السحر والجمال ✨" }
     ];
 
-    var stream = document.getElementById('video-stream');
+    const stream = document.getElementById('video-stream');
 
-    function buildWorld() {
-        // بناء 50 مقطع دفعة واحدة لضمان التنوع
-        for (var i = 0; i < 50; i++) {
-            var v = vPool[Math.floor(Math.random() * vPool.length)];
-            var post = document.createElement('div');
-            post.style.height = "95vh";
-            post.style.scrollSnapAlign = "start";
-            post.style.position = "relative";
-            post.style.borderBottom = "5px solid #111";
+    function createVideoPost(data) {
+        const post = document.createElement('div');
+        post.style = "height: 100vh; scroll-snap-align: start; position: relative; background: #000;";
+        
+        // إضافة رقم عشوائي للرابط لمنع المتصفح من عرض "مقاطع الحيوانات" القديمة
+        const freshUrl = data.url + "?v=" + Math.random();
 
-            var html = '<video width="100%" height="100%" loop autoplay muted style="object-fit:cover;"><source src="' + v.url + '" type="video/mp4"></video>';
+        post.innerHTML = `
+            <video style="width:100%; height:100%; object-fit:cover;" loop autoplay muted>
+                <source src="${freshUrl}" type="video/mp4">
+            </video>
             
-            // أزرار التفاعل
-            html += '<div style="position:absolute; right:15px; bottom:150px; text-align:center; color:white; z-index:100; display:flex; flex-direction:column; gap:25px;">';
-            html += '  <div onclick="this.style.color=\'red\'" style="font-size:40px; cursor:pointer;">❤️</div>';
-            html += '  <div style="font-size:35px; cursor:pointer;">💬</div>';
-            html += '  <div style="background:gold; color:black; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>';
-            html += '</div>';
+            <div style="position:absolute; right:20px; bottom:150px; color:white; text-align:center; z-index:10;">
+                <div onclick="this.style.color='red'" style="font-size:45px; cursor:pointer;">❤️</div>
+                <p style="font-weight:bold;">${Math.floor(Math.random()*900)}K</p>
+                <div style="font-size:45px; margin-top:20px; cursor:pointer;">💬</div>
+                <p style="font-weight:bold;">${Math.floor(Math.random()*500)}</p>
+            </div>
 
-            // معلومات الحساب
-            html += '<div style="position:absolute; bottom:50px; left:20px; color:white; text-shadow:2px 2px 8px #000; z-index:100;">';
-            html += '  <h3 style="margin:0; color:gold;">@' + v.user + '</h3>';
-            html += '  <p style="margin:8px 0; font-weight:bold;">' + v.bio + '</p>';
-            html += '</div>';
-
-            post.innerHTML = html;
-            stream.appendChild(post);
-        }
+            <div style="position:absolute; bottom:50px; left:20px; color:white; text-shadow:2px 2px 5px #000; z-index:10;">
+                <h2 style="color:gold; margin:0;">@${data.user}</h2>
+                <p style="margin:10px 0; font-size:18px; font-weight:bold;">${data.bio}</p>
+                <div style="background:rgba(255,255,255,0.2); padding:5px 15px; border-radius:20px; display:inline-block;">🎵 الصوت الأصلي - مملكة علوش</div>
+            </div>
+        `;
+        return post;
     }
 
-    buildWorld();
+    // بناء 40 مقطع متنوع دفعة واحدة
+    for (let i = 0; i < 40; i++) {
+        const randomData = kingData[Math.floor(Math.random() * kingData.length)];
+        stream.appendChild(createVideoPost(randomData));
+    }
 
-    // إذا لم تظهر فيديوهات، قم بتنشيط "وضع الطوارئ"
-    document.querySelectorAll('video').forEach(vid => {
-        vid.play().catch(() => { /* منع خطأ التشغيل التلقائي */ });
-    });
+    // حل مشكلة التشغيل التلقائي في المتصفحات
+    document.addEventListener('click', () => {
+        document.querySelectorAll('video').forEach(v => v.play());
+    }, { once: true });
 </script>
