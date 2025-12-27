@@ -3,278 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>مملكة علوش المطور 👑</title>
+    <title>مملكة علوش الأسطورية 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #000; --vip: #00d4ff; --msg-user: #1e1e1e; --msg-me: #2c2c2c; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
-
-        .app { display: flex; flex-direction: column; height: 100vh; }
-        .header { height: 65px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 100; }
-        #typing-info { font-size: 10px; color: var(--gold); display: block; height: 12px; }
-
-        #chat-win { flex: 1; overflow-y: auto; padding: 10px 15px 160px 15px; display: flex; flex-direction: column; gap: 12px; }
-        .bubble { max-width: 85%; padding: 8px 12px; border-radius: 18px; position: relative; cursor: pointer; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        :root { --gold: #ffd700; --bg: #000; --vip: #00d4ff; --msg-me: #222; --msg-other: #111; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
         
-        .msg-other { align-self: flex-start; background: var(--msg-user); border-bottom-right-radius: 4px; }
-        .msg-me { align-self: flex-end; background: var(--msg-me); border-bottom-left-radius: 4px; border: 1px solid #444; }
+        /* خلفية النجوم المتحركة */
+        #star-bg { position: fixed; width: 100%; height: 100%; z-index: -1; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); overflow: hidden; }
         
-        .admin-msg { border: 1px solid var(--gold) !important; box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
-        .vip-msg { border: 1px solid var(--vip) !important; }
+        .app { display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 1; }
+        .header { height: 70px; background: rgba(10, 10, 10, 0.9); border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
         
-        .msg-time { font-size: 9px; opacity: 0.6; margin-top: 4px; text-align: left; display: block; }
+        #chat-win { flex: 1; overflow-y: auto; padding: 10px 15px 170px 15px; display: flex; flex-direction: column; gap: 15px; }
+        .bubble { max-width: 80%; padding: 10px; border-radius: 15px; position: relative; border: 1px solid #333; transition: 0.3s; }
+        .msg-me { align-self: flex-end; background: var(--msg-me); border-right: 4px solid var(--gold); }
+        .msg-other { align-self: flex-start; background: var(--msg-other); border-left: 4px solid #555; }
+        
+        .level-badge { font-size: 9px; background: var(--gold); color: #000; padding: 1px 5px; border-radius: 10px; margin-right: 5px; font-weight: bold; }
+        .time { font-size: 8px; opacity: 0.5; margin-top: 5px; display: block; }
 
-        #yt-container { position: fixed; top: 75px; left: 10px; width: 200px; height: 130px; z-index: 1000; border: 2px solid var(--gold); border-radius: 12px; display: none; background: #000; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        #close-yt { position: absolute; top: 2px; right: 2px; background: rgba(255,0,0,0.7); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; z-index: 1001; }
+        .input-box { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,10,10,0.95); border-top: 1px solid #333; padding: 10px; z-index: 2000; }
+        .footer { display: flex; align-items: center; gap: 8px; }
+        #mInp { flex: 1; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 20px; padding: 10px 15px; height: 45px; }
+        
+        .btn-icon { background: none; border: none; color: var(--gold); font-size: 24px; cursor: pointer; }
+        .send-btn { background: var(--gold); color: #000; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; border: none; }
 
-        .input-box { position: fixed; bottom: 0; left: 0; right: 0; background: #0a0a0a; border-top: 1px solid #222; padding: 10px 15px 25px 15px; z-index: 2000; }
-        .footer { display: flex; align-items: center; gap: 10px; }
-        #mInp { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 25px; padding: 10px 18px; height: 45px; font-size: 15px; }
-        .send-btn { background: var(--gold); color: #000; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; flex-shrink: 0; }
+        .notification { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; z-index: 5000; display: none; animation: slideDown 0.5s; }
+        @keyframes slideDown { from { top: -50px; } to { top: 80px; } }
 
-        .menu { position: fixed; top: 0; width: 80%; height: 100%; background: #0d0d0d; z-index: 3000; border-left: 1px solid var(--gold); border-right: 1px solid var(--gold); display: none; transition: 0.3s; }
-        .menu.show { display: block; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
-        .btn-style { width: 100%; padding: 12px; background: #151515; color: var(--gold); border: 1px solid #333; border-radius: 10px; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
-        .btn-danger { color: #ff4444; border-color: #ff4444; }
-
-        #ban-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .menu { position: fixed; top: 0; width: 80%; height: 100%; background: #0a0a0a; z-index: 3000; border: 1px solid var(--gold); display: none; padding: 20px; }
+        .show { display: block; }
+        
+        #ban-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: none; flex-direction: column; justify-content: center; align-items: center; color: red; }
     </style>
 </head>
 <body>
 
-<div id="ban-overlay">
-    <h1 style="color: red;">⛔ تم حظرك!</h1>
-    <p>لقد تم طردك من مملكة علوش لمخالفة القوانين.</p>
-</div>
+<div id="star-bg"></div>
+<div id="ban-screen"><h1>🚫 مطرود من المملكة</h1><p>تم حظرك من قبل الإدارة</p></div>
+<div id="notify" class="notification"></div>
 
 <div class="app">
     <div class="header">
-        <button id="setBtn" style="background:none; border:none; color:var(--gold); font-size:24px;">⚙️</button>
+        <button class="btn-icon" id="setBtn">⚙️</button>
         <div style="text-align:center;">
-            <b style="color:var(--gold)">مملكة علوش 👑</b>
-            <span id="typing-info"></span>
+            <b style="color:var(--gold)">مملكة علوش 👑</b><br>
+            <span id="typing-st" style="font-size:10px; color:#aaa;"></span>
         </div>
-        <button onclick="openR()" style="background:none; border:none; color:var(--gold); font-size:24px;">👥</button>
+        <button class="btn-icon" onclick="openR()">👥</button>
     </div>
 
-    <div id="yt-container">
-        <button id="close-yt" onclick="stopYT()">×</button>
-        <iframe id="player" width="100%" height="100%" frameborder="0"></iframe>
-    </div>
-
-    <div id="chat-win" onclick="closeAll()"></div>
+    <div id="chat-win"></div>
 
     <div class="input-box">
         <div class="footer">
-            <button onclick="document.getElementById('msg-img-file').click()" style="background:none; border:none; color:var(--gold); font-size:24px;">🖼️</button>
-            <input type="file" id="msg-img-file" hidden accept="image/*" onchange="sendImg(this)">
-            <input type="text" id="mInp" placeholder="اكتب رسالتك..." oninput="handleTyping()" onkeydown="if(event.key==='Enter') doSend()">
+            <button class="btn-icon" onclick="document.getElementById('imgF').click()">🖼️</button>
+            <button class="btn-icon" id="voiceBtn">🎤</button>
+            <input type="file" id="imgF" hidden onchange="sendImg(this)">
+            <input type="text" id="mInp" placeholder="اكتب شيئاً..." oninput="isTyping()">
             <button onclick="doSend()" class="send-btn">🚀</button>
         </div>
     </div>
 </div>
 
 <div id="menu-l" class="menu" style="left:0;">
-    <div style="padding:25px;">
-        <h3 style="color:var(--gold); text-align:center;">الملف الشخصي</h3>
-        <center>
-            <div style="position:relative; width:90px;">
-                <img id="p-img-view" src="https://via.placeholder.com/80" style="width:85px; height:85px; border-radius:50%; border:3px solid var(--gold); object-fit:cover;">
-                <button onclick="document.getElementById('p-file').click()" style="position:absolute; bottom:0; right:0; background:var(--gold); border:none; border-radius:50%; width:25px; height:25px; font-size:12px;">✏️</button>
-            </div>
-            <input type="file" id="p-file" hidden onchange="changeP(this)">
-        </center>
-        <br>
-        <input type="text" id="newName" style="width:100%; padding:12px; border-radius:8px; border:1px solid #333; background:#1a1a1a; color:#fff;" placeholder="تغيير الاسم...">
-        <button class="btn-style" style="margin-top:10px;" onclick="saveP()">حفظ التعديلات ✅</button>
-        
-        <hr style="border:0.1px solid #222; margin:20px 0;">
-        
-        <h4 style="color:var(--gold);">🎵 اليوتيوب</h4>
-        <input type="text" id="ytInp" style="width:100%; padding:10px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:8px;" placeholder="اسم الأغنية...">
-        <button class="btn-style" style="margin-top:5px;" onclick="ytS()">تشغيل الآن 🎬</button>
-        
-        <div id="admin-tools" style="display:none;">
-            <hr style="border:0.1px solid #222; margin:20px 0;">
-            <h4 style="color:red;">🛠 لوحة الإمبراطور</h4>
-            <button class="btn-style btn-danger" onclick="clearAllMsgs()">🗑 مسح كافة الرسائل</button>
-        </div>
-
-        <button class="btn-style" style="background:#333; color:#fff; border:none;" onclick="closeAll()">إغلاق</button>
-    </div>
+    <center>
+        <img id="myImg" src="https://via.placeholder.com/80" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--gold);">
+        <h4 id="myN">عضو جديد</h4>
+        <div id="myLvl" class="level-badge">Lvl 1</div>
+        <hr>
+        <input type="text" id="nameInp" placeholder="اسم جديد..." style="width:100%; padding:10px; margin-bottom:10px;">
+        <button onclick="saveProfile()" style="width:100%; padding:10px; background:var(--gold); border:none;">حفظ ✅</button>
+        <br><br>
+        <button onclick="clearChat()" id="adminDel" style="display:none; width:100%; padding:10px; background:red; color:white; border:none;">🗑 مسح الشات للكل</button>
+        <br><br>
+        <button onclick="closeAll()" style="width:100%; padding:10px; background:#333; color:white; border:none;">إغلاق</button>
+    </center>
 </div>
 
 <div id="menu-r" class="menu" style="right:0;">
-    <div style="padding:15px;"><h4 style="text-align:center; color:var(--gold);">👥 المتصلون</h4><div id="u-list"></div></div>
+    <h4 style="color:var(--gold)">👥 المتواجدون</h4>
+    <div id="user-list"></div>
 </div>
 
 <script>
-    const API_KEY = "AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU"; // تأكد من صلاحية المفتاح
+    // إعدادات Firebase
     const firebaseConfig = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let uID = localStorage.getItem('chatId') || "U_" + Math.floor(Math.random()*999999);
-    localStorage.setItem('chatId', uID);
-    let mySet = JSON.parse(localStorage.getItem('mySet')) || { n: "عضو جديد", img: "https://via.placeholder.com/80", r: "user" };
-    document.getElementById('p-img-view').src = mySet.img;
+    let uID = localStorage.getItem('uID') || "U" + Date.now();
+    localStorage.setItem('uID', uID);
 
-    // فحص الحظر والرتبة
-    db.ref('banned_users/'+uID).on('value', s => { if(s.val()) document.getElementById('ban-overlay').style.display = 'flex'; });
-    db.ref('users_roles/'+uID).on('value', s => { 
-        if(s.val()) { 
-            mySet.r = s.val(); 
-            localStorage.setItem('mySet', JSON.stringify(mySet)); 
-            if(mySet.r === 'admin') document.getElementById('admin-tools').style.display = 'block';
-        } 
-    });
+    let myData = JSON.parse(localStorage.getItem('myData')) || { n: "عضو جديد", img: "https://via.placeholder.com/80", r: "user", xp: 0 };
 
-    // إدارة الضغط المطول للدخول كمالك
-    let timer;
-    const setBtn = document.getElementById('setBtn');
-    setBtn.addEventListener('mousedown', () => timer = setTimeout(adminL, 3000));
-    setBtn.addEventListener('touchstart', () => timer = setTimeout(adminL, 3000));
-    setBtn.addEventListener('mouseup', () => { clearTimeout(timer); openL(); });
-    setBtn.addEventListener('touchend', () => { clearTimeout(timer); openL(); });
+    // فحص الحظر
+    db.ref('banned/'+uID).on('value', s => { if(s.val()) document.getElementById('ban-screen').style.display='flex'; });
 
-    function adminL() { 
-        let p = prompt("رمز الإمبراطور الخاص بعلوش:");
-        if(p === "1234") { 
-            mySet.r = "admin"; mySet.n = "المالك علوش 👑"; 
-            db.ref('users_roles/'+uID).set('admin');
-            saveP(); location.reload(); 
-        }
+    // نظام اللفل
+    function getLevel(xp) { return Math.floor(xp / 10) + 1; }
+    function getRankName(lvl) {
+        if(lvl > 50) return "أسطورة المملكة 🎖️";
+        if(lvl > 20) return "ملك 👑";
+        if(lvl > 10) return "متفاعل محترف 🔥";
+        return "عضو جديد";
     }
 
-    // إرسال الرسائل
+    // إرسال رسالة
     function doSend() {
-        const i = document.getElementById('mInp');
-        if(!i.value.trim()) return;
-        let time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        db.ref('main_msgs').push({ uid: uID, n: mySet.n, t: i.value, img: mySet.img, r: mySet.r, time: time });
-        i.value = "";
+        let txt = document.getElementById('mInp').value;
+        if(!txt.trim()) return;
+        
+        myData.xp += 1; // زيادة النقاط
+        let msg = {
+            uid: uID, n: myData.n, t: txt, img: myData.img, 
+            r: myData.r, xp: myData.xp, 
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        };
+        db.ref('msgs').push(msg);
         db.ref('typing/'+uID).remove();
-    }
-
-    // يكتب الآن
-    function handleTyping() {
-        if(document.getElementById('mInp').value.length > 0) {
-            db.ref('typing/'+uID).set(mySet.n);
-        } else {
-            db.ref('typing/'+uID).remove();
-        }
-    }
-    db.ref('typing').on('value', s => {
-        let typers = [];
-        s.forEach(t => { if(t.key !== uID) typers.push(t.val()); });
-        document.getElementById('typing-info').innerText = typers.length > 0 ? typers.join(', ') + " يكتب الآن..." : "";
-    });
-
-    // التحكم بالرسائل
-    function msgAction(k, targetUid, targetName) {
-        if(mySet.r !== 'admin') {
-            document.getElementById('mInp').value = `@${targetName} `;
-            document.getElementById('mInp').focus();
-            return;
-        }
-        let act = prompt(`إدارة ${targetName}:\n1- حذف الرسالة\n2- ترقية لمشرف\n3- حظر نهائي\nاكتب الرقم:`);
-        if(act == "1") db.ref('main_msgs/'+k).remove();
-        if(act == "2") db.ref('users_roles/'+targetUid).set('vip');
-        if(act == "3") db.ref('banned_users/'+targetUid).set(true);
+        document.getElementById('mInp').value = "";
+        saveData();
     }
 
     // عرض الرسائل
-    db.ref('main_msgs').limitToLast(50).on('value', s => {
-        const win = document.getElementById('chat-win');
+    db.ref('msgs').limitToLast(40).on('value', s => {
+        let win = document.getElementById('chat-win');
         win.innerHTML = "";
         s.forEach(child => {
-            const d = child.val();
-            const div = document.createElement('div');
-            div.className = `bubble ${d.uid === uID ? 'msg-me' : 'msg-other'} ${d.r === 'admin' ? 'admin-msg' : (d.r === 'vip' ? 'vip-msg' : '')}`;
-            div.onclick = () => msgAction(child.key, d.uid, d.n);
-
+            let d = child.val();
+            let lvl = getLevel(d.xp || 0);
+            let div = document.createElement('div');
+            div.className = `bubble ${d.uid === uID ? 'msg-me' : 'msg-other'}`;
+            div.onclick = () => adminAction(child.key, d.uid, d.n);
+            
             div.innerHTML = `
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
-                    <img src="${d.img}" style="width:22px;height:22px;border-radius:50%; object-fit:cover;">
-                    <b style="color:${d.r==='admin'?'var(--gold)':(d.r==='vip'?'var(--vip)':'#eee')}; font-size:11px;">${d.n}</b>
+                <div style="font-size:10px; margin-bottom:5px;">
+                    <span class="level-badge">Lvl ${lvl}</span>
+                    <b style="color:${d.r==='admin'?'var(--gold)':'#00d4ff'}">${d.n}</b>
                 </div>
                 ${d.t ? `<div>${d.t}</div>` : ''}
-                ${d.imgMsg ? `<img src="${d.imgMsg}" style="width:100%; border-radius:8px; margin-top:5px;">` : ''}
-                <span class="msg-time">${d.time || ''}</span>
+                ${d.voice ? `<audio src="${d.voice}" controls style="width:200px; height:30px;"></audio>` : ''}
+                ${d.imgM ? `<img src="${d.imgM}" style="width:100%; border-radius:10px; margin-top:5px;">` : ''}
+                <span class="time">${d.time}</span>
             `;
             win.appendChild(div);
         });
         win.scrollTop = win.scrollHeight;
     });
 
-    // أدوات المالك
-    function clearAllMsgs() { if(confirm("حذف كل رسائل الشات؟")) db.ref('main_msgs').remove(); }
+    // تسجيل الصوت (مبسط)
+    let mediaRecorder;
+    let audioChunks = [];
+    document.getElementById('voiceBtn').onclick = async () => {
+        if (!mediaRecorder || mediaRecorder.state === "inactive") {
+            let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+            document.getElementById('voiceBtn').style.color = "red";
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                let blob = new Blob(audioChunks, { type: 'audio/mp3' });
+                let reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => {
+                    db.ref('msgs').push({ uid: uID, n: myData.n, voice: reader.result, img: myData.img, xp: myData.xp, time: "صوت 🎙️" });
+                };
+                audioChunks = [];
+                document.getElementById('voiceBtn').style.color = "var(--gold)";
+            };
+        } else {
+            mediaRecorder.stop();
+        }
+    };
 
-    // الأساسيات
+    // إشعارات الدخول
+    db.ref('status/'+uID).set({ n: myData.n, online: true });
+    db.ref('status').on('child_added', s => {
+        let n = s.val().n;
+        let notify = document.getElementById('notify');
+        notify.innerText = `👋 دخل ${n} إلى المملكة`;
+        notify.style.display = 'block';
+        setTimeout(() => notify.style.display = 'none', 3000);
+    });
+
+    // وظائف المالك
+    let pressTimer;
+    document.getElementById('setBtn').onmousedown = () => pressTimer = setTimeout(beAdmin, 3000);
+    document.getElementById('setBtn').onmouseup = () => { clearTimeout(pressTimer); openL(); };
+    
+    function beAdmin() {
+        if(prompt("رمز الإمبراطور:") === "1234") {
+            myData.r = "admin";
+            document.getElementById('adminDel').style.display = 'block';
+            saveData(); alert("أهلاً بك يا مالك المملكة 👑");
+        }
+    }
+
+    function adminAction(key, targetUid, name) {
+        if(myData.r !== 'admin') return;
+        let a = prompt(`1-حذف 2-حظر 3-رفع مشرف\nاسم العضو: ${name}`);
+        if(a=="1") db.ref('msgs/'+key).remove();
+        if(a=="2") db.ref('banned/'+targetUid).set(true);
+        if(a=="3") db.ref('users_roles/'+targetUid).set('vip');
+    }
+
+    function clearChat() { if(confirm("حذف الكل؟")) db.ref('msgs').remove(); }
+
+    // أساسيات
     function openL() { closeAll(); document.getElementById('menu-l').classList.add('show'); }
     function openR() { closeAll(); document.getElementById('menu-r').classList.add('show'); }
     function closeAll() { document.querySelectorAll('.menu').forEach(m => m.classList.remove('show')); }
-
-    function changeP(input) {
-        if (input.files && input.files[0]) {
-            let r = new FileReader();
-            r.onload = (e) => { 
-                mySet.img = e.target.result; 
-                document.getElementById('p-img-view').src = e.target.result;
-            };
-            r.readAsDataURL(input.files[0]);
-        }
+    
+    function saveData() {
+        localStorage.setItem('myData', JSON.stringify(myData));
+        document.getElementById('myN').innerText = myData.n;
+        document.getElementById('myLvl').innerText = "Lvl " + getLevel(myData.xp);
+    }
+    
+    function saveProfile() {
+        let nn = document.getElementById('nameInp').value;
+        if(nn) myData.n = nn;
+        saveData(); closeAll();
     }
 
-    function saveP() {
-        let n = document.getElementById('newName').value.trim();
-        if(n) mySet.n = n;
-        localStorage.setItem('mySet', JSON.stringify(mySet));
-        db.ref('status/'+uID).set({ n: mySet.n, img: mySet.img, r: mySet.r, online: true });
-        closeAll();
-    }
-
-    function sendImg(input) {
-        if (input.files && input.files[0]) {
-            let r = new FileReader();
-            r.onload = (e) => { 
-                let time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                db.ref('main_msgs').push({ uid: uID, n: mySet.n, imgMsg: e.target.result, img: mySet.img, r: mySet.r, time: time }); 
-            };
-            r.readAsDataURL(input.files[0]);
-        }
-    }
-
-    async function ytS() {
-        const q = document.getElementById('ytInp').value;
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}&maxResults=1`);
-        const data = await res.json();
-        if(data.items && data.items[0]) {
-            const vidId = data.items[0].id.videoId;
-            document.getElementById('player').src = `https://www.youtube.com/embed/${vidId}?autoplay=1`;
-            document.getElementById('yt-container').style.display='block';
-            closeAll();
-        }
-    }
-    function stopYT() { document.getElementById('yt-container').style.display = 'none'; document.getElementById('player').src = ""; }
-
-    // حالة الاتصال
-    db.ref('status/'+uID).set({ n: mySet.n, img: mySet.img, r: mySet.r, online: true });
-    db.ref('status/'+uID).onDisconnect().remove();
-    db.ref('status').on('value', s => {
-        const l = document.getElementById('u-list');
-        l.innerHTML = "";
-        s.forEach(u => {
-            let user = u.val();
-            l.innerHTML += `<div style="padding:10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #1a1a1a;">
-                <img src="${user.img}" style="width:30px; height:30px; border-radius:50%; object-fit:cover; border:1px solid #333;">
-                <span style="font-size:13px; color:${user.r==='admin'?'var(--gold)':(user.r==='vip'?'var(--vip)':'#fff')}">${user.n}</span>
-            </div>`;
-        });
+    function isTyping() { db.ref('typing/'+uID).set(myData.n); setTimeout(()=>db.ref('typing/'+uID).remove(), 3000); }
+    db.ref('typing').on('value', s => {
+        let t = []; s.forEach(x => { if(x.key !== uID) t.push(x.val()); });
+        document.getElementById('typing-st').innerText = t.length ? t.join(',') + " يكتب..." : "";
     });
+
+    saveData();
 </script>
 </body>
 </html>
