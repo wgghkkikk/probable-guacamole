@@ -1,28 +1,33 @@
-<div id="followers-box" style="position: absolute; top: 120px; right: 20px; background: rgba(255, 0, 80, 0.2); border: 1px solid #ff0050; padding: 10px; border-radius: 10px; color: white; text-align: center;">
-    <div style="font-size: 12px; color: #ff0050; font-weight: bold;">👥 المتابعون الآن</div>
-    <div id="follower-count" style="font-size: 20px; font-weight: bold;">854,230</div>
+<div id="live-indicator" style="position: absolute; top: 20px; left: 20px; background: red; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; animation: blink 1s infinite; z-index: 20;">● LIVE</div>
+
+<div id="comments-scroller" style="position: absolute; bottom: 150px; left: 20px; width: 250px; height: 100px; overflow: hidden; color: #ccc; font-size: 14px; z-index: 15;">
+    <div id="comments-content">
+        <p>👑 عاشق بغداد: منور يا إمبراطور</p>
+        <p>🔥 مبرمج عالمي: أقوى كود شفته بحياتي</p>
+        <p>✨ معجب: الميزة 70 خرافية!</p>
+    </div>
 </div>
 
-<script>
-    // نظام زيادة المتابعين تلقائياً (ميزة 71)
-    let followers = 854230;
-    setInterval(() => {
-        let gain = Math.floor(Math.random() * 5) + 1;
-        followers += gain;
-        document.getElementById('follower-count').innerText = followers.toLocaleString();
-        
-        // سجلات الزمن: توثيق نمو المملكة
-        if(followers % 100 == 0) {
-            console.log("Time Travel Log: زيادة المتابعين إلى " + followers);
-        }
-    }, 2000);
+<style>
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    #comments-content p { animation: slideUp 5s linear infinite; margin: 5px 0; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(-100%); } }
+</style>
 
-    // ربط الكارما بالنمو الملكي
-    function boostKarma() {
-        k += 7;
-        document.getElementById('k-count').innerText = k;
-        // تأثير بصري عند زيادة الكارما
-        document.body.style.border = "5px solid gold";
-        setTimeout(() => document.body.style.border = "none", 100);
-    }
+<script>
+    // ميزة 71: حماية الإمبراطورية
+    document.addEventListener('contextmenu', event => event.preventDefault()); 
+    console.log("Security: درع حماية مملكة علوش مفعل 🛡️");
+
+    // ميزة 72: نظام التعليقات الذكي
+    const names = ["حمزة", "زيد", "ليلى", "نور", "صقر"];
+    const texts = ["عاش الملك", "تصميم أسطوري", "هذا المبرمج مو طبيعي", "المملكة نورت"];
+    
+    setInterval(() => {
+        let commentBox = document.getElementById('comments-content');
+        let newP = document.createElement('p');
+        newP.innerText = "👤 " + names[Math.floor(Math.random()*names.length)] + ": " + texts[Math.floor(Math.random()*texts.length)];
+        commentBox.appendChild(newP);
+        if(commentBox.children.length > 5) commentBox.removeChild(commentBox.children[0]);
+    }, 4000);
 </script>
