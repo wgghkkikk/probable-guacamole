@@ -2,153 +2,149 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مملكة علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
         :root { --gold: #ffd700; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; }
         
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: #000; color: #fff; font-family: sans-serif; 
-            overflow: hidden; position: fixed;
+        body { 
+            margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; 
+            overflow: hidden; height: 100vh;
         }
         
-        .app-container { 
-            display: flex; flex-direction: column; 
-            height: 100vh;
-            background: radial-gradient(circle at top, #1a0033, #000);
-        }
+        /* الحاوية */
+        .app { display: flex; flex-direction: column; height: 100vh; background: radial-gradient(circle, #1a0033, #000); }
         
+        /* الهيدر */
         .header { 
-            height: 60px; background: rgba(0,0,0,0.95); 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 20px; border-bottom: 2px solid var(--gold); z-index: 1001;
+            height: 60px; background: #000; border-bottom: 2px solid var(--gold);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 15px; flex-shrink: 0;
         }
         
-        /* 💬 منطقة الشات - عند الضغط هنا تغلق القوائم */
-        #chat-win { 
-            flex: 1; overflow-y: auto; 
-            padding: 20px 15px 100px 15px; 
-            display: flex; flex-direction: column; gap: 12px;
-        }
-
+        /* الشات */
+        #chat-win { flex: 1; overflow-y: auto; padding: 15px 15px 120px 15px; display: flex; flex-direction: column; gap: 10px; }
+        
         .bubble { 
-            max-width: 80%; padding: 12px 15px; border-radius: 18px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            background-size: 200% 200%; animation: moveGrad 4s linear infinite;
+            max-width: 80%; padding: 10px; border-radius: 15px; border: 1px solid #333;
+            background-size: 200% 200%; animation: moveG 4s linear infinite;
         }
-        @keyframes moveGrad { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        @keyframes moveG { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
         .me { align-self: flex-start; }
 
-        /* 🚀 رفع الفوتر للأعلى لضمان الظهور */
-        .footer-wrap {
-            position: fixed; bottom: 20px; left: 0; width: 100%;
-            padding: 0 15px; z-index: 1000;
-        }
-
+        /* 🚀 خانة الكتابة - مرفوعة للأعلى */
         .footer { 
-            height: 55px; background: #1a1a1a; 
-            display: flex; align-items: center; gap: 10px; padding: 0 15px;
-            border-radius: 30px; border: 2px solid #333;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            position: fixed; bottom: 35px; left: 15px; right: 15px; 
+            height: 55px; background: #1a1a1a; border-radius: 30px; 
+            border: 2px solid #444; display: flex; align-items: center; padding: 0 15px; z-index: 999;
         }
-
-        #mInp { flex: 1; background: transparent; color: #fff; border: none; outline: none; font-size: 16px; }
-        .btn-send { background: none; border: none; font-size: 28px; cursor: pointer; order: 1; }
+        
+        #mInp { flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 16px; }
+        .btn-send { background: none; border: none; font-size: 28px; cursor: pointer; }
 
         /* القوائم الجانبية */
-        .side { position: fixed; top: 0; width: 280px; height: 100%; background: #0a0a0a; transition: 0.3s ease-in-out; z-index: 2000; border: 1px solid var(--gold); overflow-y: auto; pointer-events: auto; }
-        #side-l { left: -285px; } #side-r { right: -285px; }
-        .open { left: 0 !important; right: 0 !important; }
+        .side { 
+            position: fixed; top: 0; width: 270px; height: 100%; background: #0a0a0a; 
+            z-index: 2000; border: 1px solid var(--gold); transition: 0.3s;
+        }
+        #side-l { left: -280px; } #side-r { right: -280px; }
+        .open-l { left: 0 !important; } .open-r { right: 0 !important; }
 
-        .box { background: rgba(255,215,0,0.03); margin: 15px; padding: 15px; border-radius: 12px; border: 1px solid #222; }
-        .btn-gold { width: 100%; padding: 12px; margin: 5px 0; background: #111; color: var(--gold); border: 1px solid var(--gold); border-radius: 10px; font-weight: bold; }
+        .box { padding: 15px; border-bottom: 1px solid #222; }
+        .btn-gold { width: 100%; padding: 10px; background: #000; color: var(--gold); border: 1px solid var(--gold); border-radius: 8px; margin-top: 5px; cursor: pointer; }
         
-        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .dot { height: 35px; border-radius: 8px; border: 1px solid #333; }
-
-        #yt-box { width: 150px; height: 90px; position: fixed; top: 70px; left: 15px; z-index: 1000; border: 2px solid var(--gold); display: none; }
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 10px; }
+        .dot { height: 30px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="app">
         <div class="header">
-            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">🎨</button>
+            <button onclick="toggleL()" style="background:none; border:none; color:var(--gold); font-size:25px;">🎨</button>
             <b style="color:var(--gold)">مملكة علوش 👑</b>
-            <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">👥</button>
+            <button onclick="toggleR()" style="background:none; border:none; color:var(--gold); font-size:25px;">👥</button>
         </div>
 
-        <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0"></iframe></div>
-        
         <div id="chat-win" onclick="closeAll()"></div>
 
-        <div class="footer-wrap">
-            <div class="footer">
-                <button class="btn-send" onclick="sendMsg()">🚀</button>
-                <input type="text" id="mInp" placeholder="تكلم يا ملك..." autocomplete="off">
-            </div>
+        <div class="footer">
+            <button class="btn-send" onclick="sendMsg()">🚀</button>
+            <input type="text" id="mInp" placeholder="تحدث يا ملك..." autocomplete="off">
         </div>
-    </div>
-
-    <div id="side-r" class="side">
-        <h3 style="text-align:center; color:var(--gold); padding:20px; border-bottom: 1px solid #222;">👥 المتصلون</h3>
-        <div id="u-list"></div>
-        <button class="btn-gold" style="margin: 20px;" onclick="closeAll()">إغلاق القائمة ✖</button>
     </div>
 
     <div id="side-l" class="side">
         <div class="box">
-            <h4 style="color:var(--gold);">👑 البروفايل</h4>
-            <input type="text" id="newName" placeholder="اسمك..." style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid #333; border-radius:8px;">
-            <button class="btn-gold" onclick="saveName()">حفظ ✅</button>
+            <h4 style="color:var(--gold)">👑 زخرفة الاسم</h4>
+            <input type="text" id="newName" style="width:100%; padding:10px; background:#111; color:#fff; border:1px solid #444;">
+            <button class="btn-gold" onclick="saveName()">حفظ الاسم ✅</button>
         </div>
         <div class="box">
-            <h4 style="color:var(--gold);">🌈 70 لون متحرك</h4>
-            <div class="palette" id="palette"></div>
+            <h4 style="color:var(--gold)">🌈 70 لون متحرك</h4>
+            <div id="palette" class="palette"></div>
         </div>
-        <button class="btn-gold" style="margin: 0 15px;" onclick="closeAll()">إغلاق القائمة ✖</button>
+        <button class="btn-gold" style="margin: 10px;" onclick="closeAll()">إغلاق ✖</button>
+    </div>
+
+    <div id="side-r" class="side">
+        <h3 style="text-align:center; color:var(--gold); padding:10px;">👥 المتصلون</h3>
+        <div id="u-list"></div>
+        <button class="btn-gold" style="margin: 10px;" onclick="closeAll()">إغلاق ✖</button>
     </div>
 
 <script>
-    const API_KEY = "AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU"; 
     const firebaseConfig = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let uID = localStorage.getItem('chatId') || "ID_" + Math.floor(Math.random() * 999999);
+    let uID = localStorage.getItem('chatId') || "ID_" + Math.floor(Math.random() * 99999);
     localStorage.setItem('chatId', uID);
     let mySet = JSON.parse(localStorage.getItem('mySet')) || { n: "علوش", g: "linear-gradient(45deg, #444, #111)" };
-    db.ref('status/' + uID).update({ n: mySet.n });
-
+    
+    // توليد الألوان
     const pal = document.getElementById('palette');
     for(let i=0; i<70; i++) {
-        let g = `linear-gradient(45deg, hsl(${i*5.1},70%,40%), hsl(${(i*5.1)+45},70%,40%))`;
+        let g = `linear-gradient(45deg, hsl(${i*5},70%,40%), hsl(${(i*5)+40},70%,40%))`;
         let d = document.createElement('div');
         d.className = 'dot'; d.style.background = g;
-        d.onclick = () => { mySet.g = g; localStorage.setItem('mySet', JSON.stringify(mySet)); alert("تم اختيار اللون!"); };
+        d.onclick = () => { mySet.g = g; alert("تم اختيار اللون!"); };
         pal.appendChild(d);
     }
 
+    function toggleL() { document.getElementById('side-l').classList.toggle('open-l'); document.getElementById('side-r').classList.remove('open-r'); }
+    function toggleR() { document.getElementById('side-r').classList.toggle('open-r'); document.getElementById('side-l').classList.remove('open-l'); }
+    function closeAll() { document.getElementById('side-l').classList.remove('open-l'); document.getElementById('side-r').classList.remove('open-r'); }
+
     function saveName() {
         let n = document.getElementById('newName').value.trim();
-        if(n) { mySet.n = n; localStorage.setItem('mySet', JSON.stringify(mySet)); db.ref('status/'+uID).update({n:n}); closeAll(); }
+        if(n) { mySet.n = n; localStorage.setItem('mySet', JSON.stringify(mySet)); db.ref('status/'+uID).set({n:n}); closeAll(); }
     }
 
     function sendMsg() {
         const i = document.getElementById('mInp');
         if(!i.value.trim()) return;
         db.ref('main_msgs').push({ uid: uID, n: mySet.n, t: i.value, g: mySet.g });
-        i.value = ""; i.focus();
+        i.value = "";
     }
-
-    document.getElementById('mInp').onkeydown = (e) => { if(e.key === 'Enter') sendMsg(); };
 
     db.ref('main_msgs').limitToLast(20).on('child_added', s => {
         const d = s.val();
         const div = document.createElement('div');
         div.className = `bubble ${d.uid === uID ? 'me' : ''}`;
+        div.style.background = d.g;
+        div.innerHTML = `<b style="font-size:11px; display:block; color:var(--gold);">${d.n}</b>${d.t}`;
+        document.getElementById('chat-win').appendChild(div);
+        document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
+    });
+
+    db.ref('status').on('value', s => {
+        const l = document.getElementById('u-list'); l.innerHTML = '';
+        s.forEach(u => { l.innerHTML += `<div style="padding:15px; border-bottom:1px solid #111;">👑 ${u.val().n}</div>`; });
+    });
+</script>
+</body>
+</html>
