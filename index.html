@@ -11,7 +11,7 @@
     ];
 
     var stream = document.getElementById('video-stream');
-    stream.innerHTML = ""; // تنظيف المحتوى القديم
+    stream.innerHTML = ""; // تنظيف المحتوى القديم لضمان عدم التكرار
 
     vids.forEach(function(v) {
         var post = document.createElement('div');
@@ -40,6 +40,6 @@
                 <p style="margin:8px 0; font-size:16px; font-weight:bold;">حصرياً في إمبراطورية علوش 👑 #TikTok_King</p>
             </div>
         `;
-        stream.appendChild(post);
+        stream.appendChild(post); // استخدام appendChild لإضافة المقاطع تحت بعضها
     });
 </script>
