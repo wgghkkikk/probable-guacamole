@@ -3,43 +3,58 @@
 </div>
 
 <script>
-    // بيانات الفيديوهات الملكية
-    var vids = [
-        { id: 1, url: "https://www.w3schools.com/html/mov_bbb.mp4", name: "علوش_الإمبراطور", likes: "1.2M", comments: "14K" },
-        { id: 2, url: "https://www.w3schools.com/html/horse.mp4", name: "فارس_المملكة", likes: "850K", comments: "5K" },
-        { id: 3, url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", name: "رعد_بغداد", likes: "2.3M", comments: "20K" }
+    // قاعدة بيانات الفيديوهات (سيتم تكرارها عشوائياً للأبد)
+    var videoPool = [
+        { url: "https://www.w3schools.com/html/mov_bbb.mp4", name: "علوش_الإمبراطور", likes: "1.2M" },
+        { url: "https://www.w3schools.com/html/horse.mp4", name: "فارس_المملكة", likes: "850K" },
+        { url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", name: "رعد_بغداد", likes: "2.3M" },
+        { url: "https://www.w3schools.com/html/movie.mp4", name: "صقر_المملكة", likes: "500K" }
     ];
 
     var stream = document.getElementById('video-stream');
-    stream.innerHTML = ""; // تنظيف المحتوى القديم لضمان عدم التكرار
 
-    vids.forEach(function(v) {
-        var post = document.createElement('div');
-        // إجبار كل مقطع على أخذ مساحة الشاشة كاملة لتفعيل التمرير
-        post.style.height = "90vh"; 
-        post.style.scrollSnapAlign = "start";
-        post.style.position = "relative";
-        post.style.background = "#000";
-        post.style.borderBottom = "5px solid #111";
+    // دالة إنشاء مقاطع جديدة وإضافتها للقائمة
+    function addMoreVideos(count) {
+        for (var i = 0; i < count; i++) {
+            var v = videoPool[Math.floor(Math.random() * videoPool.length)]; // اختيار فيديو عشوائي
+            var post = document.createElement('div');
+            post.className = 'video-card';
+            post.style.height = "90vh";
+            post.style.scrollSnapAlign = "start";
+            post.style.position = "relative";
+            post.style.background = "#000";
+            post.style.borderBottom = "4px solid #111";
 
-        post.innerHTML = `
-            <video width="100%" height="100%" loop autoplay muted style="object-fit:cover; pointer-events: none;">
-                <source src="${v.url}" type="video/mp4">
-            </video>
-            
-            <div style="position:absolute; right:15px; bottom:120px; text-align:center; color:white; z-index:100; display:flex; flex-direction:column; gap:20px;">
-                <div onclick="this.style.color='red'; this.style.transform='scale(1.3)';" style="font-size:40px; cursor:pointer; transition:0.3s; filter: drop-shadow(0 0 5px black);">❤️</div>
-                <div style="font-weight:bold; text-shadow:2px 2px 5px black;">${v.likes}</div>
-                <div style="font-size:40px; cursor:pointer; filter: drop-shadow(0 0 5px black);">💬</div>
-                <div style="font-weight:bold; text-shadow:2px 2px 5px black;">${v.comments}</div>
-                <div style="background:gold; color:black; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; font-size:25px; box-shadow: 0 0 10px gold;">+</div>
-            </div>
+            post.innerHTML = `
+                <video width="100%" height="100%" loop autoplay muted style="object-fit:cover;">
+                    <source src="${v.url}" type="video/mp4">
+                </video>
+                
+                <div style="position:absolute; right:15px; bottom:120px; text-align:center; color:white; z-index:100; display:flex; flex-direction:column; gap:20px;">
+                    <div onclick="this.style.color='red'; this.style.transform='scale(1.3)';" style="font-size:40px; cursor:pointer; transition:0.3s;">❤️</div>
+                    <div style="font-weight:bold; text-shadow:2px 2px 5px black;">${v.likes}</div>
+                    <div style="font-size:40px; cursor:pointer;">💬</div>
+                    <div style="font-weight:bold; text-shadow:2px 2px 5px black;">${Math.floor(Math.random() * 99)}K</div>
+                    <div style="background:gold; color:black; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>
+                </div>
 
-            <div style="position:absolute; bottom:40px; left:20px; color:white; text-shadow:2px 2px 8px #000; z-index:100;">
-                <h3 style="margin:0; color:gold; font-size:22px;">@${v.name}</h3>
-                <p style="margin:8px 0; font-size:16px; font-weight:bold;">حصرياً في إمبراطورية علوش 👑 #TikTok_King</p>
-            </div>
-        `;
-        stream.appendChild(post); // استخدام appendChild لإضافة المقاطع تحت بعضها
+                <div style="position:absolute; bottom:40px; left:20px; color:white; text-shadow:2px 2px 8px #000; z-index:100;">
+                    <h3 style="margin:0; color:gold;">@${v.name}_${Math.floor(Math.random() * 100)}</h3>
+                    <p style="margin:8px 0;">حصرياً في إمبراطورية علوش 👑 #اللانهائي</p>
+                </div>
+            `;
+            stream.appendChild(post);
+        }
+    }
+
+    // تحميل أول 10 مقاطع عند البدء
+    addMoreVideos(10);
+
+    // تفعيل حساس التمرير: إذا وصلت للنهاية، أضف 10 مقاطع أخرى فوراً
+    document.getElementById('tiktok-wrapper').addEventListener('scroll', function(e) {
+        var el = e.target;
+        if (el.scrollHeight - el.scrollTop <= el.clientHeight + 100) {
+            addMoreVideos(10); // إضافة فيديوهات جديدة كلما سحبت للأسفل
+        }
     });
 </script>
