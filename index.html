@@ -1,66 +1,44 @@
-// بيانات الفيديوهات الملكية
-var tiktokData = [
-    { id: 1, src: "https://www.w3schools.com/html/mov_bbb.mp4", user: "علوش_الإمبراطور", likes: 1250, comments: 48 },
-    { id: 2, src: "https://www.w3schools.com/html/horse.mp4", user: "فارس_المملكة", likes: 920, comments: 15 },
-    { id: 3, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", user: "رعد_بغداد", likes: 4500, comments: 120 }
-];
-
-function openTikTok() {
-    var win = document.getElementById('royal-display');
-    win.style.display = 'block';
-    document.getElementById('view-title').innerText = "🎬 تيك توك المملكة - الإصدار الشغال";
-    
-    // بناء الحاوية
-    document.getElementById('display-content').innerHTML = '<div id="tiktok-wrapper" style="height:75vh; overflow-y:scroll; scroll-snap-type:y mandatory; background:#000; border-radius:15px;"><div id="video-stream"></div></div>';
-    
-    renderTikToks();
-}
-
 function renderTikToks() {
     var stream = document.getElementById('video-stream');
+    if (!stream) return;
     stream.innerHTML = ""; 
 
     tiktokData.forEach(function(video) {
         var post = document.createElement('div');
         post.className = 'tiktok-post';
-        post.style = "height:100%; scroll-snap-align:start; position:relative; border-bottom:5px solid #111;";
+        post.style.height = "100%";
+        post.style.scrollSnapAlign = "start";
+        post.style.position = "relative";
+        post.style.borderBottom = "5px solid #111";
         
-        // بناء المحتوى يدوياً لضمان ظهور الأرقام بدلاً من الأكواد
-        var html = '';
-        html += '<video width="100%" height="100%" loop autoplay muted style="object-fit:cover;"><source src="' + video.src + '" type="video/mp4"></video>';
+        // بناء المحتوى بالجمع التقليدي (+) لضمان ظهور البيانات الحقيقية
+        var content = "";
         
-        // أزرار التفاعل
-        html += '<div style="position:absolute; right:15px; bottom:100px; display:flex; flex-direction:column; gap:20px; align-items:center; z-index:100;">';
-        html += '  <div onclick="handleLike(' + video.id + ')" style="cursor:pointer; text-align:center;">';
-        html += '    <span id="heart-' + video.id + '" style="font-size:35px; color:white;">❤️</span>';
-        html += '    <small id="l-count-' + video.id + '" style="display:block; color:white;">' + video.likes + '</small>';
-        html += '  </div>';
-        html += '  <div onclick="alert(\'نظام تعليقات المملكة قيد التشغيل\')" style="cursor:pointer; text-align:center;">';
-        html += '    <span style="font-size:35px; color:white;">💬</span>';
-        html += '    <small style="display:block; color:white;">' + video.comments + '</small>';
-        html += '  </div>';
-        html += '  <div onclick="this.style.background=\'white\'; this.style.color=\'black\';" style="background:gold; color:black; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>';
-        html += '</div>';
+        // 1. الفيديو
+        content += '<video width="100%" height="100%" loop autoplay muted style="object-fit:cover;">';
+        content += '<source src="' + video.src + '" type="video/mp4">';
+        content += '</video>';
+        
+        // 2. أزرار التفاعل الجانبية
+        content += '<div style="position:absolute; right:15px; bottom:100px; display:flex; flex-direction:column; gap:20px; align-items:center; z-index:100;">';
+        content += '  <div onclick="handleLike(' + video.id + ')" style="cursor:pointer; text-align:center;">';
+        content += '    <span id="heart-' + video.id + '" style="font-size:35px; color:white;">❤️</span>';
+        content += '    <small id="l-count-' + video.id + '" style="display:block; color:white; font-weight:bold;">' + video.likes + '</small>';
+        content += '  </div>';
+        content += '  <div onclick="showCommentBox(' + video.id + ')" style="cursor:pointer; text-align:center;">';
+        content += '    <span style="font-size:35px; color:white;">💬</span>';
+        content += '    <small style="display:block; color:white; font-weight:bold;">' + (video.comments.length || 0) + '</small>';
+        content += '  </div>';
+        content += '  <div style="background:gold; color:black; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>';
+        content += '</div>';
 
-        // معلومات المستخدم
-        html += '<div style="position:absolute; bottom:30px; left:15px; text-shadow:2px 2px 5px #000; z-index:100;">';
-        html += '  <h4 style="margin:0; color:gold; font-size:18px;">@' + video.user + '</h4>';
-        html += '  <p style="margin:5px 0; font-size:14px; color:white;">فيديو ملكي حصري في مملكتك 👑</p>';
-        html += '</div>';
+        // 3. معلومات الملك (الاسم والوصف)
+        content += '<div style="position:absolute; bottom:30px; left:15px; text-shadow:2px 2px 5px #000; z-index:100;">';
+        content += '  <h4 style="margin:0; color:gold; font-size:18px;">@' + video.user + '</h4>';
+        content += '  <p style="margin:5px 0; font-size:14px; color:white; font-weight:bold;">فيديو ملكي حصري في مملكتك 👑</p>';
+        content += '</div>';
 
-        post.innerHTML = html;
+        post.innerHTML = content;
         stream.appendChild(post);
     });
-}
-
-// دالة اللايك - تعمل فوراً وتغير الرقم
-function handleLike(id) {
-    var countLabel = document.getElementById('l-count-' + id);
-    var heartIcon = document.getElementById('heart-' + id);
-    var currentLikes = parseInt(countLabel.innerText);
-    
-    countLabel.innerText = currentLikes + 1;
-    heartIcon.style.color = "red";
-    heartIcon.style.transform = "scale(1.2)";
-    setTimeout(function(){ heartIcon.style.transform = "scale(1)"; }, 200);
 }
