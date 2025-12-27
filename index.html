@@ -13,15 +13,9 @@
         .app { display: flex; flex-direction: column; height: 100vh; }
         .header { background: #111; padding: 15px; text-align: center; border-bottom: 2px solid #ffd700; color: #ffd700; font-weight: bold; }
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        
-        /* 🚀 منطقة الإرسال - ضبط الاتجاه يدوياً لعدم الانقلاب */
         .footer { background: #0a0a0a; padding: 10px; display: flex; align-items: center; border-top: 1px solid #333; direction: ltr !important; }
-        
         #mInp { flex: 1; background: #1a1a1a; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #444; outline: none; text-align: right; direction: rtl !important; font-size: 16px; margin-left: 10px; }
-        
-        .send-btn { font-size: 30px; cursor: pointer; background: none; border: none; padding: 0; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .send-btn:active { transform: scale(0.85); }
-
+        .send-btn { font-size: 30px; cursor: pointer; background: none; border: none; padding: 0; }
         .msg { background: #1a1a1a; padding: 10px; border-radius: 12px; border-right: 3px solid #ffd700; align-self: flex-start; max-width: 85%; direction: rtl; }
     </style>
 </head>
@@ -29,67 +23,75 @@
 
     <div class="app">
         <div class="header">مملكة علوش 👑</div>
-
         <div id="chat-win"></div>
-
         <div class="footer">
-            <button class="send-btn" type="button" onclick="masterSend()">🚀</button>
-            <input type="text" id="mInp" placeholder="تحدث يا ملك..." onkeydown="if(event.key==='Enter') masterSend()">
+            <button class="send-btn" type="button" onclick="goSend()">🚀</button>
+            <input type="text" id="mInp" placeholder="تحدث يا ملك..." onkeydown="if(event.key==='Enter') goSend()">
         </div>
     </div>
 
 <script>
-    // 1. إعدادات Firebase الخاصة بك
+    // 1. إعدادات Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
         databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
         projectId: "masterchat-f2da9"
     };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    
+    // منع تكرار التشغيل
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
     const db = firebase.database();
     const auth = firebase.auth();
+    let myID = null;
+    let myName = "علوش";
 
-    let myID, myName = "علوش";
-
-    // 2. تسجيل الدخول
+    // 2. تسجيل الدخول والتأكد من الاتصال
     auth.signInAnonymously().then(u => {
         myID = u.user.uid;
-        loadMessages();
-    });
+        console.log("Logged in as: " + myID);
+        loadMsgs();
+    }).catch(e => alert("فشل الاتصال: " + e.message));
 
-    // 3. ✅ وظيفة الإرسال "الماستر" - مصلحة 100%
-    function masterSend() {
-        var inputElem = document.getElementById('mInp');
-        var val = inputElem.value.trim();
+    // 3. ✅ وظيفة الإرسال القوية
+    function goSend() {
+        const inp = document.getElementById('mInp');
+        const val = inp.value.trim();
 
-        if (val !== "") {
-            // إرسال البيانات
-            db.ref('main_msgs').push({
-                uid: myID,
-                n: myName,
-                t: val,
-                time: Date.now()
-            }).then(() => {
-                // تصفير المربع فوراً
-                inputElem.value = "";
-                inputElem.focus();
-            }).catch(e => {
-                console.error("خطأ:", e);
-            });
+        if (val === "") return;
+
+        if (!myID) {
+            alert("لحظة يا ملك، جاري الاتصال بالخادم...");
+            return;
         }
+
+        // إرسال البيانات
+        db.ref('main_msgs').push({
+            uid: myID,
+            n: myName,
+            t: val,
+            time: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            // تصفير المربع
+            inp.value = "";
+            inp.focus();
+        }).catch(err => {
+            alert("خطأ في الإرسال: " + err.message);
+        });
     }
 
     // 4. تحميل الرسائل
-    function loadMessages() {
-        db.ref('main_msgs').limitToLast(40).on('child_added', s => {
+    function loadMsgs() {
+        db.ref('main_msgs').limitToLast(50).on('child_added', s => {
             const d = s.val();
             const div = document.createElement('div');
             div.className = 'msg';
             div.style.marginBottom = "8px";
             div.innerHTML = `<b style="color:#ffd700; font-size:11px;">${d.n}</b><br>${d.t}`;
             document.getElementById('chat-win').appendChild(div);
-            // نزول الشات لآخر رسالة
             document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
         });
     }
