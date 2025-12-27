@@ -7,7 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #000; --card: #111; }
+        :root { --gold: #ffd700; --bg: #000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
 
@@ -15,22 +15,29 @@
         .header { height: 60px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
 
         #chat-win { flex: 1; overflow-y: auto; padding: 10px 15px 150px 15px; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 85%; padding: 10px; border-radius: 15px; background: #111; border: 1px solid #222; position: relative; }
-        .admin-msg { border: 2px solid var(--gold) !important; box-shadow: 0 0 10px rgba(255,215,0,0.2); }
+        .bubble { max-width: 85%; padding: 10px; border-radius: 15px; background: #111; border: 1px solid #222; }
+        .admin-msg { border: 2px solid var(--gold) !important; }
 
-        /* منطقة اليوتيوب */
-        #yt-container { position: fixed; top: 65px; left: 10px; width: 160px; height: 100px; z-index: 500; border: 2px solid var(--gold); display: none; background: #000; }
+        /* 📺 منطقة اليوتيوب المحدثة */
+        #yt-container { 
+            position: fixed; top: 70px; left: 10px; width: 180px; height: 120px; 
+            z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; 
+            display: none; background: #000; box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        #close-yt {
+            position: absolute; top: -10px; right: -10px; background: red; color: white;
+            border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;
+            font-weight: bold; z-index: 1001; display: flex; align-items: center; justify-content: center;
+        }
 
-        /* منطقة الكتابة */
         .input-box { position: fixed; bottom: 0; left: 0; right: 0; background: #080808; border-top: 2px solid #333; padding: 10px; z-index: 2000; }
         .footer { display: flex; align-items: center; gap: 10px; }
-        #mInp { flex: 1; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 20px; padding: 10px 15px; font-size: 16px; height: 45px; }
-        .send-btn { background: var(--gold); color: #000; border: none; border-radius: 50%; width: 48px; height: 48px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        #mInp { flex: 1; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 20px; padding: 10px 15px; height: 45px; }
+        .send-btn { background: var(--gold); color: #000; border: none; border-radius: 50%; width: 48px; height: 48px; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-        /* تصغير قائمة المتصلين والقائمة الجانبية */
-        .menu { position: fixed; top: 0; width: 70%; height: 100%; background: #0a0a0a; z-index: 3000; border: 1px solid var(--gold); display: none; overflow-y: auto; transition: 0.3s; }
+        .menu { position: fixed; top: 0; width: 75%; height: 100%; background: #0a0a0a; z-index: 3000; border: 1px solid var(--gold); display: none; overflow-y: auto; }
         .menu.show { display: block; }
-        .btn-style { width: 100%; padding: 10px; background: #111; color: var(--gold); border: 1px solid var(--gold); border-radius: 10px; margin-bottom: 10px; font-weight: bold; font-size: 14px; }
+        .btn-style { width: 100%; padding: 12px; background: #111; color: var(--gold); border: 1px solid var(--gold); border-radius: 10px; margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -42,7 +49,10 @@
         <button onclick="openR()" style="background:none; border:none; color:var(--gold); font-size:28px;">👥</button>
     </div>
 
-    <div id="yt-container"><iframe id="player" width="100%" height="100%" frameborder="0"></iframe></div>
+    <div id="yt-container">
+        <button id="close-yt" onclick="stopYT()">X</button>
+        <iframe id="player" width="100%" height="100%" frameborder="0"></iframe>
+    </div>
 
     <div id="chat-win" onclick="closeAll()"></div>
 
@@ -51,33 +61,28 @@
             <button onclick="document.getElementById('msg-img-file').click()" style="background:none; border:none; color:var(--gold); font-size:24px;">📷</button>
             <input type="file" id="msg-img-file" hidden accept="image/*" onchange="sendImg(this)">
             <input type="text" id="mInp" placeholder="اكتب هنا..." onkeydown="if(event.key==='Enter') doSend()">
-            <button id="realSendBtn" onclick="doSend()" class="send-btn">🚀</button>
+            <button onclick="doSend()" class="send-btn">🚀</button>
         </div>
     </div>
 </div>
 
 <div id="menu-l" class="menu" style="left:0;">
-    <div style="padding:15px;">
+    <div style="padding:20px;">
         <center>
             <img id="p-img" src="https://via.placeholder.com/80" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--gold); object-fit:cover;" onclick="document.getElementById('p-file').click()">
             <input type="file" id="p-file" hidden onchange="changeP(this)">
-            <p style="color:var(--gold); font-size:12px;">تغيير الصورة</p>
         </center>
-        <input type="text" id="newName" style="width:100%; padding:10px; margin:10px 0; background:#111; border:1px solid #333; color:#fff;" placeholder="اسم جديد...">
-        <button class="btn-style" onclick="saveP()">حفظ</button>
+        <input type="text" id="newName" style="width:100%; padding:10px; margin:10px 0; background:#111; color:#fff;" placeholder="اسمك الجديد...">
+        <button class="btn-style" onclick="saveP()">حفظ ✅</button>
         <hr style="border:0.5px solid #222;">
-        <input type="text" id="ytInp" style="width:100%; padding:8px; margin-bottom:5px;" placeholder="بحث يوتيوب...">
-        <button class="btn-style" onclick="ytS()">تشغيل 🎬</button>
+        <input type="text" id="ytInp" style="width:100%; padding:8px; margin-bottom:5px;" placeholder="اكتب اسم الأغنية...">
+        <button class="btn-style" onclick="ytS()">تشغيل الآن 🎬</button>
         <button class="btn-style" onclick="closeAll()">إغلاق</button>
     </div>
 </div>
 
 <div id="menu-r" class="menu" style="right:0;">
-    <div style="padding:15px;">
-        <h4 style="text-align:center; color:var(--gold); margin-top:0;">👥 المتصلون</h4>
-        <div id="u-list"></div>
-        <button class="btn-style" onclick="closeAll()" style="margin-top:20px;">إغلاق</button>
-    </div>
+    <div style="padding:15px;"><h4 style="text-align:center; color:var(--gold);">👥 المتصلون</h4><div id="u-list"></div></div>
 </div>
 
 <script>
@@ -90,7 +95,7 @@
     localStorage.setItem('chatId', uID);
     let mySet = JSON.parse(localStorage.getItem('mySet')) || { n: "عضو جديد", img: "https://via.placeholder.com/80", r: "user" };
 
-    // دخول المالك السري (3 ثواني على الترس)
+    // دخول المالك (3 ثواني على الترس)
     let timer;
     const setBtn = document.getElementById('setBtn');
     setBtn.addEventListener('mousedown', () => timer = setTimeout(adminL, 3000));
@@ -101,6 +106,11 @@
     function adminL() { 
         let p = prompt("رمز الإمبراطور:");
         if(p === "1234") { mySet.r = "admin"; mySet.n = "المالك علوش 👑"; saveP(); location.reload(); }
+    }
+
+    function stopYT() {
+        document.getElementById('yt-container').style.display = 'none';
+        document.getElementById('player').src = "";
     }
 
     function doSend() {
@@ -138,7 +148,6 @@
         }
     }
 
-    // جلب الرسائل وإصلاح الحذف
     db.ref('main_msgs').on('value', s => {
         const win = document.getElementById('chat-win');
         win.innerHTML = "";
@@ -150,7 +159,7 @@
             let h = `<div style="display:flex; align-items:center; gap:8px;"><img src="${d.img}" style="width:25px;height:25px;border-radius:50%;"><b style="color:var(--gold);font-size:11px;">${d.n}</b>`;
             if(mySet.r === 'admin') h += `<span onclick="db.ref('main_msgs/${k}').remove()" style="color:red;margin-right:10px;cursor:pointer;">🗑️</span>`;
             h += `</div>`;
-            if(d.t) h += `<div style="margin-top:4px; font-size:15px;">${d.t}</div>`;
+            if(d.t) h += `<div style="margin-top:4px;">${d.t}</div>`;
             if(d.imgMsg) h += `<img src="${d.imgMsg}" style="width:100%;border-radius:10px;margin-top:5px;">`;
             div.innerHTML = h;
             win.appendChild(div);
@@ -162,16 +171,17 @@
         const q = document.getElementById('ytInp').value;
         const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}&maxResults=1`);
         const data = await res.json();
-        if(data.items[0]) db.ref('yt_sync').set({ id: data.items[0].id.videoId });
+        if(data.items[0]) {
+            const vidId = data.items[0].id.videoId;
+            db.ref('yt_sync').set({ id: vidId });
+            document.getElementById('player').src = `https://www.youtube.com/embed/${vidId}?autoplay=1`;
+            document.getElementById('yt-container').style.display='block';
+            closeAll();
+        }
     }
-
-    db.ref('yt_sync').on('value', s => {
-        if(s.val()) { document.getElementById('player').src = `https://www.youtube.com/embed/${s.val().id}?autoplay=1`; document.getElementById('yt-container').style.display='block'; }
-    });
 
     db.ref('status/'+uID).set({ n: mySet.n, img: mySet.img, r: mySet.r, online: true });
     db.ref('status/'+uID).onDisconnect().remove();
-
     db.ref('status').on('value', s => {
         const l = document.getElementById('u-list');
         l.innerHTML = "";
@@ -179,12 +189,13 @@
             let user = u.val();
             if(user.online) {
                 l.innerHTML += `<div style="padding:8px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #111;">
-                    <img src="${user.img}" style="width:25px; height:25px; border-radius:50%; border:1px solid var(--gold); object-fit:cover;">
+                    <img src="${user.img}" style="width:25px; height:25px; border-radius:50%; object-fit:cover;">
                     <span style="font-size:13px; ${user.r==='admin'?'color:var(--gold);font-weight:bold;':''}">${user.n}</span>
                 </div>`;
             }
         });
     });
+    db.ref('main_msgs').on('child_removed', () => location.reload());
 </script>
 </body>
 </html>
