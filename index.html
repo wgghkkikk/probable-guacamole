@@ -1,42 +1,41 @@
-<div id="king-layout" style="display: flex; justify-content: space-between; height: 100vh; padding: 20px; box-sizing: border-box;">
-
-    <div id="features-list" style="width: 250px; background: rgba(0,0,0,0.8); border: 2px solid gold; border-radius: 15px; padding: 15px; overflow-y: auto;">
-        <h3 style="color: gold; text-align: center; border-bottom: 1px solid gold;">📜 ميزات الإمبراطورية</h3>
-        <ul style="list-style: none; padding: 0; font-size: 13px;">
-            <li>✅ 1. الهالة الصوتية (Audio Aura)</li>
-            <li>✅ 2. الشات المغناطيسي (Magnetic Chat)</li>
-            <li>✅ 3. سجلات الزمن (Time Travel Logs)</li>
-            <li>✅ 4. المبارزة الحية (Live Gladiator)</li>
-            <li>✅ 5. طقس المملكة</li>
-            <li>✅ 6. الحبر السري (Invisible Ink)</li>
-            <li>✅ 7. نظام الكارما الملكي</li>
-            <li style="color: gold; font-weight: bold;">... ميزة 70: خاتم الملك تم تفعيله!</li>
-        </ul>
-    </div>
-
-    <div id="main-content" style="flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-        <h1 style="color: gold; text-shadow: 0 0 20px gold;">مملكة علوش</h1>
-        <p>نظام الكارما: <span id="k-count">1205</span></p>
-    </div>
-
-    <div id="online-users" style="width: 250px; background: rgba(0,0,0,0.8); border: 2px solid #ff0050; border-radius: 15px; padding: 15px; overflow-y: auto;">
-        <h3 style="color: #ff0050; text-align: center; border-bottom: 1px solid #ff0050;">👥 شعب المملكة</h3>
-        <div id="users-list" style="font-size: 14px;">
-            <p style="color: gold;">👑 علوش_الإمبراطور (متصل)</p>
-            <p>👤 حارس المملكة (متصل)</p>
-            <p>👤 عاشق بغداد (متصل)</p>
-            </div>
-    </div>
-</div>
-
 <script>
-    // إضافة زوار وهميين كل فترة لإظهار التفاعل
-    setInterval(() => {
-        const users = ["زيد", "حمزة", "ليلى", "نور", "صقر"];
+    // ميزة 74: نظام الرتب الذكي
+    const ranks = [
+        { title: "🛡️ جنرال البرمجة", color: "#ff4500" },
+        { title: "⚔️ حارس المملكة", color: "#00ced1" },
+        { title: "📜 مؤرخ الميزات", color: "#da70d6" },
+        { title: "👤 مواطن ملكي", color: "#ffffff" }
+    ];
+
+    function updateOnlineUsers() {
         const list = document.getElementById('users-list');
-        const newUser = document.createElement('p');
-        newUser.innerText = "👤 " + users[Math.floor(Math.random() * users.length)] + " (دخل الآن)";
-        list.appendChild(newUser);
-        if(list.children.length > 8) list.removeChild(list.children[1]);
-    }, 5000);
+        const users = ["زيد", "حمزة", "ليلى", "نور", "صقر", "عباس"];
+        
+        // إضافة مستخدم برتبة عشوائية
+        const randomUser = users[Math.floor(Math.random() * users.length)];
+        const randomRank = ranks[Math.floor(Math.random() * ranks.length)];
+        
+        const userElement = document.createElement('p');
+        userElement.style.color = randomRank.color;
+        userElement.innerHTML = `<span>${randomRank.title}</span> | ${randomUser}`;
+        
+        list.appendChild(userElement);
+        if(list.children.length > 10) list.removeChild(list.children[1]); // الحفاظ على الملك في الأعلى
+    }
+
+    // تشغيل نظام الرتب كل 4 ثواني
+    setInterval(updateOnlineUsers, 4000);
 </script>
+
+<style>
+    /* تحسين مظهر الميزات في الجهة اليسرى */
+    #features-list li {
+        padding: 5px;
+        border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+        transition: 0.3s;
+    }
+    #features-list li:hover {
+        background: rgba(255, 215, 0, 0.1);
+        transform: translateX(5px);
+    }
+</style>
