@@ -2,83 +2,104 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مملكة علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        :root { --gold: #ffd700; --bg: #000; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; }
-
-        .app-layer { display: flex; flex-direction: column; height: 100vh; background: radial-gradient(circle at top, #1a0033, #000); position: relative; z-index: 1; }
-        .header { height: 65px; background: #000; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; flex-shrink: 0; z-index: 10; }
-        .nav-btn { background: none; border: none; color: var(--gold); font-size: 32px; cursor: pointer; }
-
-        #chat-win { flex: 1; overflow-y: auto; padding: 15px 15px 110px 15px; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 85%; padding: 12px; border-radius: 18px; border: 1px solid #333; background-size: 200% 200%; animation: moveG 5s linear infinite; display: flex; align-items: center; gap: 10px; }
-        @keyframes moveG { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        :root { --gold: #ffd700; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
-        /* صورة البروفايل داخل الشات */
-        .chat-img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #000; color: #fff; font-family: sans-serif; overflow: hidden;
+        }
 
-        .footer-box { position: fixed; bottom: 30px; left: 10px; right: 10px; height: 60px; background: #1a1a1a; border-radius: 35px; border: 2px solid #444; display: flex; align-items: center; padding: 0 15px; z-index: 500; }
-        #mInp { flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 16px; height: 100%; }
-        
-        .side-menu { position: fixed; top: 0; width: 85%; max-width: 300px; height: 100%; background: #0d0d0d; z-index: 2000; transition: 0.3s ease; border: 1px solid var(--gold); visibility: hidden; }
-        #side-l { left: -310px; } #side-r { right: -310px; }
-        .side-menu.active { left: 0 !important; right: 0 !important; visibility: visible; }
+        /* الطبقات */
+        .app { display: flex; flex-direction: column; height: 100vh; position: relative; }
 
-        /* بروفايل العضو */
-        .prof-header { text-align: center; padding: 20px; background: #111; border-radius: 15px; margin-bottom: 15px; border: 1px solid #333; }
-        #my-avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; }
-        
-        .btn-style { width: 100%; padding: 12px; background: #111; color: var(--gold); border: 1px solid var(--gold); border-radius: 10px; cursor: pointer; margin-bottom: 10px; font-weight: bold; }
+        /* الهيدر */
+        .header { 
+            height: 60px; background: #000; border-bottom: 2px solid var(--gold);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 15px;
+            z-index: 100;
+        }
+
+        /* الشات */
+        #chat-win { 
+            flex: 1; overflow-y: auto; padding: 15px 15px 120px 15px; 
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .bubble { 
+            max-width: 85%; padding: 10px; border-radius: 15px; border: 1px solid #333;
+            display: flex; align-items: center; gap: 8px; animation: moveG 5s linear infinite; background-size: 200%;
+        }
+        @keyframes moveG { 0%{background-position:0%} 100%{background-position:100%} }
+        .c-img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--gold); }
+
+        /* الخانة */
+        .footer { 
+            position: fixed; bottom: 30px; left: 10px; right: 10px; 
+            height: 55px; background: #1a1a1a; border-radius: 30px; 
+            border: 2px solid #444; display: flex; align-items: center; padding: 0 10px; z-index: 50;
+        }
+        #mInp { flex: 1; background: transparent; border: none; color: #fff; font-size: 16px; padding: 10px; }
+
+        /* القوائم */
+        .menu { 
+            position: fixed; top: 0; width: 80%; height: 100%; background: #0a0a0a; 
+            z-index: 1000; transition: 0.3s; border: 1px solid var(--gold); 
+            display: none; /* مخفية تماماً حتى لا تعيق اللمس */
+        }
+        .menu.show { display: block; }
+        #menu-l { left: 0; } #menu-r { right: 0; }
+
+        .btn-style { width: 100%; padding: 12px; background: #111; color: var(--gold); border: 1px solid var(--gold); border-radius: 10px; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
         .inp-style { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid #444; border-radius: 10px; margin-bottom: 10px; }
         
-        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .dot { height: 35px; border-radius: 6px; border: 1px solid #333; }
+        .p-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+        .dot { height: 30px; border-radius: 5px; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
-    <div class="app-layer">
+    <div class="app">
         <div class="header">
-            <button class="nav-btn" onclick="toggleMenu('side-l')">⚙️</button>
-            <b style="color:var(--gold);">مملكة علوش 👑</b>
-            <button class="nav-btn" onclick="toggleMenu('side-r')">👥</button>
+            <button onclick="openL()" style="background:none; border:none; color:var(--gold); font-size:30px;">🎨</button>
+            <b style="color:var(--gold)">مملكة علوش 👑</b>
+            <button onclick="openR()" style="background:none; border:none; color:var(--gold); font-size:30px;">👥</button>
         </div>
+
         <div id="chat-win" onclick="closeAll()"></div>
-        <div class="footer-box">
-            <button class="nav-btn" onclick="sendMsg()">🚀</button>
+
+        <div class="footer">
+            <button onclick="sendMsg()" style="background:none; border:none; font-size:25px;">🚀</button>
             <input type="text" id="mInp" placeholder="تكلم يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
         </div>
     </div>
 
-    <div id="side-l" class="side-menu">
-        <div style="padding: 20px; overflow-y: auto; height: 100%;">
-            <div class="prof-header">
-                <img id="my-avatar" src="https://via.placeholder.com/80" onclick="document.getElementById('file-inp').click()">
-                <p style="font-size: 12px; color: #888; margin-top: 5px;">اضغط على الصورة لتغييرها</p>
-                <input type="file" id="file-inp" hidden accept="image/*" onchange="uploadImg(this)">
-                <h3 id="u-name-display" style="color: var(--gold); margin: 10px 0;">علوش</h3>
-            </div>
-
-            <input type="text" id="newName" class="inp-style" placeholder="تغيير الاسم...">
-            <button class="btn-style" onclick="saveName()">حفظ البيانات ✅</button>
-
-            <h4 style="color:var(--gold)">🌈 لون الدردشة</h4>
-            <div id="palette" class="palette"></div>
+    <div id="menu-l" class="menu">
+        <div style="padding: 20px;">
+            <center>
+                <img id="my-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:70px; height:70px; border-radius:50%; border:2px solid var(--gold);" onclick="document.getElementById('f-inp').click()">
+                <p style="font-size:11px; color:#888;">اضغط لتغيير الصورة</p>
+                <input type="file" id="f-inp" hidden accept="image/*" onchange="upload(this)">
+            </center>
             
-            <button class="btn-style" style="margin-top:20px; border-color:red; color:red;" onclick="adminLogin()">🔑 دخول المالك</button>
-            <button class="btn-style" onclick="closeAll()">إغلاق ✖</button>
+            <input type="text" id="newName" class="inp-style" placeholder="غير اسمك هنا...">
+            <button class="btn-style" onclick="save()">حفظ البيانات ✅</button>
+
+            <h4 style="color:var(--gold)">🌈 اختر لونك</h4>
+            <div id="palette" class="p-grid"></div>
+            
+            <button class="btn-style" style="margin-top:20px;" onclick="closeAll()">إغلاق ✖</button>
         </div>
     </div>
 
-    <div id="side-r" class="side-menu">
+    <div id="menu-r" class="menu">
         <div style="padding: 20px;">
-            <h3 style="text-align:center; color:var(--gold);">👥 المتواجدون</h3>
+            <h3 style="text-align:center; color:var(--gold);">👥 المتصلون</h3>
             <div id="u-list"></div>
             <button class="btn-style" style="margin-top:20px;" onclick="closeAll()">إغلاق ✖</button>
         </div>
@@ -89,28 +110,79 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // نظام الهوية الثابتة لمنع تكرار الاسم
     let uID = localStorage.getItem('chatId') || "ID_" + Date.now();
     localStorage.setItem('chatId', uID);
 
     let mySet = JSON.parse(localStorage.getItem('mySet')) || { 
-        n: "علوش", 
-        g: "linear-gradient(45deg, #444, #111)", 
-        img: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-        r: "user"
+        n: "علوش", g: "linear-gradient(45deg, #444, #111)", img: "https://cdn-icons-png.flaticon.com/512/149/149071.png" 
     };
 
-    // تحديث الواجهة فوراً
-    document.getElementById('my-avatar').src = mySet.img;
-    document.getElementById('u-name-display').innerText = mySet.n;
+    document.getElementById('my-pic').src = mySet.img;
 
-    // رفع الصورة وتحويلها لـ Base64 لتخزينها
-    function uploadImg(input) {
+    // توليد الألوان
+    const pal = document.getElementById('palette');
+    for(let i=0; i<70; i++) {
+        let g = `linear-gradient(45deg, hsl(${i*5.1},70%,40%), hsl(${(i*5.1)+45},70%,40%))`;
+        let d = document.createElement('div'); d.className='dot'; d.style.background=g;
+        d.onclick = () => { mySet.g = g; alert("تم اللون!"); };
+        pal.appendChild(d);
+    }
+
+    // دوال الأزرار (أصلحناها لتكون مباشرة)
+    function openL() { closeAll(); document.getElementById('menu-l').classList.add('show'); }
+    function openR() { closeAll(); document.getElementById('menu-r').classList.add('show'); }
+    function closeAll() { document.getElementById('menu-l').classList.remove('show'); document.getElementById('menu-r').classList.remove('show'); }
+
+    function upload(input) {
         if (input.files && input.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
+            let r = new FileReader();
+            r.onload = function(e) {
                 mySet.img = e.target.result;
-                document.getElementById('my-avatar').src = e.target.result;
-                saveName(); // حفظ تلقائي بعد تغيير الصورة
+                document.getElementById('my-pic').src = e.target.result;
+                save();
             };
-            reader.readAsDataURL
+            r.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function save() {
+        let n = document.getElementById('newName').value.trim();
+        if(n) mySet.n = n;
+        localStorage.setItem('mySet', JSON.stringify(mySet));
+        db.ref('status/'+uID).set({n:mySet.n, img:mySet.img});
+        closeAll();
+    }
+
+    function sendMsg() {
+        const i = document.getElementById('mInp');
+        if(!i.value.trim()) return;
+        db.ref('main_msgs').push({ uid: uID, n: mySet.n, t: i.value, g: mySet.g, img: mySet.img });
+        i.value = "";
+    }
+
+    db.ref('main_msgs').limitToLast(15).on('child_added', s => {
+        const d = s.val();
+        const div = document.createElement('div');
+        div.className = `bubble ${d.uid === uID ? '' : ''}`;
+        div.style.background = d.g;
+        div.innerHTML = `<img src="${d.img}" class="c-img"><div><b style="font-size:10px; display:block; color:var(--gold);">${d.n}</b>${d.t}</div>`;
+        document.getElementById('chat-win').appendChild(div);
+        document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
+    });
+
+    db.ref('status').on('value', s => {
+        const l = document.getElementById('u-list'); l.innerHTML = '';
+        s.forEach(u => {
+            let user = u.val();
+            l.innerHTML += `<div style="padding:10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #222;">
+                <img src="${user.img}" style="width:30px; height:30px; border-radius:50%; border:1px solid var(--gold);">
+                <span>${user.n}</span>
+            </div>`;
+        });
+    });
+
+    db.ref('status/'+uID).set({n:mySet.n, img:mySet.img});
+    db.ref('status/'+uID).onDisconnect().remove();
+</script>
+</body>
+</html>
