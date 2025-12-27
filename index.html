@@ -1,73 +1,28 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <title>مملكة علوش - الإمبراطورية الشاملة</title>
-    <style>
-        body { margin: 0; background: #000; color: gold; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; height: 100vh; transition: 0.5s; }
-        .gladiator-duel { position: absolute; top: 80px; width: 100%; display: flex; justify-content: space-around; z-index: 5; }
-        .player { text-align: center; font-weight: bold; text-shadow: 0 0 10px red; font-size: 20px; }
-        .vs { font-size: 30px; color: white; animation: shake 0.5s infinite; }
-        @keyframes shake { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+<div id="followers-box" style="position: absolute; top: 120px; right: 20px; background: rgba(255, 0, 80, 0.2); border: 1px solid #ff0050; padding: 10px; border-radius: 10px; color: white; text-align: center;">
+    <div style="font-size: 12px; color: #ff0050; font-weight: bold;">👥 المتابعون الآن</div>
+    <div id="follower-count" style="font-size: 20px; font-weight: bold;">854,230</div>
+</div>
+
+<script>
+    // نظام زيادة المتابعين تلقائياً (ميزة 71)
+    let followers = 854230;
+    setInterval(() => {
+        let gain = Math.floor(Math.random() * 5) + 1;
+        followers += gain;
+        document.getElementById('follower-count').innerText = followers.toLocaleString();
         
-        /* تيك توك المملكة */
-        .tiktok-style { position: absolute; bottom: 100px; left: 20px; z-index: 10; }
-        .tiktok-style h1 { margin: 0; color: #fff; font-size: 24px; }
-        
-        /* رادار الخريطة الملكية */
-        #radar { position: absolute; bottom: 20px; right: 20px; width: 80px; height: 80px; border: 2px solid gold; border-radius: 50%; background: rgba(0,255,0,0.1); }
-        #radar::after { content: ''; position: absolute; width: 100%; height: 2px; background: gold; top: 50%; animation: rotate 2s linear infinite; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        /* ميزة 70: الهالة الصوتية */
-        #aura-text { position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 12px; color: #555; }
-    </style>
-</head>
-<body onclick="boostKarma()">
-
-    <div class="gladiator-duel">
-        <div class="player">علوش<br>HP: 100%</div>
-        <div class="vs">VS</div>
-        <div class="player">المنافس<br>HP: 0%</div>
-    </div>
-
-    <div class="tiktok-style">
-        <h1>علوش_الإمبراطور@</h1>
-        <p>🏆 ملك البرمجة - ميزة 70</p>
-        <p style="color: #ff0050;">♥️ 1.5M | 💬 70K | 🔄 28K</p>
-    </div>
-
-    <div style="position: absolute; top: 20px; right: 20px; font-size: 25px; border-bottom: 2px solid gold;">
-        🏆 الكارما: <span id="k-count">1000</span>
-    </div>
-
-    <div id="radar"></div>
-    <div id="aura-text">🎵 الصوت الأصلي: مملكة علوش - Audio Aura Active</div>
-
-    <div style="position:fixed; top:0; left:0; width:50px; height:50px; cursor:pointer;" onclick="showKingMenu()"></div>
-
-    <script>
-        let k = 1000;
-        function boostKarma() {
-            k += 7;
-            document.getElementById('k-count').innerText = k;
-            document.body.style.boxShadow = "inset 0 0 50px gold";
-            setTimeout(() => document.body.style.boxShadow = "none", 200);
+        // سجلات الزمن: توثيق نمو المملكة
+        if(followers % 100 == 0) {
+            console.log("Time Travel Log: زيادة المتابعين إلى " + followers);
         }
+    }, 2000);
 
-        function showKingMenu() {
-            let pass = prompt("أدخل شفرة الملك (ميزة 70):");
-            if(pass == "علوش") {
-                alert("أهلاً بك يا ملك! تم تفعيل طقس المملكة وسجلات الزمن.");
-                document.body.style.background = "radial-gradient(circle, #222 0%, #000 100%)";
-            }
-        }
-
-        // زيادة الكارما تلقائياً (نظام المملكة الحي)
-        setInterval(() => {
-            k++;
-            document.getElementById('k-count').innerText = k;
-        }, 3000);
-    </script>
-</body>
-</html>
+    // ربط الكارما بالنمو الملكي
+    function boostKarma() {
+        k += 7;
+        document.getElementById('k-count').innerText = k;
+        // تأثير بصري عند زيادة الكارما
+        document.body.style.border = "5px solid gold";
+        setTimeout(() => document.body.style.border = "none", 100);
+    }
+</script>
