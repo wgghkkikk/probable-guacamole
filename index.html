@@ -2,102 +2,93 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إمبراطورية علوش 👑</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>مملكة علوش السوداء 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --royal: #8a2be2; }
+        :root { --gold: #ffd700; --bg: #000000; --card: #121212; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
-        /* خلفية متحركة فخمة */
-        body { 
+        body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); 
-            color: #fff; font-family: sans-serif; overflow: hidden; position: fixed; 
+            background: var(--bg); color: #fff; font-family: sans-serif; 
+            overflow: hidden; position: fixed; 
         }
 
-        .app { display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 10; }
-        .header { height: 60px; background: rgba(0,0,0,0.8); border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
+        .app { display: flex; flex-direction: column; height: 100vh; background: var(--bg); }
+        .header { height: 60px; background: #0a0a0a; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; }
 
-        /* اليوتيوب */
-        #yt-box { width: 180px; height: 110px; position: fixed; top: 70px; left: 10px; z-index: 500; border: 2px solid var(--gold); border-radius: 8px; display: none; background: #000; overflow: hidden; }
+        /* منطقة الدردشة */
+        #chat-win { flex: 1; overflow-y: auto; padding: 10px 15px 160px 15px; display: flex; flex-direction: column; gap: 12px; background: var(--bg); }
+        .bubble { max-width: 85%; padding: 12px; border-radius: 18px; border: 1px solid #222; background: var(--card); position: relative; color: #eee; }
+        .admin-msg { border: 2px solid var(--gold) !important; box-shadow: 0 0 10px rgba(255,215,0,0.3); }
+        .c-img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
+        .quote-box { background: #1a1a1a; padding: 6px; border-radius: 8px; font-size: 11px; margin-bottom: 6px; border-right: 3px solid var(--gold); color: #aaa; }
 
-        #chat-win { flex: 1; overflow-y: auto; padding: 15px 15px 150px 15px; display: flex; flex-direction: column; gap: 12px; }
+        /* 🚀 منطقة الكتابة المطورة */
+        .input-container { position: fixed; bottom: 0; left: 0; right: 0; background: #080808; border-top: 1px solid #222; z-index: 2000; padding-bottom: env(safe-area-inset-bottom); }
+        .emoji-bar { display: flex; overflow-x: auto; gap: 12px; padding: 10px; font-size: 22px; border-bottom: 1px solid #111; }
+        .footer { display: flex; align-items: center; padding: 10px; gap: 10px; }
+        #mInp { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 25px; padding: 12px 15px; font-size: 16px; height: 45px; }
         
-        /* فقاعات الشات */
-        .bubble { max-width: 85%; padding: 10px; border-radius: 15px; border: 1px solid rgba(255,215,0,0.3); background: rgba(0,0,0,0.6); position: relative; backdrop-filter: blur(5px); }
-        .admin-msg { border: 2px solid var(--gold) !important; box-shadow: 0 0 15px var(--gold); animation: glow 2s infinite alternate; }
-        @keyframes glow { from { box-shadow: 0 0 5px var(--gold); } to { box-shadow: 0 0 15px var(--gold); } }
-        
-        .c-img { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--gold); object-fit: cover; }
-        .quote-box { background: rgba(255,255,255,0.1); padding: 5px; border-radius: 5px; font-size: 11px; margin-bottom: 5px; border-right: 3px solid var(--gold); }
+        /* زر الإرسال الضخم للموبايل */
+        .send-btn { background: var(--gold); color: #000; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
 
-        /* منطقة الإدخال */
-        .input-area { position: fixed; bottom: 0; left: 0; right: 0; background: #000; padding: 10px; border-top: 2px solid var(--gold); z-index: 1000; }
-        .emoji-bar { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; font-size: 20px; border-bottom: 1px solid #333; margin-bottom: 5px; }
-        .emoji-bar span { cursor: pointer; }
-
-        .footer { display: flex; align-items: center; gap: 8px; height: 50px; }
-        #mInp { flex: 1; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 20px; padding: 0 15px; height: 40px; font-size: 16px; }
-        
-        /* أزرار الإرسال */
-        .btn-act { background: none; border: none; color: var(--gold); font-size: 24px; cursor: pointer; padding: 5px; }
-        
-        .menu { position: fixed; top: 0; width: 85%; height: 100%; background: rgba(10,10,10,0.95); z-index: 2000; transition: 0.3s; border: 1px solid var(--gold); display: none; overflow-y: auto; }
+        /* القوائم الجانبية */
+        .menu { position: fixed; top: 0; width: 85%; height: 100%; background: #050505; z-index: 3000; border: 1px solid var(--gold); display: none; overflow-y: auto; transition: 0.3s; }
         .menu.show { display: block; }
         .btn-style { width: 100%; padding: 12px; background: #111; color: var(--gold); border: 1px solid var(--gold); border-radius: 10px; margin-bottom: 10px; font-weight: bold; }
+        
+        #yt-box { width: 170px; height: 100px; position: fixed; top: 70px; left: 10px; z-index: 500; border: 2px solid var(--gold); border-radius: 8px; display: none; background: #000; }
     </style>
 </head>
 <body>
 
 <div class="app">
     <div class="header">
-        <button onclick="openL()" class="btn-act">⚙️</button>
-        <b style="color:var(--gold); text-shadow: 0 0 10px var(--gold);">مملكة علوش الإمبراطورية 👑</b>
-        <button onclick="openR()" class="btn-act">👥</button>
+        <button onclick="openL()" style="background:none; border:none; color:var(--gold); font-size:28px;">⚙️</button>
+        <b style="color:var(--gold)">مملكة علوش 👑</b>
+        <button onclick="openR()" style="background:none; border:none; color:var(--gold); font-size:28px;">👥</button>
     </div>
 
     <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0"></iframe></div>
 
     <div id="chat-win" onclick="closeAll()"></div>
 
-    <div class="input-area">
+    <div class="input-container">
         <div class="emoji-bar">
-            <span onclick="addEmoji('😂')">😂</span> <span onclick="addEmoji('😍')">😍</span> <span onclick="addEmoji('❤️')">❤️</span> 
-            <span onclick="addEmoji('👑')">👑</span> <span onclick="addEmoji('🔥')">🔥</span> <span onclick="addEmoji('🌹')">🌹</span> 
-            <span onclick="addEmoji('😂')">🤣</span> <span onclick="addEmoji('🥺')">🥺</span> <span onclick="addEmoji('😎')">😎</span>
-            <span onclick="addEmoji('🙌')">🙌</span> <span onclick="addEmoji('👍')">👍</span> <span onclick="addEmoji('✨')">✨</span>
+            <span onclick="addE('😂')">😂</span> <span onclick="addE('❤️')">❤️</span> <span onclick="addE('😍')">😍</span> 
+            <span onclick="addE('👑')">👑</span> <span onclick="addE('🔥')">🔥</span> <span onclick="addE('👍')">👍</span> 
+            <span onclick="addE('🌹')">🌹</span> <span onclick="addE('🤣')">🤣</span> <span onclick="addE('✨')">✨</span>
         </div>
         <div class="footer">
-            <button onclick="document.getElementById('msg-img-file').click()" class="btn-act">📷</button>
-            <input type="file" id="msg-img-file" hidden accept="image/*" onchange="sendImgMsg(this)">
-            <input type="text" id="mInp" placeholder="اكتب هنا يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
-            <button id="mainSendBtn" onclick="sendMsg()" ontouchstart="sendMsg()" class="btn-act">🚀</button>
+            <button onclick="document.getElementById('msg-img-file').click()" style="background:none; border:none; font-size:22px; color:var(--gold);">📷</button>
+            <input type="file" id="msg-img-file" hidden accept="image/*" onchange="sendImg(this)">
+            <input type="text" id="mInp" placeholder="تكلم يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
+            <button id="sendBtn" onpointerdown="sendMsg()" class="send-btn">🚀</button>
         </div>
     </div>
 </div>
 
 <div id="menu-l" class="menu" style="left:0;">
-    <div style="padding: 20px;">
+    <div style="padding:20px;">
         <center>
-            <img id="my-pic-display" src="https://via.placeholder.com/90" style="width:90px; height:90px; border-radius:50%; border:3px solid var(--gold); object-fit:cover;" onclick="document.getElementById('p-img-file').click()">
-            <input type="file" id="p-img-file" hidden onchange="changeProfilePic(this)">
-            <p style="font-size:10px; color:var(--gold);">اضغط لتغيير صورتك</p>
+            <img id="p-img" src="https://via.placeholder.com/90" style="width:90px; height:90px; border-radius:50%; border:2px solid var(--gold); object-fit:cover;" onclick="document.getElementById('p-file').click()">
+            <input type="file" id="p-file" hidden onchange="changeP(this)">
+            <h3 id="u-lab" style="color:var(--gold);">عضو</h3>
         </center>
-        <input type="text" id="newName" style="width:100%; padding:12px; margin:10px 0; background:#111; border:1px solid #444; color:#fff;" placeholder="تغيير الاسم...">
-        <button class="btn-style" onclick="updateProfile()">حفظ التعديلات ✅</button>
-        <hr>
-        <h4 style="color:var(--gold)">🎬 يوتيوب</h4>
-        <input type="text" id="ytInp" style="width:100%; padding:10px; margin-bottom:5px;" placeholder="اسم الأغنية...">
-        <button class="btn-style" onclick="ytSearch()">تشغيل 📡</button>
-        <button class="btn-style" style="color:red;" onclick="adminLogin()">🔑 دخول المالك</button>
+        <input type="text" id="newName" style="width:100%; padding:12px; margin:15px 0; background:#111; border:1px solid #333; color:#fff;" placeholder="غير اسمك...">
+        <button class="btn-style" onclick="saveP()">حفظ ✅</button>
+        <input type="text" id="ytInp" style="width:100%; padding:10px; margin-bottom:5px;" placeholder="بحث يوتيوب...">
+        <button class="btn-style" onclick="ytS()">تشغيل 🎬</button>
+        <button class="btn-style" style="color:red;" onclick="adminL()">🔑 المالك</button>
         <button class="btn-style" onclick="closeAll()">إغلاق</button>
     </div>
 </div>
 
 <div id="menu-r" class="menu" style="right:0;">
-    <div style="padding: 20px;"><h3 style="text-align:center; color:var(--gold);">👥 المتصلون الآن</h3><div id="u-list"></div></div>
+    <div style="padding:20px;"><h3 style="text-align:center; color:var(--gold);">👥 المتصلون</h3><div id="u-list"></div></div>
 </div>
 
 <script>
@@ -109,38 +100,38 @@
     let uID = localStorage.getItem('chatId') || "U_" + Math.floor(Math.random()*999999);
     localStorage.setItem('chatId', uID);
     let mySet = JSON.parse(localStorage.getItem('mySet')) || { n: "عضو", img: "https://via.placeholder.com/90", r: "user" };
-    let replyTo = null;
+    let reply = null;
 
-    function addEmoji(e) { document.getElementById('mInp').value += e; document.getElementById('mInp').focus(); }
+    function addE(e) { document.getElementById('mInp').value += e; }
     function openL() { closeAll(); document.getElementById('menu-l').classList.add('show'); }
     function openR() { closeAll(); document.getElementById('menu-r').classList.add('show'); }
     function closeAll() { document.querySelectorAll('.menu').forEach(m => m.classList.remove('show')); }
 
-    function changeProfilePic(input) {
+    function changeP(input) {
         if (input.files && input.files[0]) {
             let r = new FileReader();
-            r.onload = (e) => { mySet.img = e.target.result; updateProfile(); };
+            r.onload = (e) => { mySet.img = e.target.result; saveP(); };
             r.readAsDataURL(input.files[0]);
         }
     }
 
-    function updateProfile() {
+    function saveP() {
         let n = document.getElementById('newName').value.trim();
         if(n) mySet.n = n;
         localStorage.setItem('mySet', JSON.stringify(mySet));
         db.ref('status/'+uID).set({ n: mySet.n, img: mySet.img, r: mySet.r, online: true });
-        document.getElementById('my-pic-display').src = mySet.img;
+        document.getElementById('p-img').src = mySet.img;
         closeAll();
     }
 
     function sendMsg() {
         const i = document.getElementById('mInp');
         if(!i.value.trim()) return;
-        db.ref('main_msgs').push({ uid: uID, n: mySet.n, t: i.value, img: mySet.img, r: mySet.r, quote: replyTo });
-        i.value = ""; replyTo = null;
+        db.ref('main_msgs').push({ uid: uID, n: mySet.n, t: i.value, img: mySet.img, r: mySet.r, quote: reply });
+        i.value = ""; reply = null;
     }
 
-    function sendImgMsg(input) {
+    function sendImg(input) {
         if (input.files && input.files[0]) {
             let r = new FileReader();
             r.onload = (e) => { db.ref('main_msgs').push({ uid: uID, n: mySet.n, imgMsg: e.target.result, img: mySet.img, r: mySet.r }); };
@@ -148,49 +139,42 @@
         }
     }
 
-    function delMsg(k) { if(mySet.r === 'admin' && confirm("حذف الرسالة؟")) db.ref('main_msgs/'+k).remove(); }
-    function setReply(n, t) { replyTo = { n: n, t: t }; document.getElementById('mInp').placeholder = "رد على " + n + "..."; }
+    function delM(k) { if(mySet.r === 'admin') db.ref('main_msgs/'+k).remove(); }
 
-    db.ref('main_msgs').limitToLast(20).on('child_added', s => {
+    db.ref('main_msgs').limitToLast(15).on('child_added', s => {
         const d = s.val(); const k = s.key;
         const div = document.createElement('div');
         div.className = `bubble ${d.r === 'admin' ? 'admin-msg' : ''}`;
         div.style.alignSelf = d.uid === uID ? 'flex-end' : 'flex-start';
-        div.onclick = () => setReply(d.n, d.t || "صورة");
+        div.onclick = () => { reply = {n: d.n, t: d.t || "صورة"}; alert("تم اختيار الرد!"); };
 
         let h = `<div style="display:flex; align-items:center; gap:8px;">
-            <img src="${d.img}" class="c-img">
-            <b style="color:var(--gold); font-size:12px;">${d.n}</b>`;
-        if(mySet.r === 'admin') h += `<span onclick="delMsg('${k}')" style="margin-right:10px; color:red; font-size:18px;">🗑️</span>`;
+            <img src="${d.img}" class="c-img"><b style="color:var(--gold); font-size:12px;">${d.n}</b>`;
+        if(mySet.r === 'admin') h += `<span onclick="delM('${k}')" style="margin-right:10px; color:red;">🗑️</span>`;
         h += `</div>`;
-        
         if(d.quote) h += `<div class="quote-box"><b>${d.quote.n}:</b> ${d.quote.t}</div>`;
-        if(d.t) h += `<div style="margin-top:5px; line-height:1.4;">${d.t}</div>`;
+        if(d.t) h += `<div style="margin-top:5px;">${d.t}</div>`;
         if(d.imgMsg) h += `<img src="${d.imgMsg}" style="width:100%; border-radius:10px; margin-top:8px;">`;
-        
         div.innerHTML = h;
         document.getElementById('chat-win').appendChild(div);
         document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
     });
 
-    db.ref('main_msgs').on('child_removed', () => { location.reload(); });
-
     db.ref('status').on('value', s => {
         const l = document.getElementById('u-list');
-        l.innerHTML = `<div style="padding:10px; color:#0088ff;">🤖 ساهر (حارس المملكة)</div>`;
+        l.innerHTML = `<div style="padding:10px; color:#0088ff;">🤖 ساهر (بوت)</div>`;
         s.forEach(u => {
             let user = u.val();
             if(user.online) {
-                l.innerHTML += `<div style="padding:10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #222;">
+                l.innerHTML += `<div style="padding:10px; display:flex; align-items:center; gap:10px;">
                     <img src="${user.img}" style="width:30px; height:30px; border-radius:50%; border:1px solid var(--gold); object-fit:cover;">
-                    <span style="${user.r==='admin'?'color:var(--gold);font-weight:bold;':''}">${user.n}</span>
-                    ${user.r==='admin'?'<span style="font-size:10px; background:var(--gold); color:#000; padding:2px 5px; border-radius:5px;">إمبراطور 👑</span>':''}
+                    <span style="${user.r==='admin'?'color:var(--gold);':''}">${user.n}</span>
                 </div>`;
             }
         });
     });
 
-    async function ytSearch() {
+    async function ytS() {
         const q = document.getElementById('ytInp').value;
         const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}&maxResults=1`);
         const data = await res.json();
@@ -201,10 +185,11 @@
         if(s.val()) { document.getElementById('player').src = `https://www.youtube.com/embed/${s.val().id}?autoplay=1`; document.getElementById('yt-box').style.display='block'; }
     });
 
-    function adminLogin() { if(prompt("رمز الإمبراطور:") === "1234") { mySet.r = "admin"; mySet.n = "علوش 👑"; updateProfile(); location.reload(); } }
+    function adminL() { if(prompt("الرمز:") === "1234") { mySet.r = "admin"; mySet.n = "المالك علوش 👑"; saveP(); location.reload(); } }
 
     db.ref('status/'+uID).set({ n: mySet.n, img: mySet.img, r: mySet.r, online: true });
     db.ref('status/'+uID).onDisconnect().remove();
+    db.ref('main_msgs').on('child_removed', () => location.reload());
 </script>
 </body>
 </html>
