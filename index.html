@@ -9,36 +9,41 @@
     
     <style>
         :root { --gold: #ffd700; }
-        body { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; height: 100vh; }
-        .app { display: flex; flex-direction: column; height: 100vh; background: radial-gradient(circle, #1a0033, #000); }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
         
-        /* الهيدر */
-        .header { background: rgba(0,0,0,0.9); padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); z-index: 100; }
+        .app { display: flex; flex-direction: column; height: 100vh; background: radial-gradient(circle, #1a0033, #000); position: relative; }
         
-        /* يوتيوب */
-        #yt-box { width: 160px; height: 100px; position: fixed; top: 60px; left: 10px; z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; display: none; background: #000; }
+        .header { height: 60px; background: rgba(0,0,0,0.9); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
+        
+        #yt-box { width: 160px; height: 100px; position: absolute; top: 70px; left: 10px; z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; display: none; background: #000; }
         #yt-box.active { display: block; }
 
-        /* الشات */
-        #chat-win { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .bubble { max-width: 80%; padding: 10px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); color: #fff; background-size: 200% 200%; animation: moveGrad 4s linear infinite; }
+        #chat-win { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; }
+        .bubble { max-width: 80%; padding: 10px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); background-size: 200% 200%; animation: moveGrad 4s linear infinite; }
         @keyframes moveGrad { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
         .me { align-self: flex-start; }
 
-        /* 🚀 الصاروخ يمين */
-        .footer { background: #000; padding: 10px; display: flex; border-top: 1px solid #222; align-items: center; gap: 10px; }
-        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 20px; border: 1px solid #444; outline: none; }
-        .btn-send { background: none; border: none; font-size: 28px; cursor: pointer; order: 1; }
+        /* 🚀 تعديل الفوتر ليظهر على كل الأجهزة */
+        .footer { 
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 70px;
+            background: #000; padding: 10px; display: flex; align-items: center; 
+            border-top: 1px solid #222; z-index: 1500; gap: 10px;
+        }
+        #mInp { 
+            flex: 1; background: #111; color: #fff; padding: 12px; 
+            border-radius: 20px; border: 1px solid #444; outline: none; 
+            font-size: 16px; /* منع التكبير التلقائي في الآيفون */
+        }
+        .btn-send { background: none; border: none; font-size: 28px; cursor: pointer; order: 1; padding: 0 5px; }
 
-        /* القوائم الجانبية */
         .side { position: fixed; top: 0; width: 260px; height: 100vh; background: #080808; transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); overflow-y: auto; }
         #side-l { left: -270px; } #side-r { right: -270px; }
         .open { left: 0 !important; right: 0 !important; }
 
         .box { background: rgba(255,215,0,0.05); margin: 8px; padding: 10px; border-radius: 8px; border: 1px solid #333; }
-        .btn-gold { width: 100%; padding: 10px; margin: 4px 0; background: #000; color: var(--gold); border: 1px solid var(--gold); border-radius: 5px; }
+        .btn-gold { width: 100%; padding: 10px; margin: 4px 0; background: #000; color: var(--gold); border: 1px solid var(--gold); border-radius: 5px; cursor: pointer; }
         
-        /* شبكة الألوان الخفيفة */
         .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 10px; }
         .dot { height: 35px; border-radius: 5px; border: 1px solid #444; cursor: pointer; }
     </style>
@@ -53,6 +58,7 @@
         </div>
 
         <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0"></iframe></div>
+        
         <div id="chat-win"></div>
 
         <div class="footer" onclick="event.stopPropagation()">
@@ -69,16 +75,16 @@
     <div id="side-l" class="side" onclick="event.stopPropagation()">
         <div class="box">
             <h4 style="color:var(--gold);">👑 اسمك</h4>
-            <input type="text" id="newName" placeholder="اكتب اسمك..." style="width:90%; padding:8px; background:#000; color:#fff; border:1px solid #444;">
+            <input type="text" id="newName" placeholder="اكتب اسمك..." style="width:100%; padding:8px; background:#000; color:#fff; border:1px solid #444;">
             <button class="btn-gold" onclick="saveName()">حفظ ✅</button>
         </div>
         <div class="box">
-            <h4 style="color:var(--gold);">🌈 اختر لونك المتحرك (70 لون):</h4>
+            <h4 style="color:var(--gold);">🌈 الألوان المتحركة:</h4>
             <div class="palette" id="palette"></div>
         </div>
         <div class="box">
             <h4 style="color:var(--gold);">🎬 بحث يوتيوب</h4>
-            <input type="text" id="ytSearch" placeholder="اسم الأغنية..." style="width:90%; padding:8px; background:#000; color:#fff; border:1px solid #444;">
+            <input type="text" id="ytSearch" placeholder="اسم الأغنية..." style="width:100%; padding:8px; background:#000; color:#fff; border:1px solid #444;">
             <button class="btn-gold" onclick="searchByAPI()">بث 📡</button>
         </div>
     </div>
@@ -93,21 +99,20 @@
     localStorage.setItem('chatId', uID);
 
     let mySet = JSON.parse(localStorage.getItem('mySet')) || { n: "علوش", g: "linear-gradient(45deg, #800080, #ff00ff)" };
-    db.ref('status/' + uID).set({ n: mySet.n });
+    db.ref('status/' + uID).update({ n: mySet.n });
 
-    // توليد الألوان بشكل خفيف جداً
     const pal = document.getElementById('palette');
     for(let i=0; i<70; i++) {
         let g = `linear-gradient(45deg, hsl(${i*5.1},80%,40%), hsl(${(i*5.1)+40},80%,40%))`;
         let d = document.createElement('div');
         d.className = 'dot'; d.style.background = g;
-        d.onclick = () => { mySet.g = g; localStorage.setItem('mySet', JSON.stringify(mySet)); alert("تم اختيار اللون!"); };
+        d.onclick = () => { mySet.g = g; localStorage.setItem('mySet', JSON.stringify(mySet)); alert("تم اللون!"); };
         pal.appendChild(d);
     }
 
     function saveName() {
         let n = document.getElementById('newName').value.trim();
-        if(n) { mySet.n = n; localStorage.setItem('mySet', JSON.stringify(mySet)); db.ref('status/'+uID).set({n:n}); closeAll(); }
+        if(n) { mySet.n = n; localStorage.setItem('mySet', JSON.stringify(mySet)); db.ref('status/'+uID).update({n:n}); closeAll(); }
     }
 
     async function searchByAPI() {
@@ -122,20 +127,21 @@
 
     db.ref('yt_sync').on('value', s => {
         const v = s.val();
+        const box = document.getElementById('yt-box');
         if(v && v.a === 'play') {
             document.getElementById('player').src = `https://www.youtube.com/embed/${v.id}?autoplay=1`;
-            document.getElementById('yt-box').classList.add('active');
-        } else { document.getElementById('yt-box').classList.remove('active'); document.getElementById('player').src = ""; }
+            box.classList.add('active');
+        } else { box.classList.remove('active'); document.getElementById('player').src = ""; }
     });
 
     function sendMsg() {
         const i = document.getElementById('mInp');
         if(!i.value.trim()) return;
         db.ref('main_msgs').push({ uid: uID, n: mySet.n, t: i.value, g: mySet.g });
-        i.value = "";
+        i.value = ""; i.focus();
     }
 
-    db.ref('main_msgs').limitToLast(30).on('child_added', s => {
+    db.ref('main_msgs').limitToLast(25).on('child_added', s => {
         const d = s.val();
         const div = document.createElement('div');
         div.className = `bubble ${d.uid === uID ? 'me' : ''}`;
