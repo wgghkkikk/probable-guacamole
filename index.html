@@ -1,105 +1,55 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <title>مملكة علوش - الإصدار الذهبي</title>
-    <style>
-        /* إرجاع الخلفية السوداء فوراً */
-        body { 
-            margin: 0; 
-            background-color: #000 !important; /* سواد ملكي */
-            color: gold; 
-            font-family: Arial, sans-serif; 
-            overflow: hidden; 
-            height: 100vh;
+<script>
+    // ميزة 71-72: الأوامر السحرية في خانة الكتابة
+    function sendRoyalOrder() {
+        const input = document.getElementById('king-message') || document.querySelector('input');
+        const msg = input.value.trim();
+        const kVal = document.getElementById('k-val');
+
+        if (msg === "برق") {
+            document.body.style.animation = "lightning 0.5s";
+            setTimeout(() => document.body.style.animation = "", 500);
+            alert("⚡ تم تفعيل البرق الملكي بأمر الإمبراطور!");
+        } 
+        else if (msg === "مطر") {
+            startCodeRain(); // تشغيل مصفوفة الأكواد
         }
-
-        /* تنسيق الجهات الجانبية لتكون ظاهرة دائماً في البداية */
-        .side-panel {
-            position: fixed;
-            top: 0;
-            width: 260px;
-            height: calc(100vh - 80px); /* ترك مساحة لخانة الكتابة */
-            background: rgba(15, 15, 15, 0.95);
-            border: 1px solid gold;
-            padding: 20px;
-            overflow-y: auto;
-            z-index: 1000;
-            transition: 0.5s;
+        else if (msg !== "") {
+            // زيادة الكارما تلقائياً
+            let current = parseInt(kVal.innerText);
+            kVal.innerText = current + 10;
+            
+            // رد البوت المحمي
+            console.log("BOT_GUARD: أمرك مطاع يا علوش. الكارما الآن: " + kVal.innerText);
         }
-        #left-features { left: 0; border-right: 2px solid gold; }
-        #right-online { right: 0; border-left: 2px solid gold; }
+        input.value = "";
+    }
 
-        /* خانة الكتابة في الأسفل */
-        #king-input-zone {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background: #0a0a0a;
-            border-top: 2px solid gold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
+    // ميزة 75: حماية من "F12" و "Inspect"
+    document.onkeydown = function(e) {
+        if(e.keyCode == 123) {
+            alert("🤖 BOT_GUARD: محاولة اختراق فاشلة لمملكة علوش!");
+            return false;
         }
+    }
+</script>
 
-        input {
-            width: 60%;
-            padding: 12px;
-            border-radius: 20px;
-            border: 1px solid gold;
-            background: #000;
-            color: gold;
-            outline: none;
-        }
-
-        /* إخفاء القوائم عند الطلب */
-        .hide-left { transform: translateX(-100%); }
-        .hide-right { transform: translateX(100%); }
-    </style>
-</head>
-<body>
-
-    <div id="left-features" class="side-panel">
-        <h2 style="text-align:center;">📜 الميزات</h2>
-        <hr color="gold">
-        <ul id="feat-list" style="list-style:none; padding:0; font-size:14px;">
-            <li>✅ نظام الكارما (1205)</li>
-            <li>✅ الهالة الصوتية</li>
-            <li>✅ المبارزة الحية</li>
-            <li>✅ ميزة 70: خاتم الملك</li>
-        </ul>
-    </div>
-
-    <div onclick="toggleSides()" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;">
-        <h1 style="font-size:50px; text-shadow: 0 0 20px gold;">مملكة علوش</h1>
-        <p style="color:#555;">(اضغط هنا لطي/فتح الأجنحة الملكية)</p>
-        <div style="font-size:25px;">🏆 الكارما: <span id="k-val">1205</span></div>
-    </div>
-
-    <div id="right-online" class="side-panel">
-        <h2 style="text-align:center;">👥 المتصلون</h2>
-        <hr color="gold">
-        <div id="users-list">
-            <p style="font-weight:bold;">👑 علوش_الإمبراطور <span style="font-size:10px; border:1px solid gold; padding:2px;">ORIGINAL</span></p>
-            <p style="color:#00ffea; font-weight:bold;">🤖 BOT_GUARD (نظام الحماية)</p>
-            <hr border="0.5">
-            <p>👤 حارس 1</p>
-        </div>
-    </div>
-
-    <div id="king-input-zone">
-        <input type="text" placeholder="اكتب أمرك الملكي هنا...">
-        <button style="background:gold; border:none; margin-left:10px; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">إرسال</button>
-    </div>
-
-    <script>
-        function toggleSides() {
-            document.getElementById('left-features').classList.toggle('hide-left');
-            document.getElementById('right-online').classList.toggle('hide-right');
-        }
-    </script>
-</body>
-</html>
+<style>
+    /* تأثير البرق الملكي */
+    @keyframes lightning {
+        0% { background: #000; }
+        50% { background: #ffd700; }
+        100% { background: #000; }
+    }
+    
+    /* وسام الأسطورة الحية بجانب اسم الملك */
+    .legend-badge {
+        animation: colorShift 3s infinite;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+    @keyframes colorShift {
+        0% { color: gold; text-shadow: 0 0 5px gold; }
+        50% { color: white; text-shadow: 0 0 15px white; }
+        100% { color: gold; text-shadow: 0 0 5px gold; }
+    }
+</style>
