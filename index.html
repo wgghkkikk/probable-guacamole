@@ -1,4 +1,4 @@
-// ميزة 1: محرك تيك توك المملكة المطور
+// بيانات المقاطع - يمكنك إضافة روابط فيديوهاتك هنا
 let tiktokData = [
     { id: 1, src: "https://www.w3schools.com/html/mov_bbb.mp4", user: "علوش_الإمبراطور", likes: 1200, comments: [] },
     { id: 2, src: "https://www.w3schools.com/html/horse.mp4", user: "فارس_المملكة", likes: 850, comments: [] },
@@ -10,12 +10,13 @@ function openTikTok() {
     win.style.display = 'block';
     document.getElementById('view-title').innerText = "🎬 تيك توك المملكة - الإصدار التفاعلي";
     
+    // بناء الحاوية الرئيسية
     document.getElementById('display-content').innerHTML = `
         <div id="tiktok-wrapper" style="height: 70vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 15px;">
             <div id="video-stream"></div>
         </div>
     `;
-    renderTikToks();
+    renderTikToks(); // تشغيل الرندر
 }
 
 function renderTikToks() {
@@ -27,27 +28,34 @@ function renderTikToks() {
         post.className = 'tiktok-post';
         post.style = "height: 100%; scroll-snap-align: start; position: relative; border-bottom: 5px solid #111;";
         
+        // بناء محتوى الفيديو مع الأزرار
         post.innerHTML = `
             <video width="100%" height="100%" loop autoplay muted style="object-fit:cover;">
                 <source src="${video.src}" type="video/mp4">
             </video>
             
             <div style="position:absolute; right:15px; bottom:100px; display:flex; flex-direction:column; gap:20px; align-items:center; z-index:100;">
-                <div id="like-${video.id}" onclick="handleLike(${video.id})" style="cursor:pointer; font-size:30px; color:white;">❤️ <small style="font-size:12px; display:block; text-align:center;">${video.likes}</small></div>
-                <div onclick="showCommentBox(${video.id})" style="cursor:pointer; font-size:30px; color:white;">💬 <small style="font-size:12px; display:block; text-align:center;">${video.comments.length}</small></div>
-                <div onclick="this.style.background='white'; this.style.color='black';" style="background:gold; color:black; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>
+                <div onclick="handleLike(${video.id})" style="cursor:pointer; text-align:center;">
+                    <span id="heart-${video.id}" style="font-size:30px; color:white;">❤️</span>
+                    <small id="l-count-${video.id}" style="display:block; color:white;">${video.likes}</small>
+                </div>
+                <div onclick="showCommentBox(${video.id})" style="cursor:pointer; text-align:center;">
+                    <span style="font-size:30px; color:white;">💬</span>
+                    <small id="c-count-${video.id}" style="display:block; color:white;">${video.comments.length}</small>
+                </div>
+                <div onclick="alert('تمت المتابعة')" style="background:gold; color:black; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>
             </div>
 
             <div style="position:absolute; bottom:30px; left:15px; text-shadow:2px 2px 5px #000; z-index:100;">
                 <h4 style="margin:0; color:gold;">@${video.user}</h4>
-                <p style="margin:5px 0; font-size:14px;">فيديو حصري في #مملكة_علوش 👑</p>
+                <p style="margin:5px 0; font-size:14px; color:white;">فيديو ملكي حصري 👑</p>
             </div>
 
-            <div id="comment-box-${video.id}" style="display:none; position:absolute; bottom:0; width:100%; background:rgba(0,0,0,0.9); padding:10px; z-index:200; border-top:1px solid gold;">
-                <div id="list-${video.id}" style="max-height:100px; overflow-y:auto; margin-bottom:10px; font-size:12px;"></div>
+            <div id="comment-box-${video.id}" style="display:none; position:absolute; bottom:0; width:100%; background:rgba(0,0,0,0.95); padding:10px; z-index:200; border-top:1px solid gold;">
+                <div id="list-${video.id}" style="max-height:80px; overflow-y:auto; margin-bottom:10px; font-size:12px; color:white;"></div>
                 <div style="display:flex; gap:5px;">
                     <input type="text" id="input-${video.id}" placeholder="اكتب تعليقك..." style="flex-grow:1; background:#222; border:1px solid gold; color:white; border-radius:10px; padding:5px;">
-                    <button onclick="postComment(${video.id})" style="background:gold; border:none; padding:5px 10px; border-radius:10px; cursor:pointer;">نشر</button>
+                    <button onclick="postComment(${video.id})" style="background:gold; border:none; padding:5px 10px; border-radius:10px; cursor:pointer; font-weight:bold;">نشر</button>
                 </div>
             </div>
         `;
@@ -55,14 +63,15 @@ function renderTikToks() {
     });
 }
 
+// دالة اللايك المصححة
 function handleLike(id) {
     const video = tiktokData.find(v => v.id === id);
     video.likes += 1;
-    const btn = document.getElementById(`like-${id}`);
-    btn.style.color = "red";
-    btn.querySelector('small').innerText = video.likes;
+    document.getElementById(`heart-${id}`).style.color = "red";
+    document.getElementById(`l-count-${id}`).innerText = video.likes;
 }
 
+// دالة التعليقات المصححة
 function showCommentBox(id) {
     const box = document.getElementById(`comment-box-${id}`);
     box.style.display = box.style.display === 'none' ? 'block' : 'none';
@@ -71,11 +80,15 @@ function showCommentBox(id) {
 function postComment(id) {
     const input = document.getElementById(`input-${id}`);
     const list = document.getElementById(`list-${id}`);
+    const video = tiktokData.find(v => v.id === id);
+    
     if(input.value.trim() !== "") {
+        video.comments.push(input.value);
         const div = document.createElement('div');
-        div.style = "padding:3px; border-bottom:1px solid #333;";
+        div.style = "padding:3px; border-bottom:1px solid #333; color:white;";
         div.innerHTML = `<span style="color:gold;">الملك:</span> ${input.value}`;
         list.appendChild(div);
+        document.getElementById(`c-count-${id}`).innerText = video.comments.length;
         input.value = "";
     }
 }
