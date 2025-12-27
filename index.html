@@ -2,118 +2,144 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش - النظام العالمي</title>
+    <title>إمبراطورية علوش - السيادة المطلقة</title>
     <style>
+        /* نظام الألوان والسلاسة */
         body { margin: 0; padding: 0; overflow: hidden; height: 100vh; background: #000; font-family: 'Segoe UI', sans-serif; display: flex; color: white; }
-        .panel { width: 280px; background: rgba(15, 15, 15, 0.98); border: 1px solid gold; transition: 0.5s; position: fixed; height: 100%; z-index: 1000; overflow-y: auto; }
-        #left-features { left: -290px; } #right-users { right: -290px; }
-        .active-mode #left-features { left: 0; } .active-mode #right-users { right: 0; }
         
+        /* القوائم الجانبية (ميزة 75، 76) */
+        .panel { width: 280px; background: rgba(10, 10, 10, 0.98); border: 1px solid gold; transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); position: fixed; height: 100%; z-index: 1000; overflow-y: auto; }
+        #left-features { left: -290px; } 
+        #right-users { right: -290px; }
+        .active-mode #left-features { left: 0; } 
+        .active-mode #right-users { right: 0; }
+        
+        /* الشات الرئيسي */
         #main-view { flex-grow: 1; display: flex; flex-direction: column; width: 100%; background: radial-gradient(circle, #1a1a1a, #000); position: relative; }
-        #chat-screen { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; }
-        
-        .feature-btn { padding: 15px; border-bottom: 1px solid #333; color: gold; cursor: pointer; transition: 0.3s; font-size: 14px; }
+        #chat-content { flex-grow: 1; overflow-y: auto; padding: 20px; cursor: pointer; display: flex; flex-direction: column; gap: 15px; }
+
+        /* ميزات تفاعلية */
+        .feature-btn { padding: 15px; border-bottom: 1px solid #222; color: gold; cursor: pointer; transition: 0.3s; }
         .feature-btn:hover { background: gold; color: black; font-weight: bold; }
 
-        /* نافذة العرض المركزية */
-        #royal-window { position: absolute; top: 5%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; height: 80vh; display: none; background: #111; border: 2px solid gold; border-radius: 20px; padding: 15px; z-index: 2000; overflow: hidden; }
+        /* واجهة العرض الملكية (بديلة لنظام الموقع) */
+        #royal-display { 
+            position: absolute; top: 10%; left: 50%; transform: translateX(-50%); 
+            width: 85%; max-height: 70vh; display: none; background: #111; 
+            border: 2px solid gold; border-radius: 20px; padding: 20px; z-index: 2000; 
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2); overflow-y: auto;
+        }
+
+        /* شريط الكتابة */
+        #input-bar { background: #050505; padding: 15px; display: flex; gap: 10px; border-top: 2px solid gold; align-items: center; }
+        input { flex-grow: 1; padding: 12px; border-radius: 25px; border: 1px solid gold; background: #000; color: white; outline: none; }
         
-        /* تصميم تيك توك المملكة */
-        .tiktok-video { width: 100%; height: 80%; background: #000; border-radius: 15px; position: relative; overflow: hidden; }
-        .tiktok-actions { display: flex; justify-content: space-around; padding: 10px; background: #222; border-radius: 10px; margin-top: 10px; }
-        .action-btn { cursor: pointer; font-size: 20px; }
+        /* تصميم رسائل الشات */
+        .msg-box { background: rgba(255, 215, 0, 0.1); padding: 12px; border-radius: 15px; border-right: 4px solid gold; align-self: flex-start; max-width: 70%; }
+        .my-msg { align-self: flex-end; border-right: none; border-left: 4px solid #00ff00; background: rgba(0, 255, 0, 0.05); }
     </style>
 </head>
-<body id="master-body">
+<body id="king-body">
 
     <div id="left-features" class="panel">
-        <h3 style="text-align: center; color: gold; padding: 10px; border-bottom: 2px solid gold;">📜 دستور 79 ميزة</h3>
-        <div id="features-list"></div>
+        <h3 style="text-align: center; color: gold; padding: 15px;">📜 السيادة (79 ميزة)</h3>
+        <div id="features-container"></div>
     </div>
 
     <div id="main-view">
-        <div id="chat-screen" onclick="togglePanels()">
-            <div style="background:rgba(255,215,0,0.1); padding:10px; border-radius:10px; border-right:4px solid gold;">
-                <b>النظام الملكي:</b> تم تفعيل الـ 79 ميزة بنجاح. تيك توك المملكة جاهز الآن!
-            </div>
+        <div id="chat-content" onclick="toggleSystem()">
+            <div class="msg-box"><b>نظام المملكة:</b> تم إلغاء تحكم الموقع؛ أنت الآن في بيئة "علوش" البرمجية بالكامل.</div>
         </div>
 
-        <div id="royal-window">
-            <button onclick="closeWindow()" style="float:left; background:red; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:5px;">إغلاق X</button>
-            <div id="window-content" style="height: 90%; margin-top: 30px;"></div>
+        <div id="royal-display" onclick="event.stopPropagation()">
+            <div id="display-body"></div>
+            <button onclick="closeDisplay()" style="width:100%; margin-top:15px; background:red; color:white; border:none; padding:12px; border-radius:10px; cursor:pointer;">إغلاق واجهة التحكم</button>
         </div>
 
-        <div style="background:#050505; padding:15px; display:flex; gap:10px; border-top:2px solid gold;">
-            <input type="text" id="msg-input" placeholder="أمرك يا ملك..." style="flex-grow:1; padding:12px; border-radius:20px; border:1px solid gold; background:#000; color:white;">
-            <button onclick="alert('تم الإرسال')" style="background:gold; border:none; padding:10px 20px; border-radius:20px; cursor:pointer;">إرسال</button>
+        <div id="input-bar">
+            <img src="https://via.placeholder.com/45" style="border-radius:50%; border:2px solid gold;">
+            <input type="text" id="king-input" placeholder="اكتب أوامرك هنا..." onkeypress="if(event.key==='Enter') sendAction()">
+            <button onclick="sendAction()" style="background:gold; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">إرسال</button>
         </div>
     </div>
 
     <div id="right-users" class="panel">
-        <h3 style="text-align: center; color: gold; padding: 10px;">👥 المتصلون</h3>
+        <h3 style="text-align: center; color: gold; padding: 15px;">👥 قائمة المتصلين</h3>
         <div class="feature-btn" style="text-align:center;">👑 الملك علوش</div>
     </div>
 
     <script>
         const API_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
 
-        function togglePanels() { document.body.classList.toggle('active-mode'); }
-        function closeWindow() { document.getElementById('royal-window').style.display = 'none'; }
+        function toggleSystem() { document.body.classList.toggle('active-mode'); }
+        function closeDisplay() { document.getElementById('royal-display').style.display = 'none'; }
 
-        // ميزة تيك توك المملكة (71) - تشغيل حقيقي
+        // إرسال رسائل حقيقي
+        function sendAction() {
+            const input = document.getElementById('king-input');
+            const chat = document.getElementById('chat-content');
+            if(input.value.trim() !== "") {
+                const div = document.createElement('div');
+                div.className = 'msg-box my-msg';
+                div.innerHTML = `<b>أنت:</b> ${input.value}`;
+                chat.appendChild(div);
+                input.value = "";
+                chat.scrollTop = chat.scrollHeight;
+            }
+        }
+
+        // تفعيل ميزة تيك توك المملكة
         function openTikTok() {
-            const win = document.getElementById('royal-window');
-            win.style.display = 'block';
-            document.getElementById('window-content').innerHTML = `
-                <div class="tiktok-video">
-                    <iframe width="100%" height="100%" src="https://www.youtube.com/embed/tgbNymZ7vqY?autoplay=1&controls=0" frameborder="0"></iframe>
+            const display = document.getElementById('royal-display');
+            display.style.display = 'block';
+            document.getElementById('display-body').innerHTML = `
+                <div style="text-align:center;">
+                    <h3 style="color:gold;">🎬 تيك توك المملكة</h3>
+                    <iframe width="100%" height="350" src="https://www.youtube.com/embed/tgbNymZ7vqY?autoplay=1" frameborder="0" style="border-radius:15px;"></iframe>
+                    <div style="display:flex; justify-content:space-around; margin-top:15px; font-size:20px;">
+                        <span>❤️ 2.5K</span> <span>💬 120</span> <span>🔁 مشاركة</span>
+                    </div>
                 </div>
-                <div class="tiktok-actions">
-                    <span class="action-btn" onclick="this.style.color='red'">❤️ 1.2K</span>
-                    <span class="action-btn" onclick="alert('تعليقات الملك تظهر هنا')">💬 450</span>
-                    <span class="action-btn" onclick="alert('تم الحفظ في مكتبة الملك')">💾 حفظ</span>
-                </div>
-                <p style="text-align:center; font-size:12px;">اسحب للأعلى للفيديو التالي (محاكاة)</p>
             `;
         }
 
-        // ميزة اليوتيوب
-        function openYouTube() {
-            const win = document.getElementById('royal-window');
-            win.style.display = 'block';
-            document.getElementById('window-content').innerHTML = `
-                <input type="text" id="yt-q" placeholder="ابحث..." style="width:70%; padding:10px;">
-                <button onclick="searchYT()" style="padding:10px; background:gold;">بحث</button>
-                <div id="yt-res" style="margin-top:10px;"></div>
+        // تفعيل ميزة اليوتيوب
+        function openYT() {
+            const display = document.getElementById('royal-display');
+            display.style.display = 'block';
+            document.getElementById('display-body').innerHTML = `
+                <input type="text" id="q" placeholder="ابحث في يوتيوب..." style="width:70%; padding:10px;">
+                <button onclick="search()" style="padding:10px; background:gold;">بحث</button>
+                <div id="res" style="margin-top:15px;"></div>
             `;
         }
 
-        async function searchYT() {
-            const q = document.getElementById('yt-q').value;
+        async function search() {
+            const q = document.getElementById('q').value;
             const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&key=${API_KEY}&type=video&maxResults=1`);
             const data = await res.json();
-            document.getElementById('yt-res').innerHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${data.items[0].id.videoId}" frameborder="0" allowfullscreen></iframe>`;
+            document.getElementById('res').innerHTML = `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${data.items[0].id.videoId}" frameborder="0" allowfullscreen></iframe>`;
         }
 
-        // بناء القائمة الكاملة وتفعيلها
-        const features = [
-            {n: "تيك توك المملكة", f: openTikTok},
-            {n: "يوتيوب المملكة", f: openYouTube},
-            {n: "الألوان الهيدروليكية", f: () => { document.getElementById('main-view').style.background = prompt("أدخل اللون:"); }},
-            {n: "الخزنة الملكية", f: () => alert("تم الدخول للخزنة")},
-            {n: "الذكاء الدفاعي", f: () => alert("Sentinel Active")},
-            {n: "برلمان المملكة", f: () => alert("فتح قاعة التصويت")},
-            {n: "محرك السلاسة", f: () => alert("السلاسة بنسبة 100%")},
-        ];
-
-        const list = document.getElementById('features-list');
+        // بناء القائمة الكاملة
+        const container = document.getElementById('features-container');
+        const names = ["تيك توك المملكة", "يوتيوب المملكة", "الألوان الذكية", "الخزنة الملكية", "نظام الكارما"];
+        
         for(let i=1; i<=79; i++) {
-            let item = features[i-1] || {n: `ميزة أسطورية ${i}`, f: () => alert(`تفعيل الميزة رقم ${i}`)};
             let div = document.createElement('div');
             div.className = 'feature-btn';
-            div.innerHTML = `${i}. ${item.n}`;
-            div.onclick = (e) => { e.stopPropagation(); item.f(); };
-            list.appendChild(div);
+            let name = names[i-1] || `ميزة رقم ${i}`;
+            div.innerHTML = `${i}. ${name}`;
+            div.onclick = (e) => {
+                e.stopPropagation();
+                if(i===1) openTikTok();
+                else if(i===2) openYT();
+                else {
+                    document.getElementById('royal-display').style.display = 'block';
+                    document.getElementById('display-body').innerHTML = `<h3 style="color:gold;">الميزة ${i}</h3><p>أنت الآن تتحكم بهذه الميزة برمجياً بعيداً عن نظام الموقع.</p>`;
+                }
+            };
+            container.appendChild(div);
         }
     </script>
 </body>
