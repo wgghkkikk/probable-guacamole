@@ -1,40 +1,45 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مملكة علوش المستقرة 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; height: 100vh; overflow: hidden; }
+        .app { display: flex; flex-direction: column; height: 100vh; }
         .header { background: #111; padding: 15px; text-align: center; border-bottom: 2px solid #ffd700; color: #ffd700; font-weight: bold; }
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         
-        /* 🚀 منطقة الإرسال مصلحة 100% */
-        .footer { background: #111; padding: 10px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #333; }
-        #mInp { flex: 1; background: #222; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #444; outline: none; text-align: right; }
-        .send-btn { font-size: 30px; cursor: pointer; background: none; border: none; padding: 0 10px; transition: 0.2s; }
-        .send-btn:active { transform: scale(0.8); }
+        /* 🚀 منطقة الإرسال - ضبط الاتجاه يدوياً لعدم الانقلاب */
+        .footer { background: #0a0a0a; padding: 10px; display: flex; align-items: center; border-top: 1px solid #333; direction: ltr !important; }
+        
+        #mInp { flex: 1; background: #1a1a1a; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #444; outline: none; text-align: right; direction: rtl !important; font-size: 16px; margin-left: 10px; }
+        
+        .send-btn { font-size: 30px; cursor: pointer; background: none; border: none; padding: 0; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .send-btn:active { transform: scale(0.85); }
 
-        .msg { background: #1a1a1a; padding: 10px; border-radius: 10px; border-right: 3px solid #ffd700; align-self: flex-start; max-width: 85%; }
+        .msg { background: #1a1a1a; padding: 10px; border-radius: 12px; border-right: 3px solid #ffd700; align-self: flex-start; max-width: 85%; direction: rtl; }
     </style>
 </head>
 <body>
 
-    <div class="header">مملكة علوش 👑</div>
+    <div class="app">
+        <div class="header">مملكة علوش 👑</div>
 
-    <div id="chat-win"></div>
+        <div id="chat-win"></div>
 
-    <div class="footer">
-        <button class="send-btn" type="button" onclick="sendNow()">🚀</button>
-        <input type="text" id="mInp" placeholder="اكتب رسالتك..." onkeydown="if(event.key==='Enter') sendNow()">
+        <div class="footer">
+            <button class="send-btn" type="button" onclick="masterSend()">🚀</button>
+            <input type="text" id="mInp" placeholder="تحدث يا ملك..." onkeydown="if(event.key==='Enter') masterSend()">
+        </div>
     </div>
 
 <script>
-    // 1. إعدادات Firebase
+    // 1. إعدادات Firebase الخاصة بك
     const firebaseConfig = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
@@ -47,44 +52,44 @@
 
     let myID, myName = "علوش";
 
-    // 2. تسجيل الدخول التلقائي
+    // 2. تسجيل الدخول
     auth.signInAnonymously().then(u => {
         myID = u.user.uid;
         loadMessages();
     });
 
-    // 3. ✅ وظيفة الإرسال "القوية" (لا تتأثر بالأكواد الأخرى)
-    function sendNow() {
-        var inputElement = document.getElementById('mInp');
-        var messageValue = inputElement.value.trim();
+    // 3. ✅ وظيفة الإرسال "الماستر" - مصلحة 100%
+    function masterSend() {
+        var inputElem = document.getElementById('mInp');
+        var val = inputElem.value.trim();
 
-        if (messageValue !== "") {
-            // إرسال مباشر للفيربيس
+        if (val !== "") {
+            // إرسال البيانات
             db.ref('main_msgs').push({
                 uid: myID,
                 n: myName,
-                t: messageValue,
+                t: val,
                 time: Date.now()
             }).then(() => {
-                // تصفير الخانة فوراً
-                inputElement.value = "";
-                inputElement.focus();
-                console.log("تم الإرسال!");
+                // تصفير المربع فوراً
+                inputElem.value = "";
+                inputElem.focus();
             }).catch(e => {
-                alert("فشل الإرسال: " + e.message);
+                console.error("خطأ:", e);
             });
         }
     }
 
     // 4. تحميل الرسائل
     function loadMessages() {
-        db.ref('main_msgs').limitToLast(30).on('child_added', s => {
+        db.ref('main_msgs').limitToLast(40).on('child_added', s => {
             const d = s.val();
             const div = document.createElement('div');
             div.className = 'msg';
-            div.style.marginBottom = "5px";
+            div.style.marginBottom = "8px";
             div.innerHTML = `<b style="color:#ffd700; font-size:11px;">${d.n}</b><br>${d.t}`;
             document.getElementById('chat-win').appendChild(div);
+            // نزول الشات لآخر رسالة
             document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
         });
     }
