@@ -1,166 +1,88 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>مملكة علوش - الإصدار الأسطوري</title>
-    <style>
-        :root { --gold: #ffd700; --bg: #050505; }
-        body { margin: 0; padding: 0; overflow: hidden; height: 100vh; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; color: white; }
-        
-        /* القوائم الجانبية */
-        .panel { width: 280px; background: rgba(10, 10, 10, 0.98); border: 1px solid var(--gold); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); position: fixed; height: 100%; z-index: 1000; overflow-y: auto; box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
-        #left-features { left: -290px; } #right-users { right: -290px; }
-        .active-mode #left-features { left: 0; } .active-mode #right-users { right: 0; }
-        
-        /* الشات الرئيسي */
-        #main-view { flex-grow: 1; display: flex; flex-direction: column; width: 100%; background: radial-gradient(circle, #1a1a1a, #000); position: relative; }
-        #chat-screen { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; cursor: pointer; }
-        
-        /* تصميم الرسائل */
-        .msg { background: rgba(255, 215, 0, 0.1); padding: 12px 18px; border-radius: 15px; border-right: 4px solid var(--gold); align-self: flex-start; max-width: 75%; font-size: 15px; box-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
-        .my-msg { align-self: flex-end; border-right: none; border-left: 4px solid #00ff00; background: rgba(0, 255, 0, 0.05); }
+// ميزة 1: تيك توك المملكة (المحرك المطور)
+let tiktokData = [
+    { id: 1, src: "https://www.w3schools.com/html/mov_bbb.mp4", user: "علوش_الإمبراطور", likes: 1200, comments: [] },
+    { id: 2, src: "https://www.w3schools.com/html/horse.mp4", user: "فارس_المملكة", likes: 850, comments: [] },
+    { id: 3, src: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", user: "رعد_بغداد", likes: 3000, comments: [] }
+];
 
-        /* نافذة العرض الملكية (Display) */
-        #royal-display { position: absolute; top: 5%; left: 50%; transform: translateX(-50%); width: 90%; max-height: 85vh; display: none; background: #111; border: 2px solid var(--gold); border-radius: 20px; padding: 15px; z-index: 2000; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,1); }
-        
-        /* تيك توك ستايل */
-        #tiktok-container { height: 70vh; overflow-y: scroll; scroll-snap-type: y mandatory; border-radius: 15px; background: #000; }
-        .tiktok-post { height: 100%; scroll-snap-align: start; position: relative; border-bottom: 2px solid #222; }
-        
-        /* شريط الإدخال */
-        #bottom-bar { background: #000; padding: 15px; display: flex; gap: 10px; border-top: 2px solid var(--gold); align-items: center; }
-        #king-input { flex-grow: 1; padding: 12px 20px; border-radius: 25px; border: 1px solid var(--gold); background: #111; color: white; outline: none; }
-        .btn-send { background: var(--gold); border: none; padding: 10px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-send:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--gold); }
-
-        .feature-item { padding: 15px; border-bottom: 1px solid #222; color: var(--gold); cursor: pointer; font-size: 14px; }
-        .feature-item:hover { background: var(--gold); color: black; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-    <div id="left-features" class="panel">
-        <h3 style="text-align: center; color: var(--gold); padding: 20px; border-bottom: 2px solid var(--gold);">👑 دستور الـ 79 ميزة</h3>
-        <div id="features-list"></div>
-    </div>
-
-    <div id="main-view">
-        <div id="chat-screen" onclick="document.body.classList.toggle('active-mode')">
-            <div class="msg"><b>نظام المملكة:</b> تم تفعيل السيادة الكاملة. تيك توك، يوتيوب، والـ 79 ميزة تحت أمرك الآن يا ملك علوش.</div>
+function openTikTok() {
+    const win = document.getElementById('royal-display');
+    win.style.display = 'block';
+    document.getElementById('view-title').innerText = "🎬 تيك توك المملكة - الإصدار التفاعلي";
+    
+    document.getElementById('display-content').innerHTML = `
+        <div id="tiktok-wrapper" style="height: 70vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 15px;">
+            <div id="video-stream"></div>
         </div>
+    `;
+    renderTikToks();
+}
 
-        <div id="royal-display">
-            <div id="display-header" style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span id="view-title" style="color:var(--gold); font-weight:bold;">واجهة التحكم</span>
-                <button onclick="closeDisplay()" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">إغلاق X</button>
+function renderTikToks() {
+    const stream = document.getElementById('video-stream');
+    stream.innerHTML = ""; // تنظيف الشاشة قبل الرندر
+
+    tiktokData.forEach((video, index) => {
+        const post = document.createElement('div');
+        post.className = 'tiktok-post';
+        post.style = "height: 100%; scroll-snap-align: start; position: relative; border-bottom: 5px solid #111;";
+        
+        post.innerHTML = `
+            <video width="100%" height="100%" loop autoplay muted style="object-fit:cover;">
+                <source src="${video.src}" type="video/mp4">
+            </video>
+            
+            <div style="position:absolute; right:15px; bottom:100px; display:flex; flex-direction:column; gap:20px; align-items:center; z-index:100;">
+                <div id="like-${video.id}" onclick="handleLike(${video.id})" style="cursor:pointer; font-size:30px; color:white;">❤️ <small style="font-size:12px; display:block; text-align:center;">${video.likes}</small></div>
+                <div onclick="showCommentBox(${video.id})" style="cursor:pointer; font-size:30px; color:white;">💬 <small style="font-size:12px; display:block; text-align:center;">${video.comments.length}</small></div>
+                <div onclick="this.style.background='white'; this.style.color='black';" style="background:gold; color:black; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>
             </div>
-            <div id="display-content"></div>
-        </div>
 
-        <div id="bottom-bar">
-            <div style="width:45px; height:45px; background:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:black; font-weight:bold; cursor:pointer;">علوش</div>
-            <input type="text" id="king-input" placeholder="اكتب أوامرك البرمجية هنا..." onkeypress="if(event.key==='Enter') sendKingMsg()">
-            <button class="btn-send" onclick="sendKingMsg()">إرسال</button>
-        </div>
-    </div>
+            <div style="position:absolute; bottom:30px; left:15px; text-shadow:2px 2px 5px #000; z-index:100;">
+                <h4 style="margin:0; color:gold;">@${video.user}</h4>
+                <p style="margin:5px 0; font-size:14px;">فيديو حصري في #مملكة_علوش 👑</p>
+            </div>
 
-    <div id="right-users" class="panel">
-        <h3 style="text-align: center; color: var(--gold); padding: 20px;">👥 المتصلون الآن</h3>
-        <div class="feature-item" style="text-align:center; border:1px solid gold; margin:10px; border-radius:10px;">👑 الملك علوش (متصل)</div>
-    </div>
-
-    <script>
-        const API_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
-
-        function closeDisplay() { document.getElementById('royal-display').style.display = 'none'; }
-
-        // 1. وظيفة الشات الحقيقية
-        function sendKingMsg() {
-            const input = document.getElementById('king-input');
-            const screen = document.getElementById('chat-screen');
-            if(input.value.trim() !== "") {
-                const div = document.createElement('div');
-                div.className = 'msg my-msg';
-                div.innerHTML = `<b>أنت:</b> ${input.value}`;
-                screen.appendChild(div);
-                input.value = "";
-                screen.scrollTop = screen.scrollHeight;
-            }
-        }
-
-        // 2. تفعيل تيك توك المملكة (مقاطع + بحث + تعليقات)
-        function openTikTok() {
-            document.getElementById('royal-display').style.display = 'block';
-            document.getElementById('view-title').innerText = "🎬 تيك توك المملكة - تقليب لانهائي";
-            document.getElementById('display-content').innerHTML = `
-                <div id="tiktok-container">
-                    <div style="position:sticky; top:0; z-index:10; background:rgba(0,0,0,0.9); padding:10px; display:flex; gap:5px;">
-                        <input type="text" id="t-search" placeholder="ابحث عن حساب..." style="flex-grow:1; padding:5px; border-radius:10px;">
-                        <button onclick="alert('جاري البحث عن الحساب...')" style="background:var(--gold); border:none; border-radius:10px; padding:5px 15px;">بحث</button>
-                    </div>
-                    <div id="video-feed"></div>
+            <div id="comment-box-${video.id}" style="display:none; position:absolute; bottom:0; width:100%; background:rgba(0,0,0,0.9); padding:10px; z-index:200; border-top:1px solid gold;">
+                <div id="list-${video.id}" style="max-height:100px; overflow-y:auto; margin-bottom:10px; font-size:12px;"></div>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="input-${video.id}" placeholder="اكتب تعليقك..." style="flex-grow:1; background:#222; border:1px solid gold; color:white; border-radius:10px; padding:5px;">
+                    <button onclick="postComment(${video.id})" style="background:gold; border:none; padding:5px 10px; border-radius:10px; cursor:pointer;">نشر</button>
                 </div>
-            `;
-            loadVideos();
-        }
+                <button onclick="this.parentElement.style.display='none'" style="width:100%; background:none; color:gray; border:none; margin-top:5px; cursor:pointer;">إغلاق</button>
+            </div>
+        `;
+        stream.appendChild(post);
+    });
+}
 
-        function loadVideos() {
-            const feed = document.getElementById('video-feed');
-            for(let i=0; i<5; i++) {
-                const post = document.createElement('div');
-                post.className = 'tiktok-post';
-                post.innerHTML = `
-                    <video width="100%" height="100%" loop autoplay muted style="object-fit:cover;">
-                        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-                    </video>
-                    <div style="position:absolute; right:10px; bottom:100px; color:white; display:flex; flex-direction:column; gap:15px;">
-                        <span onclick="this.style.color='red'" style="cursor:pointer; font-size:25px;">❤️</span>
-                        <span onclick="alert('فتح نظام التعليقات')" style="cursor:pointer; font-size:25px;">💬</span>
-                        <span onclick="alert('تمت المتابعة')" style="background:var(--gold); color:black; border-radius:50%; width:30px; height:30px; text-align:center; cursor:pointer;">+</span>
-                    </div>
-                `;
-                feed.appendChild(post);
-            }
-        }
+// دالة اللايك الحقيقية
+function handleLike(id) {
+    const video = tiktokData.find(v => v.id === id);
+    video.likes += 1;
+    const btn = document.getElementById(`like-${id}`);
+    btn.style.color = "red";
+    btn.querySelector('small').innerText = video.likes;
+}
 
-        // 3. تفعيل يوتيوب المملكة
-        function openYT() {
-            document.getElementById('royal-display').style.display = 'block';
-            document.getElementById('view-title').innerText = "📺 يوتيوب المملكة الحقيقي";
-            document.getElementById('display-content').innerHTML = `
-                <input type="text" id="y-query" placeholder="ابحث في يوتيوب..." style="width:70%; padding:10px; border-radius:10px;">
-                <button onclick="searchYT()" style="padding:10px; background:var(--gold); border-radius:10px;">بحث</button>
-                <div id="y-results" style="margin-top:20px;"></div>
-            `;
-        }
+// دالة إظهار صندوق التعليقات
+function showCommentBox(id) {
+    const box = document.getElementById(`comment-box-${id}`);
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
 
-        async function searchYT() {
-            const q = document.getElementById('y-query').value;
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&key=${API_KEY}&type=video&maxResults=1`);
-            const data = await res.json();
-            document.getElementById('y-results').innerHTML = `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${data.items[0].id.videoId}" frameborder="0" allowfullscreen></iframe>`;
-        }
-
-        // 4. بناء القائمة الكاملة وتفعيل جميع المميزات
-        const list = document.getElementById('features-list');
-        const specialFeatures = {
-            1: { name: "🎬 تيك توك المملكة", func: openTikTok },
-            2: { name: "📺 يوتيوب المملكة", func: openYT },
-            3: { name: "🌈 نظام الألوان الهيدروليكي", func: () => { document.getElementById('main-view').style.background = prompt('أدخل كود اللون (مثلاً: #ff0000 أو blue):'); } },
-            4: { name: "👤 الملف الشخصي الإمبراطوري", func: () => { alert('مرحباً بك يا ملك علوش. رتبتك: إمبراطور'); } }
-        };
-
-        for(let i=1; i<=79; i++) {
-            let div = document.createElement('div');
-            div.className = 'feature-item';
-            let f = specialFeatures[i] || { name: `ميزة أسطورية رقم ${i}`, func: () => { 
-                document.getElementById('royal-display').style.display = 'block';
-                document.getElementById('display-content').innerHTML = `<h3>نظام الميزة ${i}</h3><p>هذا النظام يعمل الآن بخصوصية كاملة داخل المملكة بعيداً عن قيود الموقع.</p>`;
-            }};
-            div.innerHTML = `${i}. ${f.name}`;
-            div.onclick = (e) => { e.stopPropagation(); f.func(); };
-            list.appendChild(div);
-        }
-    </script>
-</body>
-</html>
+// دالة نشر التعليق الحقيقي
+function postComment(id) {
+    const input = document.getElementById(`input-${id}`);
+    const list = document.getElementById(`list-${id}`);
+    const video = tiktokData.find(v => v.id === id);
+    
+    if(input.value.trim() !== "") {
+        video.comments.push(input.value);
+        const div = document.createElement('div');
+        div.style = "padding:3px; border-bottom:1px solid #333;";
+        div.innerHTML = `<span style="color:gold;">الملك:</span> ${input.value}`;
+        list.appendChild(div);
+        input.value = "";
+    }
+}
