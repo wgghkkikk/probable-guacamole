@@ -13,14 +13,15 @@
         .app { display: flex; flex-direction: column; height: 100vh; }
         .header { background: rgba(0,0,0,0.9); padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
         
-        #yt-box { width: 180px; height: 110px; position: fixed; top: 70px; left: 10px; z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; background: #000; display: none; }
+        /* 📺 المربع الصغير */
+        #yt-box { width: 180px; height: 110px; position: fixed; top: 70px; left: 10px; z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; background: #000; display: none; box-shadow: 0 0 15px var(--gold); }
         #yt-box.active { display: block; }
 
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
         .bubble { max-width: 85%; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid #333; font-size: 14px; text-align: right; }
         .me { align-self: flex-start; border-right: 3px solid var(--gold); background: rgba(255,215,0,0.1); }
 
-        /* 🚀 تعديل مكان الصاروخ ليكون في جهة اليمين */
+        /* 🚀 الصاروخ ثابت في جهة اليمين */
         .footer { background: #000; padding: 10px; display: flex; border-top: 1px solid #222; align-items: center; flex-direction: row-reverse; }
         #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 20px; border: 1px solid #444; outline: none; text-align: right; margin-right: 10px; }
         .btn-send { background: none; border: none; font-size: 28px; cursor: pointer; }
@@ -41,7 +42,7 @@
             <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">👥</button>
         </div>
 
-        <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay"></iframe></div>
+        <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media"></iframe></div>
         <div id="chat-win"></div>
 
         <div class="footer" onclick="event.stopPropagation()">
@@ -58,14 +59,17 @@
     <div id="side-l" class="side" onclick="event.stopPropagation()">
         <h3 style="text-align:center; color:var(--gold);">🎬 رادار المملكة</h3>
         <div class="box">
-            <small style="color:var(--gold)">ابحث عن الأغنية:</small>
-            <input type="text" id="ytInp" placeholder="اكتب هنا..." style="width:100%; padding:8px; margin-top:5px; background:#000; color:#fff; border:1px solid #444;">
-            <button class="btn-gold" onclick="broadcast()">بث للجميع 📡</button>
-            <button class="btn-gold" style="color:red;" onclick="db.ref('yt_sync').set({a:'stop'})">إيقاف ✖</button>
+            <small style="color:var(--gold)">اكتب اسم الأغنية فقط:</small>
+            <input type="text" id="ytSearch" placeholder="مثلاً: حسام الرسام جديد" style="width:100%; padding:10px; margin-top:5px; background:#000; color:#fff; border:1px solid #444; border-radius:5px;">
+            <button class="btn-gold" onclick="searchByAPI()">بث للجميع 📡</button>
+            <button class="btn-gold" style="color:red;" onclick="db.ref('yt_sync').set({a:'stop'})">إيقاف التشغيل ✖</button>
         </div>
     </div>
 
 <script>
+    // تم وضع مفتاحك هنا بنجاح
+    const API_KEY = "AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU"; 
+
     const firebaseConfig = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -75,9 +79,19 @@
     localStorage.setItem('chatId', uID);
     db.ref('status/' + uID).set({ n: uName });
 
-    function broadcast() {
-        const q = document.getElementById('ytInp').value;
-        if(q) { db.ref('yt_sync').set({ a: 'play', q: q, t: Date.now() }); closeAll(); }
+    async function searchByAPI() {
+        const query = document.getElementById('ytSearch').value.trim();
+        if(!query) return;
+        
+        try {
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&videoEmbeddable=true&key=${API_KEY}&maxResults=1`);
+            const data = await response.json();
+            if(data.items && data.items.length > 0) {
+                const videoId = data.items[0].id.videoId;
+                db.ref('yt_sync').set({ a: 'play', id: videoId, t: Date.now() });
+                closeAll();
+            } else { alert("لم أجد فيديو متاح للبث!"); }
+        } catch (e) { alert("حدث خطأ في الاتصال بيوتيوب"); }
     }
 
     db.ref('yt_sync').on('value', s => {
@@ -85,7 +99,7 @@
         const box = document.getElementById('yt-box');
         const player = document.getElementById('player');
         if(v && v.a === 'play') {
-            player.src = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(v.q)}&autoplay=1`;
+            player.src = `https://www.youtube.com/embed/${v.id}?autoplay=1`;
             box.classList.add('active');
         } else {
             player.src = ""; box.classList.remove('active');
