@@ -1,45 +1,41 @@
-<div id="tiktok-wrapper" style="height: 95vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 20px; border: 3px solid gold; position: relative;">
+<div id="tiktok-wrapper" style="height: 95vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 20px; border: 3px solid gold;">
     <div id="video-stream"></div>
 </div>
 
 <script>
-    // 1. مكتبة المحتوى الضخمة (روابط مباشرة قوية ومتنوعة)
-    var kingLibrary = [
-        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "مقاطع دينية وحسينية 🏴", likes: "1.2M" },
-        { url: "https://www.w3schools.com/html/movie.mp4", user: "حسوني_بغداد", bio: "يوميات وتصاميم عراقية 🇮🇶", likes: "850K" },
-        { url: "https://www.w3schools.com/html/mov_bbb.mp4", user: "علوش_الإمبراطور", bio: "ملك البرمجة الحصري 👑", likes: "5M" },
-        { url: "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4", user: "عاشق_العراق", bio: "مقاطع عامة ومنوعات ✨", likes: "600K" }
+    // مكتبة الروابط المفتوحة (عالم، ناس، وحسينية) لضمان عدم الحظر
+    var vPool = [
+        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "مقاطع حسينية 🏴" },
+        { url: "https://v1.assets.tumblr.com/tumblr_p1kjs9W4Xf1wreoyvo1.mp4", user: "عاشق_بغداد", bio: "أجواء وناس 🇮🇶" },
+        { url: "https://www.w3schools.com/html/movie.mp4", user: "علوش_الإمبراطور", bio: "ملك البرمجة 👑" },
+        { url: "https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-light-12353-large.mp4", user: "ترند_المملكة", bio: "عالم ومنوعات ✨" }
     ];
 
     var stream = document.getElementById('video-stream');
 
-    // 2. دالة "بناء العالم": تقوم بتركيب 30 مقطع دفعة واحدة لضمان التنوع
-    function buildWorld(count) {
-        for (var i = 0; i < count; i++) {
-            // اختيار فيديو عشوائي في كل مرة
-            var v = kingLibrary[Math.floor(Math.random() * kingLibrary.length)];
+    function buildWorld() {
+        // بناء 50 مقطع دفعة واحدة لضمان التنوع
+        for (var i = 0; i < 50; i++) {
+            var v = vPool[Math.floor(Math.random() * vPool.length)];
             var post = document.createElement('div');
             post.style.height = "95vh";
             post.style.scrollSnapAlign = "start";
             post.style.position = "relative";
             post.style.borderBottom = "5px solid #111";
 
-            // بناء المحتوى يدوياً لضمان ظهور الأسماء بدلاً من الأكواد
             var html = '<video width="100%" height="100%" loop autoplay muted style="object-fit:cover;"><source src="' + v.url + '" type="video/mp4"></video>';
             
-            // أزرار التفاعل الجانبية
+            // أزرار التفاعل
             html += '<div style="position:absolute; right:15px; bottom:150px; text-align:center; color:white; z-index:100; display:flex; flex-direction:column; gap:25px;">';
-            html += '  <div onclick="this.style.color=\'red\'" style="font-size:40px; cursor:pointer; filter:drop-shadow(0 0 5px black);">❤️</div>';
-            html += '  <div style="font-weight:bold;">' + v.likes + '</div>';
-            html += '  <div onclick="alert(\'فتح التعليقات لـ ' + v.user + '\')" style="font-size:40px; cursor:pointer;">💬</div>';
-            html += '  <div style="font-weight:bold;">' + Math.floor(Math.random()*90) + 'K</div>';
-            html += '  <div style="background:gold; color:black; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; font-size:25px;">+</div>';
+            html += '  <div onclick="this.style.color=\'red\'" style="font-size:40px; cursor:pointer;">❤️</div>';
+            html += '  <div style="font-size:35px; cursor:pointer;">💬</div>';
+            html += '  <div style="background:gold; color:black; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>';
             html += '</div>';
 
-            // معلومات الحساب (عالم وناس)
+            // معلومات الحساب
             html += '<div style="position:absolute; bottom:50px; left:20px; color:white; text-shadow:2px 2px 8px #000; z-index:100;">';
-            html += '  <h3 style="margin:0; color:gold; font-size:22px;">@' + v.user + '</h3>';
-            html += '  <p style="margin:8px 0; font-size:16px; font-weight:bold;">' + v.bio + '</p>';
+            html += '  <h3 style="margin:0; color:gold;">@' + v.user + '</h3>';
+            html += '  <p style="margin:8px 0; font-weight:bold;">' + v.bio + '</p>';
             html += '</div>';
 
             post.innerHTML = html;
@@ -47,14 +43,10 @@
         }
     }
 
-    // 3. تشغيل النظام فوراً بـ 30 مقطع
-    buildWorld(30);
+    buildWorld();
 
-    // 4. ميزة "المدد الملكي": إضافة مقاطع جديدة كلما سحبت للأسفل
-    document.getElementById('tiktok-wrapper').addEventListener('scroll', function(e) {
-        var el = e.target;
-        if (el.scrollHeight - el.scrollTop <= el.clientHeight + 400) {
-            buildWorld(10); // إضافة 10 مقاطع جديدة فوراً
-        }
+    // إذا لم تظهر فيديوهات، قم بتنشيط "وضع الطوارئ"
+    document.querySelectorAll('video').forEach(vid => {
+        vid.play().catch(() => { /* منع خطأ التشغيل التلقائي */ });
     });
 </script>
