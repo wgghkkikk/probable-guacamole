@@ -3,200 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش - الإصدار النهائي الشامل 👑</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <style>
-        :root { --gold: #ffd700; --bg: #000; --panel: #111; }
-        body { background: var(--bg); color: #fff; font-family: 'Tahoma', sans-serif; margin: 0; overflow: hidden; }
-
-        /* الخلفية والنجوم */
-        #stars-bg { position: fixed; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: blink infinite alternate; }
-        @keyframes blink { from { opacity: 0.2; } to { opacity: 1; } }
-
-        /* الشات */
-        #main-view { height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 10; }
-        #chat-win { flex: 1; overflow-y: auto; padding: 20px; background: rgba(0,0,0,0.5); }
-        .msg { display: flex; gap: 12px; margin-bottom: 20px; }
-        .msg.me { flex-direction: row-reverse; }
-        .u-img { width: 50px; height: 50px; border-radius: 12px; border: 2px solid var(--gold); object-fit: cover; }
-        .bubble { max-width: 75%; background: rgba(30,30,30,0.9); padding: 12px; border-radius: 15px; border: 1px solid #333; }
-        .u-name { font-size: 11px; color: var(--gold); font-weight: bold; margin-bottom: 5px; display: block; }
-
-        /* القوائم الجانبية (المعكوسة) */
-        .side { width: 270px; height: 100vh; background: var(--panel); position: fixed; top: 0; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2000; border: 1px solid #222; }
-        #side-right { right: -275px; } /* تفتح لليسار */
-        #side-left { left: -275px; }   /* تفتح لليمين */
-        .side.open { right: 0 !important; left: 0 !important; }
-
-        /* شريط الكتابة الضخم */
-        .bar { background: #000; padding: 15px 20px; display: flex; gap: 12px; border-top: 2px solid #222; align-items: center; }
-        #mInp { flex: 1; background: #1a1a1a; border: 1px solid #444; color: #fff; padding: 15px; border-radius: 30px; outline: none; font-size: 16px; }
-
-        /* لوحات التحكم والتعديل */
-        .popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: #0a0a0a; border: 2px solid var(--gold); border-radius: 20px; padding: 20px; display: none; z-index: 4000; text-align: center; }
-        .admin-open { bottom: 0 !important; top: auto; transform: translate(-50%, 0); width: 100%; border-radius: 30px 30px 0 0; }
-        button { cursor: pointer; transition: 0.3s; }
-        
-        /* اليوتيوب */
-        #yt-box { position: absolute; top: 70px; left: 15px; width: 180px; height: 110px; border: 2px solid var(--gold); border-radius: 10px; overflow: hidden; display: none; z-index: 1000; background: #000; }
-    </style>
+    <title>لوحة تحكم الدردشة</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body onclick="closeAll()">
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <h2>لوحة الإدارة</h2>
+            <ul>
+                <li class="active">الرئيسية</li>
+                <li>إدارة المستخدمين</li>
+                <li>الغرف</li>
+                <li>التقارير</li>
+                <li>الإعدادات</li>
+            </ul>
+        </aside>
 
-    <div id="stars-bg"></div>
+        <main class="main-content">
+            <header>
+                <h1>إحصائيات الشات الحالية</h1>
+            </header>
 
-    <div id="edit-pop" class="popup" onclick="event.stopPropagation()">
-        <h3 style="color:var(--gold);">تعديل هويتك الملكية</h3>
-        <input type="text" id="new-n" placeholder="الاسم الجديد" style="width:90%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333; border-radius:8px;">
-        <label style="display:block; background:#222; padding:10px; border:1px dashed var(--gold); margin-bottom:10px; border-radius:8px; cursor:pointer;">
-            📷 اختر صورة من جهازك
-            <input type="file" id="file-inp" accept="image/*" style="display:none;" onchange="handleFile(this)">
-        </label>
-        <button onclick="saveProfile()" style="width:100%; background:var(--gold); padding:10px; border:none; border-radius:8px; font-weight:bold;">حفظ التغييرات</button>
+            <section class="stats-cards">
+                <div class="card">
+                    <h3>المتصلين الآن</h3>
+                    <p class="number">125</p>
+                </div>
+                <div class="card">
+                    <h3>إجمالي الرسائل</h3>
+                    <p class="number">14,205</p>
+                </div>
+                <div class="card">
+                    <h3>المحظورين</h3>
+                    <p class="number">12</p>
+                </div>
+            </section>
+
+            <section class="user-table">
+                <h3>أحدث المستخدمين المتصلين</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>الحالة</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>أحمد محمد</td>
+                            <td class="status-online">متصل</td>
+                            <td><button class="btn-ban">حظر</button></td>
+                        </tr>
+                        <tr>
+                            <td>سارة خالد</td>
+                            <td class="status-offline">غير متصل</td>
+                            <td><button class="btn-ban">حظر</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
     </div>
-
-    <div id="admin-pop" class="popup admin-open" onclick="event.stopPropagation()">
-        <h3 style="color:var(--gold);">👑 لوحة الإمبراطور علوش</h3>
-        <button onclick="db.ref('main_msgs').remove()" style="width:100%; padding:12px; background:red; color:#fff; border:none; border-radius:10px; margin-bottom:10px;">🧨 تصفير الشات بالكامل</button>
-        <button onclick="db.ref('status').remove()" style="width:100%; padding:12px; background:#222; color:var(--gold); border:1px solid var(--gold); border-radius:10px;">🧹 تنظيف قائمة المتصلين</button>
-        <button onclick="document.getElementById('admin-pop').style.display='none'" style="margin-top:15px; background:none; border:none; color:#777;">إغلاق اللوحة</button>
-    </div>
-
-    <div id="side-right" class="side" onclick="event.stopPropagation()">
-        <div style="padding:15px; background:var(--gold); color:#000; font-weight:bold; text-align:center;">👥 المتصلون (حقيقي)</div>
-        <div id="user-list"></div>
-    </div>
-
-    <div id="side-left" class="side" onclick="event.stopPropagation()">
-        <div style="padding:15px; border-bottom:1px solid #333; text-align:center; color:var(--gold);">⚙️ خيارات المملكة</div>
-        <div style="padding:10px;">
-            <button onclick="document.getElementById('edit-pop').style.display='block'" style="width:100%; padding:15px; background:none; color:#fff; border:none; text-align:right;">👤 تعديل البروفايل</button>
-            <button onclick="askYT()" style="width:100%; padding:15px; background:none; color:#fff; border:none; text-align:right;">📺 تشغيل يوتيوب</button>
-        </div>
-    </div>
-
-    <div id="main-view">
-        <div style="padding:15px; background:rgba(0,0,0,0.8); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222;">
-            <button onclick="openS('left', event)" style="background:none; border:none; font-size:25px;">👑</button>
-            <b onmousedown="startAdminTimer()" onmouseup="stopAdminTimer()" style="color:var(--gold); font-size:18px; cursor:pointer;">مملكة علوش</b>
-            <button onclick="openS('right', event)" style="background:none; border:none; font-size:25px;">👥</button>
-        </div>
-
-        <div id="yt-box" onclick="event.stopPropagation()">
-            <div id="yt-frame" style="width:100%; height:100%;"></div>
-        </div>
-
-        <div id="chat-win"></div>
-
-        <div class="bar" onclick="event.stopPropagation()">
-            <input type="text" id="mInp" placeholder="اكتب رسالتك يا ملك...">
-            <button onclick="send()" style="background:none; border:none; font-size:25px;">🚀</button>
-        </div>
-    </div>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
-        authDomain: "masterchat-f2da9.firebaseapp.com",
-        databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
-        projectId: "masterchat-f2da9"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const auth = firebase.auth();
-    let myID, myD = {}, tempImg = "", adminTimer;
-
-    auth.onAuthStateChanged(u => {
-        if(u) {
-            myID = u.uid;
-            db.ref('users/'+myID).on('value', s => {
-                myD = s.val() || { n: "عضو جديد", av: "https://via.placeholder.com/100" };
-                db.ref('status/'+myID).set({ n: myD.n, av: myD.av });
-                db.ref('status/'+myID).onDisconnect().remove();
-            });
-            init();
-            genStars();
-        }
-    });
-
-    function openS(d, e) { e.stopPropagation(); document.getElementById('side-'+d).classList.add('open'); }
-    function closeAll() {
-        document.getElementById('side-right').classList.remove('open');
-        document.getElementById('side-left').classList.remove('open');
-        document.getElementById('edit-pop').style.display = 'none';
-    }
-
-    function handleFile(inp) {
-        const file = inp.files[0];
-        if(file) {
-            const r = new FileReader();
-            r.onload = (e) => tempImg = e.target.result;
-            r.readAsDataURL(file);
-        }
-    }
-
-    function saveProfile() {
-        const n = document.getElementById('new-n').value;
-        const up = {}; if(n) up.n = n; if(tempImg) up.av = tempImg;
-        if(Object.keys(up).length > 0) db.ref('users/'+myID).update(up);
-        document.getElementById('edit-pop').style.display = 'none';
-    }
-
-    function send() {
-        const t = document.getElementById('mInp').value;
-        if(!t) return;
-        db.ref('main_msgs').push({ uid: myID, n: myD.n, av: myD.av, t: t });
-        document.getElementById('mInp').value = '';
-    }
-
-    function init() {
-        db.ref('main_msgs').limitToLast(40).on('child_added', s => {
-            const d = s.val();
-            const div = document.createElement('div');
-            div.className = `msg ${d.uid === myID ? 'me' : ''}`;
-            div.innerHTML = `<img src="${d.av}" class="u-img"><div class="bubble"><span class="u-name">${d.n}</span>${d.t}</div>`;
-            document.getElementById('chat-win').appendChild(div);
-            document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
-        });
-
-        db.ref('status').on('value', s => {
-            const l = document.getElementById('user-list');
-            l.innerHTML = `<div style="display:flex; align-items:center; gap:10px; padding:12px; border-bottom:1px solid #222;">
-                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" style="width:35px;">
-                <span style="color:#00f2ff;">بوت المملكة 🤖</span><div style="width:8px; height:8px; background:#0f0; border-radius:50%; margin-right:auto;"></div>
-            </div>`;
-            s.forEach(u => {
-                l.innerHTML += `<div style="display:flex; align-items:center; gap:10px; padding:12px; border-bottom:1px solid #222;">
-                    <img src="${u.val().av}" style="width:35px; height:35px; border-radius:50%; border:1px solid var(--gold);">
-                    <span>${u.val().n}</span><div style="width:8px; height:8px; background:#0f0; border-radius:50%; margin-right:auto;"></div>
-                </div>`;
-            });
-        });
-    }
-
-    function startAdminTimer() { adminTimer = setTimeout(() => document.getElementById('admin-pop').style.display='block', 2000); }
-    function stopAdminTimer() { clearTimeout(adminTimer); }
-
-    function askYT() {
-        const id = prompt("كود الفيديو:");
-        if(id) {
-            document.getElementById('yt-box').style.display = 'block';
-            document.getElementById('yt-frame').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1&controls=0" frameborder="0"></iframe>`;
-        }
-    }
-
-    function genStars() {
-        for(let i=0; i<60; i++) {
-            const s = document.createElement('div'); s.className = 'star';
-            s.style.width = s.style.height = Math.random()*3+'px';
-            s.style.top = Math.random()*100+'%'; s.style.left = Math.random()*100+'%';
-            s.style.animationDuration = (Math.random()*3+2)+'s';
-            document.getElementById('stars-bg').appendChild(s);
-        }
-    }
-</script>
 </body>
 </html>
