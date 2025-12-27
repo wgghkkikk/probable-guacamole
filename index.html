@@ -1,54 +1,50 @@
-<div id="tiktok-container" style="height: 100vh; background: #000; overflow: hidden; position: relative;">
-    <div id="video-stream" style="height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory;"></div>
+<div id="tiktok-master" style="height: 100vh; background: #000; overflow: hidden;">
+    <div id="stream-container" style="height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory;"></div>
 </div>
 
 <script>
-    // مصفوفة البيانات الملكية - محتوى متنوع (حسيني، عالم، وناس)
-    const kingData = [
-        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "مقاطع دينية وحسينية 🏴" },
-        { url: "https://v1.assets.tumblr.com/tumblr_p1kjs9W4Xf1wreoyvo1.mp4", user: "عاشق_بغداد", bio: "أجواء المملكة والناس 🇮🇶" },
-        { url: "https://www.w3schools.com/html/movie.mp4", user: "علوش_الإمبراطور", bio: "إمبراطور البرمجة العالمي 👑" },
-        { url: "https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-4006-large.mp4", user: "ترند_المملكة", bio: "عالم السحر والجمال ✨" }
+    // مكتبة المملكة: روابط مباشرة وقوية (حسينية، ناس، وعلوش)
+    const royalLibrary = [
+        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "🏴 مقاطع حسينية ودينية - مملكة علوش" },
+        { url: "https://www.w3schools.com/html/movie.mp4", user: "عاشق_المملكة", bio: "🇮🇶 عالم وناس وأجواء بغدادية" },
+        { url: "https://assets.mixkit.co/videos/preview/mixkit-top-view-of-a-busy-city-street-at-night-4100-large.mp4", user: "علوش_الإمبراطور", bio: "👑 ملك البرمجة - ميزة رقم 70" },
+        { url: "https://assets.mixkit.co/videos/preview/mixkit-modern-city-street-with-neon-lights-at-night-12344-large.mp4", user: "ترند_الواقع", bio: "✨ منوعات عالمية حقيقية" }
     ];
 
-    const stream = document.getElementById('video-stream');
+    const stream = document.getElementById('stream-container');
 
-    function createVideoPost(data) {
-        const post = document.createElement('div');
-        post.style = "height: 100vh; scroll-snap-align: start; position: relative; background: #000;";
+    function createPost(data) {
+        const div = document.createElement('div');
+        div.style = "height: 100vh; scroll-snap-align: start; position: relative; border-bottom: 2px solid #222;";
         
-        // إضافة رقم عشوائي للرابط لمنع المتصفح من عرض "مقاطع الحيوانات" القديمة
-        const freshUrl = data.url + "?v=" + Math.random();
+        // كود التمويه الملكي: إضافة توقيت عشوائي للرابط لقتل ذاكرة "الحيوانات"
+        const finalUrl = data.url + "?t=" + new Date().getTime() + Math.random();
 
-        post.innerHTML = `
-            <video style="width:100%; height:100%; object-fit:cover;" loop autoplay muted>
-                <source src="${freshUrl}" type="video/mp4">
+        div.innerHTML = `
+            <video style="width:100%; height:100%; object-fit:cover;" loop autoplay muted playsinline>
+                <source src="${finalUrl}" type="video/mp4">
             </video>
             
-            <div style="position:absolute; right:20px; bottom:150px; color:white; text-align:center; z-index:10;">
-                <div onclick="this.style.color='red'" style="font-size:45px; cursor:pointer;">❤️</div>
-                <p style="font-weight:bold;">${Math.floor(Math.random()*900)}K</p>
-                <div style="font-size:45px; margin-top:20px; cursor:pointer;">💬</div>
-                <p style="font-weight:bold;">${Math.floor(Math.random()*500)}</p>
+            <div style="position:absolute; right:20px; bottom:150px; z-index:100; text-align:center; color:white;">
+                <div onclick="this.style.color='red'" style="font-size:45px; cursor:pointer; filter:drop-shadow(0 0 5px #000);">❤️</div>
+                <p style="font-weight:bold; margin-top:5px;">${Math.floor(Math.random()*500)}K</p>
+                <div style="font-size:45px; margin-top:20px; cursor:pointer; filter:drop-shadow(0 0 5px #000);">💬</div>
+                <p style="font-weight:bold; margin-top:5px;">1.2K</p>
+                <div style="background:gold; color:black; border-radius:50%; width:45px; height:45px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:25px; margin:20px auto; cursor:pointer;">+</div>
             </div>
 
-            <div style="position:absolute; bottom:50px; left:20px; color:white; text-shadow:2px 2px 5px #000; z-index:10;">
-                <h2 style="color:gold; margin:0;">@${data.user}</h2>
-                <p style="margin:10px 0; font-size:18px; font-weight:bold;">${data.bio}</p>
-                <div style="background:rgba(255,255,255,0.2); padding:5px 15px; border-radius:20px; display:inline-block;">🎵 الصوت الأصلي - مملكة علوش</div>
+            <div style="position:absolute; bottom:50px; left:20px; color:white; z-index:100; text-shadow:2px 2px 10px #000;">
+                <h2 style="color:gold; margin:0; font-size:24px;">@${data.user}</h2>
+                <p style="margin:10px 0; font-size:18px; font-weight:bold; width:80%;">${data.bio}</p>
+                <div style="background:rgba(255,255,255,0.2); padding:5px 15px; border-radius:20px; display:inline-block; font-size:14px;">🎵 ميزة Audio Aura مفعلة</div>
             </div>
         `;
-        return post;
+        return div;
     }
 
-    // بناء 40 مقطع متنوع دفعة واحدة
-    for (let i = 0; i < 40; i++) {
-        const randomData = kingData[Math.floor(Math.random() * kingData.length)];
-        stream.appendChild(createVideoPost(randomData));
+    // توليد 50 مقطع متنوع دفعة واحدة
+    for (let i = 0; i < 50; i++) {
+        const randomItem = royalLibrary[Math.floor(Math.random() * royalLibrary.length)];
+        stream.appendChild(createPost(randomItem));
     }
-
-    // حل مشكلة التشغيل التلقائي في المتصفحات
-    document.addEventListener('click', () => {
-        document.querySelectorAll('video').forEach(v => v.play());
-    }, { once: true });
 </script>
