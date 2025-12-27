@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - الإصدار الذهبي 👑</title>
+    <title>مملكة علوش - رادار البحث 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -17,9 +17,9 @@
         .app { display: flex; flex-direction: column; height: 100vh; }
         .header { background: rgba(0,0,0,0.9); padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
         
-        /* 📺 مربع اليوتيوب */
+        /* 📺 مربع اليوتيوب الصغير */
         #yt-box { 
-            width: 180px; height: 110px; position: fixed; top: 70px; left: 10px; 
+            width: 170px; height: 110px; position: fixed; top: 70px; left: 10px; 
             z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; background: #000;
             box-shadow: 0 0 15px var(--gold); display: none;
         }
@@ -29,9 +29,9 @@
         .bubble { max-width: 85%; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid #333; font-size: 14px; text-align: right; }
         .me { align-self: flex-start; border-right: 3px solid var(--gold); background: rgba(255,215,0,0.1); }
 
-        /* 🚀 إصلاح مكان زر الصاروخ */
-        .footer { background: #000; padding: 10px; display: flex; border-top: 1px solid #222; align-items: center; flex-direction: row-reverse; }
-        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 20px; border: 1px solid #444; outline: none; text-align: right; margin-right: 10px; }
+        /* 🚀 الصاروخ بمكانه الصحيح */
+        .footer { background: #000; padding: 10px; display: flex; border-top: 1px solid #222; align-items: center; direction: ltr !important; }
+        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 20px; border: 1px solid #444; outline: none; text-align: right; margin-left: 10px; direction: rtl !important; }
         .btn-send { background: none; border: none; font-size: 28px; cursor: pointer; }
 
         .side { position: fixed; top: 0; width: 260px; height: 100vh; background: #050505; transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); }
@@ -53,14 +53,14 @@
         </div>
 
         <div id="yt-box">
-            <iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media"></iframe>
+            <iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay"></iframe>
         </div>
 
         <div id="chat-win"></div>
 
         <div class="footer" onclick="event.stopPropagation()">
             <button class="btn-send" onclick="sendMsg()">🚀</button>
-            <input type="text" id="mInp" placeholder="تحدث يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
+            <input type="text" id="mInp" placeholder="تحدث هنا يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
         </div>
     </div>
 
@@ -70,12 +70,12 @@
     </div>
 
     <div id="side-l" class="side" onclick="event.stopPropagation()">
-        <h3 style="text-align:center; color:var(--gold);">🎬 رادار المملكة</h3>
+        <h3 style="text-align:center; color:var(--gold);">🎬 رادار يوتيوب</h3>
         <div class="box">
-            <small style="color:var(--gold)">ابحث عن فيديو:</small>
-            <input type="text" id="ytQuery" placeholder="اكتب اسم المقطع..." style="width:100%; padding:8px; margin-top:5px; background:#000; color:#fff; border:1px solid #444;">
-            <button class="btn-gold" onclick="searchVideo()">بث للجميع 📡</button>
-            <button class="btn-gold" style="color:red;" onclick="stopAll()">إيقاف ✖</button>
+            <small style="color:var(--gold)">ابحث بالاسم (بدون رابط):</small>
+            <input type="text" id="ytSearch" placeholder="مثلاً: حسام الرسام..." style="width:100%; padding:8px; margin-top:5px; background:#000; color:#fff; border:1px solid #444;">
+            <button class="btn-gold" onclick="doSearch()">بث للجميع 📡</button>
+            <button class="btn-gold" style="color:red;" onclick="stopYt()">إيقاف البث ✖</button>
         </div>
         <div class="box">
             <small style="color:var(--gold)">✨ اسمك:</small>
@@ -96,29 +96,32 @@
     db.ref('status/' + uID).set({ n: uName });
     db.ref('status/' + uID).onDisconnect().remove();
 
-    function searchVideo() {
-        const q = document.getElementById('ytQuery').value.trim();
-        if(!q) return;
-        // نرسل رابط البحث الرسمي ليفتحه الجميع
-        db.ref('yt_sync').set({ type: "play", q: q, time: Date.now() });
+    // 📡 وظيفة البحث الذكي
+    function doSearch() {
+        const query = document.getElementById('ytSearch').value.trim();
+        if(!query) return;
+        // نستخدم رابط يوتيوب المخصص للبحث والتشغيل التلقائي
+        db.ref('yt_sync').set({ type: "play", q: query, t: Date.now() });
+        document.getElementById('ytSearch').value = "";
         closeAll();
     }
 
-    function stopAll() { db.ref('yt_sync').set({ type: "stop" }); }
+    function stopYt() { db.ref('yt_sync').set({ type: "stop" }); closeAll(); }
 
     db.ref('yt_sync').on('value', s => {
         const v = s.val();
         const box = document.getElementById('yt-box');
         const player = document.getElementById('player');
         if(v && v.type === "play") {
-            // الرابط المصلح للتشغيل الجماعي
-            player.src = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(v.q)}`;
+            // هذا الرابط يجعل يوتيوب يبحث ويشغل النتيجة الأولى تلقائياً
+            player.src = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(v.q)}&autoplay=1`;
             box.classList.add('active');
         } else {
             player.src = ""; box.classList.remove('active');
         }
     });
 
+    // الشات والمتصلين
     function sendMsg() {
         const i = document.getElementById('mInp');
         if(!i.value.trim()) return;
