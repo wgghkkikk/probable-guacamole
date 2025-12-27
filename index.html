@@ -3,141 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - النسخة المستقرة 👑</title>
+    <title>مملكة علوش V9 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
-        :root { --gold: #ffd700; }
-        body { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; height: 100vh; transition: 1s; }
+        :root { --gold: #ffd700; --bg: #000; }
+        body { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: sans-serif; overflow: hidden; height: 100vh; transition: 0.5s; }
         
-        /* ثيمات متحركة */
-        .theme-fire { background: linear-gradient(-45deg, #000, #400, #800, #000); background-size: 400% 400%; animation: move 8s infinite; }
-        .theme-ocean { background: linear-gradient(-45deg, #000, #002, #004, #000); background-size: 400% 400%; animation: move 8s infinite; }
-        .theme-gold { background: linear-gradient(-45deg, #000, #221a00, #443300, #000); background-size: 400% 400%; animation: move 8s infinite; }
-        @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        /* تأثير الثيم المتحرك */
+        .theme-active { background: linear-gradient(-45deg, #000, #1a0033, #001a33, #000); background-size: 400% 400%; animation: gradient 10s ease infinite; }
+        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
         .app { display: flex; flex-direction: column; height: 100vh; position: relative; }
-        .header { background: rgba(0,0,0,0.8); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
+        .header { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); z-index: 100; }
+        
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        
-        .bubble { max-width: 80%; padding: 10px; border-radius: 15px; background: rgba(20,20,20,0.9); border: 1px solid #333; word-wrap: break-word; }
-        .me { align-self: flex-start; border-color: var(--gold); background: rgba(40,30,0,0.8); }
-        
-        .footer { background: #000; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #222; }
+        .msg { display: flex; gap: 10px; margin-bottom: 5px; }
+        .msg.me { flex-direction: row-reverse; }
+        .u-img { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--gold); }
+        .bubble { max-width: 75%; background: #151515; padding: 10px; border-radius: 15px; border: 1px solid #333; line-height: 1.4; }
+        .me .bubble { border-color: var(--gold); background: #1a1600; }
+
+        /* القوائم الجانبية */
+        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: rgba(10,10,10,0.98); transition: 0.3s; z-index: 2000; overflow-y: auto; border: 1px solid var(--gold); }
+        #side-l { left: -285px; }
+        #side-r { right: -285px; }
+        .side.open { left: 0 !important; right: 0 !important; }
+
+        .footer { background: #000; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #222; z-index: 100; }
         #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #444; outline: none; }
         
-        .side { position: fixed; top: 0; width: 260px; height: 100vh; background: rgba(0,0,0,0.95); transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); }
-        #side-l { left: -265px; }
-        #side-r { right: -265px; }
-        .side.open { left: 0 !important; right: 0 !important; }
-        
-        .btn-box { background: #111; margin: 10px; padding: 10px; border-radius: 8px; border: 1px solid #222; }
+        .menu-item { background: #111; margin: 10px; padding: 12px; border-radius: 10px; border: 1px solid #333; }
+        button { cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
     </style>
 </head>
 <body onclick="closeAll()">
 
     <div class="app">
         <div class="header">
-            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px; cursor:pointer;">⚙️</button>
-            <b style="color:var(--gold)">مملكة علوش 👑</b>
-            <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:24px; cursor:pointer;">👥</button>
+            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">⚙️</button>
+            <b style="color:var(--gold); font-size:18px;">مملكة علوش 👑</b>
+            <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">👥</button>
         </div>
 
         <div id="chat-win"></div>
 
         <div class="footer" onclick="event.stopPropagation()">
-            <input type="text" id="mInp" placeholder="اكتب هنا..." onkeydown="if(event.key==='Enter') quickSend()">
-            <button onclick="quickSend()" style="background:none; border:none; font-size:25px; cursor:pointer;">🚀</button>
+            <input type="text" id="mInp" placeholder="اكتب رسالتك..." onkeydown="if(event.key==='Enter') send()">
+            <button onclick="send()" style="background:none; border:none; font-size:24px;">🚀</button>
         </div>
     </div>
 
     <div id="side-l" class="side" onclick="event.stopPropagation()">
-        <div style="padding:15px; text-align:center; color:var(--gold); border-bottom:1px solid #222;">قائمة المميزات</div>
-        <div class="btn-box">
-            <small style="color:var(--gold)">🎨 الثيمات المتحركة:</small><br><br>
-            <button onclick="setTheme('gold')" style="background:#220; color:#fff; border:none; padding:5px; margin:2px;">ذهبي</button>
-            <button onclick="setTheme('fire')" style="background:#400; color:#fff; border:none; padding:5px; margin:2px;">ناري</button>
-            <button onclick="setTheme('ocean')" style="background:#004; color:#fff; border:none; padding:5px; margin:2px;">بحري</button>
+        <div style="padding:20px; text-align:center; color:var(--gold); border-bottom:1px solid #222;">🛡️ لوحة التحكم</div>
+        
+        <div class="menu-item">
+            <small style="color:var(--gold)">🤖 بوت المسابقات</small>
+            <button onclick="startQuiz(); closeAll();" style="width:100%; margin-top:5px; padding:8px; background:var(--gold); color:#000; border:none; border-radius:5px; font-weight:bold;">سؤال جديد</button>
         </div>
-        <div class="btn-box">
-            <small style="color:var(--gold)">✨ اسمك المزخرف:</small>
-            <input type="text" id="nick" oninput="showD()" style="width:90%; background:#000; color:#fff; border:1px solid #333; margin-top:5px;">
-            <div id="d-res"></div>
+
+        <div class="menu-item">
+            <small style="color:var(--gold)">🎨 الثيمات</small>
+            <div style="display:flex; gap:5px; margin-top:5px;">
+                <button onclick="document.body.className='theme-active'" style="flex:1; padding:5px; background:#1a0033; color:#fff;">متحرك</button>
+                <button onclick="document.body.className=''" style="flex:1; padding:5px; background:#000; color:#fff;">عادي</button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <small style="color:var(--gold)">✨ زخرفة الاسم</small>
+            <input type="text" id="nickInp" oninput="showDecor()" placeholder="اسمك..." style="width:90%; padding:5px; background:#000; color:#fff; border:1px solid #333;">
+            <div id="decor-box" style="margin-top:10px;"></div>
         </div>
     </div>
 
     <div id="side-r" class="side" onclick="event.stopPropagation()">
-        <div style="padding:15px; text-align:center; color:var(--gold);">المتصلون 👥</div>
-        <div id="u-list"></div>
+        <div style="padding:20px; text-align:center; color:var(--gold); border-bottom:1px solid #222;">المتواجدون 👥</div>
+        <div id="online-list"></div>
     </div>
 
 <script>
-    // --- إعدادات فيربيسا ---
+    // 1. Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
         databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com",
         projectId: "masterchat-f2da9"
     };
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
 
-    let myID, myName = "عضو";
+    let myID, myD = { n: "علوش", av: "https://via.placeholder.com/40" };
+    let curAns = "";
 
-    // دخول تلقائي
+    // 2. Authentication
     auth.signInAnonymously().then(u => {
         myID = u.user.uid;
-        db.ref('status/'+myID).set({ n: myName });
-        db.ref('status/'+myID).onDisconnect().remove();
-        loadChat();
+        db.ref('users/'+myID).on('value', s => {
+            myD = s.val() || myD;
+            db.ref('status/'+myID).set({ n: myD.n, av: myD.av });
+            db.ref('status/'+myID).onDisconnect().remove();
+        });
+        initApp();
     });
 
-    // --- وظيفة الإرسال السريع (المصلحة) ---
-    function quickSend() {
+    // 3. ✅ وظيفة الإرسال المصلحة (تعمل 100%)
+    function send() {
         const inp = document.getElementById('mInp');
-        const val = inp.value.trim();
+        const txt = inp.value.trim();
         
-        if (val !== "") {
+        if (txt === "") return;
+
+        // فحص البوت
+        if (curAns !== "" && txt === curAns) {
+            db.ref('main_msgs').push({
+                n: "بوت المملكة 🤖",
+                t: `✅ كفو ${myD.n}، جواب صح!`,
+                isBot: true
+            });
+            curAns = "";
+        } else {
+            // إرسال عادي
             db.ref('main_msgs').push({
                 uid: myID,
-                n: myName,
-                t: val,
+                n: myD.n,
+                av: myD.av,
+                t: txt,
                 time: Date.now()
             });
-            inp.value = ""; // تمسح الخانة فوراً
-            inp.focus();
         }
+        
+        inp.value = ""; // تصفير الخانة
+        inp.focus();
     }
 
-    function loadChat() {
-        db.ref('main_msgs').limitToLast(30).on('child_added', s => {
+    function initApp() {
+        // تحميل الرسائل
+        db.ref('main_msgs').limitToLast(40).on('child_added', s => {
             const d = s.val();
             const div = document.createElement('div');
-            div.className = `bubble ${d.uid === myID ? 'me' : ''}`;
-            div.style.marginBottom = "8px";
-            div.innerHTML = `<b style="color:var(--gold); font-size:11px;">${d.n}</b><br>${d.t}`;
+            div.className = `msg ${d.uid === myID ? 'me' : ''}`;
+            div.innerHTML = `
+                <img src="${d.av || 'https://cdn-icons-png.flaticon.com/512/4712/4712035.png'}" class="u-img">
+                <div class="bubble">
+                    <b style="font-size:10px; color:var(--gold); display:block;">${d.n}</b>
+                    ${d.t}
+                </div>`;
             document.getElementById('chat-win').appendChild(div);
             document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
         });
 
+        // قائمة المتصلين
         db.ref('status').on('value', s => {
-            const l = document.getElementById('u-list'); l.innerHTML = '';
-            s.forEach(u => { l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111;">🟢 ${u.val().n}</div>`; });
+            const list = document.getElementById('online-list'); list.innerHTML = '';
+            s.forEach(u => {
+                list.innerHTML += `<div style="padding:15px; border-bottom:1px solid #111; display:flex; align-items:center; gap:10px;">
+                <div style="width:10px; height:10px; background:#0f0; border-radius:50%;"></div>
+                <span>${u.val().n}</span></div>`;
+            });
         });
     }
 
-    // دوال التحكم
-    function setTheme(t) { document.body.className = 'theme-' + t; }
-    function toggleS(s, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+s).classList.add('open'); }
-    function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
-    function showD() {
-        const v = document.getElementById('nick').value;
-        const res = document.getElementById('d-res');
+    // 4. التحكم بالقوائم
+    function toggleS(s, e) {
+        e.stopPropagation();
+        const side = document.getElementById('side-'+s);
+        const isOpen = side.classList.contains('open');
+        closeAll();
+        if(!isOpen) side.classList.add('open');
+    }
+
+    function closeAll() {
+        document.querySelectorAll('.side').forEach(s => s.classList.remove('open'));
+    }
+
+    // 5. ميزات إضافية
+    function startQuiz() {
+        curAns = "بغداد";
+        db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: "❓ سؤال سريع: ما هي عاصمة العراق؟", isBot: true });
+    }
+
+    function showDecor() {
+        const v = document.getElementById('nickInp').value;
+        const b = document.getElementById('decor-box');
         if(!v) return;
-        const styles = [`👑 ${v} 👑`, `〆${v}〆` ];
-        res.innerHTML = styles.map(s => `<div onclick="myName='${s}'; alert('تم')" style="cursor:pointer; padding:5px;">${s}</div>`).join('');
+        const ss = [`👑 ${v} 👑`, `〆${v}〆`, `『${v}』` ];
+        b.innerHTML = ss.map(s => `<div onclick="db.ref('users/'+myID).update({n:'${s}'}); alert('نورت يا ملك');" style="padding:8px; cursor:pointer; background:#222; margin-bottom:5px; border-radius:5px;">${s}</div>`).join('');
     }
 </script>
 </body>
