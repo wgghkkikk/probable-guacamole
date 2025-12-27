@@ -2,124 +2,111 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>إمبراطورية علوش - التحكم المطلق</title>
+    <title>نظام سيادة مملكة علوش</title>
     <style>
-        /* التنسيق العام والسلاسة */
-        body {
-            margin: 0; padding: 0; overflow: hidden; height: 100vh;
-            background: #000; font-family: 'Segoe UI', sans-serif; display: flex; color: white;
-        }
-        
-        /* الجوانب الذكية (الفتح بضغطة واحدة) */
-        .panel {
-            width: 280px; background: rgba(15, 15, 15, 0.95); border: 1px solid gold;
-            transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); position: fixed; height: 100%; z-index: 1000;
-            overflow-y: auto;
-        }
-        #left-features { left: -290px; }
-        #right-users { right: -290px; }
-        .active-mode #left-features { left: 0; }
-        .active-mode #right-users { right: 0; }
-
-        /* الشات الرئيسي */
-        #main-view { flex-grow: 1; display: flex; flex-direction: column; width: 100%; transition: 0.5s; cursor: pointer; }
-        #chat-screen { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); }
-        
-        /* خانة الكتابة والملف الشخصي */
-        #bottom-bar { background: #0a0a0a; padding: 15px; display: flex; align-items: center; gap: 15px; border-top: 2px solid #333; }
-        .profile-btn { width: 50px; height: 50px; border-radius: 50%; border: 2px solid gold; cursor: pointer; transition: 0.3s; }
-        .profile-btn:hover { transform: scale(1.1); box-shadow: 0 0 15px gold; }
-        input { flex-grow: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #444; background: #111; color: white; outline: none; }
-        
-        /* المميزات القابلة للضغط */
-        .feature-button {
-            padding: 12px; margin: 5px; border-radius: 8px; background: #222; 
-            color: gold; cursor: pointer; border: 1px solid transparent; transition: 0.3s;
-        }
-        .feature-button:hover { background: gold; color: black; font-weight: bold; }
-        
-        /* نافذة العرض للميزات (يوتيوب/تيك توك) */
-        #royal-display { position: absolute; top: 20%; width: 80%; max-width: 600px; display: none; background: #111; border: 2px solid gold; padding: 15px; border-radius: 15px; z-index: 500; }
+        body { margin: 0; padding: 0; overflow: hidden; height: 100vh; background: #000; font-family: sans-serif; display: flex; color: white; }
+        .panel { width: 280px; background: rgba(10, 10, 10, 0.98); border: 1px solid gold; transition: 0.5s; position: fixed; height: 100%; z-index: 1000; overflow-y: auto; }
+        #left-features { left: -290px; } #right-users { right: -290px; }
+        .active-mode #left-features { left: 0; } .active-mode #right-users { right: 0; }
+        #main-view { flex-grow: 1; display: flex; flex-direction: column; width: 100%; cursor: pointer; background: radial-gradient(circle, #1a1a1a, #000); }
+        #chat-screen { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #bottom-bar { background: #050505; padding: 15px; display: flex; align-items: center; gap: 10px; border-top: 2px solid gold; }
+        input { flex-grow: 1; padding: 12px; border-radius: 20px; border: 1px solid gold; background: #000; color: white; }
+        .feature-btn { padding: 15px; border-bottom: 1px solid #333; color: gold; cursor: pointer; transition: 0.3s; }
+        .feature-btn:hover { background: gold; color: black; }
+        /* نافذة العرض الحقيقية */
+        #royal-window { position: absolute; top: 15%; width: 85%; max-width: 700px; display: none; background: #111; border: 3px solid gold; border-radius: 20px; padding: 20px; z-index: 2000; box-shadow: 0 0 30px rgba(255,215,0,0.3); }
+        .close-btn { background: red; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; float: left; }
     </style>
 </head>
 <body id="master-body">
 
     <div id="left-features" class="panel">
-        <h3 style="text-align: center; color: gold; padding: 15px; border-bottom: 1px solid gold;">📜 أرشيف المميزات</h3>
-        <div id="features-container"></div>
+        <h3 style="text-align: center; color: gold; padding: 10px;">📜 المميزات الحقيقية</h3>
+        <div class="feature-btn" onclick="openYouTube()">📺 يوتيوب المملكة الحقيقي</div>
+        <div class="feature-btn" onclick="openColorControl()">🌈 نظام الألوان الهيدروليكي</div>
+        <div class="feature-btn" onclick="openTikTok()">🎬 تيك توك المملكة (قريباً)</div>
+        <div id="extra-features"></div>
     </div>
 
     <div id="main-view" onclick="togglePanels()">
         <div id="chat-screen">
-            <h1 id="king-title" style="color: gold; text-shadow: 0 0 20px gold;">مملكة علوش</h1>
-            <p>اضغط في أي مكان لفتح لوحة التحكم السيادية</p>
+            <h1 style="color: gold; text-shadow: 0 0 15px gold;">مملكة علوش</h1>
+            <p>اضغط لفتح القوائم | المميزات الآن تعمل بضغطة زر</p>
             
-            <div id="royal-display" onclick="event.stopPropagation()">
-                <div id="display-content"></div>
-                <button onclick="closeDisplay()" style="margin-top:10px; width:100%; background:red; color:white; border:none; padding:10px; cursor:pointer;">إغلاق</button>
+            <div id="royal-window" onclick="event.stopPropagation()">
+                <button class="close-btn" onclick="closeWindow()">إغلاق ✖</button>
+                <div id="window-content" style="margin-top: 40px;"></div>
             </div>
         </div>
-
         <div id="bottom-bar" onclick="event.stopPropagation()">
-            <img src="https://via.placeholder.com/50" class="profile-btn" onclick="openProfile()" title="الملف الشخصي للملك">
-            <input type="text" id="msg-input" placeholder="تحدث مع رعيتك يا ملك...">
-            <button onclick="sendMessage()" style="background:none; border:none; font-size: 25px; cursor:pointer;">🔥</button>
+            <img src="https://via.placeholder.com/45" style="border-radius: 50%; border: 2px solid gold; cursor: pointer;">
+            <input type="text" placeholder="تحدث يا ملك...">
+            <button style="background:none; border:none; font-size: 25px; cursor:pointer;">👑</button>
         </div>
     </div>
 
     <div id="right-users" class="panel">
-        <h3 style="text-align: center; color: gold; padding: 15px; border-bottom: 1px solid gold;">👥 قائمة المتصلين</h3>
-        <div class="feature-button" style="text-align:center;">👑 الملك علوش</div>
+        <h3 style="text-align: center; color: gold; padding: 10px;">👥 المتصلون</h3>
+        <div class="feature-btn" style="text-align:center;">👑 الملك علوش</div>
     </div>
 
     <script>
-        // ميزة 78: التحكم بفتح وغلق القوائم
-        function togglePanels() {
-            document.body.classList.toggle('active-mode');
+        const API_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
+
+        function togglePanels() { document.body.classList.toggle('active-mode'); }
+        function closeWindow() { document.getElementById('royal-window').style.display = 'none'; }
+
+        // 1. ميزة اليوتيوب الحقيقية (البحث والمشاهدة)
+        function openYouTube() {
+            const win = document.getElementById('royal-window');
+            const content = document.getElementById('window-content');
+            win.style.display = 'block';
+            content.innerHTML = `
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="yt-search" placeholder="ابحث عن أي فيديو..." style="width:70%">
+                    <button onclick="searchYT()" style="background:gold; padding:10px; border-radius:5px;">بحث ملكي</button>
+                </div>
+                <div id="yt-video-area" style="margin-top:20px; text-align:center;"></div>
+            `;
         }
 
-        // إغلاق النوافذ المنبثقة
-        function closeDisplay() { document.getElementById('royal-display').style.display = 'none'; }
-
-        // ميزة السيادة: تنفيذ أوامر المميزات
-        function executeFeature(id, name) {
-            const display = document.getElementById('royal-display');
-            const content = document.getElementById('display-content');
-            display.style.display = 'block';
-
-            if(id === 72) { // يوتيوب المملكة
-                content.innerHTML = `<h3>${name}</h3><input type="text" id="yt-q" placeholder="ابحث..."><button onclick="runYT()">بحث</button><div id="yt-box"></div>`;
-            } else if(id === 73) { // الألوان
-                let color = prompt("اختر لون الخلفية:");
-                document.body.style.background = color;
-                content.innerHTML = `<h3>تم تغيير اللون إلى ${color}</h3>`;
-            } else {
-                content.innerHTML = `<h3>لقد قمت بتفعيل الميزة: ${name}</h3><p>هذه الميزة تحت سيادتك الكاملة الآن.</p>`;
-            }
-        }
-
-        // بناء الـ 72 ميزة في الجهة اليسرى (قابلة للضغط)
-        const featureNames = ["Audio Aura", "Magnetic Chat", "يوتيوب المملكة", "تيك توك المملكة", "الألوان المتحركة", "الخزنة الملكية", "نظام الكارما", "الذكاء الدفاعي"];
-        const container = document.getElementById('features-container');
-
-        for (let i = 1; i <= 72; i++) {
-            let fName = featureNames[i-1] || `ميزة ملكية رقم ${i}`;
-            let btn = document.createElement('div');
-            btn.className = 'feature-button';
-            btn.innerHTML = `${i}. ${fName}`;
-            btn.onclick = (e) => { e.stopPropagation(); executeFeature(i, fName); };
-            container.appendChild(btn);
-        }
-
-        async function runYT() {
-            const q = document.getElementById('yt-q').value;
-            const key = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU'; // مفتاحك الحقيقي
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&key=${key}&type=video&maxResults=1`);
+        async function searchYT() {
+            const q = document.getElementById('yt-search').value;
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&key=${API_KEY}&type=video&maxResults=1`);
             const data = await res.json();
-            document.getElementById('yt-box').innerHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${data.items[0].id.videoId}" frameborder="0" allowfullscreen></iframe>`;
+            const id = data.items[0].id.videoId;
+            document.getElementById('yt-video-area').innerHTML = `<iframe width="100%" height="300" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
         }
 
-        function openProfile() { alert("مرحباً بك يا ملك علوش في ملفك الشخصي الأسطوري!"); }
+        // 2. ميزة الألوان الحقيقية (تغيير فوري)
+        function openColorControl() {
+            const win = document.getElementById('royal-window');
+            const content = document.getElementById('window-content');
+            win.style.display = 'block';
+            content.innerHTML = `
+                <h3>🌈 اختر لون المملكة الجديد:</h3>
+                <input type="color" id="bg-picker" onchange="applyColor(this.value)" style="width:100%; height:50px; cursor:pointer;">
+                <p style="text-align:center; margin-top:10px;">سيتم تغيير لون الخلفية فوراً</p>
+            `;
+        }
+
+        function applyColor(color) {
+            document.getElementById('main-view').style.background = color;
+        }
+
+        // إضافة بقية الـ 72 ميزة كأزرار
+        const extra = document.getElementById('extra-features');
+        for(let i=4; i<=72; i++) {
+            let div = document.createElement('div');
+            div.className = 'feature-btn';
+            div.innerHTML = `ميزة ملكية رقم ${i}`;
+            div.onclick = () => {
+                document.getElementById('royal-window').style.display = 'block';
+                document.getElementById('window-content').innerHTML = `<h3>الميزة رقم ${i} نشطة</h3><p>النظام بانتظار أوامرك البرمجية لتخصيص هذه الخانة.</p>`;
+            };
+            extra.appendChild(div);
+        }
     </script>
 </body>
 </html>
