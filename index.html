@@ -3,47 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - الدخول الآمن 👑</title>
+    <title>مملكة علوش - الإصدار الفخم 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #000; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+        :root { --gold: #ffd700; --bg: #000; --accent: #ffd700; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; transition: 0.5s; }
         
-        /* شاشة الدخول بالبريد */
+        /* تأثيرات الثيمات المتحركة */
+        .theme-fire { background: linear-gradient(45deg, #000, #400, #800); animation: fireAnim 5s infinite alternate; }
+        .theme-ocean { background: linear-gradient(45deg, #000, #002, #005); animation: oceanAnim 5s infinite alternate; }
+        @keyframes fireAnim { from { background-color: #000; } to { background-color: #300; } }
+        @keyframes oceanAnim { from { background-color: #000; } to { background-color: #002; } }
+
+        /* بوابة الدخول */
         #auth-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .auth-card { background: #111; padding: 25px; border-radius: 20px; border: 1px solid var(--gold); text-align: center; width: 85%; max-width: 350px; }
         .auth-card input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #333; background: #000; color: #fff; text-align: center; }
-        .auth-btn { width: 100%; padding: 14px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        #star-field { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .star { position: absolute; background: #fff; border-radius: 50%; animation: blink 2s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        .auth-btn { width: 100%; padding: 14px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
-        /* الواجهة */
+        /* التطبيق */
         .app { display: none; flex-direction: column; height: 100vh; position: relative; z-index: 10; }
-        .header { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
-        
-        #yt-float { position: absolute; top: 70px; left: 10px; width: 200px; height: 120px; background: #000; border: 2px solid var(--gold); border-radius: 10px; z-index: 1000; display: none; }
+        .header { background: rgba(0,0,0,0.8); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .msg { display: flex; gap: 10px; }
         .msg.me { flex-direction: row-reverse; }
-        .u-img { width: 45px; height: 45px; border-radius: 10px; border: 2px solid var(--gold); object-fit: cover; }
         .bubble { max-width: 75%; background: rgba(30,30,30,0.9); padding: 10px; border-radius: 12px; border: 1px solid #333; }
-        
-        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: #0a0a0a; transition: 0.4s; z-index: 2000; }
-        #side-l { left: -282px; border-right: 2px solid var(--gold); }
-        #side-r { right: -282px; border-left: 2px solid var(--gold); }
-        .side.open { left: 0 !important; right: 0 !important; }
 
+        /* القائمة الجانبية المحدثة */
+        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: #0a0a0a; transition: 0.4s; z-index: 2000; overflow-y: auto; }
+        #side-l { left: -282px; border-right: 2px solid var(--gold); }
+        .side.open { left: 0 !important; }
+
+        /* خانة الزخرفة */
+        .decor-box { background: #111; padding: 10px; border-radius: 10px; margin: 10px; border: 1px solid #222; }
+        .decor-item { cursor: pointer; padding: 5px; border-bottom: 1px solid #222; font-size: 14px; }
+        .decor-item:hover { color: var(--gold); }
+
+        /* شريط الكتابة */
         .footer { background: #000; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #222; }
         #mInp { flex: 1; background: #1a1a1a; color: #fff; padding: 12px; border-radius: 20px; border: 1px solid #333; outline: none; }
     </style>
 </head>
 <body onclick="closeAll()">
-
-    <div id="star-field"></div>
 
     <div id="auth-screen">
         <div class="auth-card">
@@ -51,41 +54,54 @@
             <input type="email" id="email" placeholder="البريد الإلكتروني">
             <input type="password" id="pass" placeholder="الرمز السري">
             <button class="auth-btn" onclick="handleAuth('login')">تسجيل دخول</button>
-            <button class="auth-btn" style="background:#222; color:#fff; font-size:12px;" onclick="handleAuth('register')">إنشاء حساب جديد</button>
-            <p id="auth-error" style="color:red; font-size:11px; margin-top:10px;"></p>
+            <button onclick="handleAuth('register')" style="background:none; border:none; color:gray; margin-top:10px;">إنشاء حساب جديد</button>
+            <p id="auth-err" style="color:red; font-size:11px;"></p>
         </div>
-    </div>
-
-    <div id="yt-float">
-        <div id="player-frame" style="width:100%; height:100%;"></div>
     </div>
 
     <div class="app" id="app-ui">
         <div class="header">
             <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px;">⚙️</button>
             <b style="color:var(--gold)">مملكة علوش</b>
-            <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:24px;">👥</button>
+            <span onclick="toggleS('r', event)" style="font-size:24px;">👥</span>
         </div>
         <div id="chat-win"></div>
         <div class="footer" onclick="event.stopPropagation()">
-            <input type="text" id="mInp" placeholder="اكتب رسالتك...">
+            <input type="text" id="mInp" placeholder="تحدث يا ملك...">
             <button onclick="send()" style="background:none; border:none; font-size:24px;">🚀</button>
         </div>
     </div>
 
     <div id="side-l" class="side" onclick="event.stopPropagation()">
-        <div style="padding:20px; text-align:center; color:var(--gold); font-weight:bold;">⚙️ الإعدادات</div>
-        <div id="admin-tools" style="padding:20px; display:none;">
-            <button onclick="pushYT()" style="width:100%; padding:10px; background:red; color:#fff; border:none; border-radius:5px; margin-bottom:10px;">📺 بث يوتيوب</button>
-            <button onclick="db.ref('main_msgs').remove()" style="width:100%; padding:10px; background:#444; color:#fff; border:none; border-radius:5px;">🧨 تصفير الشات</button>
+        <div style="padding:15px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #222;">إعدادات المملكة</div>
+        
+        <div class="decor-box">
+            <small style="color:var(--gold)">✨ مزخرف الأسماء</small>
+            <input type="text" id="name-to-style" placeholder="اكتب اسمك هنا..." oninput="styleName()" style="width:100%; padding:8px; margin-top:5px; background:#000; color:#fff; border:1px solid #444; border-radius:5px;">
+            <div id="style-results" style="max-height:100px; overflow:auto; margin-top:5px;"></div>
         </div>
+
+        <div class="decor-box">
+            <small style="color:var(--gold)">🎨 الثيمات المتحركة</small>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:5px;">
+                <button onclick="setTheme('default')" style="background:#222; color:#fff; border:none; padding:8px; border-radius:5px; font-size:12px;">كلاسيك</button>
+                <button onclick="setTheme('fire')" style="background:#500; color:#fff; border:none; padding:8px; border-radius:5px; font-size:12px;">ناري 🔥</button>
+                <button onclick="setTheme('ocean')" style="background:#005; color:#fff; border:none; padding:8px; border-radius:5px; font-size:12px;">بحري 🌊</button>
+                <button onclick="setTheme('gold')" style="background:#b8860b; color:#fff; border:none; padding:8px; border-radius:5px; font-size:12px;">ملكي 👑</button>
+            </div>
+        </div>
+
+        <div id="admin-tools" style="padding:10px; display:none;">
+            <button onclick="db.ref('main_msgs').remove()" style="width:100%; padding:10px; background:#333; color:red; border:none; border-radius:5px;">🧨 تصفير الشات</button>
+        </div>
+
         <div style="padding:20px; text-align:center;">
-            <button onclick="auth.signOut().then(()=>location.reload())" style="color:gray; background:none; border:none;">تسجيل خروج</button>
+            <button onclick="auth.signOut().then(()=>location.reload())" style="color:gray; background:none; border:none; text-decoration:underline; cursor:pointer;">تسجيل خروج</button>
         </div>
     </div>
 
-    <div id="side-r" class="side" onclick="event.stopPropagation()">
-        <div style="padding:20px; text-align:center; color:var(--gold); font-weight:bold;">👥 المتصلون</div>
+    <div id="side-r" class="side" style="right:-282px; left:auto; border-left:2px solid var(--gold);">
+        <div style="padding:15px; text-align:center; color:var(--gold); font-weight:bold;">المتواجدون 👥</div>
         <div id="user-list"></div>
     </div>
 
@@ -101,16 +117,30 @@
     const auth = firebase.auth();
     let myID, myD = { n: "عضو", av: "https://via.placeholder.com/100" };
 
+    // نظام الزخرفة
+    function styleName() {
+        const val = document.getElementById('name-to-style').value;
+        const res = document.getElementById('style-results');
+        if(!val) { res.innerHTML = ""; return; }
+        const styles = [ `👑 ${val} 👑`, `『 ${val} 』`, `★ ${val} ★`, `꧁ ${val} ꧂`, `〆 ${val} 〆` ];
+        res.innerHTML = styles.map(s => `<div class="decor-item" onclick="applyName('${s}')">${s}</div>`).join('');
+    }
+    function applyName(s) {
+        db.ref('users/'+myID).update({ n: s });
+        alert("تم تغيير اسمك وزخرفته يا ملك! 👑");
+    }
+
+    // نظام الثيمات
+    function setTheme(t) {
+        document.body.className = "theme-" + t;
+        localStorage.setItem('userTheme', t);
+    }
+
     function handleAuth(type) {
         const email = document.getElementById('email').value;
         const pass = document.getElementById('pass').value;
-        const err = document.getElementById('auth-error');
-        
-        if(type === 'register') {
-            auth.createUserWithEmailAndPassword(email, pass).catch(e => err.innerText = e.message);
-        } else {
-            auth.signInWithEmailAndPassword(email, pass).catch(e => err.innerText = e.message);
-        }
+        if(type === 'register') auth.createUserWithEmailAndPassword(email, pass).catch(e => document.getElementById('auth-err').innerText = e.message);
+        else auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById('auth-err').innerText = e.message);
     }
 
     auth.onAuthStateChanged(u => {
@@ -118,23 +148,20 @@
             myID = u.uid;
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-ui').style.display = 'flex';
+            if(u.email === "alloush@boss.com") document.getElementById('admin-tools').style.display = 'block';
             
-            // ميزة الإدمن لعلوش (تقدر تغير البريد لبريدك الخاص)
-            if(u.email === "alloush@boss.com") { 
-                document.getElementById('admin-tools').style.display = 'block';
-            }
-
             db.ref('users/'+myID).on('value', s => {
                 myD = s.val() || { n: u.email.split('@')[0], av: "https://via.placeholder.com/100" };
                 db.ref('status/'+myID).set({ n: myD.n, av: myD.av });
                 db.ref('status/'+myID).onDisconnect().remove();
             });
-            initApp();
-            makeStars();
+            initChat();
+            const savedTheme = localStorage.getItem('userTheme');
+            if(savedTheme) setTheme(savedTheme);
         }
     });
 
-    function toggleS(s, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+s).classList.add('open'); }
+    function toggleS(s, e) { e.stopPropagation(); document.querySelectorAll('.side').forEach(p=>p.classList.remove('open')); document.getElementById('side-'+s).classList.add('open'); }
     function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
 
     function send() {
@@ -144,17 +171,12 @@
         document.getElementById('mInp').value = '';
     }
 
-    function pushYT() {
-        const q = prompt("ابحث عن فيديو:");
-        if(q) db.ref('yt_sync').set({ url: "https://www.youtube.com/embed?listType=search&list="+encodeURIComponent(q), time: Date.now() });
-    }
-
-    function initApp() {
+    function initChat() {
         db.ref('main_msgs').limitToLast(40).on('child_added', s => {
             const d = s.val();
             const div = document.createElement('div');
             div.className = `msg ${d.uid === myID ? 'me' : ''}`;
-            div.innerHTML = `<img src="${d.av}" class="u-img"><div class="bubble"><b style="font-size:10px; color:var(--gold); display:block;">${d.n}</b>${d.t}</div>`;
+            div.innerHTML = `<img src="${d.av}" style="width:40px;height:40px;border-radius:10px;border:1px solid var(--gold);"><div class="bubble"><b style="font-size:10px;color:var(--gold);display:block;">${d.n}</b>${d.t}</div>`;
             document.getElementById('chat-win').appendChild(div);
             document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
         });
@@ -162,28 +184,11 @@
         db.ref('status').on('value', s => {
             const l = document.getElementById('user-list'); l.innerHTML = '';
             s.forEach(u => {
-                l.innerHTML += `<div style="display:flex; align-items:center; gap:10px; padding:12px; border-bottom:1px solid #222;">
-                <img src="${u.val().av}" style="width:35px; height:35px; border-radius:50%; border:1px solid var(--gold);">
-                <span>${u.val().n}</span><div style="width:8px; height:8px; background:#0f0; border-radius:50%; margin-right:auto;"></div></div>`;
+                l.innerHTML += `<div style="display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid #222;">
+                <img src="${u.val().av}" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--gold);">
+                <span>${u.val().n}</span><div style="width:8px;height:8px;background:#0f0;border-radius:50%;margin-right:auto;"></div></div>`;
             });
         });
-
-        db.ref('yt_sync').on('value', s => {
-            const d = s.val();
-            if(d) {
-                document.getElementById('yt-float').style.display = 'block';
-                document.getElementById('player-frame').innerHTML = `<iframe width="100%" height="100%" src="${d.url}&autoplay=1" allow="autoplay" frameborder="0"></iframe>`;
-            }
-        });
-    }
-
-    function makeStars() {
-        for(let i=0; i<50; i++) {
-            const s = document.createElement('div'); s.className = 'star';
-            s.style.width = s.style.height = Math.random()*3+'px';
-            s.style.top = Math.random()*100+'%'; s.style.left = Math.random()*100+'%';
-            document.getElementById('star-field').appendChild(s);
-        }
     }
 </script>
 </body>
