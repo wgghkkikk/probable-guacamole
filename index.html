@@ -1,75 +1,84 @@
-// ميزة 1: تيك توك المملكة (مقاطع بلا نهاية + بحث)
+// ميزة 1: محرك تيك توك المملكة الشامل
+let currentVideoPage = 1;
+
 function openTikTok() {
-    const win = document.getElementById('royal-window');
-    win.style.display = 'block';
+    const display = document.getElementById('royal-display');
+    display.style.display = 'block';
     
-    // واجهة التيك توك الاحترافية
-    document.getElementById('window-body').innerHTML = `
-        <div id="tiktok-container" style="height: 75vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 15px; position: relative;">
-            
-            <div style="position: sticky; top: 0; z-index: 100; background: rgba(0,0,0,0.7); padding: 10px; display: flex; gap: 5px;">
-                <input type="text" id="user-search" placeholder="ابحث عن شخص لمتابعته..." style="flex-grow:1; background:#222; border:1px solid gold; color:white; border-radius:15px; padding:5px 15px;">
-                <button onclick="searchUser()" style="background:gold; border:none; border-radius:15px; padding:5px 15px; cursor:pointer; font-weight:bold;">بحث</button>
+    // بناء هيكل التيك توك الاحترافي
+    document.getElementById('display-body').innerHTML = `
+        <div id="tiktok-wrapper" style="height: 70vh; overflow-y: auto; scroll-snap-type: y mandatory; position: relative; background: #000; border-radius: 20px;">
+            <div style="position: sticky; top: 0; z-index: 100; display: flex; padding: 10px; background: rgba(0,0,0,0.8); gap: 10px;">
+                <input type="text" id="user-query" placeholder="ابحث عن إمبراطور لمتابعته..." style="flex-grow:1; border-radius:20px; border:1px solid gold; background:#111; color:white; padding:8px 15px;">
+                <button onclick="searchKingdomUser()" style="background:gold; border:none; border-radius:20px; padding:0 20px; cursor:pointer; font-weight:bold;">بحث</button>
             </div>
 
-            <div id="video-feed">
-                </div>
+            <div id="video-stream"></div>
             
-            <div id="loading-trigger" style="text-align:center; padding:20px; color:gold;">جاري تحميل المزيد من المقاطع الملكية...</div>
+            <div id="scroll-anchor" style="height: 50px; text-align: center; color: gold; padding: 20px;">
+                ... جاري جلب مقاطع ملكية جديدة ...
+            </div>
         </div>
     `;
 
-    loadMoreVideos(); // تحميل الدفعة الأولى
+    // تفعيل التمرير اللانهائي
+    const wrapper = document.getElementById('tiktok-wrapper');
+    wrapper.addEventListener('scroll', () => {
+        if (wrapper.scrollTop + wrapper.clientHeight >= wrapper.scrollHeight - 100) {
+            appendNewVideos(); // تحميل مقاطع إضافية تلقائياً
+        }
+    });
+
+    appendNewVideos(); // تحميل الدفعة الأولى
 }
 
-// قائمة فيديوهات تجريبية (سيتم زيادتها لتكون لانهائية)
-let videoSources = [
-    "https://www.w3schools.com/html/mov_bbb.mp4",
-    "https://www.w3schools.com/html/horse.mp4",
-    "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
-];
+// دالة جلب المقاطع (محاكاة لسحب بيانات لانهائية)
+function appendNewVideos() {
+    const stream = document.getElementById('video-stream');
+    const demoVideos = [
+        "https://www.w3schools.com/html/mov_bbb.mp4",
+        "https://www.w3schools.com/html/horse.mp4"
+    ];
 
-function loadMoreVideos() {
-    const feed = document.getElementById('video-feed');
-    for(let i=0; i<5; i++) { // تحميل 5 مقاطع في كل مرة
-        let src = videoSources[Math.floor(Math.random() * videoSources.length)];
-        let videoPost = document.createElement('div');
-        videoPost.style.height = "100%";
-        videoPost.style.scrollSnapAlign = "start";
-        videoPost.style.position = "relative";
-        videoPost.style.borderBottom = "2px solid #111";
+    for(let i = 0; i < 3; i++) {
+        let videoId = Math.random().toString(36).substr(2, 9);
+        let videoDiv = document.createElement('div');
+        videoDiv.className = 'video-post';
+        videoDiv.style = "height: 100%; scroll-snap-align: start; position: relative; border-bottom: 2px solid #222;";
         
-        videoPost.innerHTML = `
-            <video width="100%" height="100%" loop onclick="this.paused ? this.play() : this.pause()" style="object-fit: cover;">
-                <source src="${src}" type="video/mp4">
+        videoDiv.innerHTML = `
+            <video width="100%" height="100%" loop muted autoplay style="object-fit: cover;">
+                <source src="${demoVideos[i%2]}" type="video/mp4">
             </video>
-            <div style="position: absolute; right: 10px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; align-items: center;">
-                <div onclick="this.style.color='red'" style="cursor:pointer; font-size:25px;">❤️</div>
-                <div onclick="openComments()" style="cursor:pointer; font-size:25px;">💬</div>
-                <div onclick="alert('تمت المتابعة')" style="background:gold; color:black; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>
+            
+            <div style="position: absolute; right: 15px; bottom: 80px; display: flex; flex-direction: column; gap: 20px; align-items: center;">
+                <div onclick="this.style.color='red'" style="font-size:30px; cursor:pointer;">❤️</div>
+                <div onclick="openComments('${videoId}')" style="font-size:30px; cursor:pointer;">💬</div>
+                <div onclick="followUser('${videoId}')" style="background:gold; color:black; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>
             </div>
-            <div style="position: absolute; bottom: 20px; left: 10px; text-shadow: 1px 1px 5px black;">
-                <b>@user_king_${Math.floor(Math.random()*100)}</b>
-                <p>وصف الفيديو الملكي #مملكة_علوش</p>
+
+            <div style="position: absolute; bottom: 20px; left: 15px; text-shadow: 2px 2px 4px #000;">
+                <h4 style="margin:0;">@إمبراطور_المملكة_${Math.floor(Math.random()*1000)}</h4>
+                <p style="margin:5px 0;">حصرياً في #مملكة_علوش الأسطورية 👑</p>
             </div>
         `;
-        feed.appendChild(videoPost);
+        stream.appendChild(videoDiv);
     }
 }
 
-// ميزة البحث عن شخص
-function searchUser() {
-    const user = document.getElementById('user-search').value;
-    const feed = document.getElementById('video-feed');
+// دالة البحث عن شخص لمتابعته
+function searchKingdomUser() {
+    const user = document.getElementById('user-query').value;
     if(user) {
-        feed.innerHTML = `
-            <div style="padding:20px; text-align:center;">
-                <img src="https://via.placeholder.com/100" style="border-radius:50%; border:2px solid gold;">
-                <h2>${user}</h2>
-                <button onclick="alert('تمت متابعة ${user}')" style="background:gold; border:none; padding:10px 30px; border-radius:20px; cursor:pointer;">متابعة الآن</button>
-                <p style="margin-top:20px;">جاري جلب مقاطع ${user}...</p>
+        document.getElementById('video-stream').innerHTML = `
+            <div style="text-align:center; padding:50px;">
+                <div style="width:100px; height:100px; border-radius:50%; background:gold; margin:0 auto; display:flex; align-items:center; justify-content:center; color:black; font-size:40px;">👤</div>
+                <h3>${user}</h3>
+                <button onclick="this.innerHTML='تمت المتابعة ✔'; this.style.background='#444';" style="background:gold; border:none; padding:10px 40px; border-radius:20px; cursor:pointer; font-weight:bold;">متابعة</button>
+                <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+                <p>جاري تحميل مقاطع ${user} حصرياً لك...</p>
             </div>
         `;
-        setTimeout(loadMoreVideos, 1500); // محاكاة جلب فيديوهات الشخص
+        setTimeout(appendNewVideos, 1500);
     }
 }
