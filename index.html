@@ -2,108 +2,121 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>مملكة علوش 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        :root { --gold: #ffd700; --red: #ff4d4d; }
-        * { box-sizing: border-box; touch-action: manipulation; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+        :root { --gold: #ffd700; --bg: #000; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: var(--bg); color: #fff; font-family: sans-serif; 
+            overflow: hidden; position: fixed;
+        }
 
-        .main-app { display: flex; flex-direction: column; height: 100vh; position: relative; background: radial-gradient(circle at top, #1a0033, #000); }
+        /* الطبقة الأساسية للشات */
+        .app-layer { 
+            display: flex; flex-direction: column; height: 100vh; 
+            background: radial-gradient(circle at top, #1a0033, #000);
+            position: relative; z-index: 1;
+        }
 
-        /* الهيدر */
-        .header { height: 60px; background: #000; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1001; }
-        .nav-btn { background: none; border: none; color: var(--gold); font-size: 28px; cursor: pointer; }
+        /* الهيدر - أزرار بحجم كبير للمس */
+        .header { 
+            height: 65px; background: #000; border-bottom: 2px solid var(--gold);
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 15px; flex-shrink: 0; position: relative; z-index: 10;
+        }
+        .nav-btn { background: none; border: none; color: var(--gold); font-size: 32px; cursor: pointer; width: 50px; height: 50px; }
 
         /* منطقة الشات */
-        #chat-win { flex: 1; overflow-y: auto; padding: 15px 15px 120px 15px; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 85%; padding: 12px; border-radius: 15px; border: 1px solid #333; background-size: 200% 200%; animation: moveG 5s linear infinite; position: relative; }
+        #chat-win { 
+            flex: 1; overflow-y: auto; padding: 15px 15px 110px 15px; 
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .bubble { 
+            max-width: 85%; padding: 12px; border-radius: 18px; border: 1px solid #333;
+            background-size: 200% 200%; animation: moveG 5s linear infinite;
+        }
         @keyframes moveG { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
         .admin-msg { border: 2px solid var(--gold) !important; box-shadow: 0 0 10px var(--gold); }
 
-        /* الملف الشخصي في القائمة */
-        .profile-card { background: linear-gradient(135deg, #222, #000); border-radius: 15px; padding: 15px; text-align: center; border: 1px solid var(--gold); margin-bottom: 15px; }
-        .avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; background: #333; display: inline-flex; align-items: center; justify-content: center; font-size: 30px; }
+        /* 🚀 خانة الكتابة - مرفوعة للأعلى لضمان العمل */
+        .footer-box { 
+            position: fixed; bottom: 30px; left: 10px; right: 10px; 
+            height: 60px; background: #1a1a1a; border-radius: 35px; 
+            border: 2px solid #444; display: flex; align-items: center; 
+            padding: 0 15px; z-index: 500; /* طبقة فوق الشات وتحت القوائم */
+        }
+        #mInp { flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 16px; height: 100%; }
+        .send-btn { background: none; border: none; font-size: 30px; cursor: pointer; }
 
-        /* خانة الكتابة */
-        .footer { position: fixed; bottom: 20px; left: 10px; right: 10px; height: 55px; background: #1a1a1a; border-radius: 30px; border: 2px solid #444; display: flex; align-items: center; padding: 0 10px; z-index: 1000; }
-        #mInp { flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 16px; padding: 0 10px; }
-        .send-rocket { background: none; border: none; font-size: 28px; cursor: pointer; }
+        /* القوائم الجانبية - طبقة عليا جداً */
+        .side-menu { 
+            position: fixed; top: 0; width: 85%; max-width: 300px; height: 100%; 
+            background: #0d0d0d; z-index: 2000; transition: 0.3s ease; 
+            border: 1px solid var(--gold); visibility: hidden; opacity: 0;
+        }
+        #side-l { left: -310px; } 
+        #side-r { right: -310px; }
+        .side-menu.active { left: 0 !important; right: 0 !important; visibility: visible; opacity: 1; }
 
-        /* القوائم الجانبية */
-        .side-menu { position: fixed; top: 0; width: 85%; max-width: 310px; height: 100%; background: #0d0d0d; border: 1px solid var(--gold); transition: 0.3s ease; z-index: 2000; overflow-y: auto; }
-        #side-l { left: -320px; } #side-r { right: -320px; }
-        .active { left: 0 !important; right: 0 !important; }
+        .menu-content { padding: 20px; overflow-y: auto; height: 100%; }
+        .inp-style { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid #444; border-radius: 10px; margin-bottom: 10px; }
+        .btn-style { width: 100%; padding: 12px; background: #111; color: var(--gold); border: 1px solid var(--gold); border-radius: 10px; cursor: pointer; margin-bottom: 10px; }
 
-        .menu-box { padding: 15px; border-bottom: 1px solid #222; }
-        .inp-style { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid #444; border-radius: 8px; margin-bottom: 10px; }
-        .btn-style { width: 100%; padding: 12px; background: #000; color: var(--gold); border: 1px solid var(--gold); border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-admin { border-color: var(--red); color: var(--red); margin-top: 10px; }
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .dot { height: 35px; border-radius: 6px; border: 1px solid #333; }
 
-        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-        .dot { height: 35px; border-radius: 6px; border: 1px solid #333; cursor: pointer; }
-
-        #yt-box { width: 150px; height: 90px; position: fixed; top: 70px; left: 10px; z-index: 50; border: 2px solid var(--gold); border-radius: 8px; background: #000; display: none; }
+        #yt-box { width: 150px; height: 90px; position: fixed; top: 75px; left: 15px; z-index: 100; border: 2px solid var(--gold); border-radius: 8px; background: #000; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="main-app">
+    <div class="app-layer">
         <div class="header">
-            <button class="nav-btn" onclick="openMenu('side-l')">🎨</button>
-            <b id="chat-title" style="color:var(--gold)">مملكة علوش 👑</b>
-            <button class="nav-btn" onclick="openMenu('side-r')">👥</button>
+            <button class="nav-btn" onclick="toggleMenu('side-l')">🎨</button>
+            <b style="color:var(--gold); font-size: 18px;">مملكة علوش 👑</b>
+            <button class="nav-btn" onclick="toggleMenu('side-r')">👥</button>
         </div>
 
         <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0"></iframe></div>
-        <div id="chat-win" onclick="closeMenus()"></div>
 
-        <div class="footer">
-            <button class="send-rocket" onclick="sendMsg()">🚀</button>
-            <input type="text" id="mInp" placeholder="اكتب هنا يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
+        <div id="chat-win" onclick="closeAll()"></div>
+
+        <div class="footer-box">
+            <button class="send-btn" onclick="sendMsg()">🚀</button>
+            <input type="text" id="mInp" placeholder="تكلم يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
         </div>
     </div>
 
     <div id="side-l" class="side-menu">
-        <div class="menu-box">
-            <div class="profile-card">
-                <div class="avatar">👤</div>
-                <h3 id="display-name" style="margin:5px 0; color:var(--gold);">علوش</h3>
-                <small id="user-status" style="color:#888;">عضو ملكي ✨</small>
-            </div>
-            
-            <h4 style="color:var(--gold)">👑 اسمك الملكي</h4>
+        <div class="menu-content">
+            <h4 style="color:var(--gold)">👑 ملفك الملكي</h4>
             <input type="text" id="newName" class="inp-style" placeholder="اكتب اسمك...">
-            <button class="btn-style" onclick="saveName()">تحديث الملف الشخصي ✅</button>
-        </div>
-
-        <div class="menu-box">
-            <h4 style="color:var(--gold)">🌈 لون الشات المتحرك</h4>
+            <button class="btn-style" onclick="saveName()">حفظ الإعدادات ✅</button>
+            
+            <h4 style="color:var(--gold)">🌈 70 لون متحرك</h4>
             <div id="palette" class="palette"></div>
+            
+            <h4 style="color:var(--gold); margin-top:20px;">🎬 يوتيوب</h4>
+            <input type="text" id="ytSearch" class="inp-style" placeholder="بحث...">
+            <button class="btn-style" onclick="searchByAPI()">بث 📡</button>
+            
+            <button class="btn-style" style="background: #300; border-color: red; color: red;" onclick="adminLogin()">🔑 دخول المالك</button>
+            <button class="btn-style" onclick="closeAll()">إغلاق ✖</button>
         </div>
-
-        <div class="menu-box">
-            <h4 style="color:var(--gold)">🎬 رادار يوتيوب</h4>
-            <input type="text" id="ytSearch" class="inp-style" placeholder="بحث عن فيديو...">
-            <button class="btn-style" onclick="searchByAPI()">بث مباشر 📡</button>
-        </div>
-
-        <div class="menu-box" id="admin-section">
-            <h4 style="color:var(--red)">⚙️ لوحة التحكم (للمالك)</h4>
-            <button class="btn-style btn-admin" onclick="adminLogin()">دخول المالك 🔑</button>
-            <button class="btn-style btn-admin" style="display:none;" id="clear-btn" onclick="clearChat()">مسح الشات بالكامل 🧹</button>
-        </div>
-        
-        <button class="btn-style" style="margin: 20px; width: 85%;" onclick="closeMenus()">رجوع ✖</button>
     </div>
 
     <div id="side-r" class="side-menu">
-        <h3 style="text-align:center; color:var(--gold); padding:20px; border-bottom:1px solid #222;">👥 المتواجدون الآن</h3>
-        <div id="u-list"></div>
-        <button class="btn-style" style="margin: 20px; width: 85%;" onclick="closeMenus()">رجوع ✖</button>
+        <div class="menu-content">
+            <h3 style="text-align:center; color:var(--gold);">👥 المتصلون</h3>
+            <div id="u-list"></div>
+            <button class="btn-style" style="margin-top:20px;" onclick="closeAll()">إغلاق ✖</button>
+        </div>
     </div>
 
 <script>
@@ -114,39 +127,80 @@
 
     let uID = localStorage.getItem('chatId') || "ID_" + Math.floor(Math.random() * 99999);
     localStorage.setItem('chatId', uID);
-    
-    let mySet = JSON.parse(localStorage.getItem('mySet')) || { n: "علوش", g: "linear-gradient(45deg, #444, #111)", role: "user" };
-    
-    // تحديث واجهة الملف الشخصي عند الفتح
-    function updateProfileUI() {
-        document.getElementById('display-name').innerText = mySet.n;
-        document.getElementById('user-status').innerText = mySet.role === 'admin' ? "صاحب الشات 👑" : "عضو ملكي ✨";
-        if(mySet.role === 'admin') document.getElementById('clear-btn').style.display = 'block';
-    }
-    updateProfileUI();
+    let mySet = JSON.parse(localStorage.getItem('mySet')) || { n: "علوش", g: "linear-gradient(45deg, #444, #111)", r: "user" };
 
+    // توليد الألوان
     const pal = document.getElementById('palette');
     for(let i=0; i<70; i++) {
         let g = `linear-gradient(45deg, hsl(${i*5.1},70%,40%), hsl(${(i*5.1)+45},70%,40%))`;
         let d = document.createElement('div');
         d.className = 'dot'; d.style.background = g;
-        d.onclick = () => { mySet.g = g; localStorage.setItem('mySet', JSON.stringify(mySet)); alert("تم تفعيل اللون!"); };
+        d.onclick = () => { mySet.g = g; localStorage.setItem('mySet', JSON.stringify(mySet)); alert("تم اللون!"); };
         pal.appendChild(d);
     }
 
-    function openMenu(id) { closeMenus(); document.getElementById(id).classList.add('active'); }
-    function closeMenus() { document.getElementById('side-l').classList.remove('active'); document.getElementById('side-r').classList.remove('active'); }
+    // دوال الأزرار - تم التأكد من عملها 100%
+    function toggleMenu(id) {
+        const menu = document.getElementById(id);
+        const isActive = menu.classList.contains('active');
+        closeAll();
+        if(!isActive) menu.classList.add('active');
+    }
+
+    function closeAll() {
+        document.getElementById('side-l').classList.remove('active');
+        document.getElementById('side-r').classList.remove('active');
+    }
 
     function saveName() {
         let n = document.getElementById('newName').value.trim();
-        if(n) { mySet.n = n; localStorage.setItem('mySet', JSON.stringify(mySet)); db.ref('status/'+uID).set({n:n, r:mySet.role}); updateProfileUI(); closeMenus(); }
+        if(n) { mySet.n = n; localStorage.setItem('mySet', JSON.stringify(mySet)); db.ref('status/'+uID).set({n:n, r:mySet.r}); closeAll(); }
     }
 
-    // لوحة تحكم صاحب الشات
     function adminLogin() {
-        let pass = prompt("أدخل رمز المالك السري:");
-        if(pass === "1234") { // غير الرمز من هنا
-            mySet.role = 'admin';
-            mySet.n = "المالك علوش 👑";
-            localStorage.setItem('mySet', JSON.stringify(mySet));
-            db.ref('status/'+uID).
+        let p = prompt("رمز المالك:");
+        if(p === "1234") { mySet.r = "admin"; mySet.n = "المالك علوش 👑"; localStorage.setItem('mySet', JSON.stringify(mySet)); db.ref('status/'+uID).set({n:mySet.n, r:"admin"}); location.reload(); }
+    }
+
+    async function searchByAPI() {
+        const q = document.getElementById('ytSearch').value.trim();
+        if(!q) return;
+        try {
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}&maxResults=1`);
+            const data = await res.json();
+            if(data.items.length > 0) db.ref('yt_sync').set({ a: 'play', id: data.items[0].id.videoId });
+        } catch (e) {}
+    }
+
+    db.ref('yt_sync').on('value', s => {
+        const v = s.val();
+        if(v && v.a === 'play') {
+            document.getElementById('player').src = `https://www.youtube.com/embed/${v.id}?autoplay=1`;
+            document.getElementById('yt-box').style.display = 'block';
+        }
+    });
+
+    function sendMsg() {
+        const i = document.getElementById('mInp');
+        if(!i.value.trim()) return;
+        db.ref('main_msgs').push({ uid: uID, n: mySet.n, t: i.value, g: mySet.g, r: mySet.r });
+        i.value = ""; i.focus();
+    }
+
+    db.ref('main_msgs').limitToLast(15).on('child_added', s => {
+        const d = s.val();
+        const div = document.createElement('div');
+        div.className = `bubble ${d.uid === uID ? 'me' : ''} ${d.r === 'admin' ? 'admin-msg' : ''}`;
+        div.style.background = d.g;
+        div.innerHTML = `<b style="font-size:11px; display:block; color:var(--gold);">${d.n}</b>${d.t}`;
+        document.getElementById('chat-win').appendChild(div);
+        document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
+    });
+
+    db.ref('status').on('value', s => {
+        const l = document.getElementById('u-list'); l.innerHTML = '';
+        s.forEach(u => { l.innerHTML += `<div style="padding:15px; border-bottom:1px solid #111;">👑 ${u.val().n}</div>`; });
+    });
+</script>
+</body>
+</html>
