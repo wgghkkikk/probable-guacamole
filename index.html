@@ -1,57 +1,56 @@
-<div id="royal-tiktok-player" style="height: 100vh; background: #000; overflow: hidden;">
-    <div id="video-feed" style="height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth;"></div>
+<div id="alloush-prime-tv" style="height: 100vh; background: #000; overflow: hidden; position: relative;">
+    <div id="main-stream" style="height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth;"></div>
 </div>
 
 <script>
-    // مكتبة فيديوهات "عالم وناس وحسينيات" بروابط بديلة قوية
-    const kingdomVids = [
-        { src: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", desc: "🏴 مقاطع حسينية - مملكة علوش" },
-        { src: "https://assets.mixkit.co/videos/preview/mixkit-night-city-street-lights-and-traffic-2847-large.mp4", user: "عاشق_بغداد", desc: "🇮🇶 أجواء الناس والمدينة" },
-        { src: "https://www.w3schools.com/html/movie.mp4", user: "علوش_الإمبراطور", desc: "👑 ميزة رقم 70: تيك توك المملكة" },
-        { src: "https://assets.mixkit.co/videos/preview/mixkit-busy-street-in-a-modern-city-at-night-4101-large.mp4", user: "منوعات_المملكة", desc: "✨ ترندات وحياة حقيقية" }
+    // مكتبة منوعة (حسينية، ناس، ترندات، إمبراطورية)
+    const megaLibrary = [
+        { s: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", u: "خادم_الحسين", d: "🏴 مقاطع حسينية ودينية" },
+        { s: "https://v1.assets.tumblr.com/tumblr_p1kjs9W4Xf1wreoyvo1.mp4", u: "عاشق_بغداد", d: "🇮🇶 أجواء المملكة والناس" },
+        { s: "https://assets.mixkit.co/videos/preview/mixkit-busy-street-in-a-modern-city-at-night-4101-large.mp4", u: "عالم_الترند", d: "✨ عالم ومنوعات حقيقية" },
+        { s: "https://www.w3schools.com/html/movie.mp4", u: "علوش_الإمبراطور", d: "👑 ملك البرمجة - ميزة 70" }
     ];
 
-    const container = document.getElementById('video-feed');
+    const stream = document.getElementById('main-stream');
 
-    function renderPosts() {
-        // توليد 60 مقطع لضمان تقليب لانهائي فعلي
-        for (let i = 0; i < 60; i++) {
-            const data = kingdomVids[i % kingdomVids.length];
-            const slide = document.createElement('div');
-            slide.style = "height: 100vh; scroll-snap-align: start; position: relative; border-bottom: 2px solid #111;";
+    function buildRoyalFeed() {
+        // توليد 100 مقطع متنوع دفعة واحدة لضمان عدم التوقف
+        for (let i = 0; i < 100; i++) {
+            const item = megaLibrary[Math.floor(Math.random() * megaLibrary.length)];
+            const post = document.createElement('div');
+            post.style = "height: 100vh; scroll-snap-align: start; position: relative; border-bottom: 3px solid #111;";
             
-            // إضافة "كود التمويه" للرابط لمنع المتصفح من عرض فيديوهات قديمة
-            const uniqueUrl = data.src + "?unique=" + Math.random();
+            // إضافة "رقم عشوائي" للرابط لإجبار المتصفح على جلب فيديو جديد
+            const freshUrl = item.s + "?forceUpdate=" + Math.random();
 
-            slide.innerHTML = `
+            post.innerHTML = `
                 <video style="width:100%; height:100%; object-fit:cover;" loop playsinline muted autoplay>
-                    <source src="${uniqueUrl}" type="video/mp4">
+                    <source src="${freshUrl}" type="video/mp4">
                 </video>
                 
-                <div style="position:absolute; right:20px; bottom:150px; z-index:100; text-align:center; color:white; text-shadow: 2px 2px 4px #000;">
+                <div style="position:absolute; right:20px; bottom:160px; z-index:100; text-align:center; color:white; text-shadow:2px 2px 5px #000;">
                     <div onclick="this.style.color='red'" style="font-size:45px; cursor:pointer;">❤️</div>
-                    <div style="font-weight:bold; margin-bottom:20px;">${Math.floor(Math.random()*900)}K</div>
-                    <div style="font-size:40px; cursor:pointer;">💬</div>
-                    <div style="font-weight:bold;">${Math.floor(Math.random()*100)}K</div>
+                    <div style="font-weight:bold;">${Math.floor(Math.random()*999)}K</div>
+                    <div style="font-size:45px; margin-top:20px; cursor:pointer;">💬</div>
+                    <div style="font-weight:bold;">${Math.floor(Math.random()*500)}</div>
                 </div>
 
-                <div style="position:absolute; bottom:60px; left:20px; color:white; z-index:100; text-shadow: 2px 2px 8px #000;">
-                    <h2 style="color:gold; margin:0;">@${data.user}</h2>
-                    <p style="margin:10px 0; font-size:18px; font-weight:bold;">${data.desc}</p>
+                <div style="position:absolute; bottom:60px; left:20px; color:white; z-index:100; text-shadow:2px 2px 10px #000;">
+                    <h2 style="color:gold; margin:0;">@${item.u}</h2>
+                    <p style="margin:10px 0; font-size:18px; font-weight:bold;">${item.d}</p>
                     <div style="background:rgba(255,255,255,0.2); padding:5px 15px; border-radius:20px; font-size:14px; display:inline-block;">🎵 الصوت الأصلي - مملكة علوش</div>
                 </div>
             `;
-            container.appendChild(slide);
+            stream.appendChild(post);
         }
     }
 
-    renderPosts();
+    buildRoyalFeed();
 
-    // إجبار الفيديوهات على العمل عند أول لمسة للشاشة (سياسة المتصفح)
-    window.addEventListener('touchstart', function() {
-        document.querySelectorAll('video').forEach(v => v.play());
-    }, {once: true});
-    window.addEventListener('click', function() {
-        document.querySelectorAll('video').forEach(v => v.play());
-    }, {once: true});
+    // تشغيل الفيديوهات عند أول تفاعل (لمس أو نقر)
+    ['click', 'touchstart'].forEach(evt => 
+        window.addEventListener(evt, () => {
+            document.querySelectorAll('video').forEach(v => v.play());
+        }, {once: true})
+    );
 </script>
