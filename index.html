@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - البث المشترك 👑</title>
+    <title>مملكة علوش - البحث الذكي 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -20,64 +20,65 @@
         .app { display: flex; flex-direction: column; height: 100vh; }
         .header { background: rgba(0,0,0,0.85); padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
         
-        /* 📺 شاشة اليوتيوب (مربعة وصغيرة) */
-        #yt-container { 
-            width: 180px; height: 120px; 
-            position: fixed; top: 70px; left: 10px; 
+        /* 📺 مربع اليوتيوب الصغير */
+        #yt-box { 
+            width: 160px; height: 100px; 
+            position: fixed; top: 65px; left: 10px; 
             z-index: 1000; border: 2px solid var(--gold); 
-            border-radius: 10px; overflow: hidden; background: #000;
-            box-shadow: 0 0 15px var(--gold); display: none;
+            border-radius: 8px; overflow: hidden; background: #000;
+            box-shadow: 0 0 10px var(--gold); display: none;
         }
-        #yt-container.show { display: block; }
+        #yt-box.active { display: block; }
 
-        #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
-        .bubble { max-width: 80%; padding: 10px; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid #333; backdrop-filter: blur(5px); font-size: 14px; }
-        .me { align-self: flex-start; border-right: 4px solid var(--gold); background: rgba(255,215,0,0.1); }
+        #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .bubble { max-width: 85%; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid #333; backdrop-filter: blur(5px); font-size: 14px; }
+        .me { align-self: flex-start; border-right: 3px solid var(--gold); background: rgba(255,215,0,0.08); }
 
         .footer { background: #000; padding: 10px; display: flex; align-items: center; border-top: 1px solid #222; direction: ltr !important; }
-        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #444; outline: none; text-align: right; direction: rtl !important; }
-        .send-btn { background: none; border: none; font-size: 30px; cursor: pointer; padding: 0 10px; }
+        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 20px; border: 1px solid #444; outline: none; text-align: right; direction: rtl !important; }
+        .btn-send { background: none; border: none; font-size: 28px; cursor: pointer; padding: 0 8px; }
 
-        .side { position: fixed; top: 0; width: 260px; height: 100vh; background: rgba(10,10,10,0.98); transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); }
-        #side-l { left: -265px; } #side-r { right: -285px; }
+        .side { position: fixed; top: 0; width: 250px; height: 100vh; background: rgba(5,5,5,0.98); transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); }
+        #side-l { left: -255px; } #side-r { right: -255px; }
         .open { left: 0 !important; right: 0 !important; }
-        .box { background: rgba(255,215,0,0.05); margin: 8px; padding: 12px; border-radius: 10px; border: 1px solid #333; }
-        .btn-gold { width: 100%; padding: 8px; margin: 5px 0; background: #1a1a1a; color: #fff; border: 1px solid var(--gold); border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .box { background: rgba(255,215,0,0.03); margin: 8px; padding: 12px; border-radius: 8px; border: 1px solid #222; }
+        .btn-gold { width: 100%; padding: 10px; margin: 5px 0; background: #111; color: #fff; border: 1px solid var(--gold); border-radius: 5px; cursor: pointer; font-size: 13px; }
+        .search-input { width: 100%; padding: 10px; background: #000; border: 1px solid var(--gold); color: #fff; border-radius: 5px; margin-top: 5px; text-align: center; }
     </style>
 </head>
 <body onclick="closeAll()">
 
     <div class="app">
         <div class="header">
-            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:20px; color:var(--gold);">⚙️</button>
-            <b style="color:var(--gold); font-size: 14px;">مملكة علوش 👑</b>
-            <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:20px; color:var(--gold);">👥</button>
+            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:22px; color:var(--gold);">⚙️</button>
+            <b style="color:var(--gold); font-size: 15px;">مملكة علوش 👑</b>
+            <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:22px; color:var(--gold);">👥</button>
         </div>
 
-        <div id="yt-container">
-            <iframe id="main-player" width="100%" height="100%" src="" frameborder="0" allow="autoplay"></iframe>
+        <div id="yt-box">
+            <iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay"></iframe>
         </div>
 
         <div id="chat-win"></div>
 
         <div class="footer" onclick="event.stopPropagation()">
-            <button class="send-btn" onclick="sendNow()">🚀</button>
-            <input type="text" id="mInp" placeholder="تحدث يا ملك..." onkeydown="if(event.key==='Enter') sendNow()">
+            <button class="btn-send" onclick="sendMsg()">🚀</button>
+            <input type="text" id="mInp" placeholder="تحدث هنا..." onkeydown="if(event.key==='Enter') sendMsg()">
         </div>
     </div>
 
     <div id="side-l" class="side" onclick="event.stopPropagation()">
-        <h3 style="text-align:center; color:var(--gold); font-size: 16px;">🎬 راديو المملكة</h3>
+        <h3 style="text-align:center; color:var(--gold); font-size: 16px;">🔍 رادار اليوتيوب</h3>
         <div class="box">
-            <small style="color:var(--gold)">تشغيل فيديو للجميع:</small>
-            <input type="text" id="ytLink" placeholder="ضع رابط الفيديو هنا..." style="width:100%; margin-top:5px; background:#000; color:#fff; border:1px solid #444; padding:5px;">
-            <button class="btn-gold" onclick="syncVideo()">بث للكل 🛰️</button>
-            <button class="btn-gold" style="color:red;" onclick="stopVideo()">إغلاق عند الكل ✖</button>
+            <small style="color:var(--gold)">اكتب اسم الأغنية أو الفيديو:</small>
+            <input type="text" id="ytQuery" class="search-input" placeholder="مثلاً: حسام الرسام..">
+            <button class="btn-gold" onclick="searchAndPlay()">بحث وتشغيل للكل 📡</button>
+            <button class="btn-gold" style="border-color:red; color:red;" onclick="stopAll()">إيقاف البث ✖</button>
         </div>
         <div class="box">
-            <small style="color:var(--gold)">✨ اسمك:</small>
-            <input type="text" id="zInp" oninput="doZ()" placeholder="زخرف اسمك..." style="width:100%; background:#000; color:#fff; border:1px solid #444;">
-            <div id="z-area"></div>
+            <small style="color:var(--gold)">✨ زخرفة اسمك:</small>
+            <input type="text" id="zInp" oninput="doZ()" placeholder="..." class="search-input">
+            <div id="z-area" style="margin-top:10px;"></div>
         </div>
     </div>
 
@@ -91,62 +92,62 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let myName = localStorage.getItem('chatName') || "علوش";
-    let myID = localStorage.getItem('chatId') || "ID_" + Math.floor(Math.random() * 1000000);
-    localStorage.setItem('chatId', myID);
+    let uName = localStorage.getItem('chatName') || "علوش";
+    let uID = localStorage.getItem('chatId') || "ID_" + Math.floor(Math.random() * 999999);
+    localStorage.setItem('chatId', uID);
 
-    db.ref('status/' + myID).set({ n: myName });
-    db.ref('status/' + myID).onDisconnect().remove();
+    db.ref('status/' + uID).set({ n: uName });
+    db.ref('status/' + uID).onDisconnect().remove();
 
-    // 🔄 مزامنة اليوتيوب (التحكم الجماعي)
-    function syncVideo() {
-        const link = document.getElementById('ytLink').value;
-        if(!link) return;
-        let videoId = "";
-        if(link.includes("v=")) videoId = link.split("v=")[1].split("&")[0];
-        else if(link.includes("youtu.be/")) videoId = link.split("youtu.be/")[1].split("?")[0];
+    // 🚀 وظيفة البحث والتشغيل الجماعي (بدون رابط)
+    function searchAndPlay() {
+        const query = document.getElementById('ytQuery').value.trim();
+        if(!query) return;
+
+        // نقوم بإرسال الكلمة لقاعدة البيانات كأمر تشغيل
+        db.ref('yt_sync').set({
+            type: "search",
+            keyword: query,
+            time: Date.now()
+        });
         
-        if(videoId) {
-            db.ref('shared_video').set({ id: videoId, status: "play" });
-            document.getElementById('ytLink').value = "";
-            closeAll();
-        } else {
-            alert("يرجى وضع رابط يوتيوب صحيح");
-        }
-    }
-
-    function stopVideo() {
-        db.ref('shared_video').set({ status: "stop" });
+        document.getElementById('ytQuery').value = "";
         closeAll();
     }
 
-    // الاستماع لتغييرات الفيديو (يحدث عند الجميع)
-    db.ref('shared_video').on('value', s => {
-        const data = s.val();
-        const container = document.getElementById('yt-container');
-        const player = document.getElementById('main-player');
-        if(data && data.status === "play") {
-            player.src = `https://www.youtube.com/embed/${data.id}?autoplay=1`;
-            container.classList.add('show');
+    function stopAll() {
+        db.ref('yt_sync').set({ type: "stop" });
+        closeAll();
+    }
+
+    // 📡 الاستماع للبحث المشترك (عندما يبحث أي شخص، يتغير عند الجميع)
+    db.ref('yt_sync').on('value', s => {
+        const v = s.val();
+        const box = document.getElementById('yt-box');
+        const iframe = document.getElementById('player');
+        
+        if(v && v.type === "search") {
+            // نستخدم ميزة Embed Search لجعل يوتيوب يبحث ويشغل تلقائياً
+            iframe.src = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(v.keyword)}&autoplay=1`;
+            box.classList.add('active');
         } else {
-            player.src = "";
-            container.classList.remove('show');
+            iframe.src = "";
+            box.classList.remove('active');
         }
     });
 
-    // وظائف الشات
-    function sendNow() {
-        const inp = document.getElementById('mInp');
-        const txt = inp.value.trim();
-        if(!txt) return;
-        db.ref('main_msgs').push({ uid: myID, n: myName, t: txt });
-        inp.value = ""; inp.focus();
+    // الشات
+    function sendMsg() {
+        const i = document.getElementById('mInp');
+        if(!i.value.trim()) return;
+        db.ref('main_msgs').push({ uid: uID, n: uName, t: i.value });
+        i.value = ""; i.focus();
     }
 
-    db.ref('main_msgs').limitToLast(30).on('child_added', s => {
+    db.ref('main_msgs').limitToLast(35).on('child_added', s => {
         const d = s.val();
         const div = document.createElement('div');
-        div.className = `bubble ${d.uid === myID ? 'me' : ''}`;
+        div.className = `bubble ${d.uid === uID ? 'me' : ''}`;
         div.innerHTML = `<b style="color:var(--gold); font-size:10px;">${d.n}</b><br>${d.t}`;
         document.getElementById('chat-win').appendChild(div);
         document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
@@ -154,7 +155,7 @@
 
     db.ref('status').on('value', s => {
         const l = document.getElementById('u-list'); l.innerHTML = '';
-        s.forEach(u => { l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; font-size:13px;">🟢 ${u.val().n}</div>`; });
+        s.forEach(u => { l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111; font-size:13px;">🟢 ${u.val().n}</div>`; });
     });
 
     function toggleS(id, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+id).classList.toggle('open'); }
@@ -164,12 +165,9 @@
         const res = document.getElementById('z-area');
         if(!v) return;
         const styles = [`👑 ${v} 👑`, `〆${v}〆`, `『${v}』` ];
-        res.innerHTML = styles.map(s => `<div class="btn-gold" onclick="changeName('${s}')">${s}</div>`).join('');
+        res.innerHTML = styles.map(s => `<div class="btn-gold" onclick="chName('${s}')">${s}</div>`).join('');
     }
-    function changeName(newName) {
-        myName = newName; localStorage.setItem('chatName', newName);
-        db.ref('status/' + myID).update({ n: newName });
-    }
+    function chName(n) { uName = n; localStorage.setItem('chatName', n); db.ref('status/' + uID).update({ n: n }); }
 </script>
 </body>
 </html>
