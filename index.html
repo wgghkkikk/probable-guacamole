@@ -3,42 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش الذهبية 👑</title>
+    <title>مملكة علوش - الإصدار المستقر 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
     <style>
         :root { --gold: #ffd700; }
         body { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; height: 100vh; transition: 1s; }
-        
-        /* الثيم المتحرك */
-        .theme-moving { background: linear-gradient(-45deg, #000, #1a0033, #001a33, #000); background-size: 400% 400%; animation: gradientMove 10s ease infinite; }
-        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-
-        .app { display: flex; flex-direction: column; height: 100vh; }
+        .theme-active { background: linear-gradient(-45deg, #000, #1a0033, #001a33, #000); background-size: 400% 400%; animation: moveBG 10s ease infinite; }
+        @keyframes moveBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .app { display: flex; flex-direction: column; height: 100vh; position: relative; }
         .header { background: rgba(0,0,0,0.9); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
-        
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 80%; padding: 12px; border-radius: 15px; background: rgba(30,30,30,0.8); border: 1px solid #444; word-wrap: break-word; }
+        .bubble { max-width: 80%; padding: 12px; border-radius: 15px; background: rgba(30,30,30,0.8); border: 1px solid #444; }
         .me { align-self: flex-start; border-color: var(--gold); background: rgba(60,50,0,0.6); }
-
-        /* 🚀 منطقة الإرسال - ترتيب صحيح لمنع انقلاب الأيقونة */
-        .footer { background: #000; padding: 10px; display: flex; flex-direction: row; align-items: center; gap: 10px; border-top: 1px solid #333; direction: ltr !important; }
-        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #444; outline: none; text-align: right; font-size: 16px; direction: rtl !important; }
-        .send-btn { background: none; border: none; font-size: 28px; cursor: pointer; padding: 0 10px; } 
-
-        /* القوائم الجانبية */
+        .footer { background: #000; padding: 10px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #333; direction: ltr !important; }
+        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 25px; border: 1px solid #444; outline: none; text-align: right; direction: rtl !important; }
         .side { position: fixed; top: 0; width: 280px; height: 100vh; background: rgba(5,5,5,0.98); transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); overflow-y: auto; }
-        #side-l { left: -285px; } 
-        #side-r { right: -285px; }
+        #side-l { left: -285px; } #side-r { right: -285px; }
         .side.open { left: 0 !important; right: 0 !important; }
-
         .box { background: rgba(255,255,255,0.05); margin: 10px; padding: 10px; border-radius: 8px; border: 1px solid #333; }
         .btn-act { width: 100%; padding: 8px; margin: 5px 0; background: #222; color: #fff; border: 1px solid var(--gold); border-radius: 5px; cursor: pointer; }
     </style>
 </head>
-<body class="theme-moving" onclick="closeAll()">
+<body class="theme-active" onclick="closeAll()">
 
     <div class="app">
         <div class="header">
@@ -50,7 +38,7 @@
         <div id="chat-win"></div>
 
         <div class="footer" onclick="event.stopPropagation()">
-            <button class="send-btn" onclick="sendMsg()">🚀</button>
+            <button onclick="sendMsg()" style="background:none; border:none; font-size:28px; cursor:pointer;">🚀</button>
             <input type="text" id="mInp" placeholder="تحدث يا ملك..." onkeydown="if(event.key==='Enter') sendMsg()">
         </div>
     </div>
@@ -63,12 +51,12 @@
         </div>
         <div class="box">
             <small style="color:var(--gold)">✨ زخرفة الاسم</small>
-            <input type="text" id="zInp" oninput="doZakhrafa()" placeholder="اكتب اسمك..." style="width:95%; background:#000; color:#fff; border:1px solid #555; padding:5px;">
-            <div id="zakhrafa-results" style="margin-top:10px;"></div>
+            <input type="text" id="zInp" oninput="doZ()" placeholder="اكتب اسمك..." style="width:95%; background:#000; color:#fff; border:1px solid #555; padding:5px;">
+            <div id="z-res" style="margin-top:10px;"></div>
         </div>
         <div class="box">
             <small style="color:var(--gold)">🎨 الثيمات</small>
-            <button class="btn-act" onclick="document.body.className='theme-moving'">ثيم متحرك</button>
+            <button class="btn-act" onclick="document.body.className='theme-active'">ثيم متحرك</button>
             <button class="btn-act" onclick="document.body.className=''">ثيم عادي</button>
         </div>
     </div>
@@ -79,7 +67,7 @@
     </div>
 
 <script>
-    // 2. ربط قاعدة البيانات (Firebase)
+    // إعدادات Firebase الخاصة بك
     const firebaseConfig = {
         apiKey: "AIzaSyDpjqkb4U-RF71r_Zv3tHAV9wWWe2L3pEQ",
         authDomain: "masterchat-f2da9.firebaseapp.com",
@@ -91,9 +79,8 @@
     const auth = firebase.auth();
 
     let myID, myD = { n: "علوش" };
-    let currentQuizAns = "";
+    let qAns = "";
 
-    // 3. نظام الدخول
     auth.signInAnonymously().then(u => {
         myID = u.user.uid;
         db.ref('users/'+myID).on('value', s => {
@@ -101,27 +88,26 @@
             db.ref('status/'+myID).set({ n: myD.n });
             db.ref('status/'+myID).onDisconnect().remove();
         });
-        initChat();
+        loadData();
     });
 
-    // 4. وظيفة الإرسال المصلحة 🚀
+    // ✅ وظيفة الإرسال النهائية والشغالة
     function sendMsg() {
         const inp = document.getElementById('mInp');
         const txt = inp.value.trim();
         if(!txt) return;
 
-        if (currentQuizAns !== "" && txt === currentQuizAns) {
+        if (qAns !== "" && txt === qAns) {
             db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: `✅ كفو ${myD.n}، جواب صح!`, isBot: true });
-            currentQuizAns = "";
+            qAns = "";
         } else {
             db.ref('main_msgs').push({ uid: myID, n: myD.n, t: txt, time: Date.now() });
         }
-        
-        inp.value = ""; // تمسح الخانة فوراً
-        inp.focus(); 
+        inp.value = "";
+        inp.focus();
     }
 
-    function initChat() {
+    function loadData() {
         db.ref('main_msgs').limitToLast(30).on('child_added', s => {
             const d = s.val();
             const div = document.createElement('div');
@@ -140,16 +126,16 @@
     function toggleS(s, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+s).classList.add('open'); }
     function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
     
-    function doZakhrafa() {
+    function doZ() {
         const v = document.getElementById('zInp').value;
-        const res = document.getElementById('zakhrafa-results');
+        const res = document.getElementById('z-res');
         if(!v) return;
         const styles = [`👑 ${v} 👑`, `〆${v}〆`, `『${v}』` ];
-        res.innerHTML = styles.map(s => `<div class="btn-act" onclick="db.ref('users/'+myID).update({n:'${s}'}); alert('تم التغيير يا ملك');">${s}</div>`).join('');
+        res.innerHTML = styles.map(s => `<div class="btn-act" onclick="db.ref('users/'+myID).update({n:'${s}'}); alert('تم التغيير');">${s}</div>`).join('');
     }
 
     function startQuiz() {
-        currentQuizAns = "بغداد";
+        qAns = "بغداد";
         db.ref('main_msgs').push({ n: "بوت المملكة 🤖", t: "❓ ما هي عاصمة العراق؟", isBot: true });
         closeAll();
     }
