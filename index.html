@@ -3,56 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - رادار اليوتيوب 👑</title>
+    <title>مملكة علوش - سينما للجميع 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
         :root { --gold: #ffd700; }
-        body { 
-            margin: 0; padding: 0; background: #000; color: #fff; 
-            font-family: sans-serif; overflow: hidden; height: 100vh;
-            background: linear-gradient(-45deg, #000, #1a0033, #001a33, #000); 
-            background-size: 400% 400%; animation: moveBG 10s ease infinite; 
-        }
-        @keyframes moveBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        body { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; height: 100vh; background: radial-gradient(circle, #1a0033 0%, #000 100%); }
         
         .app { display: flex; flex-direction: column; height: 100vh; }
-        .header { background: rgba(0,0,0,0.85); padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
+        .header { background: rgba(0,0,0,0.9); padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
         
-        /* 📺 المربع الصغير (المصلح) */
+        /* 📺 المربع الصغير */
         #yt-box { 
-            width: 180px; height: 110px; 
-            position: fixed; top: 70px; left: 10px; 
-            z-index: 1000; border: 2px solid var(--gold); 
-            border-radius: 8px; background: #000;
+            width: 160px; height: 100px; position: fixed; top: 65px; left: 10px; 
+            z-index: 1000; border: 2px solid var(--gold); border-radius: 8px; background: #000;
             box-shadow: 0 0 15px var(--gold); display: none;
         }
         #yt-box.active { display: block; }
 
         #chat-win { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        .bubble { max-width: 85%; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid #333; backdrop-filter: blur(5px); font-size: 14px; }
-        .me { align-self: flex-start; border-right: 3px solid var(--gold); background: rgba(255,215,0,0.08); }
+        .bubble { max-width: 85%; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.1); border: 1px solid #333; font-size: 14px; }
+        .me { align-self: flex-start; border-right: 3px solid var(--gold); background: rgba(255,215,0,0.1); }
 
-        .footer { background: #000; padding: 10px; display: flex; align-items: center; border-top: 1px solid #222; direction: ltr !important; }
-        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 20px; border: 1px solid #444; outline: none; text-align: right; direction: rtl !important; }
-        .btn-send { background: none; border: none; font-size: 28px; cursor: pointer; padding: 0 8px; }
-
-        .side { position: fixed; top: 0; width: 250px; height: 100vh; background: rgba(5,5,5,0.98); transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); }
-        #side-l { left: -255px; } #side-r { right: -255px; }
-        .open { left: 0 !important; right: 0 !important; }
-        .box { background: rgba(255,215,0,0.03); margin: 8px; padding: 12px; border-radius: 8px; border: 1px solid #222; }
-        .btn-gold { width: 100%; padding: 10px; margin: 5px 0; background: #111; color: #fff; border: 1px solid var(--gold); border-radius: 5px; cursor: pointer; font-size: 13px; }
-        .search-input { width: 100%; padding: 10px; background: #000; border: 1px solid var(--gold); color: #fff; border-radius: 5px; margin-top: 5px; text-align: center; box-sizing: border-box;}
+        .footer { background: #000; padding: 10px; display: flex; border-top: 1px solid #222; }
+        #mInp { flex: 1; background: #111; color: #fff; padding: 12px; border-radius: 20px; border: 1px solid #444; outline: none; text-align: right; }
+        
+        /* القائمة الجانبية */
+        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: #050505; transition: 0.3s; z-index: 2000; border: 1px solid var(--gold); left: -285px; }
+        .side.open { left: 0; }
+        .box { background: rgba(255,215,0,0.05); margin: 10px; padding: 10px; border-radius: 8px; border: 1px solid #222; }
+        .btn-gold { width: 100%; padding: 10px; margin: 5px 0; background: #111; color: #fff; border: 1px solid var(--gold); border-radius: 5px; cursor: pointer; }
+        
+        /* 🔍 نافذة البحث الداخلية */
+        #search-frame { width: 100%; height: 300px; border: 1px solid var(--gold); border-radius: 5px; margin-top: 10px; display: none; }
     </style>
 </head>
-<body onclick="closeAll()">
+<body onclick="document.querySelector('.side').classList.remove('open')">
 
     <div class="app">
         <div class="header">
-            <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:22px; color:var(--gold);">⚙️</button>
-            <b style="color:var(--gold); font-size: 15px;">مملكة علوش 👑</b>
-            <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:22px; color:var(--gold);">👥</button>
+            <button onclick="event.stopPropagation(); document.getElementById('side-l').classList.toggle('open')" style="background:none; border:none; font-size:22px; color:var(--gold);">⚙️</button>
+            <b style="color:var(--gold)">مملكة علوش 👑</b>
+            <span style="color:var(--gold)">👥</span>
         </div>
 
         <div id="yt-box">
@@ -61,30 +54,26 @@
 
         <div id="chat-win"></div>
 
-        <div class="footer" onclick="event.stopPropagation()">
-            <button class="btn-send" onclick="sendMsg()">🚀</button>
+        <div class="footer">
+            <button style="background:none; border:none; font-size:28px;" onclick="sendMsg()">🚀</button>
             <input type="text" id="mInp" placeholder="تحدث هنا..." onkeydown="if(event.key==='Enter') sendMsg()">
         </div>
     </div>
 
     <div id="side-l" class="side" onclick="event.stopPropagation()">
-        <h3 style="text-align:center; color:var(--gold); font-size: 16px;">🔍 بحث يوتيوب</h3>
+        <h3 style="text-align:center; color:var(--gold);">🎬 سينما المملكة</h3>
         <div class="box">
-            <small style="color:var(--gold)">اكتب اسم الأغنية:</small>
-            <input type="text" id="ytQuery" class="search-input" placeholder="مثلاً: حسام الرسام">
-            <button class="btn-gold" onclick="searchAndPlay()">بحث وبث للجميع 📡</button>
-            <button class="btn-gold" style="border-color:red; color:red;" onclick="stopAll()">إغلاق الفيديو ✖</button>
+            <p style="font-size: 12px; color: var(--gold);">1. ابحث عن الفيديو أدناه</p>
+            <p style="font-size: 12px; color: var(--gold);">2. افتح الفيديو الذي يعجبك</p>
+            <p style="font-size: 12px; color: var(--gold);">3. انسخ رابط الصفحة واضغطه هنا:</p>
+            <input type="text" id="ytUrl" placeholder="ضع رابط الفيديو هنا..." style="width:100%; padding:8px; background:#000; color:#fff; border:1px solid var(--gold);">
+            <button class="btn-gold" onclick="broadcast()">بث للجميع 🛰️</button>
+            <button class="btn-gold" style="color:red;" onclick="stopAll()">إيقاف ✖</button>
         </div>
         <div class="box">
-            <small style="color:var(--gold)">✨ زخرفة اسمك:</small>
-            <input type="text" id="zInp" oninput="doZ()" placeholder="..." class="search-input">
-            <div id="z-area" style="margin-top:10px;"></div>
+            <button class="btn-gold" onclick="openSearch()">فتح محرك البحث 🔍</button>
+            <iframe id="search-frame" src="https://www.youtube.com/results?search_query=اغاني"></iframe>
         </div>
-    </div>
-
-    <div id="side-r" class="side" onclick="event.stopPropagation()">
-        <h3 style="text-align:center; color:var(--gold); font-size: 16px;">👥 المتصلون</h3>
-        <div id="u-list"></div>
     </div>
 
 <script>
@@ -96,42 +85,34 @@
     let uID = localStorage.getItem('chatId') || "ID_" + Math.floor(Math.random() * 999999);
     localStorage.setItem('chatId', uID);
 
-    db.ref('status/' + uID).set({ n: uName });
-    db.ref('status/' + uID).onDisconnect().remove();
+    function openSearch() {
+        const frame = document.getElementById('search-frame');
+        frame.style.display = frame.style.display === 'block' ? 'none' : 'block';
+    }
 
-    // 🚀 الحل لعدم توفر الفيديو: استخدام البحث عبر Embed برمجياً
-    function searchAndPlay() {
-        const query = document.getElementById('ytQuery').value.trim();
-        if(!query) return;
-
-        // إرسال الكلمة للجميع
-        db.ref('yt_sync').set({
-            type: "search",
-            keyword: query,
-            time: Date.now()
-        });
+    function broadcast() {
+        const val = document.getElementById('ytUrl').value;
+        let vId = "";
+        if(val.includes("v=")) vId = val.split("v=")[1].split("&")[0];
+        else if(val.includes("youtu.be/")) vId = val.split("youtu.be/")[1].split("?")[0];
         
-        document.getElementById('ytQuery').value = "";
-        closeAll();
+        if(vId) {
+            db.ref('sync_yt').set({ id: vId, action: "play" });
+            document.getElementById('ytUrl').value = "";
+        } else { alert("انسخ رابط الفيديو من محرك البحث وضعه في الخانة"); }
     }
 
-    function stopAll() {
-        db.ref('yt_sync').set({ type: "stop" });
-        closeAll();
-    }
+    function stopAll() { db.ref('sync_yt').set({ action: "stop" }); }
 
-    db.ref('yt_sync').on('value', s => {
-        const v = s.val();
+    db.ref('sync_yt').on('value', s => {
+        const data = s.val();
         const box = document.getElementById('yt-box');
-        const iframe = document.getElementById('player');
-        
-        if(v && v.type === "search") {
-            // استخدام رابط يوتيوب المخصص للبحث المدمج
-            iframe.src = `https://www.youtube.com/embed/videoseries?listType=search&list=${encodeURIComponent(v.keyword)}&autoplay=1`;
+        const player = document.getElementById('player');
+        if(data && data.action === "play") {
+            player.src = "https://www.youtube.com/embed/" + data.id + "?autoplay=1";
             box.classList.add('active');
         } else {
-            iframe.src = "";
-            box.classList.remove('active');
+            player.src = ""; box.classList.remove('active');
         }
     });
 
@@ -142,7 +123,7 @@
         i.value = ""; i.focus();
     }
 
-    db.ref('main_msgs').limitToLast(35).on('child_added', s => {
+    db.ref('main_msgs').limitToLast(30).on('child_added', s => {
         const d = s.val();
         const div = document.createElement('div');
         div.className = `bubble ${d.uid === uID ? 'me' : ''}`;
@@ -150,22 +131,6 @@
         document.getElementById('chat-win').appendChild(div);
         document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
     });
-
-    db.ref('status').on('value', s => {
-        const l = document.getElementById('u-list'); l.innerHTML = '';
-        s.forEach(u => { l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #111; font-size:13px;">🟢 ${u.val().n}</div>`; });
-    });
-
-    function toggleS(id, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+id).classList.toggle('open'); }
-    function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
-    function doZ() {
-        const v = document.getElementById('zInp').value;
-        const res = document.getElementById('z-area');
-        if(!v) return;
-        const styles = [`👑 ${v} 👑`, `〆${v}〆`, `『${v}』` ];
-        res.innerHTML = styles.map(s => `<div class="btn-gold" onclick="chName('${s}')">${s}</div>`).join('');
-    }
-    function chName(n) { uName = n; localStorage.setItem('chatName', n); db.ref('status/' + uID).update({ n: n }); }
 </script>
 </body>
 </html>
