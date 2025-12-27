@@ -2,223 +2,309 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>مملكة علوش - الإصدار المدمج الشامل 👑</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مملكة علوش - النسخة المليارية المطلقة 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #ffd700; --vip: #00d4ff; --bg: #000; --msg-me: #1a1a1a; --msg-other: #0d0d0d; }
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; height: 100%; overflow: hidden; }
+        :root { --gold: #ffd700; --vip: #00d4ff; --bg: #050505; --glass: rgba(255, 255, 255, 0.05); }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
+        body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; height: 100vh; overflow: hidden; }
 
-        /* طبقة الخلفية المخصصة */
-        #custom-bg { position: fixed; inset: 0; z-index: -1; background-size: cover; background-position: center; opacity: 0.4; }
+        /* الخلفية المخصصة لكل عضو */
+        #main-bg { position: fixed; inset: 0; z-index: -1; background-size: cover; background-position: center; opacity: 0.3; transition: 0.5s; }
 
-        .app { display: flex; flex-direction: column; height: 100vh; position: relative; }
+        .app { display: flex; flex-direction: column; height: 100%; position: relative; }
         
-        /* الهيدر والتريند */
-        .header { height: 60px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; box-shadow: 0 0 15px var(--gold); }
-        #trend-bar { background: rgba(255, 215, 0, 0.1); font-size: 11px; padding: 5px; text-align: center; color: var(--gold); border-bottom: 1px solid #222; }
+        /* الهيدر الملكي */
+        .header { height: 65px; background: rgba(0,0,0,0.95); border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; box-shadow: 0 0 20px rgba(255,215,0,0.3); z-index: 1000; }
+        .room-tag { font-size: 10px; color: var(--gold); background: rgba(255,215,0,0.1); padding: 2px 8px; border-radius: 10px; border: 0.5px solid var(--gold); }
 
-        /* ساحة الدردشة */
-        #chat-win { flex: 1; overflow-y: auto; padding: 10px 15px 190px 15px; display: flex; flex-direction: column; gap: 12px; }
-        .bubble { max-width: 85%; padding: 12px; border-radius: 18px; border: 1px solid #222; position: relative; animation: fadeIn 0.3s; }
-        .msg-me { align-self: flex-end; background: var(--msg-me); border-right: 4px solid var(--gold); }
-        .msg-other { align-self: flex-start; background: var(--msg-other); border-left: 4px solid var(--vip); }
-        .bot-msg { align-self: center; background: rgba(255,215,0,0.05); border: 1px dashed var(--gold); width: 90%; text-align: center; font-size: 13px; }
+        /* شريط التريند الصاعد */
+        .trend-bar { height: 35px; background: #000; border-bottom: 1px solid #222; display: flex; align-items: center; overflow: hidden; white-space: nowrap; font-size: 11px; }
+        .trend-move { animation: marquee 15s linear infinite; color: var(--vip); }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        /* منطقة الدردشة */
+        #chat-win { flex: 1; overflow-y: auto; padding: 15px 15px 220px 15px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
         
-        .lucky-box { background: linear-gradient(45deg, #ff416c, #ff4b2b); padding: 15px; border-radius: 15px; text-align: center; cursor: pointer; animation: bounce 1s infinite; border: 2px solid #fff; align-self: center; width: 80%; }
-        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        /* فقاعات الرسائل المطورة */
+        .msg { max-width: 85%; padding: 12px; border-radius: 20px; position: relative; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); animation: slideUp 0.3s ease; }
+        .msg-me { align-self: flex-end; background: linear-gradient(135deg, #1a1a1a, #0a0a0a); border-right: 4px solid var(--gold); }
+        .msg-other { align-self: flex-start; background: linear-gradient(135deg, #0d0d0d, #1a1a1a); border-left: 4px solid var(--vip); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* الرتب */
-        .rank-badge { font-size: 9px; padding: 2px 6px; border-radius: 5px; margin-left: 5px; font-weight: bold; color: #000; }
-        .r-1 { background: #888; } .r-2 { background: var(--vip); } .r-3 { background: var(--gold); box-shadow: 0 0 5px var(--gold); }
+        /* الإطارات المشعة للأساطير */
+        .legend-frame { border: 2px solid var(--gold) !important; box-shadow: 0 0 15px var(--gold); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 5px var(--gold); } 50% { box-shadow: 0 0 20px var(--gold); } 100% { box-shadow: 0 0 5px var(--gold); } }
 
-        /* صندوق الإدخال والرد */
-        .input-box { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); border-top: 1px solid #333; padding: 12px; z-index: 100; }
-        .reply-preview { font-size: 11px; color: var(--gold); background: #111; padding: 5px; display: none; justify-content: space-between; border-radius: 5px; margin-bottom: 5px; }
-        .footer { display: flex; align-items: center; gap: 8px; }
-        #mInp { flex: 1; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 25px; padding: 10px 15px; }
+        /* نظام الرد والمنشن */
+        .reply-box { font-size: 10px; background: rgba(255,255,255,0.08); padding: 6px; border-radius: 8px; margin-bottom: 6px; border-right: 3px solid var(--gold); color: #ccc; }
+        .mention { background: var(--gold) !important; color: #000 !important; font-weight: bold; padding: 0 4px; border-radius: 4px; }
 
-        /* القوائم */
-        .menu { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 2000; display: none; padding: 30px 20px; overflow-y: auto; }
+        /* البطاقة التعريفية العائمة */
+        .user-card { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; border: 2px solid var(--gold); border-radius: 25px; padding: 25px; width: 280px; text-align: center; z-index: 5000; display: none; box-shadow: 0 0 50px #000; }
+
+        /* صندوق الإدخال الذكي */
+        .input-area { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); border-top: 1px solid #333; padding: 15px; z-index: 1100; }
+        .input-row { display: flex; align-items: center; gap: 10px; }
+        #mInp { flex: 1; background: #151515; border: 1px solid #333; color: #fff; border-radius: 25px; padding: 12px 20px; font-size: 14px; }
+        .send-btn { background: var(--gold); border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 22px; cursor: pointer; transition: 0.3s; }
+        .send-btn:active { transform: scale(0.9); }
+
+        /* القوائم والخرائط */
+        .menu { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 4000; display: none; padding: 40px 20px; overflow-y: auto; }
         .show { display: block; }
-        .btn-action { width: 100%; padding: 15px; background: #151515; border: 1px solid #333; color: #fff; border-radius: 12px; margin-bottom: 10px; cursor: pointer; font-weight: bold; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .card-btn { width: 100%; padding: 16px; background: #111; border: 1px solid #333; color: #fff; border-radius: 15px; margin-bottom: 12px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .card-btn:hover { border-color: var(--gold); }
+
+        /* الأيقونات والأصوات */
+        .bot-tag { background: var(--gold); color: #000; font-size: 8px; padding: 1px 4px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
     </style>
 </head>
 <body>
 
-<div id="custom-bg"></div>
+<div id="main-bg"></div>
 
 <div class="app">
     <div class="header">
-        <button onclick="openM('m-profile')" style="background:none; border:none; color:var(--gold); font-size:22px;">👤</button>
+        <button onclick="openM('m-profile')" style="background:none; border:none; font-size:24px;">👤</button>
         <div style="text-align:center;">
-            <b style="color:var(--gold)">مملكة علوش 👑</b><br>
-            <span id="online-count" style="font-size:9px; color:#00ff00;">المملكة مراقبة 🛡️</span>
+            <b style="color:var(--gold); letter-spacing: 1px;">إمبراطورية علوش 👑</b><br>
+            <span class="room-tag" id="current-room-display">المجلس العام</span>
         </div>
-        <button onclick="openM('m-extra')" style="background:none; border:none; color:var(--gold); font-size:22px;">🎮</button>
+        <button onclick="openM('m-rooms')" style="background:none; border:none; font-size:24px;">🏢</button>
     </div>
-    
-    <div id="trend-bar">🥇 المتصدر اليوم: <span id="top-user">جاري الحساب...</span></div>
+
+    <div class="trend-bar">
+        <div class="trend-move" id="trend-text">🔥 الملك علوش يرحب بكم في النسخة المليارية الجديدة.. تفاعل لتربح نقاط XP!</div>
+    </div>
 
     <div id="chat-win"></div>
 
-    <div class="input-box">
-        <div id="reply-tag" class="reply-preview"><span>جاري الرد...</span> <b onclick="cancelReply()" style="color:red;">X</b></div>
-        <div class="footer">
-            <button onclick="document.getElementById('img-file').click()" style="background:none; border:none; color:var(--gold); font-size:22px;">🖼️</button>
-            <input type="file" id="img-file" hidden onchange="uploadImg(this)">
-            <input type="text" id="mInp" placeholder="تكلم يا بطل..." onkeydown="if(event.key==='Enter') doSend()">
-            <button onclick="doSend()" style="background:var(--gold); border:none; border-radius:50%; width:45px; height:45px; font-size:20px;">🚀</button>
+    <div class="input-area">
+        <div id="reply-preview" style="display:none; color:var(--gold); font-size:11px; margin-bottom:8px; display:flex; justify-content:space-between;">
+            <span>جاري الرد على رسالة...</span>
+            <b onclick="cancelReply()" style="color:red;">إلغاء</b>
+        </div>
+        <div class="input-row">
+            <button onclick="openM('m-store')" style="background:none; border:none; font-size:24px;">🛒</button>
+            <input type="text" id="mInp" placeholder="اكتب رسالتك @هنا..." onkeydown="if(event.key==='Enter') doSend()">
+            <button class="send-btn" onclick="doSend()">🚀</button>
         </div>
     </div>
+</div>
+
+<div id="user-card" class="user-card">
+    <img id="u-img" src="" style="width:90px; height:90px; border-radius:50%; border:3px solid var(--gold);">
+    <h3 id="u-name" style="margin:10px 0;">اسم المستخدم</h3>
+    <div id="u-rank" style="color:var(--gold); font-size:13px; font-weight:bold;">محارب ⚔️</div>
+    <div style="margin:15px 0; font-size:12px; color:#aaa;">النقاط: <span id="u-xp" style="color:var(--gold)">0</span> XP</div>
+    <button onclick="sendGift()" class="card-btn" style="justify-content:center; background:var(--gold); color:#000;">🎁 إرسال هدية نقاط</button>
+    <button onclick="closeCard()" style="background:none; border:none; color:#555; margin-top:10px;">إغلاق</button>
+</div>
+
+<div id="m-rooms" class="menu">
+    <h2 style="text-align:center; color:var(--gold);">🏢 غرف المملكة</h2>
+    <div class="card-btn" onclick="switchRoom('عام')"><span>🏠 المجلس العام</span> <span>دخول</span></div>
+    <div class="card-btn" onclick="switchRoom('VIP')"><span>👑 صالة الملوك (VIP)</span> <span>+50XP</span></div>
+    <div class="card-btn" onclick="switchRoom('games')"><span>🎮 ساحة الألعاب</span> <span>نشط</span></div>
+    <button onclick="closeAll()" class="card-btn" style="background:#333; justify-content:center;">إغلاق</button>
+</div>
+
+<div id="m-store" class="menu">
+    <h2 style="text-align:center; color:var(--vip);">💰 البنك والمتجر الملكي</h2>
+    <div class="card-btn" onclick="buyItem('gold_name', 100)"><span>✨ الاسم الذهبي النيون</span> <span>100 XP</span></div>
+    <div class="card-btn" onclick="buyItem('verify', 200)"><span>✅ توثيق الحساب</span> <span>200 XP</span></div>
+    <div class="card-btn" onclick="buyItem('bomb', 50)"><span>💣 قنبلة صمت (لدقيقة)</span> <span>50 XP</span></div>
+    <div style="padding:15px; background:rgba(0,255,0,0.05); border-radius:15px; text-align:center;">
+        <small>تحويل نقاط لعضو آخر</small><br>
+        <input type="text" id="gift-id" placeholder="اسم العضو" style="width:70%; padding:8px; margin-top:5px;">
+        <input type="number" id="gift-amt" placeholder="النقاط" style="width:25%; padding:8px;">
+        <button onclick="transferXP()" style="width:100%; padding:10px; margin-top:5px; background:green; border:none; color:#fff; border-radius:5px;">تحويل الآن 💸</button>
+    </div>
+    <br>
+    <button onclick="closeAll()" class="card-btn" style="background:#333; justify-content:center;">العودة</button>
 </div>
 
 <div id="m-profile" class="menu">
     <center>
-        <img id="my-p-img" src="https://via.placeholder.com/100" style="width:100px; height:100px; border-radius:50%; border:3px solid var(--gold); cursor:pointer;">
-        <h2 id="my-p-name">المحارب</h2>
-        <p>XP: <span id="my-p-xp" style="color:var(--gold)">0</span> | ليفل: <span id="my-p-lvl">1</span></p>
-        <hr border="0.1">
-        <input type="text" id="nameInp" placeholder="اسمك الجديد..." style="width:100%; padding:15px; background:#111; color:#fff; border:1px solid #333; border-radius:10px;">
-        <button onclick="saveN()" class="btn-action" style="background:var(--gold); color:#000; margin-top:10px;">حفظ التعديلات ✅</button>
-        <div class="btn-action" style="position:relative;">
+        <img id="my-p-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=alosh" style="width:100px; height:100px; border-radius:50%; border:3px solid var(--gold); cursor:pointer;">
+        <h2 id="my-p-name">المحارب علوش</h2>
+        <div id="my-p-lvl" style="color:var(--gold)">Level 1</div>
+        <hr style="border:0.5px solid #222; margin:20px 0;">
+        <input type="text" id="nameInput" placeholder="تغيير اسمك..." style="width:100%; padding:15px; background:#111; color:#fff; border:1px solid #333; border-radius:10px;">
+        <div class="card-btn" style="margin-top:10px; position:relative;">
             🖼️ تغيير خلفية الشات الخاصة بك
-            <input type="file" onchange="setCustomBg(this)" style="position:absolute; inset:0; opacity:0; cursor:pointer;">
+            <input type="file" onchange="uploadBg(this)" style="position:absolute; inset:0; opacity:0; cursor:pointer;">
         </div>
-        <button onclick="closeAll()" class="btn-action" style="background:#333;">إغلاق</button>
+        <button onclick="saveProfile()" class="card-btn" style="background:var(--gold); color:#000; justify-content:center; margin-top:20px;">حفظ التعديلات ✅</button>
+        <div id="admin-panel" style="display:none; margin-top:20px; border:1px solid red; padding:10px; border-radius:10px;">
+            <p style="color:red;">🛠 لوحة الإمبراطور</p>
+            <button onclick="clearChat()" style="background:red; color:#fff; border:none; padding:10px; width:100%; border-radius:5px;">🗑 مسح المملكة بالكامل</button>
+        </div>
+        <button onclick="closeAll()" class="card-btn" style="background:#333; justify-content:center; margin-top:10px;">إغلاق</button>
     </center>
 </div>
 
-<div id="m-extra" class="menu">
-    <h3 style="text-align:center; color:var(--gold);">🎮 مركز المملكة</h3>
-    <button class="btn-action" onclick="startQuiz()">❓ مسابقة سؤال وجواب</button>
-    <button class="btn-action" onclick="db.ref('msgs').push({type:'gift', n:'system'})">🎁 إسقاط صندوق هدايا (للمالك)</button>
-    <hr border="0.1">
-    <h3 style="text-align:center; color:var(--vip);">💰 المتجر</h3>
-    <button class="btn-action" onclick="buyTheme('gold', 100)">الاسم الذهبي (100 XP)</button>
-    <button class="btn-action" onclick="buyTheme('vip', 50)">الاسم السماوي (50 XP)</button>
-    <div id="admin-p" style="display:none;"><button onclick="clearChat()" class="btn-action" style="background:red;">🗑 مسح المملكة</button></div>
-    <button onclick="closeAll()" class="btn-action" style="background:#333;">العودة</button>
-</div>
-
 <script>
+    // --- إعدادات قاعدة البيانات (Firebase) ---
     const firebaseConfig = { databaseURL: "https://masterchat-f2da9-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let uID = localStorage.getItem('uID') || "U" + Date.now();
+    // --- بيانات العضو ---
+    let uID = localStorage.getItem('uID') || "U" + Math.floor(Math.random()*9999999);
     localStorage.setItem('uID', uID);
-    let myData = JSON.parse(localStorage.getItem('myData')) || { n: "عضو جديد", xp: 0, r: "user", color: "#fff", bg: "" };
-    let replyTo = null;
+    
+    let myData = JSON.parse(localStorage.getItem('myData')) || {
+        n: "عضو جديد", xp: 0, r: "user", color: "#fff", bg: "", verified: false
+    };
 
-    // تهيئة الخلفية
-    if(myData.bg) document.getElementById('custom-bg').style.backgroundImage = `url(${myData.bg})`;
+    let currentRoom = "عام";
+    let replyData = null;
 
-    // الرتب التلقائية
-    function getRank(xp) {
-        if(xp > 500) return {n: "أسطورة 🔥", c: "r-3"};
-        if(xp > 100) return {n: "فارس 🐎", c: "r-2"};
-        return {n: "محارب ⚔️", c: "r-1"};
+    // --- نظام الرتب التلقائي ---
+    function getRankInfo(xp) {
+        if(xp >= 1000) return {n: "إمبراطور أسطوري 👑", c: "legend-frame", tag: "rank-king"};
+        if(xp >= 500) return {n: "وزير المملكة 📜", c: "legend-frame", tag: "rank-vip"};
+        if(xp >= 100) return {n: "فارس أسطوري 🐎", c: "", tag: "rank-pro"};
+        return {n: "محارب مبتدئ ⚔️", c: "", tag: "rank-new"};
     }
 
-    // إرسال رسالة
+    // --- إرسال الرسائل ---
     function doSend() {
-        let txt = document.getElementById('mInp').value.trim();
+        let inp = document.getElementById('mInp');
+        let txt = inp.value.trim();
         if(!txt) return;
 
-        db.ref('active_quiz').once('value', s => {
+        // فحص المسابقة
+        db.ref('quiz_ans').once('value', s => {
             if(s.val() && txt === s.val()) {
                 myData.xp += 100;
-                db.ref('msgs').push({ n: "بوت المملكة 🤖", t: `🎉 كفووو! ${myData.n} فاز وربح 100 نقطة!`, r: "bot" });
-                db.ref('active_quiz').remove();
+                db.ref('msgs/'+currentRoom).push({ n: "بوت المملكة 🤖", t: `🎉 كفووو! ${myData.n} أجاب صح وربح 100 نقطة!`, r: "bot" });
+                db.ref('quiz_ans').remove();
             } else {
-                myData.xp += 2;
-                db.ref('msgs').push({
-                    uid: uID, n: myData.n, t: txt, xp: myData.xp, r: myData.r, 
-                    color: myData.color, reply: replyTo,
+                myData.xp += 1; // زيادة نقطة لكل رسالة
+                db.ref('msgs/'+currentRoom).push({
+                    uid: uID, n: myData.n, t: txt, xp: myData.xp,
+                    color: myData.color, v: myData.verified,
+                    reply: replyData,
                     time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
                 });
             }
             saveLocal();
             cancelReply();
-            document.getElementById('mInp').value = "";
+            inp.value = "";
         });
     }
 
-    // عرض الشات
-    db.ref('msgs').limitToLast(40).on('value', s => {
+    // --- عرض الدردشة ---
+    db.ref('msgs').child(currentRoom).limitToLast(40).on('value', s => {
         let win = document.getElementById('chat-win');
         win.innerHTML = "";
-        let counts = {};
         s.forEach(child => {
             let d = child.val();
-            if(d.uid) counts[d.n] = (counts[d.n] || 0) + 1;
-
+            let rank = getRankInfo(d.xp || 0);
             let div = document.createElement('div');
-            if(d.type === 'gift') {
-                div.className = "lucky-box";
-                div.innerHTML = "🎁 صندوق هدايا سقط! اضغط لفتحه!";
-                div.onclick = () => { myData.xp += 50; db.ref('msgs/'+child.key).remove(); db.ref('msgs').push({n:"بوت", t:`${myData.n} ربح 50 XP من الصندوق!`, r:"bot"}); saveLocal(); };
-            } else {
-                let rank = getRank(d.xp || 0);
-                div.className = `bubble ${d.r === 'bot' ? 'bot-msg' : (d.uid === uID ? 'msg-me' : 'msg-other')}`;
-                div.onclick = () => setReply(d.n, d.t);
-                div.innerHTML = `
-                    <div style="font-size:10px; margin-bottom:5px;">
-                        <span class="rank-badge ${rank.c}">${rank.n}</span>
-                        <b style="color:${d.color}">${d.n}</b>
-                    </div>
-                    ${d.reply ? `<div style="font-size:9px; background:rgba(255,255,255,0.1); padding:4px; border-radius:5px;">↩️ ${d.reply.substring(0,25)}...</div>` : ''}
-                    <div>${d.t}</div>
-                `;
+            
+            // تمييز المنشن
+            let content = d.t;
+            if(content.includes("@" + myData.n)) {
+                content = `<span class="mention">${content}</span>`;
+                new Audio('https://www.soundjay.com/buttons/sounds/button-3.mp3').play();
             }
+
+            div.className = `msg ${d.uid === uID ? 'msg-me' : 'msg-other'} ${rank.c}`;
+            div.onclick = () => setReply(d.n, d.t);
+            div.oncontextmenu = (e) => { e.preventDefault(); showUserCard(d.n, d.xp, d.uid); };
+
+            div.innerHTML = `
+                <div style="font-size:10px; margin-bottom:4px; display:flex; align-items:center;">
+                    <b style="color:${d.color}">${d.n} ${d.v ? '✅' : ''}</b>
+                    <span style="font-size:8px; margin-right:5px; opacity:0.7;">[${rank.n}]</span>
+                </div>
+                ${d.reply ? `<div class="reply-box">↩️ ${d.reply.substring(0,30)}...</div>` : ''}
+                <div style="word-break:break-word;">${content}</div>
+                <div style="font-size:7px; text-align:left; margin-top:4px; opacity:0.5;">${d.time || ''}</div>
+            `;
             win.appendChild(div);
         });
         win.scrollTop = win.scrollHeight;
-        // تحديث التريند
-        let top = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b, "...");
-        document.getElementById('top-user').innerText = top;
     });
 
-    // المسابقات والإدارة
-    function startQuiz() {
-        const q = [{q:"10+10?", a:"20"}, {q:"عاصمة العراق؟", a:"بغداد"}];
-        let p = q[Math.floor(Math.random()*q.length)];
-        db.ref('msgs').push({ n: "بوت المملكة 🤖", t: "سؤال: " + p.q, r: "bot" });
-        db.ref('active_quiz').set(p.a);
+    // --- وظائف الأنظمة الإضافية ---
+    function switchRoom(r) {
+        if(r === 'VIP' && myData.xp < 50) return alert("تحتاج 50 نقطة لدخول صالة الملوك!");
+        currentRoom = r;
+        document.getElementById('current-room-display').innerText = r === 'عام' ? "المجلس العام" : (r === 'VIP' ? "صالة الملوك" : "ساحة الألعاب");
+        closeAll();
+        location.reload(); // لإعادة تحميل مراقب القاعدة للغرفة الجديدة
+    }
+
+    function showUserCard(name, xp, id) {
+        let card = document.getElementById('user-card');
+        document.getElementById('u-name').innerText = name;
+        document.getElementById('u-xp').innerText = xp;
+        document.getElementById('u-rank').innerText = getRankInfo(xp).n;
+        document.getElementById('u-img').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`;
+        card.style.display = "block";
+    }
+
+    function setReply(n, t) { replyData = n + ": " + t; document.getElementById('reply-preview').style.display = "flex"; }
+    function cancelReply() { replyData = null; document.getElementById('reply-preview').style.display = "none"; }
+
+    function saveProfile() {
+        let nn = document.getElementById('nameInput').value;
+        if(nn) myData.n = nn;
+        saveLocal();
         closeAll();
     }
 
-    let pTimer;
-    document.getElementById('my-p-img').onmousedown = () => pTimer = setTimeout(() => {
-        if(prompt("رمز المالك:") === "1234") { myData.r = "admin"; saveLocal(); location.reload(); }
-    }, 3000);
+    function uploadBg(input) {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+            myData.bg = e.target.result;
+            document.getElementById('main-bg').style.backgroundImage = `url(${e.target.result})`;
+            saveLocal();
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
 
-    // أساسيات
-    function setReply(n, t) { replyTo = n+": "+t; document.getElementById('reply-tag').style.display="flex"; }
-    function cancelReply() { replyTo = null; document.getElementById('reply-tag').style.display="none"; }
-    function openM(id) { closeAll(); document.getElementById(id).classList.add('show'); }
-    function closeAll() { document.querySelectorAll('.menu').forEach(m => m.classList.remove('show')); }
     function saveLocal() {
         localStorage.setItem('myData', JSON.stringify(myData));
         document.getElementById('my-p-name').innerText = myData.n;
         document.getElementById('my-p-xp').innerText = myData.xp;
-        document.getElementById('my-p-lvl').innerText = Math.floor(myData.xp/20)+1;
-        if(myData.r === 'admin') document.getElementById('admin-p').style.display='block';
+        document.getElementById('my-p-lvl').innerText = "Level " + (Math.floor(myData.xp/50)+1);
+        if(myData.bg) document.getElementById('main-bg').style.backgroundImage = `url(${myData.bg})`;
+        if(myData.r === 'admin') document.getElementById('admin-panel').style.display = "block";
     }
-    function saveN() { let n = document.getElementById('nameInp').value; if(n) myData.n = n; saveLocal(); closeAll(); }
-    function buyTheme(t, c) { if(myData.xp >= c) { myData.xp -= c; myData.color = (t==='gold'?'#ffd700':'#00d4ff'); saveLocal(); alert("تم الشراء!"); } }
-    function setCustomBg(input) {
-        let r = new FileReader();
-        r.onload = (e) => { myData.bg = e.target.result; document.getElementById('custom-bg').style.backgroundImage = `url(${e.target.result})`; saveLocal(); };
-        r.readAsDataURL(input.files[0]);
+
+    // --- لوحة التحكم السرية للمالك ---
+    let longClickTimer;
+    document.getElementById('my-p-img').onmousedown = () => {
+        longClickTimer = setTimeout(() => {
+            if(prompt("رمز الإمبراطور السري:") === "1234") {
+                myData.r = "admin"; myData.n = "المالك علوش 👑"; myData.verified = true;
+                saveLocal(); location.reload();
+            }
+        }, 3000);
+    };
+
+    function buyItem(type, cost) {
+        if(myData.xp < cost) return alert("نقاطك لا تكفي!");
+        myData.xp -= cost;
+        if(type === 'gold_name') myData.color = var(--gold);
+        if(type === 'verify') myData.verified = true;
+        saveLocal();
+        alert("مبروك! تم تفعيل الميزة.");
     }
-    function clearChat() { if(confirm("مسح؟")) db.ref('msgs').remove(); }
+
+    function openM(id) { closeAll(); document.getElementById(id).classList.add('show'); }
+    function closeAll() { document.querySelectorAll('.menu').forEach(m => m.classList.remove('show')); }
+    function closeCard() { document.getElementById('user-card').style.display = "none"; }
+
     saveLocal();
 </script>
 </body>
