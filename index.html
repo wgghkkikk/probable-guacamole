@@ -9,7 +9,7 @@
     
     <style>
         :root { --gold: #ffd700; }
-        * { box-sizing: border-box; touch-action: manipulation; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
@@ -23,53 +23,45 @@
             background: radial-gradient(circle at top, #1a0033, #000);
         }
         
-        /* 🏰 هيدر بعيد عن الحواف قليلاً */
         .header { 
-            height: 60px; background: rgba(0,0,0,0.9); 
+            height: 60px; background: rgba(0,0,0,0.95); 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 20px; border-bottom: 2px solid var(--gold); flex-shrink: 0;
+            padding: 0 20px; border-bottom: 2px solid var(--gold); z-index: 1001;
         }
         
-        /* 💬 منطقة الشات مع هوامش جانبية */
+        /* 💬 منطقة الشات - عند الضغط هنا تغلق القوائم */
         #chat-win { 
             flex: 1; overflow-y: auto; 
-            padding: 20px 15px; /* إبعاد الرسائل عن الحواف */
+            padding: 20px 15px 100px 15px; 
             display: flex; flex-direction: column; gap: 12px;
-            -webkit-overflow-scrolling: touch;
         }
 
         .bubble { 
-            max-width: 80%; padding: 12px 15px; border-radius: 20px; 
-            border: 1px solid rgba(255,255,255,0.15); 
+            max-width: 80%; padding: 12px 15px; border-radius: 18px; 
+            border: 1px solid rgba(255,255,255,0.1); 
             background-size: 200% 200%; animation: moveGrad 4s linear infinite;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         @keyframes moveGrad { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-        .me { align-self: flex-start; border-bottom-right-radius: 5px; }
+        .me { align-self: flex-start; }
 
-        /* 🚀 فوتر "طائر" مبتعد عن الحواف */
+        /* 🚀 رفع الفوتر للأعلى لضمان الظهور */
         .footer-wrap {
-            padding: 10px 15px 25px 15px; /* رفع الخانة عن أسفل الشاشة وإبعادها عن الجوانب */
-            background: transparent;
+            position: fixed; bottom: 20px; left: 0; width: 100%;
+            padding: 0 15px; z-index: 1000;
         }
 
         .footer { 
-            height: 55px; background: rgba(30, 30, 30, 0.9); 
+            height: 55px; background: #1a1a1a; 
             display: flex; align-items: center; gap: 10px; padding: 0 15px;
-            border-radius: 30px; border: 1px solid #444;
-            box-shadow: 0 0 15px rgba(255,215,0,0.1);
+            border-radius: 30px; border: 2px solid #333;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
         }
 
-        #mInp { 
-            flex: 1; background: transparent; color: #fff; height: 100%;
-            border: none; outline: none; font-size: 16px;
-        }
-
-        .btn-send { background: none; border: none; font-size: 28px; cursor: pointer; order: 1; transition: 0.2s; }
-        .btn-send:active { transform: scale(0.8); }
+        #mInp { flex: 1; background: transparent; color: #fff; border: none; outline: none; font-size: 16px; }
+        .btn-send { background: none; border: none; font-size: 28px; cursor: pointer; order: 1; }
 
         /* القوائم الجانبية */
-        .side { position: fixed; top: 0; width: 280px; height: 100%; background: #0a0a0a; transition: 0.3s; z-index: 2000; border-left: 1px solid var(--gold); border-right: 1px solid var(--gold); overflow-y: auto; }
+        .side { position: fixed; top: 0; width: 280px; height: 100%; background: #0a0a0a; transition: 0.3s ease-in-out; z-index: 2000; border: 1px solid var(--gold); overflow-y: auto; pointer-events: auto; }
         #side-l { left: -285px; } #side-r { right: -285px; }
         .open { left: 0 !important; right: 0 !important; }
 
@@ -77,11 +69,9 @@
         .btn-gold { width: 100%; padding: 12px; margin: 5px 0; background: #111; color: var(--gold); border: 1px solid var(--gold); border-radius: 10px; font-weight: bold; }
         
         .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .dot { height: 35px; border-radius: 8px; border: 1px solid #333; cursor: pointer; transition: 0.2s; }
-        .dot:active { transform: scale(0.9); }
+        .dot { height: 35px; border-radius: 8px; border: 1px solid #333; }
 
-        #yt-box { width: 160px; height: 100px; position: fixed; top: 75px; left: 20px; z-index: 1000; border: 2px solid var(--gold); border-radius: 10px; overflow: hidden; display: none; }
-        #yt-box.active { display: block; }
+        #yt-box { width: 150px; height: 90px; position: fixed; top: 70px; left: 15px; z-index: 1000; border: 2px solid var(--gold); display: none; }
     </style>
 </head>
 <body>
@@ -89,42 +79,39 @@
     <div class="app-container">
         <div class="header">
             <button onclick="toggleS('l', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">🎨</button>
-            <b style="color:var(--gold); letter-spacing: 1px;">مملكة علوش 👑</b>
+            <b style="color:var(--gold)">مملكة علوش 👑</b>
             <button onclick="toggleS('r', event)" style="background:none; border:none; font-size:24px; color:var(--gold);">👥</button>
         </div>
 
         <div id="yt-box"><iframe id="player" width="100%" height="100%" src="" frameborder="0"></iframe></div>
         
-        <div id="chat-win"></div>
+        <div id="chat-win" onclick="closeAll()"></div>
 
-        <div class="footer-wrap" onclick="event.stopPropagation()">
+        <div class="footer-wrap">
             <div class="footer">
                 <button class="btn-send" onclick="sendMsg()">🚀</button>
-                <input type="text" id="mInp" placeholder="اكتب هنا يا ملك..." autocomplete="off">
+                <input type="text" id="mInp" placeholder="تكلم يا ملك..." autocomplete="off">
             </div>
         </div>
     </div>
 
-    <div id="side-r" class="side" onclick="event.stopPropagation()">
+    <div id="side-r" class="side">
         <h3 style="text-align:center; color:var(--gold); padding:20px; border-bottom: 1px solid #222;">👥 المتصلون</h3>
         <div id="u-list"></div>
+        <button class="btn-gold" style="margin: 20px;" onclick="closeAll()">إغلاق القائمة ✖</button>
     </div>
 
-    <div id="side-l" class="side" onclick="event.stopPropagation()">
+    <div id="side-l" class="side">
         <div class="box">
-            <h4 style="color:var(--gold); margin-top:0;">👑 البروفايل</h4>
-            <input type="text" id="newName" placeholder="اسمك الجديد..." style="width:100%; padding:12px; background:#000; color:#fff; border:1px solid #333; border-radius:8px;">
-            <button class="btn-gold" style="margin-top:10px;" onclick="saveName()">حفظ التعديلات ✅</button>
+            <h4 style="color:var(--gold);">👑 البروفايل</h4>
+            <input type="text" id="newName" placeholder="اسمك..." style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid #333; border-radius:8px;">
+            <button class="btn-gold" onclick="saveName()">حفظ ✅</button>
         </div>
         <div class="box">
-            <h4 style="color:var(--gold); margin-top:0;">🌈 70 لون ملكي</h4>
+            <h4 style="color:var(--gold);">🌈 70 لون متحرك</h4>
             <div class="palette" id="palette"></div>
         </div>
-        <div class="box">
-            <h4 style="color:var(--gold); margin-top:0;">🎬 رادار اليوتيوب</h4>
-            <input type="text" id="ytSearch" placeholder="بحث عن فيديو..." style="width:100%; padding:12px; background:#000; color:#fff; border:1px solid #333; border-radius:8px;">
-            <button class="btn-gold" onclick="searchByAPI()">بث مباشر 📡</button>
-        </div>
+        <button class="btn-gold" style="margin: 0 15px;" onclick="closeAll()">إغلاق القائمة ✖</button>
     </div>
 
 <script>
@@ -143,7 +130,7 @@
         let g = `linear-gradient(45deg, hsl(${i*5.1},70%,40%), hsl(${(i*5.1)+45},70%,40%))`;
         let d = document.createElement('div');
         d.className = 'dot'; d.style.background = g;
-        d.onclick = () => { mySet.g = g; localStorage.setItem('mySet', JSON.stringify(mySet)); alert("تم اختيار اللون الملكي!"); };
+        d.onclick = () => { mySet.g = g; localStorage.setItem('mySet', JSON.stringify(mySet)); alert("تم اختيار اللون!"); };
         pal.appendChild(d);
     }
 
@@ -151,24 +138,6 @@
         let n = document.getElementById('newName').value.trim();
         if(n) { mySet.n = n; localStorage.setItem('mySet', JSON.stringify(mySet)); db.ref('status/'+uID).update({n:n}); closeAll(); }
     }
-
-    async function searchByAPI() {
-        const q = document.getElementById('ytSearch').value.trim();
-        if(!q) return;
-        try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}&maxResults=1`);
-            const data = await res.json();
-            if(data.items.length > 0) db.ref('yt_sync').set({ a: 'play', id: data.items[0].id.videoId });
-        } catch (e) {}
-    }
-
-    db.ref('yt_sync').on('value', s => {
-        const v = s.val();
-        if(v && v.a === 'play') {
-            document.getElementById('player').src = `https://www.youtube.com/embed/${v.id}?autoplay=1`;
-            document.getElementById('yt-box').classList.add('active');
-        } else { document.getElementById('yt-box').classList.remove('active'); document.getElementById('player').src = ""; }
-    });
 
     function sendMsg() {
         const i = document.getElementById('mInp');
@@ -179,23 +148,7 @@
 
     document.getElementById('mInp').onkeydown = (e) => { if(e.key === 'Enter') sendMsg(); };
 
-    db.ref('main_msgs').limitToLast(25).on('child_added', s => {
+    db.ref('main_msgs').limitToLast(20).on('child_added', s => {
         const d = s.val();
         const div = document.createElement('div');
         div.className = `bubble ${d.uid === uID ? 'me' : ''}`;
-        div.style.background = d.g;
-        div.innerHTML = `<b style="font-size:11px; display:block; margin-bottom:4px; color:var(--gold);">${d.n}</b>${d.t}`;
-        document.getElementById('chat-win').appendChild(div);
-        document.getElementById('chat-win').scrollTop = document.getElementById('chat-win').scrollHeight;
-    });
-
-    db.ref('status').on('value', s => {
-        const l = document.getElementById('u-list'); l.innerHTML = '';
-        s.forEach(u => { l.innerHTML += `<div style="padding:15px; border-bottom:1px solid #111; display:flex; align-items:center; gap:10px;">👑 <span style="font-size:14px;">${u.val().n}</span></div>`; });
-    });
-
-    function toggleS(id, e) { e.stopPropagation(); closeAll(); document.getElementById('side-'+id).classList.add('open'); }
-    function closeAll() { document.querySelectorAll('.side').forEach(s => s.classList.remove('open')); }
-</script>
-</body>
-</html>
