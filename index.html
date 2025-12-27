@@ -1,64 +1,63 @@
-<div id="tiktok-wrapper" style="height: 90vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 20px; border: 2px solid gold;">
+<div id="tiktok-wrapper" style="height: 95vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; border-radius: 20px; border: 2px solid gold;">
     <div id="video-stream"></div>
 </div>
 
 <script>
-    // مكتبة المحتوى: (حسينية، عالم، ناس، إمبراطورية)
-    var globalLibrary = [
-        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "مقاطع دينية وحسينية 🏴", likes: "850K" },
-        { url: "https://www.w3schools.com/html/movie.mp4", user: "المصمم_العراقي", bio: "ترندات وتصاميم 🇮🇶", likes: "1.2M" },
-        { url: "https://www.w3schools.com/html/mov_bbb.mp4", user: "علوش_الإمبراطور", bio: "ملك البرمجة الحصري 👑", likes: "3M" },
-        { url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", user: "بنت_بغداد", bio: "يوميات المملكة 👑", likes: "500K" }
+    // مكتبة المحتوى العالمي والحسيني (روابط متنوعة ومباشرة)
+    var globalContent = [
+        { url: "https://v1.assets.tumblr.com/tumblr_p9v5r4rW1G1x8r3wyo1.mp4", user: "خادم_الحسين", bio: "مقاطع حسينية ودينية 🏴", likes: "1.2M" },
+        { url: "https://www.w3schools.com/html/movie.mp4", user: "عاشق_بغداد", bio: "أجواء العاصمة والناس 🇮🇶", likes: "850K" },
+        { url: "https://www.w3schools.com/html/mov_bbb.mp4", user: "علوش_الإمبراطور", bio: "ملك البرمجة الحصري 👑", likes: "3.5M" },
+        { url: "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4", user: "المصمم_الملكي", bio: "ترندات عالمية جديدة 🔥", likes: "600K" }
     ];
 
     var stream = document.getElementById('video-stream');
 
-    // دالة بناء المقاطع - تكرر وتنوع المحتوى
-    function loadKingdomContent(count) {
+    // دالة إنشاء المقاطع - تضمن التنوع وعدم التكرار الممل
+    function generateKingdomTikToks(count) {
         for (var i = 0; i < count; i++) {
-            // اختيار عشوائي من المكتبة لضمان التنوع
-            var data = globalLibrary[Math.floor(Math.random() * globalLibrary.length)];
+            // اختيار عشوائي من المكتبة لضمان أن كل قلبة تظهر شخصاً جديداً
+            var v = globalContent[Math.floor(Math.random() * globalContent.length)];
             
             var post = document.createElement('div');
-            post.style.height = "90vh";
+            post.style.height = "95vh";
             post.style.scrollSnapAlign = "start";
             post.style.position = "relative";
             post.style.background = "#000";
-            post.style.borderBottom = "4px solid #111";
+            post.style.borderBottom = "3px solid #111";
 
-            // بناء المحتوى بالجمع اليدوي لضمان ظهور الأسماء
-            var content = '';
-            content += '<video width="100%" height="100%" loop autoplay muted style="object-fit:cover;"><source src="' + data.url + '" type="video/mp4"></video>';
+            // بناء المحتوى (تأكد من عدم وجود نصوص برمجية في الواجهة)
+            var html = '<video width="100%" height="100%" loop autoplay muted style="object-fit:cover;"><source src="' + v.url + '" type="video/mp4"></video>';
             
-            // واجهة التفاعل الجانبية
-            content += '<div style="position:absolute; right:15px; bottom:120px; text-align:center; color:white; z-index:100; display:flex; flex-direction:column; gap:20px;">';
-            content += '  <div onclick="this.style.color=\'red\'" style="font-size:35px; cursor:pointer;">❤️</div>';
-            content += '  <div style="font-weight:bold; text-shadow:1px 1px 2px black;">' + data.likes + '</div>';
-            content += '  <div onclick="alert(\'فتح تعليقات ' + data.user + '\')" style="font-size:35px; cursor:pointer;">💬</div>';
-            content += '  <div style="font-weight:bold; text-shadow:1px 1px 2px black;">' + Math.floor(Math.random()*50) + 'K</div>';
-            content += '  <div style="background:gold; color:black; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;">+</div>';
-            content += '</div>';
+            // أزرار التفاعل (قلب، تعليق، متابعة)
+            html += '<div style="position:absolute; right:15px; bottom:150px; text-align:center; color:white; z-index:100; display:flex; flex-direction:column; gap:25px;">';
+            html += '  <div onclick="this.style.color=\'red\'" style="font-size:40px; cursor:pointer; filter:drop-shadow(0 0 5px black);">❤️</div>';
+            html += '  <div style="font-weight:bold; font-size:14px;">' + v.likes + '</div>';
+            html += '  <div onclick="alert(\'فتح التعليقات لـ ' + v.user + '\')" style="font-size:40px; cursor:pointer; filter:drop-shadow(0 0 5px black);">💬</div>';
+            html += '  <div style="font-weight:bold; font-size:14px;">' + Math.floor(Math.random()*90) + 'K</div>';
+            html += '  <div style="background:gold; color:black; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; font-size:25px; box-shadow:0 0 10px gold;">+</div>';
+            html += '</div>';
 
-            // معلومات الناشر والوصف
-            content += '<div style="position:absolute; bottom:40px; left:20px; color:white; text-shadow:2px 2px 8px #000; z-index:100;">';
-            content += '  <h3 style="margin:0; color:gold; font-size:20px;">@' + data.user + '</h3>';
-            content += '  <p style="margin:5px 0; font-size:15px; font-weight:bold;">' + data.bio + '</p>';
-            content += '  <div style="background:rgba(255,255,255,0.2); padding:5px 10px; border-radius:15px; font-size:12px; display:inline-block;">🎵 الصوت الأصلي - مملكة علوش</div>';
-            content += '</div>';
+            // معلومات الحساب والوصف الحقيقي
+            html += '<div style="position:absolute; bottom:50px; left:20px; color:white; text-shadow:2px 2px 8px #000; z-index:100;">';
+            html += '  <h3 style="margin:0; color:gold; font-size:22px;">@' + v.user + '</h3>';
+            html += '  <p style="margin:8px 0; font-size:16px; font-weight:bold;">' + v.bio + '</p>';
+            html += '  <div style="background:rgba(255,255,255,0.2); padding:5px 12px; border-radius:15px; font-size:13px; display:inline-block;">🎵 الصوت الأصلي - ' + v.user + '</div>';
+            html += '</div>';
 
-            post.innerHTML = content;
+            post.innerHTML = html;
             stream.appendChild(post);
         }
     }
 
-    // تشغيل أول 15 مقطع لضمان عدم التوقف
-    loadKingdomContent(15);
+    // تحميل 20 مقطع متنوع دفعة واحدة عند البدء
+    generateKingdomTikToks(20);
 
-    // نظام التمرير اللانهائي: يضيف مقاطع جديدة كلما سحبت للأسفل
+    // حساس التمرير اللانهائي: إذا وصلت للآخر يضيف 10 مقاطع جديدة فوراً
     document.getElementById('tiktok-wrapper').addEventListener('scroll', function(e) {
         var el = e.target;
-        if (el.scrollHeight - el.scrollTop <= el.clientHeight + 200) {
-            loadKingdomContent(5); 
+        if (el.scrollHeight - el.scrollTop <= el.clientHeight + 300) {
+            generateKingdomTikToks(10);
         }
     });
 </script>
