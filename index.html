@@ -3,110 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>مملكة علوش الإمبراطورية 👑</title>
+    <title>مملكة علوش - الإصدار العالمي 👑</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #ffd700; --vip: #00d4ff; --bg: #050505; --card: #121212; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; transition: 0.2s; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; overflow: hidden; }
+        :root { --gold: #ffd700; --vip: #00d4ff; --bg-main: #0a0a0a; --glass: rgba(255, 255, 255, 0.05); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Cairo', sans-serif; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg-main); color: #fff; overflow: hidden; }
 
-        /* تأثير الخلفية الملكية */
-        #royal-bg { position: fixed; inset: 0; z-index: -1; background: linear-gradient(45deg, #000, #1a1a1a); opacity: 0.8; }
-        .stars { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.3; animation: blink 2s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+        /* الخلفية المخصصة */
+        #chat-bg-layer { position: fixed; inset: 0; z-index: -2; background-size: cover; background-position: center; opacity: 0.4; }
 
-        .app { display: flex; flex-direction: column; height: 100vh; position: relative; }
-        .header { height: 65px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .app { display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 1; }
         
-        #pin-msg { background: rgba(255, 215, 0, 0.15); color: var(--gold); padding: 5px; text-align: center; font-size: 11px; border-bottom: 1px solid #333; display: none; }
+        /* شريط الملك (التريند) */
+        .trend-bar { height: 50px; background: linear-gradient(to left, transparent, rgba(255,215,0,0.2), transparent); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,215,0,0.3); font-size: 12px; gap: 8px; }
+        .trend-img { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--gold); box-shadow: 0 0 10px var(--gold); }
 
-        #chat-win { flex: 1; overflow-y: auto; padding: 10px 15px 180px 15px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
-        .bubble { max-width: 85%; padding: 12px; border-radius: 20px; border: 1px solid #222; position: relative; animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .header { height: 60px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
+
+        #chat-win { flex: 1; overflow-y: auto; padding: 10px 15px 180px 15px; display: flex; flex-direction: column; gap: 12px; }
         
-        .msg-me { align-self: flex-end; background: #1a1a1a; border-right: 4px solid var(--gold); border-bottom-right-radius: 5px; }
-        .msg-other { align-self: flex-start; background: #111; border-left: 4px solid var(--vip); border-bottom-left-radius: 5px; }
-        .msg-bot { align-self: center; background: rgba(255,215,0,0.1); border: 1px dashed var(--gold); text-align: center; width: 90%; }
+        /* صندوق الهدايا */
+        .lucky-box { background: linear-gradient(45deg, #ff416c, #ff4b2b); padding: 15px; border-radius: 15px; text-align: center; cursor: pointer; animation: bounce 1s infinite; border: 2px solid #fff; margin: 10px 0; align-self: center; width: 80%; }
+        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
-        .level-badge { font-size: 9px; background: var(--gold); color: #000; padding: 1px 6px; border-radius: 10px; font-weight: bold; margin-left: 5px; }
+        .bubble { max-width: 85%; padding: 10px; border-radius: 15px; position: relative; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
+        .msg-me { align-self: flex-end; background: rgba(50,50,50,0.8); border-right: 4px solid var(--gold); }
+        .msg-other { align-self: flex-start; background: rgba(30,30,30,0.8); border-left: 4px solid var(--vip); }
+        .bot-msg { align-self: center; background: rgba(255,215,0,0.1); border: 1px dashed var(--gold); width: 90%; text-align: center; font-size: 13px; }
 
-        .input-box { position: fixed; bottom: 0; left: 0; right: 0; background: #0a0a0a; border-top: 2px solid #222; padding: 12px; z-index: 100; }
-        .footer { display: flex; align-items: center; gap: 10px; }
-        #mInp { flex: 1; background: #181818; border: 1px solid #333; color: #fff; border-radius: 25px; padding: 12px 20px; font-size: 14px; }
-        .btn-main { background: var(--gold); color: #000; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; }
+        .input-box { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.9); border-top: 1px solid #333; padding: 12px; padding-bottom: 25px; }
+        .footer { display: flex; align-items: center; gap: 8px; }
+        #mInp { flex: 1; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 25px; padding: 10px 15px; }
 
-        .menu { position: fixed; top: 0; width: 85%; height: 100%; background: #0d0d0d; z-index: 1000; border: 1px solid var(--gold); display: none; padding: 25px; overflow-y: auto; }
-        .show { display: block; animation: slideIn 0.3s forwards; }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-        .shop-item { background: #181818; border: 1px solid #333; padding: 15px; border-radius: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-buy { background: var(--gold); color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
+        .menu { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 5000; display: none; padding: 25px; overflow-y: auto; }
+        .show { display: block; }
+        .btn-card { width: 100%; padding: 15px; background: #151515; border: 1px solid #333; color: #fff; border-radius: 12px; margin-bottom: 10px; text-align: center; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="royal-bg"></div>
-<div id="pin-msg">📌 رسالة مثبتة من المالك علوش</div>
+<div id="chat-bg-layer"></div>
 
 <div class="app">
+    <div class="trend-bar" id="trend-zone">
+        🥇 ملك التفاعل: <img id="t-img" src="" class="trend-img"> <b id="t-name" style="color:var(--gold)">جاري التحميل...</b>
+    </div>
+
     <div class="header">
-        <button onclick="openL()" style="background:none; border:none; color:var(--gold); font-size:24px;">⚙️</button>
-        <div style="text-align:center;">
-            <b style="color:var(--gold)">مملكة علوش 👑</b><br>
-            <span id="typing-st" style="font-size:9px; color:#00ff00;"></span>
-        </div>
-        <button onclick="openShop()" style="background:none; border:none; color:var(--gold); font-size:24px;">💰</button>
+        <button onclick="openM('menu-set')" style="background:none; border:none; font-size:24px;">⚙️</button>
+        <b style="color:var(--gold); font-size:18px;">مملكة علوش 👑</b>
+        <button onclick="openM('menu-shop')" style="background:none; border:none; font-size:24px;">💰</button>
     </div>
 
     <div id="chat-win"></div>
 
     <div class="input-box">
         <div class="footer">
-            <button onclick="document.getElementById('imgF').click()" style="background:none; border:none; color:var(--gold); font-size:22px;">🖼️</button>
-            <button id="voiceBtn" style="background:none; border:none; color:var(--gold); font-size:22px;">🎤</button>
-            <input type="file" id="imgF" hidden onchange="sendImg(this)">
-            <input type="text" id="mInp" placeholder="اكتب لتربح نقاط..." oninput="isTyping()">
-            <button onclick="doSend()" class="btn-main">🚀</button>
+            <button onclick="openM('menu-games')" style="background:none; border:none; font-size:24px;">🎮</button>
+            <input type="text" id="mInp" placeholder="اكتب لتربح نقاط..." onkeydown="if(event.key==='Enter') doSend()">
+            <button onclick="doSend()" style="background:var(--gold); border:none; border-radius:50%; width:42px; height:42px; font-size:18px;">🚀</button>
         </div>
     </div>
 </div>
 
-<div id="menu-l" class="menu" style="left:0;">
+<div id="menu-set" class="menu">
     <center>
-        <div style="position:relative; width:90px;">
-            <img id="myImg" src="https://via.placeholder.com/80" style="width:85px; height:85px; border-radius:50%; border:3px solid var(--gold); object-fit:cover;">
-        </div>
-        <h3 id="myName">زائر المملكة</h3>
-        <div class="level-badge" id="myLvl">Lvl 1</div>
-        <p style="color:var(--gold)">نقاط التفاعل: <span id="myXP">0</span></p>
+        <h3>⚙️ إعدادات المملكة</h3>
+        <p>نقاطك: <span id="my-xp-show">0</span> XP</p>
         <hr border="0.1">
-        <input type="text" id="nameInp" placeholder="اسمك الملكي..." style="width:100%; padding:12px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:10px;">
-        <button onclick="saveProfile()" style="width:100%; padding:12px; background:var(--gold); color:#000; border:none; border-radius:10px; margin-top:10px; font-weight:bold;">حفظ التعديلات ✅</button>
-        <br><br>
-        <button onclick="startQuiz()" style="width:100%; padding:12px; background:var(--vip); color:#000; border:none; border-radius:10px; font-weight:bold;">🎮 ابدأ مسابقة فورية</button>
-        <br><br>
-        <div id="admin-only" style="display:none;">
-            <button onclick="clearChat()" style="width:100%; padding:12px; background:red; color:#fff; border:none; border-radius:10px;">🗑 مسح المملكة</button>
+        <div class="btn-card">
+            🖼️ تغيير خلفية الشات الخاصة بك
+            <input type="file" id="bg-upload" style="margin-top:10px;" onchange="changeBg(this)">
         </div>
+        <input type="text" id="nameInp" placeholder="اسم جديد..." style="width:100%; padding:12px; background:#000; color:#fff; border:1px solid #333; margin-top:10px;">
+        <button onclick="saveP()" class="btn-card" style="background:var(--gold); color:#000; border:none;">حفظ الاسم ✅</button>
         <br>
-        <button onclick="closeAll()" style="width:100%; padding:10px; background:#333; color:#fff; border:none; border-radius:10px;">إغلاق</button>
+        <button onclick="closeAll()" class="btn-card" style="background:#333;">إغلاق</button>
     </center>
 </div>
 
-<div id="menu-shop" class="menu" style="right:0;">
-    <h2 style="color:var(--gold); text-align:center;">💰 متجر المملكة</h2>
-    <div id="shop-items">
-        <div class="shop-item">
-            <div><b>اللقب الملكي 👑</b><br><small>تغيير لون اسمك للذهبي</small></div>
-            <button class="btn-buy" onclick="buy('gold', 100)">100 XP</button>
-        </div>
-        <div class="shop-item">
-            <div><b>درع الحماية 🛡️</b><br><small>تغيير لون اسمك للسماوي</small></div>
-            <button class="btn-buy" onclick="buy('cyan', 50)">50 XP</button>
-        </div>
-    </div>
-    <button onclick="closeAll()" style="width:100%; padding:15px; background:#333; color:#fff; border:none; border-radius:10px; margin-top:20px;">العودة</button>
+<div id="menu-games" class="menu">
+    <h3 style="text-align:center;">🎮 مركز الفعاليات</h3>
+    <div class="btn-card" onclick="startQ()">❓ إطلاق سؤال المسابقة</div>
+    <div class="btn-card" onclick="spawnLuckyBox()">🎁 رمي صندوق هدايا (للمالك)</div>
+    <div class="btn-card" onclick="closeAll()" style="background:#333;">العودة</div>
 </div>
 
 <script>
@@ -114,128 +97,107 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let uID = localStorage.getItem('uID') || "U" + Date.now();
+    let uID = localStorage.getItem('uID') || "U" + Math.floor(Math.random()*999999);
     localStorage.setItem('uID', uID);
-    let myData = JSON.parse(localStorage.getItem('myData')) || { n: "محارب جديد", xp: 0, r: "user", img: "https://via.placeholder.com/80", color: "#fff" };
+    let myData = JSON.parse(localStorage.getItem('myData')) || { n: "عضو جديد", xp: 0, r: "user", bg: "" };
 
-    // نظام الحماية والرد الآلي
-    function botFilter(text) {
-        const badWords = ["مسبات", "غلط", "كفر"]; // أضف الكلمات هنا
-        if(badWords.some(w => text.includes(w))) {
-            db.ref('msgs').push({ n: "بوت الحماية 🛡️", t: `تحذير لـ ${myData.n}: ممنوع التجاوز!`, r: "bot" });
-            return true;
-        }
-        if(text === "علوش") {
-            db.ref('msgs').push({ n: "بوت المملكة 🤖", t: "علوش هو تاج راسي وملك المملكة! 👑", r: "bot" });
-        }
-        return false;
+    // نظام الخلفية المخصصة
+    if(myData.bg) document.getElementById('chat-bg-layer').style.backgroundImage = `url(${myData.bg})`;
+    function changeBg(input) {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+            myData.bg = e.target.result;
+            document.getElementById('chat-bg-layer').style.backgroundImage = `url(${e.target.result})`;
+            saveDataLocal();
+        };
+        reader.readAsDataURL(input.files[0]);
     }
+
+    // نظام التريند (ملك التفاعل)
+    db.ref('msgs').limitToLast(50).on('value', s => {
+        let counts = {};
+        s.forEach(m => {
+            let d = m.val();
+            if(d.uid) counts[d.n] = (counts[d.n] || 0) + 1;
+        });
+        let top = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b, "لا أحد");
+        document.getElementById('t-name').innerText = top;
+    });
 
     // إرسال رسالة
     function doSend() {
         let inp = document.getElementById('mInp');
         let txt = inp.value.trim();
-        if(!txt || botFilter(txt)) { inp.value = ""; return; }
+        if(!txt) return;
 
-        // فحص المسابقة
-        db.ref('quiz_ans').once('value', s => {
+        // فحص إجابة المسابقة
+        db.ref('active_quiz').once('value', s => {
             if(s.val() && txt === s.val()) {
                 myData.xp += 100;
-                db.ref('msgs').push({ n: "بوت الألعاب 🎮", t: `🎉 مبروووك ${myData.n} فاز بالمسابقة وربح 100 نقطة!`, r: "bot" });
-                db.ref('quiz_ans').remove();
+                db.ref('msgs').push({ n: "بوت المملكة 🤖", t: `🎉 كفووو! ${myData.n} أجاب صح وربح 100 نقطة!`, r: "bot" });
+                db.ref('active_quiz').remove();
             } else {
-                myData.xp += 2;
-                db.ref('msgs').push({ uid: uID, n: myData.n, t: txt, color: myData.color, img: myData.img, xp: myData.xp, r: myData.r, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+                myData.xp += 1;
+                db.ref('msgs').push({
+                    uid: uID, n: myData.n, t: txt, xp: myData.xp,
+                    time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+                });
             }
-            saveData();
+            saveDataLocal();
             inp.value = "";
-            db.ref('typing/'+uID).remove();
         });
     }
 
-    // المسابقات
-    function startQuiz() {
-        const q = ["ما هو لون الموز؟", "10+10؟", "من هو ملك المملكة؟", "أكبر دولة عربية؟"];
-        const a = ["اصفر", "20", "علوش", "الجزائر"];
-        let i = Math.floor(Math.random()*q.length);
-        db.ref('msgs').push({ n: "بوت الألعاب 🎮", t: "سؤال جديد: " + q[i], r: "bot" });
-        db.ref('quiz_ans').set(a[i]);
-        closeAll();
-    }
-
-    // عرض الشات
+    // عرض الشات + صندوق الهدايا
     db.ref('msgs').limitToLast(30).on('value', s => {
         let win = document.getElementById('chat-win');
         win.innerHTML = "";
         s.forEach(child => {
             let d = child.val();
             let div = document.createElement('div');
-            div.className = `bubble ${d.r === 'bot' ? 'msg-bot' : (d.uid === uID ? 'msg-me' : 'msg-other')}`;
-            div.onclick = () => adminAction(child.key, d.uid, d.n, d.t);
             
-            div.innerHTML = `
-                <div style="display:flex; align-items:center; gap:5px; margin-bottom:5px;">
-                    ${d.r !== 'bot' ? `<span class="level-badge">Lvl ${Math.floor(d.xp/15)+1}</span>` : ''}
-                    <b style="color:${d.color}">${d.n}</b>
-                </div>
-                <div>${d.t || ''}</div>
-                ${d.imgM ? `<img src="${d.imgM}" style="width:100%; border-radius:10px; margin-top:5px;">` : ''}
-                <span style="font-size:8px; opacity:0.5; display:block; margin-top:5px;">${d.time || ''}</span>
-            `;
+            if(d.type === 'lucky_box') {
+                div.className = "lucky-box";
+                div.innerHTML = "🎁 صندوق هدايا سقط! اضغط لفتحه!";
+                div.onclick = () => claimBox(child.key);
+            } else {
+                div.className = `bubble ${d.r === 'bot' ? 'bot-msg' : (d.uid === uID ? 'msg-me' : 'msg-other')}`;
+                div.innerHTML = `<div style="font-size:10px; color:var(--gold)">${d.n} [Lvl:${Math.floor(d.xp/20)+1}]</div><div>${d.t}</div>`;
+            }
             win.appendChild(div);
         });
         win.scrollTop = win.scrollHeight;
     });
 
-    // الإدارة
-    let timer;
-    document.getElementById('myImg').onmousedown = () => timer = setTimeout(() => {
-        if(prompt("رمز الإمبراطور:") === "1234") {
-            myData.r = "admin"; myData.n = "المالك علوش 👑"; saveData(); location.reload();
-        }
-    }, 3000);
-
-    function adminAction(k, tid, name, txt) {
-        if(myData.r !== 'admin') return;
-        let act = prompt(`1-حذف 2-حظر 3-تثبيت\nالعضو: ${name}`);
-        if(act=="1") db.ref('msgs/'+k).remove();
-        if(act=="2") db.ref('banned/'+tid).set(true);
-        if(act=="3") { db.ref('pin').set(txt); }
+    // صناديق الحظ
+    function spawnLuckyBox() { db.ref('msgs').push({ type: 'lucky_box', n: 'system' }); closeAll(); }
+    function claimBox(key) {
+        let winXP = Math.floor(Math.random() * 190) + 10;
+        myData.xp += winXP;
+        db.ref('msgs/'+key).remove();
+        db.ref('msgs').push({ n: "بوت المملكة 🤖", t: `🎁 مبروووك! ${myData.n} فتح الصندوق وربح ${winXP} نقطة!`, r: "bot" });
+        saveDataLocal();
     }
-    db.ref('pin').on('value', s => { if(s.val()) { document.getElementById('pin-msg').innerText = "📌 " + s.val(); document.getElementById('pin-msg').style.display="block"; } });
+
+    // المسابقات
+    function startQ() {
+        const questions = [ {q:"كم 5 + 5؟", a:"10"}, {q:"عاصمة المملكة؟", a:"علوش"}, {q:"لون البحر؟", a:"ازرق"} ];
+        let p = questions[Math.floor(Math.random()*questions.length)];
+        db.ref('msgs').push({ n: "بوت المملكة 🤖", t: "🔥 مسابقة: " + p.q, r: "bot" });
+        db.ref('active_quiz').set(p.a);
+        closeAll();
+    }
 
     // وظائف أساسية
-    function openL() { closeAll(); document.getElementById('menu-l').classList.add('show'); }
-    function openShop() { closeAll(); document.getElementById('menu-shop').classList.add('show'); }
+    function openM(id) { closeAll(); document.getElementById(id).classList.add('show'); }
     function closeAll() { document.querySelectorAll('.menu').forEach(m => m.classList.remove('show')); }
-    
-    function buy(type, cost) {
-        if(myData.xp < cost) return alert("نقاطك قليلة!");
-        myData.xp -= cost;
-        myData.color = (type === 'gold') ? '#ffd700' : '#00d4ff';
-        saveData(); alert("تم الشراء!");
-    }
-
-    function saveData() {
+    function saveDataLocal() {
         localStorage.setItem('myData', JSON.stringify(myData));
-        document.getElementById('myName').innerText = myData.n;
-        document.getElementById('myXP').innerText = myData.xp;
-        document.getElementById('myLvl').innerText = "Lvl " + (Math.floor(myData.xp/15)+1);
-        if(myData.r === 'admin') document.getElementById('admin-only').style.display = 'block';
+        document.getElementById('my-xp-show').innerText = myData.xp;
     }
-    function saveProfile() { let n = document.getElementById('nameInp').value; if(n) myData.n = n; saveData(); closeAll(); }
-    function isTyping() { db.ref('typing/'+uID).set(myData.n); setTimeout(()=>db.ref('typing/'+uID).remove(), 3000); }
-    db.ref('typing').on('value', s => { let t=[]; s.forEach(x=>{if(x.key!==uID)t.push(x.val())}); document.getElementById('typing-st').innerText = t.length?t.join(',')+" يكتب...":""; });
-    function clearChat() { if(confirm("مسح الكل؟")) db.ref('msgs').remove(); }
+    function saveP() { let nn = document.getElementById('nameInp').value; if(nn) myData.n = nn; saveDataLocal(); closeAll(); }
     
-    // إنشاء نجوم الخلفية
-    for(let i=0; i<50; i++) {
-        let s = document.createElement('div'); s.className='stars';
-        s.style.top = Math.random()*100+'%'; s.style.left = Math.random()*100+'%';
-        document.getElementById('royal-bg').appendChild(s);
-    }
-    
-    saveData();
+    saveDataLocal();
 </script>
 </body>
 </html>
