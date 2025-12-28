@@ -2,166 +2,162 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kingdom of Alloussh - Official Script v5.0</title>
+    <title>S C R I P T - THE ROYAL EDITION</title>
     <style>
-        :root {
-            --king: #bc13fe; --accent: #00f2fe; --gold: #ffd700;
-            --admin: #ff3e3e; --bg: #050505; --panel: #111;
-        }
+        :root { --king: #bc13fe; --accent: #00f2fe; --gold: #ffd700; --bg: #050505; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #000; color: white; font-family: 'Tahoma', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-        body { background: #000; color: white; font-family: 'Tahoma', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        /* شريط الأخبار */
+        .news { background: #111; border-bottom: 2px solid var(--king); height: 35px; overflow: hidden; display: flex; align-items: center; }
+        .news-move { display: inline-block; white-space: nowrap; animation: move 20s linear infinite; color: var(--gold); font-size: 14px; font-weight: bold; }
+        @keyframes move { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 
-        /* 1. شريط الإعلانات الملكي */
-        .top-news { background: #1a1a1a; border-bottom: 2px solid var(--king); height: 40px; display: flex; align-items: center; overflow: hidden; z-index: 100; }
-        .news-scroll { display: inline-block; white-space: nowrap; animation: scroll-news 25s linear infinite; color: var(--gold); font-weight: bold; font-size: 14px; }
-        @keyframes scroll-news { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-
-        /* 2. الهيكل الرئيسي */
         .wrapper { display: flex; flex: 1; overflow: hidden; }
 
-        /* يمين: قائمة الرتب والأسماء */
-        .side-users { width: 250px; background: var(--panel); border-left: 1px solid #222; display: flex; flex-direction: column; }
-        .side-title { padding: 15px; background: #1a1a1a; border-bottom: 1px solid var(--king); text-align: center; color: var(--king); font-weight: bold; }
-        .users-list { flex: 1; overflow-y: auto; padding: 10px; }
-        .u-row { padding: 12px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 10px; transition: 0.3s; cursor: pointer; border-radius: 5px; }
-        .u-row:hover { background: #1d1d1d; }
+        /* يمين: الأسماء */
+        .side-r { width: 240px; background: #0a0a0a; border-left: 1px solid #222; padding: 10px; }
+        .u-item { padding: 10px; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .u-item:hover { background: #1a1a1a; }
 
-        /* وسط: ساحة الدردشة */
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
-        #msgs-container { flex: 1; padding: 20px; overflow-y: auto; background-image: radial-gradient(#1a1a1a 1px, transparent 1px); background-size: 30px 30px; }
-        
-        /* يسار: مركز اليوتيوب والتحكم */
-        .side-yt { width: 300px; background: var(--panel); border-right: 1px solid #222; padding: 15px; display: flex; flex-direction: column; }
+        /* وسط: الشات */
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+        #msgs { flex: 1; padding: 20px; overflow-y: auto; background-image: radial-gradient(#111 1px, transparent 1px); background-size: 20px 20px; }
 
-        /* 3. ستايل الملك (اللمعان والتاج) */
-        .king-glow { 
-            background: linear-gradient(to right, #bc13fe, #00f2fe, #ff00ff, #bc13fe);
-            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-weight: bold; text-shadow: 0 0 10px rgba(188, 19, 254, 0.5); animation: shine 3s linear infinite;
+        /* يسار: يوتيوب */
+        .side-l { width: 280px; background: #0a0a0a; border-right: 1px solid #222; padding: 10px; }
+
+        /* الملف الشخصي (البروفايل) */
+        #profile-card { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 300px; background: #151515; border: 2px solid var(--king); border-radius: 15px;
+            padding: 20px; text-align: center; display: none; z-index: 1000; box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
-        @keyframes shine { to { background-position: 200% center; } }
-        .crown-icon { font-size: 1.2em; display: inline-block; animation: crown-bounce 1s infinite alternate; }
-        @keyframes crown-bounce { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+        .prof-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--king); margin-bottom: 10px; }
 
-        /* 4. مشغل الفيديو */
-        #player-overlay { position: absolute; top: 0; width: 100%; z-index: 50; background: #000; border-bottom: 3px solid var(--king); display: none; }
+        /* ستايلات الملك والبوت */
+        .king-glow { font-weight: bold; text-shadow: 0 0 10px var(--king); color: var(--king); }
+        .bot-msg { background: rgba(0, 242, 254, 0.1); border-right: 3px solid var(--accent); padding: 5px 10px; margin: 5px 0; font-size: 13px; color: var(--accent); }
 
-        /* 5. منطقة الإدخال المطورة */
-        .input-box { background: #111; padding: 15px; border-top: 1px solid #333; }
-        .toolbar { display: flex; gap: 15px; padding-bottom: 10px; color: #888; font-size: 18px; }
-        .tool { cursor: pointer; transition: 0.2s; }
-        .tool:hover { color: var(--king); transform: scale(1.2); }
-        .input-group { display: flex; gap: 10px; }
-        input[type="text"] { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; transition: 0.3s; }
-        input[type="text"]:focus { border-color: var(--king); box-shadow: 0 0 8px var(--king); }
-        .btn-send { background: var(--king); color: white; border: none; padding: 0 30px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-send:hover { background: #9b10d1; box-shadow: 0 0 15px var(--king); }
+        /* منطقة الكتابة */
+        .footer { padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px; }
+        input { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; outline: none; }
+        .btn { background: var(--king); border: none; color: white; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-        /* كروت اليوتيوب */
-        .yt-card { background: #1a1a1a; margin-top: 10px; padding: 8px; border-radius: 8px; cursor: pointer; border: 1px solid #333; transition: 0.3s; }
-        .yt-card:hover { border-color: var(--king); background: #222; }
+        #yt-p { width: 100%; display: none; background: #000; border-bottom: 2px solid var(--king); }
     </style>
 </head>
 <body>
 
-<div class="top-news">
-    <div class="news-scroll">
-        👑 مملكة علوش ترحب بكم | 📜 الاحترام أساس التواجد | 🛡️ ترقبوا المسابقات الكبرى | 🎧 استمتعوا بأحدث الشيلات عبر بحث اليوتيوب المباشر 🎧
-    </div>
-</div>
+<div class="news"><div class="news-move">👑 أهلاً بك في مملكة علوش.. نظام البوت والبروفايل قيد التشغيل الآن 👑</div></div>
 
 <div class="wrapper">
-    <div class="side-users">
-        <div class="side-title">المتواجدون بالمملكة</div>
-        <div class="users-list">
-            <div class="u-row"><span class="crown-icon">👑</span> <span class="king-glow">علوش الملك</span></div>
-            <div class="u-row"><span style="color:var(--admin)">🛡️ الإدارة</span></div>
-            <div class="u-row"><span style="color:var(--accent)">💎 VIP</span></div>
-            <div class="u-row"><span style="color:#777">👤 زائر_1244</span></div>
+    <div class="side-r">
+        <div style="color:#555; font-size:12px; margin-bottom:10px;">المتواجدون</div>
+        <div class="u-item" onclick="showProfile('علوش الملك', 'ملك المملكة', 'https://i.pravatar.cc/150?u=king')">
+            <span style="color:gold">👑</span> <span class="king-glow">علوش الملك</span>
+        </div>
+        <div class="u-item" onclick="showProfile('بوت المملكة', 'خادم آلي', 'https://i.pravatar.cc/150?u=bot')">
+            <span style="color:var(--accent)">🤖</span> <span>بوت المملكة</span>
         </div>
     </div>
 
-    <div class="chat-area">
-        <div id="player-overlay"></div>
-        <div id="msgs-container">
-            <div style="text-align: center; margin-top: 50px;">
-                <h1 class="king-glow" style="font-size: 30px;">مملكة علوش</h1>
-                <p style="color: #444; margin-top: 10px;">نظام الدردشة المتكامل - 2025</p>
+    <div class="chat-main">
+        <div id="profile-card">
+            <img id="p-img" src="" class="prof-img">
+            <h3 id="p-name" class="king-glow"></h3>
+            <p id="p-rank" style="color:gray; font-size:12px; margin-bottom:15px;"></p>
+            <div style="display:flex; gap:5px; justify-content:center;">
+                <button onclick="document.getElementById('profile-card').style.display='none'" class="btn" style="background:#444">إغلاق</button>
+                <button class="btn">إضافة صديق</button>
             </div>
         </div>
-        
-        <div class="input-box">
-            <div class="toolbar">
-                <span class="tool">😊</span> <span class="tool">✨</span> <span class="tool">🎨</span> <span class="tool">📷</span> <span class="tool">🎁</span>
-            </div>
-            <div class="input-group">
-                <input type="text" id="chatInput" placeholder="اكتب رسالتك للمملكة...">
-                <button class="btn-send" onclick="sendMsg()">إرسال</button>
-            </div>
+
+        <div id="yt-p"></div>
+        <div id="msgs">
+            <div class="bot-msg">🤖 بوت المملكة: أهلاً بك يا ملك، أنا في خدمتك. اكتب "سلام" لترى ردي!</div>
+        </div>
+        <div class="footer">
+            <input type="text" id="cIn" placeholder="اكتب رسالتك...">
+            <button class="btn" onclick="send()">إرسال</button>
         </div>
     </div>
 
-    <div class="side-yt">
-        <h3 style="color: var(--king); margin-bottom: 15px; text-align: center;">🎵 يوتيوب المملكة</h3>
-        <input type="text" id="ytQuery" placeholder="بحث عن فيديو..." style="width: 100%; margin-bottom: 10px;">
-        <button onclick="searchYT()" style="width: 100%; padding: 10px; background: red; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold;">بـحـث</button>
-        <div id="ytResults" style="overflow-y: auto; flex: 1; margin-top: 10px;"></div>
+    <div class="side-l">
+        <h4 style="color:var(--king); margin-bottom:10px;">🔍 يوتيوب</h4>
+        <input type="text" id="yIn" placeholder="بحث..." style="width:100%; margin-bottom:5px;">
+        <button class="btn" style="width:100%; background:red; height:35px;" onclick="search()">بحث</button>
+        <div id="yRes" style="margin-top:10px; overflow-y:auto; flex:1"></div>
     </div>
 </div>
 
 <script>
     const API_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
 
-    function sendMsg() {
-        const inp = document.getElementById('chatInput');
-        const box = document.getElementById('msgs-container');
-        if(!inp.value.trim()) return;
+    function showProfile(name, rank, img) {
+        document.getElementById('p-name').innerText = name;
+        document.getElementById('p-rank').innerText = rank;
+        document.getElementById('p-img').src = img;
+        document.getElementById('profile-card').style.display = 'block';
+    }
 
-        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    function send() {
+        const inp = document.getElementById('cIn');
+        const box = document.getElementById('msgs');
+        const val = inp.value.trim();
+        if(!val) return;
+
+        // رسالة الملك
         const d = document.createElement('div');
-        d.style.marginBottom = "15px";
-        d.innerHTML = `
-            <div style="font-size:10px; color:#444;">${time}</div>
-            <span class="king-glow"><span class="crown-icon">👑</span> علوش الملك:</span> 
-            <span style="color:white; margin-right:10px;">${inp.value}</span>
-        `;
+        d.style.marginBottom = "10px";
+        d.innerHTML = `<span class="king-glow">👑 علوش الملك:</span> ${val}`;
         box.appendChild(d);
+
+        // نظام البوت
+        setTimeout(() => {
+            if(val.includes("سلام") || val.includes("مرحبا")) {
+                addBotMsg("وعليكم السلام يا ملك.. نورت عرشك! 👑");
+            } else if(val.includes("بوت") || val.includes("ساعدني")) {
+                addBotMsg("أنا بوت المملكة، يمكنني البحث لك عن الأغاني أو تنبيه الأعضاء.");
+            } else if(val.length > 20) {
+                addBotMsg("يا سلام على هذا الكلام الجميل يا ملك! ✨");
+            }
+        }, 1000);
+
         inp.value = "";
         box.scrollTop = box.scrollHeight;
     }
 
-    async function searchYT() {
-        const q = document.getElementById('ytQuery').value;
-        const out = document.getElementById('ytResults');
-        if(!q) return;
-
-        try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=6&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}`);
-            const data = await res.json();
-            out.innerHTML = "";
-            data.items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'yt-card';
-                card.onclick = () => {
-                    const p = document.getElementById('player-overlay');
-                    p.style.display = 'block';
-                    p.innerHTML = `
-                        <div style="display:flex; justify-content:space-between; padding:5px; background:#222;">
-                            <span style="font-size:11px; overflow:hidden;">${item.snippet.title}</span>
-                            <button onclick="this.parentElement.parentElement.style.display='none'; this.parentElement.parentElement.innerHTML=''" style="background:red; color:white; border:none; cursor:pointer; padding:2px 10px;">✖</button>
-                        </div>
-                        <iframe width="100%" height="240" src="https://www.youtube.com/embed/${item.id.videoId}?autoplay=1" frameborder="0" allowfullscreen></iframe>
-                    `;
-                };
-                card.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}" style="width:100%; border-radius:5px;"><p style="font-size:10px; margin-top:5px;">${item.snippet.title}</p>`;
-                out.appendChild(card);
-            });
-        } catch(e) { alert("حدث خطأ في البحث"); }
+    function addBotMsg(text) {
+        const box = document.getElementById('msgs');
+        const d = document.createElement('div');
+        d.className = 'bot-msg';
+        d.innerHTML = `🤖 بوت المملكة: ${text}`;
+        box.appendChild(d);
+        box.scrollTop = box.scrollHeight;
     }
 
-    document.getElementById('chatInput').onkeydown = (e) => { if(e.keyCode == 13) sendMsg(); };
+    async function search() {
+        const q = document.getElementById('yIn').value;
+        const resDiv = document.getElementById('yRes');
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}`);
+        const data = await res.json();
+        resDiv.innerHTML = "";
+        data.items.forEach(item => {
+            const card = document.createElement('div');
+            card.style.background="#1a1a1a"; card.style.padding="5px"; card.style.marginTop="5px"; card.style.cursor="pointer";
+            card.onclick = () => {
+                const p = document.getElementById('yt-p');
+                p.style.display = 'block';
+                p.innerHTML = `<button onclick="this.parentElement.style.display='none'" style="width:100%; background:red; color:white; border:none; cursor:pointer">إغلاق</button>
+                               <iframe width="100%" height="200" src="https://www.youtube.com/embed/${item.id.videoId}?autoplay=1" frameborder="0"></iframe>`;
+            };
+            card.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}" style="width:100%"><p style="font-size:10px">${item.snippet.title}</p>`;
+            resDiv.appendChild(card);
+        });
+    }
+
+    document.getElementById('cIn').onkeydown = (e) => { if(e.keyCode == 13) send(); };
 </script>
 
 </body>
