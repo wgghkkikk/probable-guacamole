@@ -2,123 +2,127 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش | النظام الشامل</title>
+    <title>مملكة علوش | النسخة العالمية الكاملة</title>
     <style>
-        :root { --king: #bc13fe; --accent: #00f2fe; --bg: #050505; }
+        :root { --p: #bc13fe; --s: #00f2fe; --dark: #050505; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); color: white; font-family: 'Tahoma', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        body { background: var(--dark); color: white; font-family: 'Segoe UI', Tahoma, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* الهيدر العلوي ثابت */
-        .top-nav { height: 55px; background: #111; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--king); z-index: 200; }
+        /* بار علوي احترافي */
+        header { height: 50px; background: #111; border-bottom: 2px solid var(--p); display: flex; align-items: center; padding: 0 15px; justify-content: space-between; z-index: 1000; }
+        
+        /* الحاوية الرئيسية */
+        .app-body { display: flex; flex: 1; position: relative; overflow: hidden; }
 
-        .wrapper { display: flex; flex: 1; overflow: hidden; position: relative; }
+        /* الجهة اليمنى (الأسماء) - أساس شات شيلة */
+        .users-side { width: 220px; background: #0a0a0a; border-left: 1px solid #222; display: flex; flex-direction: column; }
+        .u-search { padding: 10px; background: #151515; }
+        .u-search input { width: 100%; background: #000; border: 1px solid #333; color: white; padding: 5px; font-size: 12px; }
+        .u-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .user { display: flex; align-items: center; gap: 8px; padding: 8px; border-bottom: 1px solid #111; cursor: pointer; transition: 0.2s; }
+        .user:hover { background: #1a1a1a; }
+        .u-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--s); }
 
-        /* الجهة اليسرى (إدارة وإعدادات) - تفتح فوق الشات */
-        .side-left { width: 250px; background: #151515; border-left: 1px solid #333; position: absolute; left: -250px; height: 100%; transition: 0.4s; z-index: 150; padding: 20px; }
-        .side-left.active { left: 0; box-shadow: 5px 0 20px rgba(188, 19, 254, 0.4); }
+        /* منطقة الدردشة (الوسط) */
+        .chat-side { flex: 1; display: flex; flex-direction: column; background: #000; position: relative; }
+        .chat-tabs { display: flex; background: #151515; border-bottom: 1px solid #222; }
+        .tab { padding: 10px 20px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { border-color: var(--p); color: var(--p); background: rgba(188, 19, 254, 0.1); }
 
-        /* منطقة الشات (الوسط) */
-        .chat-main { flex: 1; display: flex; flex-direction: column; background: #000; border-left: 1px solid #222; border-right: 1px solid #222; }
-        #msg-display { flex: 1; padding: 15px; overflow-y: auto; background-image: radial-gradient(#1a1a1a 1px, transparent 1px); background-size: 20px 20px; }
+        #messages { flex: 1; padding: 20px; overflow-y: auto; background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://shilah.site/styles/images/bg.png'); background-size: cover; }
 
-        /* الجهة اليمنى (قائمة الأسماء) - ثابتة دائماً مثل شيلة */
-        .side-right { width: 200px; background: #0f0f0f; display: flex; flex-direction: column; z-index: 100; }
-        .r-header { background: #1a1a1a; padding: 10px; text-align: center; font-size: 12px; color: var(--accent); border-bottom: 1px solid #333; }
-        .u-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; }
+        /* فقاعات الرسائل */
+        .msg { margin-bottom: 15px; animation: fadeIn 0.3s; }
+        .msg-header { font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+        .msg-text { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 0 15px 15px 15px; display: inline-block; max-width: 80%; border: 1px solid #222; }
+        .king-text { border-color: var(--p); background: rgba(188, 19, 254, 0.05); }
 
-        /* تأثيرات الملك */
-        .king-glow { font-weight: bold; text-shadow: 0 0 10px var(--king); animation: rgb 3s infinite; }
-        @keyframes rgb { 0%, 100% { color: var(--king); } 50% { color: var(--accent); } }
+        /* بار الكتابة المطور */
+        .input-footer { padding: 15px; background: #111; border-top: 1px solid #222; }
+        .tools { display: flex; gap: 15px; margin-bottom: 10px; color: #888; font-size: 18px; }
+        .tools i { cursor: pointer; }
+        .tools i:hover { color: var(--s); }
 
-        /* منطقة الكتابة والزخرفة */
-        .input-area { background: #151515; padding: 15px; border-top: 1px solid #333; }
-        .tools { display: flex; gap: 8px; margin-bottom: 10px; }
-        .t-btn { background: #333; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .write-box { display: flex; gap: 10px; }
+        #msgIn { flex: 1; background: #000; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; outline: none; }
+        .send-btn { background: var(--p); border: none; padding: 0 25px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
 
-        .input-row { display: flex; gap: 10px; }
-        input[type="text"] { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; outline: none; }
-        .send-btn { background: var(--king); border: none; padding: 0 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
-        .img-preview { max-width: 150px; border-radius: 8px; border: 1px solid var(--king); margin-top: 10px; }
+        /* نظام اللمعان */
+        .glow { font-weight: bold; text-shadow: 0 0 10px var(--p); animation: glowAnim 2s infinite; }
+        @keyframes glowAnim { 0%, 100% { color: var(--p); } 50% { color: var(--s); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <div onclick="toggleL()" style="cursor:pointer; font-size: 22px;">☰</div>
-        <div style="font-weight:bold;">👑 مـمـلـكـة عـلـوش 👑</div>
-        <div style="font-size: 12px; color: gold;">ONLINE: 1,500</div>
+<header>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <span style="color:var(--s); cursor:pointer;">☰</span>
+        <strong class="glow">مملكة علوش العالمية</strong>
     </div>
+    <div style="font-size:12px;">المتواجدون: <span style="color:var(--s)">1,248</span></div>
+</header>
 
-    <div class="wrapper">
-        <div id="sideL" class="side-left">
-            <h3 style="color:var(--king); margin-bottom:15px;">لوحة الإدارة</h3>
-            <div style="cursor:pointer; padding:10px; border-bottom:1px solid #333;">📢 إعلان عام</div>
-            <div style="cursor:pointer; padding:10px; border-bottom:1px solid #333;">🔇 كتم الجميع</div>
-            <div style="cursor:pointer; padding:10px; border-bottom:1px solid #333;">🖼️ تغيير الخلفية</div>
-            <button onclick="toggleL()" style="margin-top:20px; width:100%; background:#c00; color:white; border:none; padding:8px;">إغلاق</button>
-        </div>
-
-        <div class="chat-main">
-            <div id="msg-display">
-                <div style="text-align:center; color:#555; font-size:11px;">[ نظام الحماية الملكي نشط ]</div>
-            </div>
-            
-            <div class="input-area">
-                <div class="tools">
-                    <button class="t-btn" onclick="addText('⚔️')">⚔️</button>
-                    <button class="t-btn" onclick="addText('👑')">👑</button>
-                    <button class="t-btn" onclick="document.getElementById('f').click()">📷 صورة</button>
-                    <input type="file" id="f" hidden onchange="sendImg(event)">
-                </div>
-                <div class="input-row">
-                    <input type="text" id="in" placeholder="اكتب رسالتك هنا...">
-                    <button class="send-btn" onclick="send()">إرسال</button>
+<div class="app-body">
+    <div class="users-side">
+        <div class="u-search"><input type="text" placeholder="بحث عن ملك..."></div>
+        <div class="u-list">
+            <div class="user">
+                <div class="u-avatar" style="background: url('https://via.placeholder.com/35')"></div>
+                <div>
+                    <div class="glow" style="font-size:13px;">👑 علوش الملك</div>
+                    <div style="font-size:10px; color:#0f0;">متصل الآن</div>
                 </div>
             </div>
+            </div>
+    </div>
+
+    <div class="chat-side">
+        <div class="chat-tabs">
+            <div class="tab active">الروم العام</div>
+            <div class="tab">المسابقات</div>
+            <div class="tab">الخاص (0)</div>
+            <div class="tab" style="color:gold;">⭐ متجر الهدايا</div>
         </div>
 
-        <div class="side-right">
-            <div class="r-header">المتواجدون</div>
-            <div class="u-item"><span class="king-glow">👑 علوش الملك</span></div>
-            <div class="u-item" style="color:#00ff00;">🛡️ مشرف_بغداد</div>
-            <div class="u-item" style="color:#ccc;">👤 زائر_101</div>
+        <div id="messages">
+            <div class="msg">
+                <div class="msg-header"><span class="glow">👑 علوش الملك</span> <small style="color:#666">10:45 م</small></div>
+                <div class="msg-text king-text">أهلاً بكم في النسخة المتكاملة. تم إضافة نظام السكاشن والخلفيات بنجاح.</div>
+            </div>
+        </div>
+
+        <div class="input-footer">
+            <div class="tools">
+                <span title="إيموجي">😊</span>
+                <span title="رفع صورة" onclick="document.getElementById('f').click()">📷</span>
+                <input type="file" id="f" hidden>
+                <span title="زخرفة">✨</span>
+                <span title="تغيير اللون">🎨</span>
+            </div>
+            <div class="write-box">
+                <input type="text" id="msgIn" placeholder="اكتب رسالتك للمملكة...">
+                <button class="send-btn" onclick="send()">إرسال</button>
+            </div>
         </div>
     </div>
+</div>
 
 <script>
-    function toggleL() { document.getElementById('sideL').classList.toggle('active'); }
-    function addText(t) { document.getElementById('in').value += t; }
-
     function send() {
-        let i = document.getElementById('in');
+        let i = document.getElementById('msgIn');
         if(!i.value) return;
-        appendMsg(i.value, 'text');
+        let m = document.getElementById('messages');
+        let d = document.createElement('div');
+        d.className = 'msg';
+        d.innerHTML = `
+            <div class="msg-header"><span class="glow">👑 علوش الملك</span> <small style="color:#666">الآن</small></div>
+            <div class="msg-text king-text">${i.value}</div>
+        `;
+        m.appendChild(d);
         i.value = "";
+        m.scrollTop = m.scrollHeight;
     }
-
-    function appendMsg(content, type) {
-        let d = document.getElementById('msg-display');
-        let m = document.createElement('div');
-        m.style.marginBottom = "10px";
-        let inner = `<span class="king-glow">علوش الملك:</span> `;
-        if(type === 'text') inner += `<span>${content}</span>`;
-        else inner += `<br><img src="${content}" class="img-preview">`;
-        m.innerHTML = inner;
-        d.appendChild(m);
-        d.scrollTop = d.scrollHeight;
-    }
-
-    function sendImg(e) {
-        let file = e.target.files[0];
-        if(file) {
-            let reader = new FileReader();
-            reader.onload = (ev) => appendMsg(ev.target.result, 'img');
-            reader.readAsDataURL(file);
-        }
-    }
-
-    document.getElementById('in').addEventListener('keypress', (e) => { if(e.key === 'Enter') send(); });
 </script>
 
 </body>
