@@ -1,118 +1,87 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>مملكة علوش | النظام المستقر</title>
     <style>
-        body { margin: 0; background-color: #000 !important; color: gold; font-family: Arial; height: 100vh; overflow: hidden; }
-        
+        body { margin: 0; background: #000 !important; color: gold; font-family: sans-serif; overflow: hidden; }
         /* الجهات الجانبية */
-        .side-panel { position: fixed; top: 0; width: 280px; height: calc(100vh - 80px); background: rgba(15,15,15,0.98); border: 1px solid gold; z-index: 1000; padding: 15px; overflow-y: auto; transition: 0.5s; }
-        #left-panel { left: 0; } #right-panel { right: 0; }
-
-        /* الشات وسط الشاشة (الميزة المطلوبة) */
-        #screen-chat { position: absolute; top: 20%; width: 100%; display: flex; flex-direction: column; align-items: center; pointer-events: none; z-index: 500; }
-        .floating-msg { background: rgba(255, 215, 0, 0.2); border: 1px solid gold; padding: 10px 20px; border-radius: 20px; margin-bottom: 10px; animation: fadeInUp 0.5s forwards; color: #fff; font-weight: bold; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* اليوتيوب في الميزات */
-        .yt-item { border: 1px solid gold; margin-top: 10px; position: relative; border-radius: 5px; background: #000; padding: 5px; }
-        .close-vid { position: absolute; top: -5px; left: -5px; background: red; color: white; border-radius: 50%; border: none; cursor: pointer; width: 20px; height: 20px; }
+        .side { position: fixed; top: 0; width: 250px; height: 100vh; background: #0a0a0a; border: 1px solid gold; padding: 10px; z-index: 100; }
+        #left { left: 0; } #right { right: 0; }
+        
+        /* رسائل الشات في وسط الشاشة */
+        #screen-msg { position: fixed; top: 30%; width: 100%; text-align: center; pointer-events: none; z-index: 50; }
+        .bubble { background: rgba(255,215,0,0.2); border: 1px solid gold; display: inline-block; padding: 10px 20px; border-radius: 15px; margin-bottom: 5px; clear: both; }
 
         /* الملف الشخصي */
-        #profile-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #0a0a0a; border: 2px solid gold; z-index: 6000; display: none; padding: 20px; border-radius: 15px; box-shadow: 0 0 50px gold; }
-        .close-x { position: absolute; top: 10px; left: 10px; color: red; cursor: pointer; font-size: 20px; font-weight: bold; }
-        .profile-imgs { position: relative; height: 150px; text-align: center; }
-        .cover { width: 100%; height: 100px; background: #222; border-radius: 10px; border: 1px solid gold; }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid gold; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: #000; }
-        .inputs input { width: 95%; margin: 5px 0; background: #000; border: 1px solid #444; color: gold; padding: 8px; border-radius: 5px; }
+        #profile { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; background: #000; border: 2px solid gold; padding: 20px; display: none; z-index: 1000; border-radius: 15px; }
+        .img-circle { width: 70px; height: 70px; border-radius: 50%; border: 2px solid gold; margin: 10px auto; display: block; }
+        .img-rect { width: 100%; height: 80px; background: #222; border: 1px solid gold; margin-bottom: 40px; }
+        .close-btn { color: red; cursor: pointer; float: left; font-weight: bold; }
 
-        /* التحكم الأسفل */
-        .footer-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: #050505; border-top: 2px solid gold; display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        #main-in { width: 60%; padding: 12px; border-radius: 25px; border: 1px solid gold; background: #000; color: gold; outline: none; }
+        /* اليوتيوب */
+        .yt-box { border: 1px solid gold; margin-top: 10px; padding: 5px; position: relative; }
+
+        /* الشريط السفلي */
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; height: 70px; background: #050505; border-top: 1px solid gold; display: flex; align-items: center; justify-content: center; z-index: 200; }
+        input { width: 60%; padding: 10px; border-radius: 20px; border: 1px solid gold; background: #000; color: gold; outline: none; }
     </style>
 </head>
 <body>
 
-    <div id="screen-chat"></div>
-
-    <div id="profile-box">
-        <span class="close-x" onclick="toggleProfile(false)">X</span>
-        <div class="profile-imgs">
-            <div class="cover">شاشة كبيرة (غلاف)</div>
-            <div class="avatar">صورة دائرية</div>
-        </div>
-        <div class="inputs">
-            <label style="font-size:10px;">البريد</label><input type="text" value="king@aalloush.com">
-            <label style="font-size:10px;">العمر</label><input type="number" value="25">
-            <label style="font-size:10px;">تاريخ الانضمام</label><input type="text" value="2025-12-28" readonly>
-            <label style="font-size:10px;">الرمز الحالي</label><input type="password" value="123456">
-            <label style="font-size:10px;">تغيير الرمز</label><input type="password" placeholder="الرمز الجديد">
-            <button onclick="toggleProfile(false)" style="width:100%; background:gold; border:none; padding:10px; margin-top:10px; font-weight:bold; cursor:pointer;">حفظ ✅</button>
-        </div>
+    <div id="screen-msg"></div> <div id="left" class="side">
+        <h4>🔍 يوتيوب</h4>
+        <input type="text" id="yt-in" placeholder="بحث..." style="width:70%; font-size:10px;">
+        <button onclick="doSearch()" style="background:gold; border:none; cursor:pointer;">🔍</button>
+        <div id="yt-res"></div>
     </div>
 
-    <div id="left-panel" class="side-panel">
-        <h3>📜 الميزات واليوتيوب</h3>
-        <input type="text" id="yt-search" placeholder="ابحث هنا..." style="width:70%; background:#000; border:1px solid gold; color:gold;">
-        <button onclick="searchVideo()" style="background:gold; border:none; cursor:pointer;">🔍</button>
-        <div id="yt-results"></div>
-    </div>
-
-    <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;" onclick="toggleSides()">
-        <h1 style="font-size: 50px; text-shadow: 0 0 20px gold;">مملكة علوش</h1>
-        <p>الكارما: 1205</p>
-    </div>
-
-    <div id="right-panel" class="side-panel">
-        <h3>👥 شعب المملكة</h3>
+    <div id="right" class="side">
+        <h4>👥 المتصلون</h4>
         <p>👑 علوش_الإمبراطور</p>
-        <p style="color:cyan;">🤖 BOT_GUARD</p>
+        <p>🤖 BOT_GUARD</p>
     </div>
 
-    <div class="footer-bar">
-        <input type="text" id="main-in" placeholder="اكتب 'علوش' للملف أو أي شيء للشات...">
-        <button onclick="processCommand()" style="background:gold; border:none; margin-left:10px; padding:10px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">إرسال</button>
+    <div id="profile">
+        <span class="close-btn" onclick="openProfile(false)">X</span>
+        <div class="img-rect">غلاف (شاشة كبيرة)</div>
+        <img src="https://via.placeholder.com/70" class="img-circle">
+        <input type="text" placeholder="البريد" value="king@aalloush.com" style="width:90%; margin:5px 0;">
+        <input type="number" placeholder="العمر" value="25" style="width:90%; margin:5px 0;">
+        <input type="password" placeholder="الرمز الحالي" style="width:90%; margin:5px 0;">
+        <input type="password" placeholder="تغيير الرمز" style="width:90%; margin:5px 0;">
+        <button onclick="openProfile(false)" style="width:100%; background:gold; border:none; padding:8px; margin-top:10px; cursor:pointer;">حفظ ✅</button>
+    </div>
+
+    <div class="bottom-bar">
+        <input type="text" id="msg-in" placeholder="اكتب 'علوش' للملف أو أي شيء للشات...">
+        <button onclick="send()" style="background:gold; border:none; margin-left:10px; padding:10px 20px; border-radius:20px; cursor:pointer;">إرسال</button>
     </div>
 
     <script>
-        function processCommand() {
-            const input = document.getElementById('main-in');
-            const val = input.value.trim();
-            const screenChat = document.getElementById('screen-chat');
-
+        function send() {
+            let val = document.getElementById('msg-in').value;
             if(val === "علوش") {
-                toggleProfile(true);
+                openProfile(true);
             } else if(val !== "") {
-                // إظهار الرسالة في وسط الشاشة
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'floating-msg';
-                msgDiv.innerText = val;
-                screenChat.appendChild(msgDiv);
-                setTimeout(() => msgDiv.remove(), 5000); // تختفي بعد 5 ثوانٍ
+                let b = document.createElement('div');
+                b.className = 'bubble';
+                b.innerText = val;
+                document.getElementById('screen-msg').appendChild(b);
+                setTimeout(() => b.remove(), 4000);
             }
-            input.value = "";
+            document.getElementById('msg-in').value = "";
         }
 
-        function searchVideo() {
-            const q = document.getElementById('yt-search').value;
-            const res = document.getElementById('yt-results');
-            if(q) {
-                const item = document.createElement('div');
-                item.className = 'yt-item';
-                item.innerHTML = `
-                    <button class="close-vid" onclick="this.parentElement.remove()">X</button>
-                    <iframe width="100%" height="150" src="https://www.youtube.com/embed?listType=search&list=${q}" frameborder="0"></iframe>
-                `;
-                res.prepend(item);
-            }
+        function doSearch() {
+            let q = document.getElementById('yt-in').value;
+            let res = document.getElementById('yt-res');
+            let div = document.createElement('div');
+            div.className = 'yt-box';
+            div.innerHTML = `<button onclick="this.parentElement.remove()" style="color:red; border:none; background:none; cursor:pointer; float:left;">X</button>
+                             <iframe width="100%" height="120" src="https://www.youtube.com/embed?listType=search&list=${q}" frameborder="0"></iframe>`;
+            res.prepend(div);
         }
 
-        function toggleProfile(show) { document.getElementById('profile-box').style.display = show ? 'block' : 'none'; }
-        function toggleSides() {
-            document.getElementById('left-panel').style.display = (document.getElementById('left-panel').style.display === 'none') ? 'block' : 'none';
-            document.getElementById('right-panel').style.display = (document.getElementById('right-panel').style.display === 'none') ? 'block' : 'none';
-        }
+        function openProfile(s) { document.getElementById('profile').style.display = s ? 'block' : 'none'; }
     </script>
 </body>
 </html>
