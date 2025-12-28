@@ -2,143 +2,116 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش | النظام الشامل</title>
+    <title>مملكة علوش | النظام المستقر</title>
     <style>
         body { margin: 0; background-color: #000 !important; color: gold; font-family: Arial; height: 100vh; overflow: hidden; }
         
-        /* الجوانب */
-        .side-panel { position: fixed; top: 0; width: 280px; height: calc(100vh - 80px); background: rgba(10,10,10,0.98); border: 1px solid gold; z-index: 1000; transition: 0.5s; padding: 15px; overflow-y: auto; }
-        #left-panel { left: 0; }
-        #right-panel { right: 0; }
+        /* الجهات الجانبية */
+        .side-panel { position: fixed; top: 0; width: 280px; height: calc(100vh - 80px); background: rgba(15,15,15,0.98); border: 1px solid gold; z-index: 1000; padding: 15px; overflow-y: auto; transition: 0.5s; }
+        #left-panel { left: 0; } #right-panel { right: 0; }
 
-        /* منطقة اليوتيوب داخل الميزات */
-        .yt-card { border: 1px solid gold; border-radius: 8px; overflow: hidden; background: #050505; margin-top: 10px; position: relative; }
-        .close-vid { position: absolute; top: 0; left: 0; background: red; color: white; border: none; cursor: pointer; z-index: 10; padding: 2px 8px; }
+        /* الشات وسط الشاشة (الميزة المطلوبة) */
+        #screen-chat { position: absolute; top: 20%; width: 100%; display: flex; flex-direction: column; align-items: center; pointer-events: none; z-index: 500; }
+        .floating-msg { background: rgba(255, 215, 0, 0.2); border: 1px solid gold; padding: 10px 20px; border-radius: 20px; margin-bottom: 10px; animation: fadeInUp 0.5s forwards; color: #fff; font-weight: bold; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* الملف الشخصي (Overlay) */
-        #profile-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 5000; display: none;
-            flex-direction: column; align-items: center; justify-content: flex-start;
-        }
-        .profile-card {
-            width: 80%; max-width: 600px; background: #0a0a0a; border: 2px solid gold;
-            margin-top: 50px; position: relative; padding-bottom: 20px; border-radius: 15px;
-        }
-        .cover-photo { width: 100%; height: 150px; background: linear-gradient(to right, #111, gold, #111); border-radius: 13px 13px 0 0; object-fit: cover; }
-        .profile-img { width: 120px; height: 120px; border-radius: 50%; border: 4px solid gold; position: absolute; top: 90px; right: 20px; background: #000; }
-        
-        .close-profile { position: absolute; top: 15px; left: 15px; font-size: 25px; color: gold; cursor: pointer; font-weight: bold; }
-        
-        .profile-fields { margin-top: 80px; padding: 20px; }
-        .field-group { margin-bottom: 15px; }
-        .field-group label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
-        .field-group input { width: 90%; background: #111; border: 1px solid #333; color: gold; padding: 8px; border-radius: 5px; }
+        /* اليوتيوب في الميزات */
+        .yt-item { border: 1px solid gold; margin-top: 10px; position: relative; border-radius: 5px; background: #000; padding: 5px; }
+        .close-vid { position: absolute; top: -5px; left: -5px; background: red; color: white; border-radius: 50%; border: none; cursor: pointer; width: 20px; height: 20px; }
 
-        .btn-save { background: gold; color: black; border: none; padding: 10px 30px; border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        /* الملف الشخصي */
+        #profile-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: #0a0a0a; border: 2px solid gold; z-index: 6000; display: none; padding: 20px; border-radius: 15px; box-shadow: 0 0 50px gold; }
+        .close-x { position: absolute; top: 10px; left: 10px; color: red; cursor: pointer; font-size: 20px; font-weight: bold; }
+        .profile-imgs { position: relative; height: 150px; text-align: center; }
+        .cover { width: 100%; height: 100px; background: #222; border-radius: 10px; border: 1px solid gold; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid gold; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: #000; }
+        .inputs input { width: 95%; margin: 5px 0; background: #000; border: 1px solid #444; color: gold; padding: 8px; border-radius: 5px; }
 
-        /* الشات والكتابة */
-        #chat-box { height: 75%; overflow-y: auto; padding: 10px; }
-        .footer-input { position: fixed; bottom: 0; width: 100%; height: 80px; background: #050505; border-top: 2px solid gold; display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        #main-input { width: 60%; padding: 12px; border-radius: 20px; border: 1px solid gold; background: #000; color: gold; }
+        /* التحكم الأسفل */
+        .footer-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: #050505; border-top: 2px solid gold; display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        #main-in { width: 60%; padding: 12px; border-radius: 25px; border: 1px solid gold; background: #000; color: gold; outline: none; }
     </style>
 </head>
 <body>
 
-    <div id="profile-overlay">
-        <div class="profile-card">
-            <span class="close-profile" onclick="closeProfile()">X</span>
-            <img src="https://via.placeholder.com/600x150/111/gold?text=Kingdom+Cover" class="cover-photo" title="شاشة الغلاف">
-            <img src="https://via.placeholder.com/120/000/gold?text=King" class="profile-img" title="صورة دائرية">
-            
-            <div class="profile-fields">
-                <h2 style="margin:0;">تعديل ملف الملك</h2>
-                <div class="field-group">
-                    <label>البريد الإلكتروني</label>
-                    <input type="text" id="p-email" value="king@aalloush.com">
-                </div>
-                <div class="field-group">
-                    <label>العمر</label>
-                    <input type="number" id="p-age" value="25">
-                </div>
-                <div class="field-group">
-                    <label>تاريخ الدخول</label>
-                    <input type="text" id="p-date" value="2025-12-28" readonly>
-                </div>
-                <div class="field-group">
-                    <label>الرمز الحالي</label>
-                    <input type="password" id="p-pass" value="123456">
-                </div>
-                <div class="field-group">
-                    <label>تغيير الرمز</label>
-                    <input type="password" id="p-new-pass" placeholder="اترك فارغاً لعدم التغيير">
-                </div>
-                <button class="btn-save" onclick="saveProfile()">حفظ التغييرات 💾</button>
-            </div>
+    <div id="screen-chat"></div>
+
+    <div id="profile-box">
+        <span class="close-x" onclick="toggleProfile(false)">X</span>
+        <div class="profile-imgs">
+            <div class="cover">شاشة كبيرة (غلاف)</div>
+            <div class="avatar">صورة دائرية</div>
+        </div>
+        <div class="inputs">
+            <label style="font-size:10px;">البريد</label><input type="text" value="king@aalloush.com">
+            <label style="font-size:10px;">العمر</label><input type="number" value="25">
+            <label style="font-size:10px;">تاريخ الانضمام</label><input type="text" value="2025-12-28" readonly>
+            <label style="font-size:10px;">الرمز الحالي</label><input type="password" value="123456">
+            <label style="font-size:10px;">تغيير الرمز</label><input type="password" placeholder="الرمز الجديد">
+            <button onclick="toggleProfile(false)" style="width:100%; background:gold; border:none; padding:10px; margin-top:10px; font-weight:bold; cursor:pointer;">حفظ ✅</button>
         </div>
     </div>
 
     <div id="left-panel" class="side-panel">
-        <h3>🔍 بحث اليوتيوب الملكي</h3>
-        <input type="text" id="yt-query" placeholder="ابحث..." style="width:70%; background:#000; color:gold; border:1px solid gold;">
-        <button onclick="searchYT()" style="background:gold; border:none; cursor:pointer;">بحث</button>
-        <div id="video-list"></div>
+        <h3>📜 الميزات واليوتيوب</h3>
+        <input type="text" id="yt-search" placeholder="ابحث هنا..." style="width:70%; background:#000; border:1px solid gold; color:gold;">
+        <button onclick="searchVideo()" style="background:gold; border:none; cursor:pointer;">🔍</button>
+        <div id="yt-results"></div>
     </div>
 
-    <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-        <h1 style="font-size:50px; text-shadow: 0 0 20px gold;">مملكة علوش</h1>
-        <div id="karma-val" style="font-size:20px;">الكارما: 1205</div>
+    <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;" onclick="toggleSides()">
+        <h1 style="font-size: 50px; text-shadow: 0 0 20px gold;">مملكة علوش</h1>
+        <p>الكارما: 1205</p>
     </div>
 
     <div id="right-panel" class="side-panel">
-        <h3>💬 الشات</h3>
-        <div id="chat-box"></div>
+        <h3>👥 شعب المملكة</h3>
+        <p>👑 علوش_الإمبراطور</p>
+        <p style="color:cyan;">🤖 BOT_GUARD</p>
     </div>
 
-    <div class="footer-input">
-        <input type="text" id="main-input" placeholder="اكتب 'علوش' لفتح ملفك الشخصي...">
-        <button onclick="handleAction()" style="background:gold; border:none; margin-left:10px; padding:10px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">إرسال</button>
+    <div class="footer-bar">
+        <input type="text" id="main-in" placeholder="اكتب 'علوش' للملف أو أي شيء للشات...">
+        <button onclick="processCommand()" style="background:gold; border:none; margin-left:10px; padding:10px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">إرسال</button>
     </div>
 
     <script>
-        // حل مشكلة اليوتيوب (استخدام طريقة البحث الآمنة)
-        function searchYT() {
-            const q = document.getElementById('yt-query').value;
-            if(q) {
-                const card = document.createElement('div');
-                card.className = 'yt-card';
-                card.innerHTML = `
-                    <button class="close-vid" onclick="this.parentElement.remove()">X</button>
-                    <iframe width="100%" height="150" src="https://www.youtube.com/embed?listType=search&list=${q}" frameborder="0" allowfullscreen></iframe>
-                `;
-                document.getElementById('video-list').prepend(card);
-                document.getElementById('yt-query').value = "";
-            }
-        }
-
-        // التعامل مع المفتاح والشات
-        function handleAction() {
-            const input = document.getElementById('main-input');
+        function processCommand() {
+            const input = document.getElementById('main-in');
             const val = input.value.trim();
-            const chat = document.getElementById('chat-box');
+            const screenChat = document.getElementById('screen-chat');
 
             if(val === "علوش") {
-                document.getElementById('profile-overlay').style.display = 'flex';
+                toggleProfile(true);
             } else if(val !== "") {
-                const m = document.createElement('div');
-                m.style.padding = "5px"; m.style.borderBottom = "1px solid #222";
-                m.innerHTML = `<b>أنت:</b> ${val}`;
-                chat.appendChild(m);
-                chat.scrollTop = chat.scrollHeight;
+                // إظهار الرسالة في وسط الشاشة
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'floating-msg';
+                msgDiv.innerText = val;
+                screenChat.appendChild(msgDiv);
+                setTimeout(() => msgDiv.remove(), 5000); // تختفي بعد 5 ثوانٍ
             }
             input.value = "";
         }
 
-        function closeProfile() { document.getElementById('profile-overlay').style.display = 'none'; }
+        function searchVideo() {
+            const q = document.getElementById('yt-search').value;
+            const res = document.getElementById('yt-results');
+            if(q) {
+                const item = document.createElement('div');
+                item.className = 'yt-item';
+                item.innerHTML = `
+                    <button class="close-vid" onclick="this.parentElement.remove()">X</button>
+                    <iframe width="100%" height="150" src="https://www.youtube.com/embed?listType=search&list=${q}" frameborder="0"></iframe>
+                `;
+                res.prepend(item);
+            }
+        }
 
-        function saveProfile() {
-            alert("✅ تم حفظ البيانات الملكية بنجاح!");
-            closeProfile();
+        function toggleProfile(show) { document.getElementById('profile-box').style.display = show ? 'block' : 'none'; }
+        function toggleSides() {
+            document.getElementById('left-panel').style.display = (document.getElementById('left-panel').style.display === 'none') ? 'block' : 'none';
+            document.getElementById('right-panel').style.display = (document.getElementById('right-panel').style.display === 'none') ? 'block' : 'none';
         }
     </script>
 </body>
