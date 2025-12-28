@@ -2,41 +2,144 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش | النسخة الملكية الكاملة</title>
+    <title>مملكة علوش | النسخة الذهبية</title>
     <style>
         :root { --king: #bc13fe; --accent: #00f2fe; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #000; color: white; font-family: 'Tahoma', sans-serif; height: 100vh; overflow: hidden; }
-
-        /* الهيدر العلوي */
-        header { height: 60px; background: #111; border-bottom: 2px solid var(--king); display: flex; align-items: center; padding: 0 20px; justify-content: space-between; box-shadow: 0 0 20px rgba(188, 19, 254, 0.3); }
         
-        .main-grid { display: grid; grid-template-columns: 280px 1fr 220px; height: calc(100vh - 60px); }
+        body { 
+            background: #000; 
+            color: white; 
+            font-family: 'Tahoma', sans-serif; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+        }
 
-        /* قسم اليوتيوب (اليسار) */
-        .yt-side { background: #0a0a0a; border-left: 1px solid #333; padding: 15px; overflow-y: auto; }
-        .yt-input { width: 100%; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; margin-bottom: 5px; outline: none; }
-        .yt-btn { width: 100%; background: #ff0000; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.3s; }
-        .yt-btn:hover { background: #cc0000; box-shadow: 0 0 10px red; }
-        .yt-card { background: #1a1a1a; margin-top: 15px; padding: 8px; border: 1px solid #333; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-        .yt-card:hover { border-color: var(--king); background: #222; }
+        /* الهيدر ثابت فوق */
+        header { 
+            height: 60px; 
+            background: #111; 
+            border-bottom: 2px solid var(--king); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            flex-shrink: 0;
+        }
 
-        /* الشات (الوسط) */
-        .chat-area { display: flex; flex-direction: column; background: #050505; border-left: 1px solid #333; border-right: 1px solid #333; position: relative; }
-        #msg-box { flex: 1; padding: 20px; overflow-y: auto; background: url('https://www.transparenttextures.com/patterns/dark-matter.png'); }
-        #player-zone { position: absolute; top: 0; left: 0; width: 100%; z-index: 100; background: #000; border-bottom: 2px solid var(--king); display: none; }
+        .main-container { 
+            display: flex; 
+            flex: 1; 
+            overflow: hidden; /* يمنع السواد والاختفاء */
+        }
 
-        /* الكتابة (الأسفل) */
-        .footer { padding: 15px; background: #111; display: flex; gap: 10px; border-top: 1px solid #333; }
-        .chat-input { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 5px; outline: none; }
-        .send-btn { background: var(--king); color: white; border: none; padding: 0 25px; cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.3s; }
-        .send-btn:hover { background: #9b10d1; box-shadow: 0 0 15px var(--king); }
+        /* يسار: يوتيوب */
+        .yt-side { 
+            width: 280px; 
+            background: #0a0a0a; 
+            border-left: 1px solid #333; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 10px;
+        }
 
-        /* تأثيرات الهيبة الملكية */
+        /* وسط: الشات */
+        .chat-side { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            background: #050505;
+            position: relative;
+        }
+
+        #msg-box { 
+            flex: 1; 
+            padding: 15px; 
+            overflow-y: auto; 
+            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+        }
+
+        /* يمين: الأسماء */
+        .names-side { 
+            width: 220px; 
+            background: #0a0a0a; 
+            border-right: 1px solid #333; 
+            padding: 10px;
+        }
+
+        /* منطقة الكتابة */
+        .footer { 
+            height: 70px; 
+            background: #111; 
+            display: flex; 
+            padding: 10px; 
+            gap: 10px; 
+            border-top: 1px solid #333;
+        }
+
+        input { background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; outline: none; }
+        .btn-king { background: var(--king); color: white; border: none; padding: 0 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* لمعان اسم الملك */
         .king-glow { 
             font-weight: bold; 
-            text-shadow: 0 0 15px #bc13fe, 0 0 25px #00f2fe; 
-            background: linear-gradient(to right, #bc13fe, #00f2fe, #ff00ff, #bc13fe);
-            background-size: 200% auto;
+            text-shadow: 0 0 10px var(--king); 
+            background: linear-gradient(45deg, #bc13fe, #00f2fe);
             -webkit-background-clip: text;
-            -
+            -webkit-text-fill-color: transparent;
+        }
+
+        .yt-item { background: #1a1a1a; margin-top: 10px; padding: 5px; border-radius: 5px; cursor: pointer; }
+        #player-zone { width: 100%; background: #000; display: none; border-bottom: 2px solid var(--king); }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2 class="king-glow">👑 مـمـلـكـة عـلـوش 👑</h2>
+</header>
+
+<div class="main-container">
+    <div class="yt-side">
+        <input type="text" id="ytIn" placeholder="بحث يوتيوب..." style="width:100%">
+        <button class="btn-king" style="background:red; width:100%; margin-top:5px; height:35px;" onclick="searchYT()">بحث</button>
+        <div id="yt-list" style="overflow-y:auto; flex:1"></div>
+    </div>
+
+    <div class="chat-side">
+        <div id="player-zone"></div>
+        <div id="msg-box">
+            <div style="text-align:center; color:gold; border:1px solid gold; padding:10px; margin-bottom:20px; border-radius:10px;">
+                ✨ أهلاً بك يا ملك في نسختك الثابتة ✨
+            </div>
+        </div>
+        <div class="footer">
+            <input type="text" id="chatIn" style="flex:1" placeholder="اكتب هنا...">
+            <button class="btn-king" onclick="sendMsg()">إرسال</button>
+        </div>
+    </div>
+
+    <div class="names-side">
+        <p style="color:#555; font-size:12px; text-align:center;">المتواجدون</p>
+        <div style="margin-top:15px;">
+            <span style="color:gold">👑</span> <span class="king-glow">علوش الملك</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
+
+    async function searchYT() {
+        const q = document.getElementById('ytIn').value;
+        if(!q) return;
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const list = document.getElementById('yt-list');
+        list.innerHTML = "";
+        data.items.forEach(item => {
+            const d = document.createElement('div');
+            d.className = 'yt-item';
+            d.onclick = () => {
+                const p = document.getElementById('player-zone
