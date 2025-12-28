@@ -2,144 +2,117 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش | النسخة الذهبية</title>
+    <title>مملكة علوش | النسخة النهائية المستقرة</title>
     <style>
-        :root { --king: #bc13fe; --accent: #00f2fe; }
+        :root { --king: #bc13fe; --accent: #00f2fe; --bg: #050505; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #000; color: white; font-family: 'Tahoma', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* الهيدر */
+        header { height: 60px; background: #111; border-bottom: 2px solid var(--king); display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 100; }
+        .glow-title { font-weight: bold; text-shadow: 0 0 15px var(--king); background: linear-gradient(to right, #bc13fe, #00f2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 22px; }
+
+        /* التقسيم الرئيسي */
+        .wrapper { display: flex; flex: 1; overflow: hidden; }
+
+        /* 1. قائمة الأسماء (يمين) */
+        .side-right { width: 220px; background: #0a0a0a; border-left: 1px solid #222; padding: 15px; flex-shrink: 0; overflow-y: auto; }
         
-        body { 
-            background: #000; 
-            color: white; 
-            font-family: 'Tahoma', sans-serif; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column;
-        }
+        /* 2. منطقة الشات (وسط) */
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: #000; border-left: 1px solid #222; border-right: 1px solid #222; min-width: 400px; }
+        #msg-view { flex: 1; padding: 20px; overflow-y: auto; background-image: radial-gradient(#111 1px, transparent 1px); background-size: 20px 20px; }
+        
+        /* 3. قائمة اليوتيوب (يسار) */
+        .side-left { width: 280px; background: #0a0a0a; border-right: 1px solid #222; padding: 15px; flex-shrink: 0; overflow-y: auto; display: flex; flex-direction: column; }
 
-        /* الهيدر ثابت فوق */
-        header { 
-            height: 60px; 
-            background: #111; 
-            border-bottom: 2px solid var(--king); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            flex-shrink: 0;
-        }
+        /* صندوق الكتابة (أسفل الوسط) */
+        .chat-footer { padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px; }
+        input { background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; outline: none; flex: 1; }
+        input:focus { border-color: var(--king); }
+        .btn { border: none; padding: 0 20px; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-send { background: var(--king); }
+        .btn-yt { background: #ff0000; margin-top: 5px; height: 35px; width: 100%; }
 
-        .main-container { 
-            display: flex; 
-            flex: 1; 
-            overflow: hidden; /* يمنع السواد والاختفاء */
-        }
+        /* مشغل الفيديو */
+        #yt-player { width: 100%; background: #000; display: none; border-bottom: 2px solid var(--king); }
 
-        /* يسار: يوتيوب */
-        .yt-side { 
-            width: 280px; 
-            background: #0a0a0a; 
-            border-left: 1px solid #333; 
-            display: flex; 
-            flex-direction: column; 
-            padding: 10px;
-        }
-
-        /* وسط: الشات */
-        .chat-side { 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            background: #050505;
-            position: relative;
-        }
-
-        #msg-box { 
-            flex: 1; 
-            padding: 15px; 
-            overflow-y: auto; 
-            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-        }
-
-        /* يمين: الأسماء */
-        .names-side { 
-            width: 220px; 
-            background: #0a0a0a; 
-            border-right: 1px solid #333; 
-            padding: 10px;
-        }
-
-        /* منطقة الكتابة */
-        .footer { 
-            height: 70px; 
-            background: #111; 
-            display: flex; 
-            padding: 10px; 
-            gap: 10px; 
-            border-top: 1px solid #333;
-        }
-
-        input { background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; outline: none; }
-        .btn-king { background: var(--king); color: white; border: none; padding: 0 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
-        /* لمعان اسم الملك */
-        .king-glow { 
-            font-weight: bold; 
-            text-shadow: 0 0 10px var(--king); 
-            background: linear-gradient(45deg, #bc13fe, #00f2fe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .yt-item { background: #1a1a1a; margin-top: 10px; padding: 5px; border-radius: 5px; cursor: pointer; }
-        #player-zone { width: 100%; background: #000; display: none; border-bottom: 2px solid var(--king); }
+        .yt-card { background: #151515; margin-top: 10px; padding: 8px; border-radius: 5px; cursor: pointer; border: 1px solid transparent; }
+        .yt-card:hover { border-color: var(--king); }
+        .king-name { color: var(--king); font-weight: bold; text-shadow: 0 0 5px var(--king); }
     </style>
 </head>
 <body>
 
 <header>
-    <h2 class="king-glow">👑 مـمـلـكـة عـلـوش 👑</h2>
+    <div class="glow-title">👑 مـمـلـكـة عـلـوش 👑</div>
 </header>
 
-<div class="main-container">
-    <div class="yt-side">
-        <input type="text" id="ytIn" placeholder="بحث يوتيوب..." style="width:100%">
-        <button class="btn-king" style="background:red; width:100%; margin-top:5px; height:35px;" onclick="searchYT()">بحث</button>
-        <div id="yt-list" style="overflow-y:auto; flex:1"></div>
+<div class="wrapper">
+    <div class="side-right">
+        <p style="color:#444; font-size:12px; text-align:center; margin-bottom:15px;">المتواجدون</p>
+        <div>👑 <span class="king-name">علوش الملك</span></div>
     </div>
 
-    <div class="chat-side">
-        <div id="player-zone"></div>
-        <div id="msg-box">
-            <div style="text-align:center; color:gold; border:1px solid gold; padding:10px; margin-bottom:20px; border-radius:10px;">
-                ✨ أهلاً بك يا ملك في نسختك الثابتة ✨
+    <div class="chat-main">
+        <div id="yt-player"></div>
+        <div id="msg-view">
+            <div style="text-align:center; color:gold; border:1px solid gold; padding:10px; margin:20px; border-radius:10px; background:rgba(255,215,0,0.05)">
+                أهلاً بك يا ملك في "مملكة علوش" - النسخة المستقرة
             </div>
         </div>
-        <div class="footer">
-            <input type="text" id="chatIn" style="flex:1" placeholder="اكتب هنا...">
-            <button class="btn-king" onclick="sendMsg()">إرسال</button>
+        <div class="chat-footer">
+            <input type="text" id="chatIn" placeholder="سولف يا ملك...">
+            <button class="btn btn-send" onclick="doSend()">إرسال</button>
         </div>
     </div>
 
-    <div class="names-side">
-        <p style="color:#555; font-size:12px; text-align:center;">المتواجدون</p>
-        <div style="margin-top:15px;">
-            <span style="color:gold">👑</span> <span class="king-glow">علوش الملك</span>
-        </div>
+    <div class="side-left">
+        <h4 style="color:var(--king); margin-bottom:10px;">🔍 بحث يوتيوب</h4>
+        <input type="text" id="ytIn" placeholder="اسم الشيلة...">
+        <button class="btn btn-yt" onclick="doSearch()">بحث</button>
+        <div id="yt-list" style="flex:1; margin-top:10px;"></div>
     </div>
 </div>
 
 <script>
     const API_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
 
-    async function searchYT() {
+    async function doSearch() {
         const q = document.getElementById('ytIn').value;
         if(!q) return;
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}`;
-        const res = await fetch(url);
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}`);
         const data = await res.json();
         const list = document.getElementById('yt-list');
         list.innerHTML = "";
         data.items.forEach(item => {
-            const d = document.createElement('div');
-            d.className = 'yt-item';
-            d.onclick = () => {
-                const p = document.getElementById('player-zone
+            const card = document.createElement('div');
+            card.className = 'yt-card';
+            card.onclick = () => {
+                const p = document.getElementById('yt-player');
+                p.style.display = 'block';
+                p.innerHTML = `<button onclick="this.parentElement.style.display='none'" style="width:100%; background:red; color:white; border:none; padding:5px; cursor:pointer">إغلاق ✖</button>
+                               <iframe width="100%" height="220" src="https://www.youtube.com/embed/${item.id.videoId}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+            };
+            card.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}" style="width:100%; border-radius:3px;"><p style="font-size:11px; margin-top:5px;">${item.snippet.title}</p>`;
+            list.appendChild(card);
+        });
+    }
+
+    function doSend() {
+        const i = document.getElementById('chatIn');
+        if(!i.value.trim()) return;
+        const v = document.getElementById('msg-view');
+        const d = document.createElement('div');
+        d.style.marginBottom = "12px";
+        d.innerHTML = `<span class="king-name">👑 علوش الملك:</span> <span style="color:white">${i.value}</span>`;
+        v.appendChild(d);
+        i.value = "";
+        v.scrollTop = v.scrollHeight;
+    }
+
+    document.getElementById('chatIn').onkeydown = (e) => { if(e.keyCode == 13) doSend(); };
+    document.getElementById('ytIn').onkeydown = (e) => { if(e.keyCode == 13) doSearch(); };
+</script>
+
+</body>
+</html>
