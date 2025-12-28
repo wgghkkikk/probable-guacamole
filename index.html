@@ -2,110 +2,125 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش | نظام القوائم الجانبية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مملكة علوش | النسخة المعتمدة</title>
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; background: #0a0a0a; font-family: 'Tahoma', sans-serif; color: #eee; overflow: hidden; }
+        body { margin: 0; background: #050505; color: #eee; font-family: 'Tahoma', sans-serif; overflow: hidden; }
 
-        /* شريط علوي (Header) */
-        .header-top { 
-            height: 50px; background: #1a1a1a; display: flex; 
+        /* الهيدر */
+        .top-nav { 
+            height: 60px; background: #111; display: flex; 
             justify-content: space-between; align-items: center; 
-            padding: 0 15px; border-bottom: 2px solid #bc13fe;
+            padding: 0 20px; border-bottom: 2px solid #bc13fe;
+            box-shadow: 0 2px 15px rgba(188, 19, 254, 0.3);
         }
 
-        .menu-toggle { font-size: 24px; cursor: pointer; color: #00f2fe; }
+        .toggle-icon { font-size: 28px; cursor: pointer; color: #00f2fe; transition: 0.3s; }
+        .toggle-icon:hover { transform: scale(1.2); text-shadow: 0 0 10px #00f2fe; }
 
-        .wrapper { display: flex; height: calc(100vh - 50px); position: relative; }
+        .wrapper { display: flex; height: calc(100vh - 60px); position: relative; }
 
-        /* قائمة الأسماء (اليمين) - ثابتة */
-        .sidebar-right { width: 200px; background: #151515; border-left: 1px solid #333; }
-        
-        /* القائمة اليسرى المتحركة (أهم ميزة طلبتها) */
+        /* القائمة اليسرى (المنيو) */
         .sidebar-left { 
-            width: 250px; background: #1a1a1a; position: absolute; left: -250px; 
-            height: 100%; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            z-index: 100; border-right: 1px solid #bc13fe; padding: 20px;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            width: 280px; background: #161616; position: absolute; left: -280px; 
+            height: 100%; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 1000; border-right: 1px solid #bc13fe; padding: 25px;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.9);
         }
+        .sidebar-left.open { left: 0; }
 
-        .sidebar-left.active { left: 0; }
+        /* قائمة الأسماء (اليمين) */
+        .sidebar-right { width: 220px; background: #0f0f0f; border-left: 1px solid #222; overflow-y: auto; }
+        .right-header { background: #1a1a1a; padding: 12px; text-align: center; font-size: 13px; font-weight: bold; color: #00f2fe; }
 
-        /* منطقة الشات */
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: #111; }
-        #chat-content { flex: 1; padding: 15px; overflow-y: auto; }
+        /* منطقة الشات الرئيسية */
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: #080808; position: relative; }
+        #chat-display { flex: 1; padding: 20px; overflow-y: auto; scroll-behavior: smooth; }
 
-        /* ستايل اسم الملك المشع */
-        .king-name { font-weight: bold; text-shadow: 0 0 10px #bc13fe; animation: glow 2s infinite; }
-        @keyframes glow { 0%, 100% { color: #bc13fe; } 50% { color: #00f2fe; } }
+        /* رسائل الملك */
+        .king-name { font-weight: bold; text-shadow: 0 0 8px #bc13fe; animation: colorShift 3s infinite; }
+        @keyframes colorShift { 0%, 100% { color: #bc13fe; } 50% { color: #00f2fe; } }
 
-        /* منطقة الكتابة */
-        .footer { padding: 15px; background: #1a1a1a; border-top: 1px solid #333; }
-        .input-box { display: flex; gap: 10px; }
-        input { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; outline: none; }
-        .send-btn { background: #bc13fe; border: none; padding: 0 20px; color: white; cursor: pointer; border-radius: 5px; }
+        /* صندوق الكتابة */
+        .input-footer { padding: 20px; background: #111; border-top: 1px solid #222; }
+        .input-box { display: flex; gap: 12px; }
+        input[type="text"] { 
+            flex: 1; background: #000; border: 1px solid #333; color: white; 
+            padding: 12px 15px; border-radius: 10px; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: #bc13fe; box-shadow: 0 0 10px rgba(188, 19, 254, 0.2); }
+        .btn-send { background: #bc13fe; border: none; padding: 0 25px; color: white; cursor: pointer; border-radius: 10px; font-weight: bold; transition: 0.3s; }
+        .btn-send:hover { background: #00f2fe; color: black; box-shadow: 0 0 15px #00f2fe; }
 
-        .left-menu-item { padding: 15px; border-bottom: 1px solid #333; cursor: pointer; transition: 0.3s; }
-        .left-menu-item:hover { background: #bc13fe; color: white; }
+        /* عناصر المنيو اليسار */
+        .menu-item { padding: 15px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.3s; border: 1px solid transparent; }
+        .menu-item:hover { background: rgba(188, 19, 254, 0.1); border-color: #bc13fe; }
     </style>
 </head>
 <body>
 
-<div class="header-top">
-    <div class="menu-toggle" onclick="toggleLeftMenu()">☰</div>
-    <div style="font-weight: bold; color: #bc13fe;">مـمـلـكـة عـلـوش</div>
-    <div style="color: #00f2fe;">ID: 2025</div>
-</div>
-
-<div class="wrapper">
-    <div id="leftSidebar" class="sidebar-left">
-        <h3 style="color: #bc13fe; border-bottom: 1px solid #444; padding-bottom: 10px;">إعدادات الملك</h3>
-        <div class="left-menu-item">👤 الملف الشخصي</div>
-        <div class="left-menu-item">🎨 تغيير لون الاسم</div>
-        <div class="left-menu-item">🛠️ لوحة الإدارة</div>
-        <div class="left-menu-item">📢 إرسال تنبيه عام</div>
-        <button onclick="toggleLeftMenu()" style="margin-top: 20px; width: 100%; padding: 10px; background: #444; color: white; border: none; cursor: pointer;">إغلاق القائمة</button>
+    <div class="top-nav">
+        <div class="toggle-icon" onclick="toggleMenu()">☰</div>
+        <div style="font-size: 20px; letter-spacing: 2px;">MAMLAKAT <span style="color:#bc13fe">AALLOUSH</span></div>
+        <div style="font-size: 12px; opacity: 0.6;">v7.0 GLOBAL</div>
     </div>
 
-    <div class="chat-area">
-        <div id="chat-content">
-            <div style="color: #888; font-size: 12px; text-align: center;">-- بداية الدردشة الآمنة --</div>
+    <div class="wrapper">
+        <div id="leftSide" class="sidebar-left">
+            <h2 style="color: #00f2fe; font-size: 18px;">👑 لوحة الملك</h2>
+            <hr style="border: 0.5px solid #333; margin: 20px 0;">
+            <div class="menu-item">💎 تغيير الثيم الملكي</div>
+            <div class="menu-item">🖼️ رفع صورة شخصية</div>
+            <div class="menu-item">🛡️ إدارة الروم</div>
+            <div class="menu-item">🔓 تسجيل الخروج</div>
+            <button onclick="toggleMenu()" style="margin-top: 30px; width: 100%; padding: 10px; background: #222; color: #fff; border: 1px solid #444; cursor: pointer;">إغلاق</button>
         </div>
-        <div class="footer">
-            <div class="input-box">
-                <input type="text" id="msgIn" placeholder="اكتب شيئاً...">
-                <button class="send-btn" onclick="send()">إرسال</button>
+
+        <div class="chat-main">
+            <div id="chat-display">
+                <div style="text-align: center; color: #555; margin-bottom: 20px; font-size: 12px;">مرحباً بك في النظام المعتمد للمملكة</div>
+            </div>
+            <div class="input-footer">
+                <div class="input-box">
+                    <input type="text" id="chatIn" placeholder="اكتب رسالتك الأسطورية...">
+                    <button class="btn-send" onclick="send()">إرسال</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-right">
+            <div class="right-header">المتواجدون حالياً</div>
+            <div style="padding: 15px;">
+                <div style="margin-bottom: 15px;"><span class="king-name">👑 علوش الملك</span></div>
+                <div style="color: #00ff00; font-size: 14px;">🛡️ المشرف العام</div>
+                <div style="color: #aaa; font-size: 14px;">👤 زائر_المملكة</div>
             </div>
         </div>
     </div>
 
-    <div class="sidebar-right">
-        <div style="background: #222; padding: 10px; text-align: center; font-size: 12px;">المتواجدون</div>
-        <div style="padding: 10px; border-bottom: 1px solid #222;">
-            <span class="king-name">👑 علوش الملك</span>
-        </div>
-    </div>
-</div>
+    <script>
+        function toggleMenu() {
+            document.getElementById('leftSide').classList.toggle('open');
+        }
 
-<script>
-    // وظيفة الفتح والإغلاق للقائمة اليسرى
-    function toggleLeftMenu() {
-        const menu = document.getElementById('leftSidebar');
-        menu.classList.toggle('active');
-    }
+        function send() {
+            const input = document.getElementById('chatIn');
+            if(!input.value.trim()) return;
 
-    function send() {
-        const input = document.getElementById('msgIn');
-        if(!input.value) return;
-        const chat = document.getElementById('chat-content');
-        const div = document.createElement('div');
-        div.style.marginBottom = "10px";
-        div.innerHTML = `<span class="king-name">👑 علوش الملك:</span> ${input.value}`;
-        chat.appendChild(div);
-        input.value = "";
-        chat.scrollTop = chat.scrollHeight;
-    }
-</script>
+            const display = document.getElementById('chat-display');
+            const msg = document.createElement('div');
+            msg.style.marginBottom = "12px";
+            msg.innerHTML = `<span class="king-name">👑 علوش الملك:</span> <span style="color:#fff">${input.value}</span>`;
+            
+            display.appendChild(msg);
+            input.value = "";
+            display.scrollTop = display.scrollHeight;
+        }
 
+        document.getElementById('chatIn').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') send();
+        });
+    </script>
 </body>
 </html>
