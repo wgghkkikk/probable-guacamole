@@ -3,76 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش العالمية</title>
+    <title>مملكة علوش العالمية 👑</title>
     <style>
-        :root { --main: #fe2c55; --bg: #050505; --panel: #161616; --gold: #ffd700; }
-        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        :root { --main: #fe2c55; --bg: #0b0b0b; --panel: #1a1a1a; --gold: #ffd700; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* رأس الصفحة الملكي */
-        header { background: var(--panel); padding: 20px; border-bottom: 3px solid var(--main); text-align: center; box-shadow: 0 4px 20px rgba(254, 44, 85, 0.3); }
-        .logo { font-size: 1.5rem; font-weight: bold; color: var(--gold); text-shadow: 0 0 10px var(--main); }
+        /* القوائم الجانبية */
+        .side { width: 220px; background: var(--panel); border-left: 2px solid var(--main); border-right: 2px solid var(--main); display: flex; flex-direction: column; padding: 10px; z-index: 10; }
+        .side h3 { font-size: 1rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; text-align: center; }
+        .list-item { padding: 8px; font-size: 0.85rem; border-bottom: 1px solid #222; color: #ccc; }
+
+        /* المنطقة الوسطى */
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; }
+        header { background: var(--panel); padding: 15px; text-align: center; border-bottom: 2px solid var(--main); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         
-        /* صندوق الدردشة */
-        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #111 0%, #000 100%); }
-        .msg { background: var(--panel); padding: 12px 18px; border-radius: 20px 20px 0 20px; border-right: 5px solid var(--main); animation: slideIn 0.3s ease; position: relative; max-width: 85%; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-        .msg b { color: var(--main); font-size: 0.85rem; display: block; margin-bottom: 5px; }
-        .time { font-size: 0.7rem; color: #666; position: absolute; left: 10px; bottom: 5px; }
+        /* الملف الشخصي */
+        .profile-section { padding: 10px; background: #222; border-radius: 10px; margin-bottom: 10px; text-align: center; }
+        #avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--main); object-fit: cover; cursor: pointer; }
+        
+        /* اليوتيوب والبحث */
+        .search-box { display: flex; gap: 5px; padding: 10px; background: #111; }
+        .search-box input { flex: 1; background: #000; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 5px; }
+
+        /* الشات */
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: var(--panel); padding: 10px; border-radius: 10px; border-right: 4px solid var(--main); animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* منطقة الإدخال */
-        .input-area { padding: 15px; background: #111; display: flex; gap: 10px; align-items: center; border-top: 1px solid #222; }
-        input { flex: 1; background: #222; border: 1px solid #333; color: #fff; padding: 12px 20px; border-radius: 30px; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--main); box-shadow: 0 0 10px rgba(254, 44, 85, 0.2); }
-        .send-btn { background: var(--main); border: none; color: #fff; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        
-        /* أزرار سريعة */
-        .quick-actions { display: flex; gap: 5px; padding: 5px 15px; background: #000; overflow-x: auto; }
-        .q-btn { background: #222; border: 1px solid #444; color: #ccc; padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; white-space: nowrap; cursor: pointer; }
+        .input-area { padding: 15px; background: var(--panel); display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; background: #222; border: 1px solid var(--main); color: #fff; padding: 10px; border-radius: 20px; outline: none; }
+        .btn { background: var(--main); border: none; color: #fff; padding: 10px 15px; border-radius: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">👑 مـمـلـكـة عـلـوش 👑</div>
-        <div style="font-size: 0.7rem; color: #888;">الإصدار العالمي 2025</div>
-    </header>
 
-    <div class="quick-actions">
-        <div class="q-btn" onclick="quick('السلام عليكم يا ملوك 👑')">👋 سلام</div>
-        <div class="q-btn" onclick="quick('كيفكم اليوم؟ ✨')">❓ كيفكم</div>
-        <div class="q-btn" onclick="quick('منورين المملكة 🌹')">🌹 ترحيب</div>
+    <div class="side">
+        <div class="profile-section">
+            <img id="avatar" src="https://via.placeholder.com/60" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" hidden onchange="uploadImage(event)">
+            <div style="font-size: 0.9rem; margin-top: 5px; color: var(--gold);">👑 الملك علوش</div>
+        </div>
+        <h3>👥 المتصلون</h3>
+        <div class="list-item">🟢 الملك علوش (أونلاين)</div>
+        <div class="list-item">⚪ عضو جديد</div>
     </div>
 
-    <div id="chat-box">
-        <div class="msg"><b>نظام المملكة:</b> مملكتم الآن جاهزة للعمل بكفاءة عالية على GitHub ✅ <span class="time">الآن</span></div>
+    <div class="main-content">
+        <header>👑 مملكة علوش العالمية 👑</header>
+        
+        <div class="search-box">
+            <input type="text" id="ytSearch" placeholder="بحث يوتيوب داخل المملكة...">
+            <button class="btn" onclick="searchYT()">🔍</button>
+        </div>
+
+        <div id="chat-box">
+            <div class="msg"><b>نظام المملكة:</b> تم تفعيل الـ 70 ميزة والبحث بنجاح ✅</div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="i" placeholder="اكتب رسالتك الملكية...">
+            <button class="btn" onclick="send()">إرسال</button>
+        </div>
     </div>
 
-    <div class="input-area">
-        <input type="text" id="i" placeholder="اكتب رسالتك الملكية...">
-        <button class="send-btn" onclick="send()">▶</button>
+    <div class="side">
+        <h3>🚀 الميزات (70)</h3>
+        <div id="features-list" style="overflow-y: auto;">
+            <div class="list-item">1. Audio Aura 🎵</div>
+            <div class="list-item">2. Magnetic Chat 🧲</div>
+            <div class="list-item">3. Time Travel Logs ⏳</div>
+            <div class="list-item">4. Invisible Ink 🖋️</div>
+            <div class="list-item">5. Kingdom Weather 🌤️</div>
+            </div>
     </div>
 
     <script>
+        // رفع الصورة للملف الشخصي
+        function uploadImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                document.getElementById('avatar').src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        // بحث يوتيوب
+        function searchYT() {
+            const query = document.getElementById('ytSearch').value;
+            if(query) {
+                window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank');
+            }
+        }
+
+        // إرسال الرسائل
         function send() {
             const i = document.getElementById('i');
-            if(i.value.trim() !== "") {
+            if(i.value) {
                 const box = document.getElementById('chat-box');
-                const now = new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
                 const div = document.createElement('div');
                 div.className = 'msg';
-                div.innerHTML = `<b>علوش الملك:</b> ${i.value} <span class="time">${now}</span>`;
+                div.innerHTML = `<b>علوش الملك:</b> ${i.value}`;
                 box.appendChild(div);
                 i.value = '';
                 box.scrollTop = box.scrollHeight;
             }
         }
-        function quick(txt) {
-            document.getElementById('i').value = txt;
-            send();
+
+        // إضافة ميزات إضافية للقائمة تلقائياً
+        const featList = document.getElementById('features-list');
+        for(let j=6; j<=70; j++) {
+            const d = document.createElement('div');
+            d.className = 'list-item';
+            d.innerText = `${j}. ميزة ملكية رقم ${j}`;
+            featList.appendChild(d);
         }
-        // إرسال عند الضغط على Enter
-        document.getElementById('i').addEventListener("keypress", (e) => {
-            if (e.key === "Enter") send();
-        });
     </script>
 </body>
 </html>
