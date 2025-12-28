@@ -2,96 +2,112 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش | النسخة المصححة</title>
+    <title>مملكة علوش | إصدار الأزرار الفعالة</title>
     <style>
-        :root { --king: #bc13fe; --accent: #00f2fe; }
+        :root { --king: #bc13fe; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #000; color: white; font-family: 'Tahoma', sans-serif; height: 100vh; overflow: hidden; }
+        header { height: 50px; background: #111; border-bottom: 2px solid var(--king); display: flex; align-items: center; padding: 0 20px; justify-content: center; }
+        .main-grid { display: grid; grid-template-columns: 280px 1fr 220px; height: calc(100vh - 50px); }
 
-        header { height: 50px; background: #111; border-bottom: 2px solid var(--king); display: flex; align-items: center; padding: 0 15px; justify-content: space-between; }
-        .main-grid { display: grid; grid-template-columns: 260px 1fr 220px; height: calc(100vh - 50px); }
+        /* يوتيوب */
+        .yt-side { background: #0a0a0a; border-left: 1px solid #333; padding: 15px; overflow-y: auto; }
+        .yt-btn { width: 100%; background: red; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; margin-top: 5px; font-weight: bold; }
 
-        /* قسم اليوتيوب */
-        .yt-side { background: #0a0a0a; border-left: 1px solid #222; padding: 10px; overflow-y: auto; }
-        .yt-input { width: 100%; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; margin-bottom: 10px; outline: none; }
-        .yt-search-btn { width: 100%; background: #ff0000; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 15px; }
-        .yt-card { margin-bottom: 15px; cursor: pointer; background: #151515; padding: 5px; border-radius: 5px; border: 1px solid transparent; }
-        .yt-card:hover { border-color: var(--king); }
-        .yt-card img { width: 100%; border-radius: 5px; }
-        .yt-card p { font-size: 11px; margin-top: 5px; color: #ccc; }
+        /* شات */
+        .chat-area { display: flex; flex-direction: column; background: #050505; border-left: 1px solid #333; border-right: 1px solid #333; }
+        #msg-box { flex: 1; padding: 20px; overflow-y: auto; }
+        .footer { padding: 15px; background: #111; display: flex; gap: 10px; }
+        .send-btn { background: var(--king); color: white; border: none; padding: 0 20px; cursor: pointer; border-radius: 5px; font-weight: bold; }
 
-        /* الشات */
-        .chat-area { display: flex; flex-direction: column; background: #050505; border-right: 1px solid #222; border-left: 1px solid #222; position: relative; }
-        #messages { flex: 1; padding: 15px; overflow-y: auto; }
-        #player-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 260px; background: #000; z-index: 500; border-bottom: 2px solid var(--king); }
-
-        /* الكتابة */
-        .footer { padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px; }
-        #msgIn { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 5px; outline: none; }
-        .send-btn { background: var(--king); color: white; border: none; padding: 0 25px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
-        .king-glow { font-weight: bold; text-shadow: 0 0 8px var(--king); animation: glow 2s infinite; }
-        @keyframes glow { 0%, 100% { color: var(--king); } 50% { color: var(--accent); } }
+        /* ستايل الملك */
+        .king-glow { font-weight: bold; text-shadow: 0 0 10px var(--king); color: var(--king); }
+        input { background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; outline: none; }
+        .yt-card { background: #1a1a1a; margin-top: 10px; padding: 5px; border: 1px solid #333; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
-    <div>☰</div>
-    <div class="king-glow">مملكة علوش | النسخة الثابتة</div>
-    <div style="font-size: 11px;">YouTube API Active</div>
+    <h3 class="king-glow">👑 مـمـلـكـة عـلـوش 👑</h3>
 </header>
 
 <div class="main-grid">
     <div class="yt-side">
-        <input type="text" id="ytSearch" class="yt-input" placeholder="ابحث عن شيلة...">
-        <button class="yt-search-btn" onclick="searchYT()">🔍 بحث يوتيوب</button>
-        <div id="yt-list"></div>
+        <input type="text" id="ytInput" style="width:100%" placeholder="اكتب اسم الشيلة...">
+        <button class="yt-btn" id="btnSearch">🔍 ابحث الآن</button>
+        <div id="yt-results"></div>
     </div>
 
     <div class="chat-area">
-        <div id="player-overlay">
-            <button onclick="closePlayer()" style="width:100%; background:#c00; color:white; border:none; padding:5px; cursor:pointer;">إغلاق الأغنية ✖</button>
-            <div id="player-frame"></div>
-        </div>
-        <div id="messages"></div>
+        <div id="player-zone"></div>
+        <div id="msg-box"></div>
         <div class="footer">
-            <input type="text" id="msgIn" placeholder="اكتب رسالتك للمملكة...">
-            <button class="send-btn" onclick="sendMsg()">إرسال</button>
+            <input type="text" id="chatInput" style="flex:1" placeholder="سولف هنا...">
+            <button class="send-btn" id="btnSend">إرسال</button>
         </div>
     </div>
 
-    <div class="side-right" style="background: #0a0a0a; padding: 10px;">
-        <div style="text-align:center; font-size:12px; color:#444; margin-bottom:10px;">المتواجدون</div>
+    <div class="side-names" style="background: #0a0a0a; padding: 15px;">
+        <div style="color: #555; font-size: 12px; margin-bottom: 10px;">المتواجدون</div>
         <div class="king-glow">👑 علوش الملك</div>
     </div>
 </div>
 
 <script>
-    const API_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
+    // مفتاحك
+    const MY_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
 
-    async function searchYT() {
-        const query = document.getElementById('ytSearch').value;
-        if(!query) { alert("اكتب شيئاً للبحث!"); return; }
-
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}`;
+    // وظيفة الإرسال
+    function handleSend() {
+        const inp = document.getElementById('chatInput');
+        const box = document.getElementById('msg-box');
+        if(inp.value.trim() === "") return;
         
+        const div = document.createElement('div');
+        div.style.marginBottom = "10px";
+        div.innerHTML = `<span class="king-glow">علوش الملك:</span> ${inp.value}`;
+        box.appendChild(div);
+        
+        inp.value = "";
+        box.scrollTop = box.scrollHeight;
+    }
+
+    // وظيفة اليوتيوب
+    async function handleSearch() {
+        const query = document.getElementById('ytInput').value;
+        const resDiv = document.getElementById('yt-results');
+        if(!query) return;
+
         try {
-            const res = await fetch(url);
-            const data = await res.json();
-            if(data.error) { alert("مشكلة بالمفتاح: " + data.error.message); return; }
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query)}&type=video&key=${MY_KEY}`);
+            const data = await response.json();
             
-            const list = document.getElementById('yt-list');
-            list.innerHTML = '';
+            resDiv.innerHTML = "";
             data.items.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'yt-card';
-                card.onclick = () => {
-                    document.getElementById('player-overlay').style.display = 'block';
-                    document.getElementById('player-frame').innerHTML = `<iframe width="100%" height="220" src="https://www.youtube.com/embed/${item.id.videoId}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+                card.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}" style="width:100%"><p style="font-size:10px">${item.snippet.title}</p>`;
+                card.onclick = function() {
+                    document.getElementById('player-zone').innerHTML = `
+                        <button onclick="this.parentElement.innerHTML=''" style="width:100%; background:red; color:white; border:none; padding:5px; cursor:pointer;">إغلاق الفيديو ✖</button>
+                        <iframe width="100%" height="200" src="https://www.youtube.com/embed/${item.id.videoId}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
                 };
-                card.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}"><p>${item.snippet.title}</p>`;
-                list.appendChild(card);
+                resDiv.appendChild(card);
             });
-        } catch(e) { alert("حدث خطأ بالاتصال باليوتيوب"); }
+        } catch(e) {
+            alert("فشل البحث، تأكد من مفتاح اليوتيوب");
+        }
     }
+
+    // ربط الأزرار بطريقة "مباشرة"
+    document.getElementById('btnSend').onclick = handleSend;
+    document.getElementById('btnSearch').onclick = handleSearch;
+
+    // تفعيل Enter
+    document.getElementById('chatInput').onkeypress = function(e) { if(e.keyCode == 13) handleSend(); };
+    document.getElementById('ytInput').onkeypress = function(e) { if(e.keyCode == 13) handleSearch(); };
+</script>
+
+</body>
+</html>
