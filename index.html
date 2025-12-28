@@ -2,125 +2,123 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش | النسخة المعتمدة</title>
+    <title>شات مملكة علوش | نظام شيلة المطور</title>
     <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; background: #050505; color: #eee; font-family: 'Tahoma', sans-serif; overflow: hidden; }
+        :root { --king: #bc13fe; --accent: #00f2fe; }
+        body { margin: 0; background: #0c0c0c; color: white; font-family: 'Tahoma', sans-serif; overflow: hidden; }
 
-        /* الهيدر */
-        .top-nav { 
-            height: 60px; background: #111; display: flex; 
-            justify-content: space-between; align-items: center; 
-            padding: 0 20px; border-bottom: 2px solid #bc13fe;
-            box-shadow: 0 2px 15px rgba(188, 19, 254, 0.3);
-        }
+        /* الهيدر مع شريط أخبار */
+        header { height: 60px; background: #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--king); }
+        
+        .main-container { display: flex; height: calc(100vh - 60px); position: relative; }
 
-        .toggle-icon { font-size: 28px; cursor: pointer; color: #00f2fe; transition: 0.3s; }
-        .toggle-icon:hover { transform: scale(1.2); text-shadow: 0 0 10px #00f2fe; }
+        /* القائمة اليسرى (الملف والإعدادات) */
+        .side-left { width: 260px; background: #151515; position: absolute; left: -260px; height: 100%; transition: 0.4s; z-index: 100; border-right: 1px solid var(--king); padding: 20px; }
+        .side-left.active { left: 0; }
 
-        .wrapper { display: flex; height: calc(100vh - 60px); position: relative; }
-
-        /* القائمة اليسرى (المنيو) */
-        .sidebar-left { 
-            width: 280px; background: #161616; position: absolute; left: -280px; 
-            height: 100%; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
-            z-index: 1000; border-right: 1px solid #bc13fe; padding: 25px;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.9);
-        }
-        .sidebar-left.open { left: 0; }
+        /* الشات */
+        .chat-box { flex: 1; display: flex; flex-direction: column; background: #111; }
+        #messages { flex: 1; padding: 15px; overflow-y: auto; background: url('https://www.transparenttextures.com/patterns/dark-matter.png'); }
 
         /* قائمة الأسماء (اليمين) */
-        .sidebar-right { width: 220px; background: #0f0f0f; border-left: 1px solid #222; overflow-y: auto; }
-        .right-header { background: #1a1a1a; padding: 12px; text-align: center; font-size: 13px; font-weight: bold; color: #00f2fe; }
+        .side-right { width: 220px; background: #151515; border-left: 1px solid #333; }
+        .u-list { padding: 10px; font-size: 14px; }
+        .online-u { color: #00ff00; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
 
-        /* منطقة الشات الرئيسية */
-        .chat-main { flex: 1; display: flex; flex-direction: column; background: #080808; position: relative; }
-        #chat-display { flex: 1; padding: 20px; overflow-y: auto; scroll-behavior: smooth; }
+        /* الرسائل */
+        .msg-line { margin-bottom: 8px; padding: 5px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .k-name { font-weight: bold; text-shadow: 0 0 5px var(--king); color: var(--king); }
 
-        /* رسائل الملك */
-        .king-name { font-weight: bold; text-shadow: 0 0 8px #bc13fe; animation: colorShift 3s infinite; }
-        @keyframes colorShift { 0%, 100% { color: #bc13fe; } 50% { color: #00f2fe; } }
+        /* منطقة الكتابة والتحكم (مثل شيلة بالضبط) */
+        .controls { background: #1a1a1a; padding: 15px; border-top: 2px solid #333; }
+        .tool-bar { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .color-dot { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; border: 1px solid #fff; }
 
-        /* صندوق الكتابة */
-        .input-footer { padding: 20px; background: #111; border-top: 1px solid #222; }
-        .input-box { display: flex; gap: 12px; }
-        input[type="text"] { 
-            flex: 1; background: #000; border: 1px solid #333; color: white; 
-            padding: 12px 15px; border-radius: 10px; outline: none; transition: 0.3s;
-        }
-        input:focus { border-color: #bc13fe; box-shadow: 0 0 10px rgba(188, 19, 254, 0.2); }
-        .btn-send { background: #bc13fe; border: none; padding: 0 25px; color: white; cursor: pointer; border-radius: 10px; font-weight: bold; transition: 0.3s; }
-        .btn-send:hover { background: #00f2fe; color: black; box-shadow: 0 0 15px #00f2fe; }
+        .input-group { display: flex; gap: 8px; }
+        input { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; outline: none; }
+        .send-btn { background: var(--king); color: white; border: none; padding: 0 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-        /* عناصر المنيو اليسار */
-        .menu-item { padding: 15px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.3s; border: 1px solid transparent; }
-        .menu-item:hover { background: rgba(188, 19, 254, 0.1); border-color: #bc13fe; }
+        .emoji-box { display: none; position: absolute; bottom: 80px; right: 20px; background: #222; padding: 10px; border-radius: 10px; border: 1px solid var(--king); width: 200px; z-index: 50; }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <div class="toggle-icon" onclick="toggleMenu()">☰</div>
-        <div style="font-size: 20px; letter-spacing: 2px;">MAMLAKAT <span style="color:#bc13fe">AALLOUSH</span></div>
-        <div style="font-size: 12px; opacity: 0.6;">v7.0 GLOBAL</div>
+<header>
+    <div onclick="toggleL()" style="cursor:pointer; font-size: 24px;">☰</div>
+    <marquee style="width: 60%; color: var(--accent);">👑 أهلاً بك يا ملك علوش في مملكتك.. تم تفعيل ميزات الـ VIP والزخرفة.. استمتع بالدردشة 👑</marquee>
+    <div style="color: var(--king); font-weight: bold;">LVL 99</div>
+</header>
+
+<div class="main-container">
+    <div id="sideL" class="side-left">
+        <h3 style="color:var(--king)">إعدادات علوش</h3>
+        <hr>
+        <p>👤 تغيير الصورة</p>
+        <p>🎨 زخرفة الاسم</p>
+        <p>🔒 قفل الروم</p>
+        <button onclick="toggleL()" style="width:100%; background:#333; color:white; border:none; padding:10px;">إغلاق</button>
     </div>
 
-    <div class="wrapper">
-        <div id="leftSide" class="sidebar-left">
-            <h2 style="color: #00f2fe; font-size: 18px;">👑 لوحة الملك</h2>
-            <hr style="border: 0.5px solid #333; margin: 20px 0;">
-            <div class="menu-item">💎 تغيير الثيم الملكي</div>
-            <div class="menu-item">🖼️ رفع صورة شخصية</div>
-            <div class="menu-item">🛡️ إدارة الروم</div>
-            <div class="menu-item">🔓 تسجيل الخروج</div>
-            <button onclick="toggleMenu()" style="margin-top: 30px; width: 100%; padding: 10px; background: #222; color: #fff; border: 1px solid #444; cursor: pointer;">إغلاق</button>
+    <div class="chat-box">
+        <div id="messages">
+            <div class="msg-line"><span style="color: #888;">[نظام]: تم دخول الملك علوش إلى المملكة.. هدوء!</span></div>
         </div>
 
-        <div class="chat-main">
-            <div id="chat-display">
-                <div style="text-align: center; color: #555; margin-bottom: 20px; font-size: 12px;">مرحباً بك في النظام المعتمد للمملكة</div>
-            </div>
-            <div class="input-footer">
-                <div class="input-box">
-                    <input type="text" id="chatIn" placeholder="اكتب رسالتك الأسطورية...">
-                    <button class="btn-send" onclick="send()">إرسال</button>
-                </div>
-            </div>
+        <div class="emoji-box" id="emojis">
+            <span onclick="addE('😂')" style="cursor:pointer">😂</span>
+            <span onclick="addE('🌹')" style="cursor:pointer">🌹</span>
+            <span onclick="addE('👑')" style="cursor:pointer">👑</span>
+            <span onclick="addE('⚔️')" style="cursor:pointer">⚔️</span>
+            <span onclick="addE('🔥')" style="cursor:pointer">🔥</span>
+            <span onclick="addE('❤️')" style="cursor:pointer">❤️</span>
         </div>
 
-        <div class="sidebar-right">
-            <div class="right-header">المتواجدون حالياً</div>
-            <div style="padding: 15px;">
-                <div style="margin-bottom: 15px;"><span class="king-name">👑 علوش الملك</span></div>
-                <div style="color: #00ff00; font-size: 14px;">🛡️ المشرف العام</div>
-                <div style="color: #aaa; font-size: 14px;">👤 زائر_المملكة</div>
+        <div class="controls">
+            <div class="tool-bar">
+                <div class="color-dot" style="background:red" onclick="setC('red')"></div>
+                <div class="color-dot" style="background:#00f2fe" onclick="setC('#00f2fe')"></div>
+                <div class="color-dot" style="background:#bc13fe" onclick="setC('#bc13fe')"></div>
+                <div style="cursor:pointer; font-size: 18px;" onclick="toggleE()">😊</div>
+            </div>
+            <div class="input-group">
+                <input type="text" id="in" placeholder="اكتب رسالتك...">
+                <button class="send-btn" onclick="send()">إرسال</button>
             </div>
         </div>
     </div>
 
-    <script>
-        function toggleMenu() {
-            document.getElementById('leftSide').classList.toggle('open');
-        }
+    <div class="side-right">
+        <div style="background:#222; padding:10px; font-size:12px; text-align:center;">المتواجدون</div>
+        <div class="u-list">
+            <div class="online-u">👑 <span class="k-name">علوش الملك</span></div>
+            <div class="online-u" style="color:#ccc;">👤 زائر_عراقي</div>
+            <div class="online-u" style="color:#ccc;">👤 ريم_بغداد</div>
+        </div>
+    </div>
+</div>
 
-        function send() {
-            const input = document.getElementById('chatIn');
-            if(!input.value.trim()) return;
+<script>
+    let myColor = 'white';
+    function toggleL() { document.getElementById('sideL').classList.toggle('active'); }
+    function toggleE() { 
+        let e = document.getElementById('emojis');
+        e.style.display = e.style.display === 'block' ? 'none' : 'block';
+    }
+    function addE(emoji) { document.getElementById('in').value += emoji; toggleE(); }
+    function setC(c) { myColor = c; }
 
-            const display = document.getElementById('chat-display');
-            const msg = document.createElement('div');
-            msg.style.marginBottom = "12px";
-            msg.innerHTML = `<span class="king-name">👑 علوش الملك:</span> <span style="color:#fff">${input.value}</span>`;
-            
-            display.appendChild(msg);
-            input.value = "";
-            display.scrollTop = display.scrollHeight;
-        }
+    function send() {
+        let input = document.getElementById('in');
+        if(!input.value) return;
+        let msgBox = document.getElementById('messages');
+        let div = document.createElement('div');
+        div.className = 'msg-line';
+        div.innerHTML = `<span class="k-name">علوش الملك:</span> <span style="color:${myColor}">${input.value}</span>`;
+        msgBox.appendChild(div);
+        input.value = "";
+        msgBox.scrollTop = msgBox.scrollHeight;
+    }
+</script>
 
-        document.getElementById('chatIn').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') send();
-        });
-    </script>
 </body>
 </html>
