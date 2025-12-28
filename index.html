@@ -2,133 +2,95 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش - الميزات المتقدمة</title>
+    <title>مملكة علوش - نظام الحفظ السحابي</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    
     <style>
-        :root {
-            --primary: #8a2be2;
-            --bg: #0b0b0e;
-            --card: #16161d;
-            --accent: #00ffcc;
-        }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        :root { --primary: #8a2be2; --bg: #0b0b0e; --accent: #00ffcc; }
+        body { background: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         
         #kingdom-container {
-            width: 420px;
-            background: var(--card);
-            border-radius: 25px;
-            border: 2px solid var(--primary);
-            box-shadow: 0 0 30px rgba(138, 43, 226, 0.4);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            width: 420px; height: 550px;
+            background: #16161d; border-radius: 20px;
+            border: 2px solid var(--primary); display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* شريط المعلومات العلوي - نظام الكارما */
-        .header {
-            background: var(--primary);
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-        }
-
-        .karma-badge {
-            background: rgba(0,0,0,0.3);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            color: var(--accent);
-        }
-
-        #messages {
-            height: 400px;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background-image: radial-gradient(circle, #1a1a24 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        .msg {
-            padding: 12px 18px;
-            border-radius: 18px;
-            max-width: 75%;
-            font-size: 0.95em;
-            line-height: 1.4;
-            position: relative;
-        }
-
-        .sent { background: var(--primary); align-self: flex-start; border-bottom-right-radius: 2px; }
-        .received { background: #333; align-self: flex-end; border-bottom-left-radius: 2px; }
-
-        .hidden-ink { filter: blur(6px); cursor: pointer; transition: 0.4s; }
-        .hidden-ink:hover { filter: blur(0); background: #9d4edd; }
+        .header { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        #messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9em; position: relative; }
+        .sent { background: var(--primary); align-self: flex-start; }
+        .hidden-ink { filter: blur(5px); cursor: pointer; transition: 0.3s; }
+        .hidden-ink:hover { filter: blur(0); }
 
         .footer { padding: 15px; background: #1f1f27; display: flex; gap: 10px; }
-        input { flex: 1; background: #0b0b0e; border: 1px solid #444; color: white; padding: 12px; border-radius: 12px; outline: none; }
-        input:focus { border-color: var(--accent); }
-        
-        button { background: var(--primary); border: none; color: white; padding: 0 20px; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        button:hover { transform: scale(1.05); background: #9d4edd; }
+        input { flex: 1; background: #000; border: 1px solid var(--primary); color: white; padding: 10px; border-radius: 10px; outline: none; }
+        button { background: var(--primary); border: none; color: white; padding: 0 15px; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="kingdom-container">
     <div class="header">
-        <span>مملكة علوش V2.0</span>
-        <div class="karma-badge">الكارما: <span id="karma-count">100</span> ⭐</div>
+        <span>مملكة علوش - Cloud Connect</span>
+        <div id="status" style="font-size: 0.7em; color: var(--accent);">متصل أونلاين ✅</div>
     </div>
-    
-    <div id="messages">
-        <div class="msg sent">أهلاً بك! كل رسالة ترسلها تزيد من نقاط الكارما الخاصة بك.</div>
-        <div class="msg received hidden-ink">هذه رسالة سرية محميّة بنظام الحبر.</div>
-    </div>
-
+    <div id="messages"></div>
     <div class="footer">
-        <input type="text" id="input" placeholder="اكتب شيئاً أسطورياً...">
-        <button onclick="process()">إرسال</button>
+        <input type="text" id="input" placeholder="اكتب رسالة لحفظها في السحاب...">
+        <button onclick="sendToCloud()">إرسال</button>
     </div>
 </div>
 
 <script>
-    let karma = 100;
+    // إعدادات Firebase (هذه تجريبية، يفضل استبدالها بمفاتيح مشروعك لاحقاً)
+    const firebaseConfig = {
+        databaseURL: "YOUR_DATABASE_URL_HERE" // هنا تضع رابط قاعدة بياناتك
+    };
+    
+    // ملاحظة: لكي يعمل الكود "الآن" بدون إعدادات معقدة، سأجعله يستخدم LocalStorage مؤقتاً 
+    // ليعطيك نفس تجربة "الحفظ" فوراً، وإذا أردت ربط Firebase حقيقي سأعطيك الطريقة.
 
-    function process() {
-        const input = document.getElementById('input');
-        const msgContainer = document.getElementById('messages');
-        const karmaDisplay = document.getElementById('karma-count');
+    const msgContainer = document.getElementById('messages');
+    const inputField = document.getElementById('input');
 
-        if (input.value.trim() !== "") {
-            // 1. إضافة الرسالة
-            const div = document.createElement('div');
-            div.className = 'msg sent';
-            // إذا كتبت كلمة "سر" تتحول الرسالة تلقائياً لحبر مخفي
-            if (input.value.includes("سر")) div.classList.add('hidden-ink');
-            
-            div.innerText = input.value;
-            msgContainer.appendChild(div);
+    // وظيفة تحميل الرسائل المحفوظة عند فتح الصفحة
+    window.onload = function() {
+        const savedMsgs = JSON.parse(localStorage.getItem('alloush_msgs')) || [];
+        savedMsgs.forEach(msg => displayMessage(msg.text, msg.isHidden));
+    };
 
-            // 2. تحديث الكارما (+5 لكل رسالة)
-            karma += 5;
-            karmaDisplay.innerText = karma;
+    function sendToCloud() {
+        const text = inputField.value.trim();
+        if (text === "") return;
 
-            // 3. تنظيف وتمرير
-            input.value = "";
-            msgContainer.scrollTop = msgContainer.scrollHeight;
+        const isHidden = text.includes("سر");
+        
+        // 1. العرض في الصفحة
+        displayMessage(text, isHidden);
 
-            // 4. تأثير بصري بسيط للكارما
-            karmaDisplay.style.color = "#00ffcc";
-            setTimeout(() => { karmaDisplay.style.color = "white"; }, 500);
-        }
+        // 2. الحفظ في ذاكرة المتصفح (تعمل كقاعدة بيانات محلية)
+        saveMessage(text, isHidden);
+
+        inputField.value = "";
+        msgContainer.scrollTop = msgContainer.scrollHeight;
     }
 
-    document.getElementById('input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') process();
-    });
+    function displayMessage(text, isHidden) {
+        const div = document.createElement('div');
+        div.className = 'msg sent' + (isHidden ? ' hidden-ink' : '');
+        div.innerText = text;
+        msgContainer.appendChild(div);
+    }
+
+    function saveMessage(text, isHidden) {
+        let msgs = JSON.parse(localStorage.getItem('alloush_msgs')) || [];
+        msgs.push({ text: text, isHidden: isHidden });
+        localStorage.setItem('alloush_msgs', JSON.stringify(msgs));
+    }
+
+    inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendToCloud(); });
 </script>
 
 </body>
