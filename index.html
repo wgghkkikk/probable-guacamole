@@ -2,99 +2,131 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش - البحث العالمي 👑</title>
+    <title>مملكة علوش - الدردشة الأسطورية</title>
     <style>
-        :root { --main: #fe2c55; --bg: #050505; --panel: #161616; --gold: #ffd700; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .side { width: 240px; background: var(--panel); border: 2px solid var(--main); display: flex; flex-direction: column; padding: 10px; overflow-y: auto; }
-        .main { flex: 1; display: flex; flex-direction: column; }
-        header { background: var(--panel); padding: 15px; text-align: center; border-bottom: 2px solid var(--main); color: var(--gold); font-size: 1.2rem; }
+        :root {
+            --primary: #8a2be2;
+            --bg: #0f0f12;
+            --text: #ffffff;
+        }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         
-        /* الملف الشخصي */
-        .profile { text-align: center; padding: 10px; border-bottom: 1px solid #333; margin-bottom: 10px; }
-        #avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--main); object-fit: cover; cursor: pointer; }
+        /* حاوية الشات */
+        #chat-kingdom {
+            width: 400px;
+            height: 500px;
+            background: #1a1a20;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+        }
 
-        /* الشات واليوتيوب */
-        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .yt-card { background: #222; border-radius: 10px; padding: 10px; display: flex; gap: 10px; align-items: center; border: 1px solid #444; margin-bottom: 10px; }
-        .yt-card img { width: 100px; border-radius: 5px; }
-        .yt-card b { font-size: 0.8rem; flex: 1; }
-        .yt-link { background: var(--main); color: #fff; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 0.7rem; }
+        /* منطقة الرسائل */
+        #messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-        /* البحث والإدخال */
-        .input-box { padding: 15px; background: #111; display: flex; gap: 10px; border-top: 1px solid #333; }
-        input { flex: 1; background: #000; border: 1px solid var(--main); color: #fff; padding: 10px; border-radius: 20px; outline: none; }
-        .btn { background: var(--main); border: none; color: #fff; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+        .msg {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: slideIn 0.3s ease;
+        }
+
+        .sent { background: var(--primary); align-self: flex-start; }
+        
+        /* ميزة الحبر المخفي Invisible Ink */
+        .hidden-ink {
+            filter: blur(5px);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .hidden-ink:hover { filter: blur(0); }
+
+        /* منطقة الإدخال */
+        .input-area {
+            padding: 15px;
+            background: #25252d;
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            background: #0f0f12;
+            border: 1px solid var(--primary);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        button {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="side">
-        <div class="profile">
-            <img id="avatar" src="https://via.placeholder.com/70" onclick="document.getElementById('f').click()">
-            <input type="file" id="f" hidden onchange="loadImg(event)">
-            <div>👑 الملك علوش</div>
-        </div>
-        <h3>🚀 ميزات المملكة (70)</h3>
-        <div id="feats"></div>
+<div id="chat-kingdom">
+    <div style="background: var(--primary); padding: 15px; text-align: center; font-weight: bold;">
+        مملكة علوش - Chat V1.0
     </div>
-
-    <div class="main">
-        <header>👑 بـحـث يـوتـيـوب الـمـمـلـكـة 👑</header>
-        <div class="input-box">
-            <input type="text" id="ytIn" placeholder="ابحث عن فيديوهات يوتيوب هنا...">
-            <button class="btn" onclick="searchYT()">🔍 بحث</button>
-        </div>
-        <div id="chat">
-            <div style="color:var(--gold); text-align:center;">مرحباً بك يا ملك، ابحث عن أي مقطع وسيظهر هنا فوراً ✅</div>
-        </div>
+    <div id="messages">
+        <div class="msg sent">مرحباً بك في المملكة! جرب ميزة الحبر المخفي بالوقوف بالماوس على الرسالة القادمة.</div>
+        <div class="msg sent hidden-ink">هذه رسالة سرية من ميزات الـ 70!</div>
     </div>
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="اكتب رسالتك هنا...">
+        <button onclick="sendMessage()">إرسال</button>
+    </div>
+</div>
 
-    <script>
-        const API_KEY = 'أدخل_مفتاحك_هنا'; // ضع مفتاح الـ API الذي تملكه هنا
-
-        function loadImg(e) {
-            const r = new FileReader();
-            r.onload = () => document.getElementById('avatar').src = r.result;
-            r.readAsDataURL(e.target.files[0]);
-        }
-
-        async function searchYT() {
-            const q = document.getElementById('ytIn').value;
-            const chat = document.getElementById('chat');
-            if(!q) return;
-
-            chat.innerHTML = '<div style="text-align:center;">⏳ جاري جلب المقاطع الملكية...</div>';
-
-            try {
-                const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${q}&key=${API_KEY}`;
-                const response = await fetch(url);
-                const data = await response.json();
-
-                chat.innerHTML = ''; // مسح التحميل
-                data.items.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'yt-card';
-                    div.innerHTML = `
-                        <img src="${item.snippet.thumbnails.default.url}">
-                        <b>${item.snippet.title}</b>
-                        <a href="https://www.youtube.com/watch?v=${item.id.videoId}" target="_blank" class="yt-link">مشاهدة</a>
-                    `;
-                    chat.appendChild(div);
-                });
-            } catch (error) {
-                chat.innerHTML = '<div style="color:red;">❌ خطأ: تأكد من مفتاح الـ API الخاص بك!</div>';
+<script>
+    function sendMessage() {
+        const input = document.getElementById('user-input');
+        const messagesDiv = document.getElementById('messages');
+        
+        if (input.value.trim() !== "") {
+            // إنشاء رسالة جديدة
+            const newMsg = document.createElement('div');
+            newMsg.className = 'msg sent';
+            newMsg.innerText = input.value;
+            
+            // إضافة ميزة الحبر المخفي عشوائياً كاستعراض
+            if (input.value.includes("سر")) {
+                newMsg.classList.add('hidden-ink');
             }
-        }
 
-        // تعبئة الـ 70 ميزة
-        for(let i=1; i<=70; i++) {
-            const d = document.createElement('div');
-            d.style.padding = '5px';
-            d.innerText = `${i}. ميزة ملكية رقم ${i}`;
-            document.getElementById('feats').appendChild(d);
+            messagesDiv.appendChild(newMsg);
+            input.value = "";
+            
+            // نزول تلقائي لأسفل الشات
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
-    </script>
+    }
+
+    // إرسال عند ضغط Enter
+    document.getElementById('user-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') sendMessage();
+    });
+</script>
+
 </body>
 </html>
