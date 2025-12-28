@@ -1,91 +1,115 @@
+</html>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش | نظام الإدارة والتحكم</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مملكة علوش | الإصدار الشامل</title>
     <style>
         :root { --king: #bc13fe; --admin: #ff3e3e; --bg: #050505; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #000; color: white; font-family: 'Tahoma', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        body { background: #000; color: white; font-family: 'Tahoma', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* الهيدر */
-        header { height: 50px; background: #111; border-bottom: 2px solid var(--king); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        header { height: 60px; background: #111; border-bottom: 2px solid var(--king); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; flex-shrink: 0; }
         
-        .main { display: flex; flex: 1; overflow: hidden; }
+        /* الحاوية الرئيسية */
+        .main-wrapper { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-        /* يمين: الأسماء */
-        .side-r { width: 220px; background: #0a0a0a; border-left: 1px solid #222; padding: 10px; }
-        .u-item { padding: 8px; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-        .u-item:hover { background: #1a1a1a; }
+        /* يمين: الأسماء (تختفي في الموبايل وتظهر بطلب) */
+        .side-names { width: 220px; background: #0a0a0a; border-left: 1px solid #222; padding: 10px; overflow-y: auto; }
 
         /* وسط: الشات */
-        .chat-box { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
-        #msgs { flex: 1; padding: 15px; overflow-y: auto; }
+        .chat-section { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+        #msg-screen { flex: 1; padding: 15px; overflow-y: auto; }
 
-        /* لوحة الإدارة (مخفية وتظهر عند الطلب) */
-        #admin-panel { 
-            position: absolute; bottom: 80px; left: 20px; width: 250px; 
-            background: #151515; border: 2px solid var(--admin); border-radius: 10px; 
-            padding: 15px; display: none; z-index: 2000; box-shadow: 0 0 20px rgba(255,0,0,0.3);
+        /* يسار: اليوتيوب (تختفي في الموبايل وتظهر بطلب) */
+        .side-yt { width: 280px; background: #0a0a0a; border-right: 1px solid #222; padding: 10px; overflow-y: auto; }
+
+        /* لوحات الإدارة والبروفايل */
+        #admin-box, #profile-box { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 320px; background: #151515; border: 2px solid var(--king);
+            border-radius: 15px; padding: 20px; display: none; z-index: 1000; box-shadow: 0 0 30px #000;
         }
-        .adm-btn { width: 100%; padding: 8px; margin-bottom: 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; }
 
-        /* منطقة الكتابة */
-        .footer { padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px; }
-        input { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; outline: none; }
-        .btn { background: var(--king); border: none; color: white; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        
+        /* التحكم في قياسات التلفون */
+        @media (max-width: 768px) {
+            .side-names, .side-yt { display: none; position: absolute; top: 0; height: 100%; z-index: 500; width: 80%; }
+            .side-names { right: 0; background: #0d0d0d; border-left: 2px solid var(--king); }
+            .side-yt { left: 0; background: #0d0d0d; border-right: 2px solid var(--king); }
+            .show-side { display: flex !important; flex-direction: column; }
+        }
+
+        /* أزرار الهيدر للموبايل */
+        .nav-btn { background: #222; color: white; border: 1px solid #444; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; }
+
+        /* شريط الكتابة */
+        .footer { padding: 10px; background: #111; display: flex; gap: 8px; border-top: 1px solid #333; }
+        input { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; }
+        .send-btn { background: var(--king); border: none; color: white; padding: 0 15px; border-radius: 8px; font-weight: bold; }
+
         .king-glow { color: var(--king); text-shadow: 0 0 10px var(--king); font-weight: bold; }
+        .yt-card { background: #1a1a1a; padding: 5px; margin-top: 10px; border-radius: 5px; border: 1px solid #333; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="king-glow">👑 مملكة علوش</div>
-    <button onclick="toggleAdmin()" style="background:var(--admin); color:white; border:none; padding:5px 15px; border-radius:5px; cursor:pointer; font-size:12px;">لوحة التحكم ⚙️</button>
+    <button class="nav-btn" onclick="toggleSide('sideYT')">🎵 يوتيوب</button>
+    <div class="king-glow" onclick="toggleSide('admin-box')">👑 مـمـلـكـة عـلـوش</div>
+    <button class="nav-btn" onclick="toggleSide('sideNames')">👥 الأسماء</button>
 </header>
 
-<div class="main">
-    <div class="side-r">
-        <div style="color:#555; font-size:11px; margin-bottom:10px;">المتواجدون</div>
-        <div class="u-item"><span>👑 علوش الملك</span></div>
-        <div class="u-item"><span>👤 زائر_المملكة</span> <button onclick="kickUser()" style="background:red; color:white; border:none; font-size:8px; padding:2px; border-radius:3px;">طرد</button></div>
+<div class="main-wrapper">
+    <div class="side-yt" id="sideYT">
+        <h4 style="color:red">🔍 بحث يوتيوب</h4>
+        <input type="text" id="yQuery" placeholder="ابحث..." style="width:100%; margin:10px 0;">
+        <button onclick="searchYT()" style="width:100%; background:red; border:none; padding:8px; color:white; border-radius:5px; font-weight:bold;">ابـحـث</button>
+        <div id="yResults"></div>
     </div>
 
-    <div class="chat-box">
-        <div id="admin-panel">
-            <h4 style="color:var(--admin); margin-bottom:10px; text-align:center;">إدارة المملكة</h4>
-            <button class="adm-btn" style="background:#cc0000;" onclick="clearChat()">🗑️ تصفير الشات</button>
-            <button class="adm-btn" style="background:#ff8c00;" onclick="sendAlert()">📢 تنبيه عام</button>
-            <button class="adm-btn" id="lockBtn" style="background:#444;" onclick="toggleLock()">🔒 قفل الشات</button>
-            <button class="adm-btn" style="background:#555;" onclick="toggleAdmin()">إغلاق اللوحة</button>
+    <div class="chat-section">
+        <div id="yt-player-zone"></div>
+        <div id="msg-screen">
+            <div style="text-align:center; color:gold; padding:20px;">✨ أهلاً بك يا ملك في النسخة المتجاوبة ✨</div>
         </div>
 
-        <div id="msgs">
-            <div style="text-align:center; color:gray; font-size:12px; margin-top:20px;">-- أهلاً بك في غرفة التحكم يا ملك --</div>
+        <div id="admin-box">
+            <h3 style="color:red; text-align:center;">لوحة الإدارة</h3>
+            <button style="width:100%; background:#444; margin:10px 0; padding:10px; color:white; border:none;" onclick="clearChat()">🗑️ تصفير الشات</button>
+            <button style="width:100%; background:var(--king); padding:10px; color:white; border:none;" onclick="toggleSide('admin-box')">إغلاق</button>
         </div>
 
         <div class="footer">
-            <input type="text" id="cIn" placeholder="اكتب هنا...">
-            <button class="btn" onclick="send()">إرسال</button>
+            <input type="text" id="cInput" placeholder="اكتب هنا...">
+            <button class="send-btn" onclick="send()">إرسال</button>
         </div>
+    </div>
+
+    <div class="side-names" id="sideNames">
+        <div style="color:#555; font-size:12px; margin-bottom:15px; text-align:center;">المتواجدون</div>
+        <div class="king-glow" style="cursor:pointer">👑 علوش الملك</div>
     </div>
 </div>
 
 <script>
-    let isLocked = false;
+    const API_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
 
-    function toggleAdmin() {
-        const p = document.getElementById('admin-panel');
-        p.style.display = (p.style.display === 'none' || p.style.display === '') ? 'block' : 'none';
+    function toggleSide(id) {
+        const el = document.getElementById(id);
+        if (el.style.display === 'flex' || el.classList.contains('show-side')) {
+            el.style.display = 'none';
+            el.classList.remove('show-side');
+        } else {
+            el.style.display = 'flex';
+            el.classList.add('show-side');
+        }
     }
 
     function send() {
-        if(isLocked) { alert("الشات مقفل حالياً بأمر الإدارة!"); return; }
-        const inp = document.getElementById('cIn');
-        const box = document.getElementById('msgs');
+        const inp = document.getElementById('cInput');
+        const box = document.getElementById('msg-screen');
         if(!inp.value.trim()) return;
-
         const d = document.createElement('div');
         d.style.marginBottom = "10px";
         d.innerHTML = `<span class="king-glow">علوش الملك:</span> ${inp.value}`;
@@ -94,46 +118,29 @@
         box.scrollTop = box.scrollHeight;
     }
 
-    // وظائف الإدارة
-    function clearChat() {
-        if(confirm("هل تريد مسح كل الرسائل؟")) {
-            document.getElementById('msgs').innerHTML = '<div style="text-align:center; color:red; font-size:12px;">تم تصفير السجل بأمر الملك 🧹</div>';
-        }
+    async function searchYT() {
+        const q = document.getElementById('yQuery').value;
+        const resDiv = document.getElementById('yResults');
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}`);
+        const data = await res.json();
+        resDiv.innerHTML = "";
+        data.items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'yt-card';
+            card.onclick = () => {
+                const p = document.getElementById('yt-player-zone');
+                p.innerHTML = `<button onclick="this.parentElement.innerHTML=''" style="width:100%; background:red; color:white; border:none;">إغلاق ✖</button>
+                               <iframe width="100%" height="200" src="https://www.youtube.com/embed/${item.id.videoId}?autoplay=1" frameborder="0"></iframe>`;
+                if(window.innerWidth <= 768) toggleSide('sideYT'); // يغلق القائمة بالموبايل بعد الاختيار
+            };
+            card.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}" style="width:100%"><p style="font-size:10px">${item.snippet.title}</p>`;
+            resDiv.appendChild(card);
+        });
     }
 
-    function sendAlert() {
-        const msg = prompt("اكتب رسالة التنبيه:");
-        if(msg) {
-            const box = document.getElementById('msgs');
-            const d = document.createElement('div');
-            d.style.cssText = "background:red; color:white; padding:10px; text-align:center; margin:10px; border-radius:5px; font-weight:bold; animation: blink 1s infinite;";
-            d.innerHTML = `📢 تنبيه إداري: ${msg}`;
-            box.appendChild(d);
-        }
-    }
+    function clearChat() { document.getElementById('msg-screen').innerHTML = 'تم التصفير 🧹'; toggleSide('admin-box'); }
 
-    function toggleLock() {
-        isLocked = !isLocked;
-        const btn = document.getElementById('lockBtn');
-        btn.innerText = isLocked ? "🔓 فتح الشات" : "🔒 قفل الشات";
-        btn.style.background = isLocked ? "green" : "#444";
-        const box = document.getElementById('msgs');
-        const d = document.createElement('div');
-        d.style.cssText = "color:orange; text-align:center; font-size:12px; margin:10px;";
-        d.innerHTML = isLocked ? "تم قفل الشات من قبل الملك 🔒" : "تم فتح الشات.. سولفوا يا جماعة 🔓";
-        box.appendChild(d);
-    }
-
-    function kickUser() {
-        alert("تم طرد المستخدم بنجاح! (برمجياً سيتم منعه من الدخول)");
-    }
-
-    document.getElementById('cIn').onkeydown = (e) => { if(e.keyCode == 13) send(); };
+    document.getElementById('cInput').onkeydown = (e) => { if(e.keyCode == 13) send(); };
 </script>
-
-<style>
-@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-</style>
-
 </body>
 </html>
