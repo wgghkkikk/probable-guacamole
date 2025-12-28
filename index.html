@@ -2,93 +2,111 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>شات مملكة علوش | النسخة الكلاسيكية</title>
+    <title>مملكة علوش | نسخة الـ VIP الأسطورية</title>
     <style>
-        body { margin: 0; background: #eee; font-family: tahoma, sans-serif; font-size: 13px; }
+        body { margin: 0; background: #121212; font-family: 'Tahoma', sans-serif; color: #eee; overflow: hidden; }
         
-        /* الحاوية الكبرى */
-        .chat-wrapper { width: 100vw; height: 100vh; display: flex; flex-direction: column; }
+        /* شريط الأخبار المتحرك */
+        .marquee-container { background: #000; color: #00f2fe; padding: 5px; border-bottom: 2px solid #bc13fe; font-weight: bold; }
 
-        /* الهيدر (شريط الإعلانات) */
-        .news-bar { background: #333; color: yellow; padding: 5px; text-align: center; border-bottom: 2px solid #000; }
+        .wrapper { display: flex; height: calc(100vh - 40px); }
 
-        /* الوسط (الرسائل + قائمة الأسماء) */
-        .content { flex: 1; display: flex; background: #fff; overflow: hidden; }
-
-        /* منطقة الرسائل */
-        #msg-box { flex: 1; padding: 10px; overflow-y: scroll; border: 1px solid #ccc; background: #f9f9f9; }
+        /* قائمة المتواجدين - الهوية البصرية */
+        .user-sidebar { width: 220px; background: #1a1a1a; border-left: 1px solid #333; display: flex; flex-direction: column; }
+        .sidebar-header { background: #bc13fe; color: white; padding: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 10px rgba(188, 19, 254, 0.3); }
+        .user-entry { padding: 10px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 8px; }
         
-        /* قائمة الأسماء (أهم ميزة بشيلة) */
-        .user-list { width: 200px; background: #d1d1d1; border-right: 1px solid #999; display: flex; flex-direction: column; }
-        .list-header { background: #444; color: white; padding: 8px; text-align: center; font-weight: bold; }
-        .user { padding: 5px; border-bottom: 1px solid #bbb; cursor: pointer; display: flex; align-items: center; }
-        .u-king { color: red; font-weight: bold; } /* رتبة الملك */
-        .u-mod { color: green; font-weight: bold; } /* رتبة المشرف */
+        /* تأثير الاسم المشع للملك */
+        .king-name { 
+            font-weight: bold; 
+            text-shadow: 0 0 10px #bc13fe, 0 0 20px #00f2fe;
+            animation: rainbow 3s linear infinite;
+        }
 
-        /* لوحة التحكم والكتبة (Footer) */
-        .footer { height: 120px; background: #e1e1e1; border-top: 2px solid #999; padding: 10px; }
-        .tools { margin-bottom: 10px; display: flex; gap: 10px; }
-        .color-box { width: 20px; height: 20px; border: 1px solid #000; cursor: pointer; }
+        @keyframes rainbow {
+            0% { color: #bc13fe; } 50% { color: #00f2fe; } 100% { color: #bc13fe; }
+        }
 
-        .input-area { display: flex; gap: 5px; }
-        input[type="text"] { flex: 1; padding: 8px; border: 1px solid #777; }
-        .send-btn { background: #4CAF50; color: white; border: none; padding: 0 20px; cursor: pointer; font-weight: bold; }
+        /* ساحة الدردشة */
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: #121212; }
+        #chat-content { flex: 1; padding: 15px; overflow-y: auto; background-image: linear-gradient(rgba(188, 19, 254, 0.05) 1px, transparent 1px); background-size: 100% 30px; }
 
-        /* ستايل الرسالة داخل الشات */
-        .chat-line { margin-bottom: 5px; border-bottom: 1px dashed #ddd; padding: 2px; }
-        .name { font-weight: bold; margin-left: 5px; }
+        .msg-line { margin-bottom: 10px; padding: 5px 10px; border-radius: 5px; background: rgba(255,255,255,0.02); border-right: 3px solid transparent; animation: slideIn 0.3s ease; }
+        .king-line { border-right-color: #bc13fe; background: rgba(188, 19, 254, 0.05); }
+
+        /* منطقة الكتابة والزخرفة */
+        .control-panel { background: #1a1a1a; padding: 15px; border-top: 1px solid #333; }
+        .decor-tools { margin-bottom: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .tool-btn { background: #333; border: 1px solid #444; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .tool-btn:hover { background: #bc13fe; }
+
+        .input-group { display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; background: #000; border: 1px solid #bc13fe; color: white; padding: 12px; border-radius: 8px; outline: none; }
+        .btn-send { background: linear-gradient(45deg, #bc13fe, #00f2fe); border: none; color: black; font-weight: bold; padding: 0 25px; border-radius: 8px; cursor: pointer; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 
-<div class="chat-wrapper">
-    <div class="news-bar">📢 أهلاً بكم في مملكة علوش.. نرجو الالتزام بالقوانين وعدم الإساءة 📢</div>
+<div class="marquee-container">
+    <marquee>⚔️ مرحباً بكم في مملكة علوش.. نظام الحماية مفعل.. رتب الـ VIP مفتوحة الآن.. شاركنا المتعة ⚔️</marquee>
+</div>
 
-    <div class="content">
-        <div class="user-list">
-            <div class="list-header">المتواجدون (3)</div>
-            <div class="user u-king">👑 علوش الملك</div>
-            <div class="user u-mod">🛡️ المشرف العام</div>
-            <div class="user">👤 زائر_432</div>
-        </div>
-
-        <div id="msg-box">
-            <div class="chat-line"><span class="name" style="color:red;">[👑 علوش الملك]:</span> أهلاً بالجميع في النسخة الكلاسيكية.</div>
-            <div class="chat-line"><span class="name" style="color:green;">[🛡️ المشرف]:</span> منور يا ملك، الشات صار يشبه "شيلة" الآن.</div>
-        </div>
+<div class="wrapper">
+    <div class="user-sidebar">
+        <div class="sidebar-header">المتواجدون (12)</div>
+        <div class="user-entry"><span class="king-name">👑 علوش الملك</span></div>
+        <div class="user-entry" style="color: #00ff00;">🛡️ المشرف العام</div>
+        <div class="user-entry" style="color: #ccc;">👤 زائر_عراقي</div>
+        <div class="user-entry" style="color: #ccc;">👤 بنت_بغداد</div>
     </div>
 
-    <div class="footer">
-        <div class="tools">
-            <div class="color-box" style="background: red;" onclick="setColor('red')"></div>
-            <div class="color-box" style="background: blue;" onclick="setColor('blue')"></div>
-            <div class="color-box" style="background: green;" onclick="setColor('green')"></div>
-            <span style="font-weight: bold;">[ زخرفة | صور | إيموجي ]</span>
+    <div class="chat-main">
+        <div id="chat-content">
+            <div class="msg-line king-line"><span class="king-name">👑 علوش الملك:</span> تم إضافة نظام الزخرفة واللمعان بنجاح!</div>
         </div>
-        <div class="input-area">
-            <input type="text" id="textIn" placeholder="اكتب رسالتك هنا...">
-            <button class="send-btn" onclick="sendMsg()">إرسال</button>
+
+        <div class="control-panel">
+            <div class="decor-tools">
+                <button class="tool-btn" onclick="addText('⚔️')">⚔️</button>
+                <button class="tool-btn" onclick="addText('👑')">👑</button>
+                <button class="tool-btn" onclick="addText('『 ')">『</button>
+                <button class="tool-btn" onclick="addText(' 』')">』</button>
+                <button class="tool-btn" onclick="addText('★')">★</button>
+                <span style="font-size: 12px; color: #888; align-self: center;">| زخرفة سريعة</span>
+            </div>
+            <div class="input-group">
+                <input type="text" id="msgIn" placeholder="اكتب رسالتك الملكية هنا...">
+                <button class="btn-send" onclick="send()">إرسال</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    let currentColor = 'black';
-    function setColor(c) { currentColor = c; }
-
-    function sendMsg() {
-        const input = document.getElementById('textIn');
-        if(!input.value) return;
-        
-        const box = document.getElementById('msg-box');
-        const line = document.createElement('div');
-        line.className = 'chat-line';
-        line.innerHTML = `<span class="name" style="color:${currentColor};">[👑 علوش الملك]:</span> ${input.value}`;
-        
-        box.appendChild(line);
-        input.value = "";
-        box.scrollTop = box.scrollHeight;
+    function addText(symbol) {
+        document.getElementById('msgIn').value += symbol;
+        document.getElementById('msgIn').focus();
     }
+
+    function send() {
+        const input = document.getElementById('msgIn');
+        if(!input.value) return;
+
+        const content = document.getElementById('chat-content');
+        const div = document.createElement('div');
+        div.className = 'msg-line king-line';
+        div.innerHTML = `<span class="king-name">👑 علوش الملك:</span> ${input.value}`;
+        
+        content.appendChild(div);
+        input.value = "";
+        content.scrollTop = content.scrollHeight;
+    }
+
+    document.getElementById('msgIn').addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') send();
+    });
 </script>
 
 </body>
