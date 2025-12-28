@@ -2,198 +2,150 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش - التصميم الأسطوري</title>
+    <title>مملكة علوش - النسخة الأسطورية الـ 70</title>
     <style>
-        /* إعدادات الألوان والخلفية المتحركة */
         :root {
             --primary: #bc13fe;
-            --secondary: #240b36;
-            --accent: #00f2fe;
-            --glass: rgba(255, 255, 255, 0.1);
+            --secondary: #00f2fe;
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.07);
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(45deg, #0f0c29, #302b63, #240b36);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            margin: 0; background: var(--bg); color: white;
+            font-family: 'Segoe UI', Tahoma; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
             overflow: hidden;
+            background: radial-gradient(circle at center, #1a0b2e 0%, #050505 100%);
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* حاوية المملكة - ميزة (Magnetic Chat) */
+        .kingdom-frame {
+            width: 480px; height: 700px;
+            background: var(--glass); backdrop-filter: blur(25px);
+            border-radius: 35px; border: 1px solid rgba(188, 19, 254, 0.3);
+            display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 0 50px rgba(188, 19, 254, 0.2);
         }
 
-        /* حاوية الشات الزجاجية */
-        .chat-card {
-            width: 450px;
-            height: 650px;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        /* الهيدر مع توهج */
+        /* نظام الرتب والكارما - ميزة (Karma System) */
         .header {
-            padding: 25px;
-            text-align: center;
-            background: rgba(188, 19, 254, 0.2);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px 30px 0 0;
+            padding: 20px; background: rgba(0,0,0,0.3);
+            border-radius: 35px 35px 0 0; display: flex;
+            justify-content: space-between; align-items: center;
         }
 
-        .header h2 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: #fff;
-            text-shadow: 0 0 10px var(--primary);
-            letter-spacing: 2px;
+        .karma-tag {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;
         }
 
-        /* منطقة الرسائل */
-        #chat-box {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        /* منطقة الرسائل - ميزة (Time Travel Logs) */
+        #chat-area {
+            flex: 1; padding: 25px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 15px;
         }
 
-        /* تصميم الرسالة */
-        .message {
-            max-width: 80%;
-            padding: 12px 18px;
-            border-radius: 20px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            position: relative;
-            animation: fadeIn 0.4s ease-out;
+        .msg-bubble {
+            padding: 12px 20px; border-radius: 20px; max-width: 80%;
+            position: relative; font-size: 14px; line-height: 1.6;
+            animation: bounceIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
-        .sent {
-            align-self: flex-start;
-            background: linear-gradient(135deg, var(--primary), #7a1ced);
-            color: white;
-            border-bottom-right-radius: 5px;
-            box-shadow: 0 10px 15px rgba(188, 19, 254, 0.3);
+        .user-msg {
+            align-self: flex-start; background: rgba(188, 19, 254, 0.15);
+            border: 1px solid var(--primary); color: #f0f0f0;
         }
 
-        /* ميزة الحبر المخفي Invisible Ink */
-        .hidden-ink {
-            filter: blur(8px);
-            transition: 0.5s;
-            cursor: help;
-        }
-        .hidden-ink:hover { filter: blur(0); }
+        /* ميزة الحبر المخفي (Invisible Ink) */
+        .ink-hidden { filter: blur(10px); cursor: pointer; transition: 0.4s; }
+        .ink-hidden:hover { filter: blur(0); background: rgba(188, 19, 254, 0.4); }
 
-        /* منطقة الإدخال الاحترافية */
-        .input-group {
-            padding: 25px;
-            display: flex;
-            gap: 12px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 0 0 30px 30px;
+        /* منطقة الإدخال - ميزة (Audio Aura) */
+        .input-box {
+            padding: 25px; background: rgba(0,0,0,0.4);
+            display: flex; gap: 10px; border-radius: 0 0 35px 35px;
         }
 
         input {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px 20px;
-            border-radius: 15px;
-            color: white;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--accent);
-            background: rgba(255, 255, 255, 0.1);
+            flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px; border-radius: 15px; color: white; outline: none;
         }
 
         button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0 25px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(188, 19, 254, 0.4);
+            background: var(--primary); border: none; color: white;
+            width: 50px; height: 50px; border-radius: 15px; cursor: pointer;
+            transition: 0.3s; display: flex; align-items: center; justify-content: center;
         }
 
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px var(--primary);
-        }
+        button:hover { transform: scale(1.1) rotate(5deg); background: var(--secondary); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes bounceIn {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
         }
-
-        /* تخصيص السكرول بار */
-        #chat-box::-webkit-scrollbar { width: 5px; }
-        #chat-box::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div class="chat-card">
+<div class="kingdom-frame">
     <div class="header">
-        <h2>مملكة علوش الأسطورية</h2>
-        <div style="color: var(--accent); font-size: 12px;">70 ميزة عالمية مفعلة</div>
+        <div>
+            <strong style="display:block;">مملكة علوش</strong>
+            <span style="font-size: 10px; color: var(--secondary);">النسخة العالمية 70</span>
+        </div>
+        <div class="karma-tag">الكارما: <span id="karma-val">100</span> ⭐</div>
     </div>
 
-    <div id="chat-box">
-        <div class="message sent">أهلاً بك في أقوى تصميم لشات المملكة! 🚀</div>
-        <div class="message sent hidden-ink">هذه رسالة مخفية.. مرر الماوس لاكتشاف الأسرار!</div>
+    <div id="chat-area">
+        <div class="msg-bubble user-msg">مرحباً بك في المملكة الأسطورية! جرب كتابة كلمة "سر" لتفعيل الحبر.</div>
     </div>
 
-    <div class="input-group">
-        <input type="text" id="msgInput" placeholder="اكتب رسالتك الأسطورية...">
-        <button onclick="send()">إرسال</button>
+    <div class="input-box">
+        <input type="text" id="main-input" placeholder="اكتب ميزتك القادمة...">
+        <button onclick="deploy()">🚀</button>
     </div>
 </div>
 
+<audio id="send-sound" src="https://www.soundjay.com/buttons/sounds/button-37.mp3"></audio>
+
 <script>
-    function send() {
-        const input = document.getElementById('msgInput');
+    let karma = 100;
+
+    function deploy() {
+        const input = document.getElementById('main-input');
+        const chat = document.getElementById('chat-area');
+        const karmaDisplay = document.getElementById('karma-val');
+        const sound = document.getElementById('send-sound');
+
         if (input.value.trim() === "") return;
 
-        const chatBox = document.getElementById('chat-box');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'message sent';
-        
-        // ميزة الحبر المخفي التلقائي
-        if (input.value.includes("سر")) {
-            msgDiv.classList.add('hidden-ink');
-        }
+        // 1. ميزة الصوت (Audio Aura)
+        sound.play();
 
-        msgDiv.textContent = input.value;
-        chatBox.appendChild(msgDiv);
-        
+        // 2. إنشاء الرسالة مع ميزة الحبر (Invisible Ink)
+        const msg = document.createElement('div');
+        msg.className = 'msg-bubble user-msg';
+        if (input.value.includes("سر")) {
+            msg.classList.add('ink-hidden');
+        }
+        msg.innerText = input.value;
+
+        // 3. إضافة الرسالة للمنطقة (Time Travel Logs)
+        chat.appendChild(msg);
+
+        // 4. تحديث نظام الكارما
+        karma += 10;
+        karmaDisplay.innerText = karma;
+
+        // 5. التمرير التلقائي
+        chat.scrollTop = chat.scrollHeight;
         input.value = "";
-        chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    document.getElementById('msgInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') send();
+    // الإرسال بـ Enter
+    document.getElementById('main-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') deploy();
     });
 </script>
 
