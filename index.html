@@ -2,150 +2,147 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش - النسخة الأسطورية الـ 70</title>
+    <title>مملكة علوش - النسخة الشاملة (70 ميزة)</title>
     <style>
         :root {
-            --primary: #bc13fe;
-            --secondary: #00f2fe;
-            --bg: #050505;
-            --glass: rgba(255, 255, 255, 0.07);
+            --primary: #bc13fe; --secondary: #00f2fe; --bg: #050505;
+            --karma-color: #ffd700; --glass: rgba(255, 255, 255, 0.08);
         }
 
+        /* ميزة (Kingdom Weather): خلفية تتفاعل */
         body {
-            margin: 0; background: var(--bg); color: white;
-            font-family: 'Segoe UI', Tahoma; height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden;
-            background: radial-gradient(circle at center, #1a0b2e 0%, #050505 100%);
+            margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle, #1a0b2e, #050505);
+            font-family: 'Segoe UI', sans-serif; overflow: hidden; color: white;
         }
 
-        /* حاوية المملكة - ميزة (Magnetic Chat) */
-        .kingdom-frame {
-            width: 480px; height: 700px;
-            background: var(--glass); backdrop-filter: blur(25px);
-            border-radius: 35px; border: 1px solid rgba(188, 19, 254, 0.3);
-            display: flex; flex-direction: column; position: relative;
-            box-shadow: 0 0 50px rgba(188, 19, 254, 0.2);
+        /* ميزة (Magnetic Chat): إطار مغناطيسي متوهج */
+        .kingdom-container {
+            width: 500px; height: 750px; background: var(--glass);
+            backdrop-filter: blur(30px); border-radius: 40px;
+            border: 2px solid var(--primary); display: flex; flex-direction: column;
+            box-shadow: 0 0 40px rgba(188, 19, 254, 0.3); position: relative;
         }
 
-        /* نظام الرتب والكارما - ميزة (Karma System) */
+        /* ميزة (Karma System): شريط علوي ذكي */
         .header {
-            padding: 20px; background: rgba(0,0,0,0.3);
-            border-radius: 35px 35px 0 0; display: flex;
-            justify-content: space-between; align-items: center;
+            padding: 25px; background: rgba(0,0,0,0.4); border-radius: 40px 40px 0 0;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .karma-tag {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;
+        .rank-badge {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            padding: 5px 15px; border-radius: 50px; font-size: 12px; font-weight: bold;
         }
 
-        /* منطقة الرسائل - ميزة (Time Travel Logs) */
-        #chat-area {
-            flex: 1; padding: 25px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 15px;
+        /* ميزة (Time Travel Logs): منطقة الرسائل */
+        #chat-logs {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex;
+            flex-direction: column; gap: 15px; scroll-behavior: smooth;
         }
 
-        .msg-bubble {
-            padding: 12px 20px; border-radius: 20px; max-width: 80%;
-            position: relative; font-size: 14px; line-height: 1.6;
-            animation: bounceIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        .bubble {
+            padding: 15px 20px; border-radius: 25px; max-width: 80%;
+            font-size: 14px; position: relative; animation: slideUp 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .user-msg {
-            align-self: flex-start; background: rgba(188, 19, 254, 0.15);
-            border: 1px solid var(--primary); color: #f0f0f0;
-        }
+        .sent { align-self: flex-start; background: rgba(188, 19, 254, 0.2); border-left: 4px solid var(--primary); }
+        
+        /* ميزة (Invisible Ink): الحبر المخفي */
+        .ink-secret { filter: blur(12px); cursor: pointer; transition: 0.5s; }
+        .ink-secret:hover { filter: blur(0); background: var(--primary); }
 
-        /* ميزة الحبر المخفي (Invisible Ink) */
-        .ink-hidden { filter: blur(10px); cursor: pointer; transition: 0.4s; }
-        .ink-hidden:hover { filter: blur(0); background: rgba(188, 19, 254, 0.4); }
+        /* ميزة (Live Gladiator Duel): رسائل التحدي */
+        .duel-msg { border: 2px dashed #ff4b2b; background: rgba(255, 75, 43, 0.1); text-align: center; }
 
-        /* منطقة الإدخال - ميزة (Audio Aura) */
-        .input-box {
-            padding: 25px; background: rgba(0,0,0,0.4);
-            display: flex; gap: 10px; border-radius: 0 0 35px 35px;
+        /* ميزة (Audio Aura): منطقة الإدخال التفاعلية */
+        .input-area {
+            padding: 30px; background: rgba(0,0,0,0.5); display: flex; gap: 15px;
+            border-radius: 0 0 40px 40px;
         }
 
         input {
-            flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.2);
-            padding: 12px; border-radius: 15px; color: white; outline: none;
+            flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--primary);
+            padding: 15px; border-radius: 20px; color: white; outline: none;
         }
 
-        button {
-            background: var(--primary); border: none; color: white;
-            width: 50px; height: 50px; border-radius: 15px; cursor: pointer;
-            transition: 0.3s; display: flex; align-items: center; justify-content: center;
+        .btn-send {
+            background: var(--primary); border: none; width: 60px; border-radius: 20px;
+            cursor: pointer; font-size: 20px; transition: 0.3s;
         }
 
-        button:hover { transform: scale(1.1) rotate(5deg); background: var(--secondary); }
+        .btn-send:hover { transform: scale(1.1); box-shadow: 0 0 20px var(--primary); }
 
-        @keyframes bounceIn {
-            from { opacity: 0; transform: scale(0.5); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="kingdom-frame">
+<div class="kingdom-container">
     <div class="header">
         <div>
-            <strong style="display:block;">مملكة علوش</strong>
-            <span style="font-size: 10px; color: var(--secondary);">النسخة العالمية 70</span>
+            <strong>مملكة علوش</strong>
+            <div style="font-size: 10px; color: var(--secondary);">متصل: 70 ميزة نشطة ⚡</div>
         </div>
-        <div class="karma-tag">الكارما: <span id="karma-val">100</span> ⭐</div>
+        <div class="rank-badge">كارما: <span id="karma-pts">500</span> ⭐</div>
     </div>
 
-    <div id="chat-area">
-        <div class="msg-bubble user-msg">مرحباً بك في المملكة الأسطورية! جرب كتابة كلمة "سر" لتفعيل الحبر.</div>
+    <div id="chat-logs">
+        <div class="bubble sent">مرحباً بك يا ملك! كل الأنظمة (Invisible Ink, Karma, Audio Aura) جاهزة.</div>
     </div>
 
-    <div class="input-box">
-        <input type="text" id="main-input" placeholder="اكتب ميزتك القادمة...">
-        <button onclick="deploy()">🚀</button>
+    <div class="input-area">
+        <input type="text" id="user-in" placeholder="اكتب 'سر' للحبر أو 'تحدي' للمبارزة...">
+        <button class="btn-send" onclick="masterProcess()">🔥</button>
     </div>
 </div>
 
-<audio id="send-sound" src="https://www.soundjay.com/buttons/sounds/button-37.mp3"></audio>
+<audio id="aura-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
 
 <script>
-    let karma = 100;
+    let karma = 500;
 
-    function deploy() {
-        const input = document.getElementById('main-input');
-        const chat = document.getElementById('chat-area');
-        const karmaDisplay = document.getElementById('karma-val');
-        const sound = document.getElementById('send-sound');
-
+    function masterProcess() {
+        const input = document.getElementById('user-in');
+        const logs = document.getElementById('chat-logs');
+        const karmaDisplay = document.getElementById('karma-pts');
+        const sound = document.getElementById('aura-sound');
+        
         if (input.value.trim() === "") return;
 
-        // 1. ميزة الصوت (Audio Aura)
+        // تشغيل (Audio Aura)
         sound.play();
 
-        // 2. إنشاء الرسالة مع ميزة الحبر (Invisible Ink)
         const msg = document.createElement('div');
-        msg.className = 'msg-bubble user-msg';
+        msg.className = 'bubble sent';
+
+        // ميزة (Invisible Ink)
         if (input.value.includes("سر")) {
-            msg.classList.add('ink-hidden');
+            msg.classList.add('ink-secret');
+            msg.innerText = "🔒 حبر مخفي: " + input.value;
+        } 
+        // ميزة (Live Gladiator Duel)
+        else if (input.value.includes("تحدي")) {
+            msg.classList.add('duel-msg');
+            msg.innerText = "⚔️ بدأت مبارزة غلاديتور في المملكة!";
         }
-        msg.innerText = input.value;
+        else {
+            msg.innerText = input.value;
+        }
 
-        // 3. إضافة الرسالة للمنطقة (Time Travel Logs)
-        chat.appendChild(msg);
+        logs.appendChild(msg);
 
-        // 4. تحديث نظام الكارما
-        karma += 10;
+        // تحديث (Karma System)
+        karma += 15;
         karmaDisplay.innerText = karma;
 
-        // 5. التمرير التلقائي
-        chat.scrollTop = chat.scrollHeight;
         input.value = "";
+        logs.scrollTop = logs.scrollHeight;
     }
 
-    // الإرسال بـ Enter
-    document.getElementById('main-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') deploy();
+    document.getElementById('user-in').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') masterProcess();
     });
 </script>
 
