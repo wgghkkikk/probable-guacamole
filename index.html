@@ -2,129 +2,132 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش - الدردشة الأسطورية</title>
+    <title>مملكة علوش - الميزات المتقدمة</title>
     <style>
         :root {
             --primary: #8a2be2;
-            --bg: #0f0f12;
-            --text: #ffffff;
+            --bg: #0b0b0e;
+            --card: #16161d;
+            --accent: #00ffcc;
         }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         
-        /* حاوية الشات */
-        #chat-kingdom {
-            width: 400px;
-            height: 500px;
-            background: #1a1a20;
-            border-radius: 20px;
+        #kingdom-container {
+            width: 420px;
+            background: var(--card);
+            border-radius: 25px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.4);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            border: 2px solid var(--primary);
-            box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
         }
 
-        /* منطقة الرسائل */
+        /* شريط المعلومات العلوي - نظام الكارما */
+        .header {
+            background: var(--primary);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .karma-badge {
+            background: rgba(0,0,0,0.3);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            color: var(--accent);
+        }
+
         #messages {
-            flex: 1;
+            height: 400px;
             padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            background-image: radial-gradient(circle, #1a1a24 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         .msg {
-            padding: 10px 15px;
-            border-radius: 15px;
-            max-width: 80%;
-            word-wrap: break-word;
-            animation: slideIn 0.3s ease;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 75%;
+            font-size: 0.95em;
+            line-height: 1.4;
+            position: relative;
         }
 
-        .sent { background: var(--primary); align-self: flex-start; }
+        .sent { background: var(--primary); align-self: flex-start; border-bottom-right-radius: 2px; }
+        .received { background: #333; align-self: flex-end; border-bottom-left-radius: 2px; }
+
+        .hidden-ink { filter: blur(6px); cursor: pointer; transition: 0.4s; }
+        .hidden-ink:hover { filter: blur(0); background: #9d4edd; }
+
+        .footer { padding: 15px; background: #1f1f27; display: flex; gap: 10px; }
+        input { flex: 1; background: #0b0b0e; border: 1px solid #444; color: white; padding: 12px; border-radius: 12px; outline: none; }
+        input:focus { border-color: var(--accent); }
         
-        /* ميزة الحبر المخفي Invisible Ink */
-        .hidden-ink {
-            filter: blur(5px);
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .hidden-ink:hover { filter: blur(0); }
-
-        /* منطقة الإدخال */
-        .input-area {
-            padding: 15px;
-            background: #25252d;
-            display: flex;
-            gap: 10px;
-        }
-
-        input {
-            flex: 1;
-            background: #0f0f12;
-            border: 1px solid var(--primary);
-            color: white;
-            padding: 10px;
-            border-radius: 10px;
-            outline: none;
-        }
-
-        button {
-            background: var(--primary);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        button { background: var(--primary); border: none; color: white; padding: 0 20px; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { transform: scale(1.05); background: #9d4edd; }
     </style>
 </head>
 <body>
 
-<div id="chat-kingdom">
-    <div style="background: var(--primary); padding: 15px; text-align: center; font-weight: bold;">
-        مملكة علوش - Chat V1.0
+<div id="kingdom-container">
+    <div class="header">
+        <span>مملكة علوش V2.0</span>
+        <div class="karma-badge">الكارما: <span id="karma-count">100</span> ⭐</div>
     </div>
+    
     <div id="messages">
-        <div class="msg sent">مرحباً بك في المملكة! جرب ميزة الحبر المخفي بالوقوف بالماوس على الرسالة القادمة.</div>
-        <div class="msg sent hidden-ink">هذه رسالة سرية من ميزات الـ 70!</div>
+        <div class="msg sent">أهلاً بك! كل رسالة ترسلها تزيد من نقاط الكارما الخاصة بك.</div>
+        <div class="msg received hidden-ink">هذه رسالة سرية محميّة بنظام الحبر.</div>
     </div>
-    <div class="input-area">
-        <input type="text" id="user-input" placeholder="اكتب رسالتك هنا...">
-        <button onclick="sendMessage()">إرسال</button>
+
+    <div class="footer">
+        <input type="text" id="input" placeholder="اكتب شيئاً أسطورياً...">
+        <button onclick="process()">إرسال</button>
     </div>
 </div>
 
 <script>
-    function sendMessage() {
-        const input = document.getElementById('user-input');
-        const messagesDiv = document.getElementById('messages');
-        
-        if (input.value.trim() !== "") {
-            // إنشاء رسالة جديدة
-            const newMsg = document.createElement('div');
-            newMsg.className = 'msg sent';
-            newMsg.innerText = input.value;
-            
-            // إضافة ميزة الحبر المخفي عشوائياً كاستعراض
-            if (input.value.includes("سر")) {
-                newMsg.classList.add('hidden-ink');
-            }
+    let karma = 100;
 
-            messagesDiv.appendChild(newMsg);
-            input.value = "";
+    function process() {
+        const input = document.getElementById('input');
+        const msgContainer = document.getElementById('messages');
+        const karmaDisplay = document.getElementById('karma-count');
+
+        if (input.value.trim() !== "") {
+            // 1. إضافة الرسالة
+            const div = document.createElement('div');
+            div.className = 'msg sent';
+            // إذا كتبت كلمة "سر" تتحول الرسالة تلقائياً لحبر مخفي
+            if (input.value.includes("سر")) div.classList.add('hidden-ink');
             
-            // نزول تلقائي لأسفل الشات
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            div.innerText = input.value;
+            msgContainer.appendChild(div);
+
+            // 2. تحديث الكارما (+5 لكل رسالة)
+            karma += 5;
+            karmaDisplay.innerText = karma;
+
+            // 3. تنظيف وتمرير
+            input.value = "";
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+
+            // 4. تأثير بصري بسيط للكارما
+            karmaDisplay.style.color = "#00ffcc";
+            setTimeout(() => { karmaDisplay.style.color = "white"; }, 500);
         }
     }
 
-    // إرسال عند ضغط Enter
-    document.getElementById('user-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') sendMessage();
+    document.getElementById('input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') process();
     });
 </script>
 
