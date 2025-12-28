@@ -2,85 +2,199 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش - الشات العالمي</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>مملكة علوش - التصميم الأسطوري</title>
     <style>
-        :root { --primary: #8a2be2; --bg: #0b0b0e; --accent: #00ffcc; }
-        body { background: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        #kingdom-container { width: 420px; height: 550px; background: #16161d; border-radius: 20px; border: 2px solid var(--primary); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 20px rgba(138,43,226,0.5); }
-        .header { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-        #messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0b0b0e; }
-        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9em; position: relative; animation: pop 0.3s ease; }
-        .received { background: var(--primary); align-self: flex-start; }
-        .hidden-ink { filter: blur(5px); transition: 0.3s; cursor: pointer; }
+        /* إعدادات الألوان والخلفية المتحركة */
+        :root {
+            --primary: #bc13fe;
+            --secondary: #240b36;
+            --accent: #00f2fe;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(45deg, #0f0c29, #302b63, #240b36);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* حاوية الشات الزجاجية */
+        .chat-card {
+            width: 450px;
+            height: 650px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* الهيدر مع توهج */
+        .header {
+            padding: 25px;
+            text-align: center;
+            background: rgba(188, 19, 254, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px 30px 0 0;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #fff;
+            text-shadow: 0 0 10px var(--primary);
+            letter-spacing: 2px;
+        }
+
+        /* منطقة الرسائل */
+        #chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* تصميم الرسالة */
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .sent {
+            align-self: flex-start;
+            background: linear-gradient(135deg, var(--primary), #7a1ced);
+            color: white;
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 10px 15px rgba(188, 19, 254, 0.3);
+        }
+
+        /* ميزة الحبر المخفي Invisible Ink */
+        .hidden-ink {
+            filter: blur(8px);
+            transition: 0.5s;
+            cursor: help;
+        }
         .hidden-ink:hover { filter: blur(0); }
-        .footer { padding: 15px; background: #1f1f27; display: flex; gap: 10px; }
-        input { flex: 1; background: #000; border: 1px solid var(--primary); color: white; padding: 10px; border-radius: 10px; outline: none; }
-        button { background: var(--primary); border: none; color: white; padding: 0 15px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* منطقة الإدخال الاحترافية */
+        .input-group {
+            padding: 25px;
+            display: flex;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0 0 30px 30px;
+        }
+
+        input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 15px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(188, 19, 254, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--primary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* تخصيص السكرول بار */
+        #chat-box::-webkit-scrollbar { width: 5px; }
+        #chat-box::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div id="kingdom-container">
+<div class="chat-card">
     <div class="header">
-        <span>مملكة علوش - النسخة 70 الأسطورية</span>
-        <div style="font-size: 0.7em; color: var(--accent);">متصل عالمياً 🌐</div>
+        <h2>مملكة علوش الأسطورية</h2>
+        <div style="color: var(--accent); font-size: 12px;">70 ميزة عالمية مفعلة</div>
     </div>
-    <div id="messages"></div>
-    <div class="footer">
-        <input type="text" id="input" placeholder="اكتب رسالة ليراها الجميع...">
-        <button onclick="sendMsg()">إرسال</button>
+
+    <div id="chat-box">
+        <div class="message sent">أهلاً بك في أقوى تصميم لشات المملكة! 🚀</div>
+        <div class="message sent hidden-ink">هذه رسالة مخفية.. مرر الماوس لاكتشاف الأسرار!</div>
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="msgInput" placeholder="اكتب رسالتك الأسطورية...">
+        <button onclick="send()">إرسال</button>
     </div>
 </div>
 
 <script>
-    // ملاحظة: هذه بيانات ربط تجريبية لمشروع عام (Public)
-    // لكي يعمل الشات بين جهازين، يجب وضع مفاتيح API الخاصة بمشروعك هنا
-    const SUPABASE_URL = 'https://your-project.supabase.co';
-    const SUPABASE_KEY = 'your-anon-key';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    function send() {
+        const input = document.getElementById('msgInput');
+        if (input.value.trim() === "") return;
 
-    const msgContainer = document.getElementById('messages');
-    const inputField = document.getElementById('input');
-
-    // 1. وظيفة لجلب الرسائل القديمة من السحاب
-    async function loadMsgs() {
-        const { data } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
-        if (data) {
-            msgContainer.innerHTML = '';
-            data.forEach(m => displayMessage(m.text, m.is_hidden));
-        }
-    }
-
-    // 2. إرسال الرسالة للسحاب (Online)
-    async function sendMsg() {
-        const text = inputField.value.trim();
-        if (!text) return;
-        const isHidden = text.includes("سر");
-
-        // إرسال البيانات لقاعدة البيانات العالمية
-        await supabase.from('messages').insert([{ text: text, is_hidden: isHidden }]);
+        const chatBox = document.getElementById('chat-box');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message sent';
         
-        inputField.value = "";
+        // ميزة الحبر المخفي التلقائي
+        if (input.value.includes("سر")) {
+            msgDiv.classList.add('hidden-ink');
+        }
+
+        msgDiv.textContent = input.value;
+        chatBox.appendChild(msgDiv);
+        
+        input.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // 3. التحديث اللحظي (Real-time) - أهم جزء!
-    // هذا الكود يجعل الرسالة تظهر عند الكل فور إرسالها
-    supabase.channel('public:messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-        displayMessage(payload.new.text, payload.new.is_hidden);
-    }).subscribe();
-
-    function displayMessage(text, isHidden) {
-        const div = document.createElement('div');
-        div.className = 'msg received' + (isHidden ? ' hidden-ink' : '');
-        div.innerText = text;
-        msgContainer.appendChild(div);
-        msgContainer.scrollTop = msgContainer.scrollHeight;
-    }
-
-    loadMsgs(); // تحميل الرسائل عند الفتح
-    inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMsg(); });
+    document.getElementById('msgInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') send();
+    });
 </script>
 
 </body>
