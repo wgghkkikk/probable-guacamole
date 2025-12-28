@@ -1,137 +1,88 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
     <style>
-        body { margin: 0; background: #000 !important; color: gold; font-family: 'Arial', sans-serif; height: 100vh; overflow: hidden; }
-        
-        /* الجوانب */
-        .side { position: fixed; top: 0; width: 280px; height: calc(100vh - 80px); background: #050505; border: 1px solid gold; z-index: 100; padding: 15px; overflow-y: auto; transition: 0.5s; }
+        body { margin: 0; background: #000 !important; color: gold; font-family: 'Arial', sans-serif; overflow: hidden; height: 100vh; }
+        .side { position: fixed; top: 0; width: 280px; height: 100vh; background: #050505; border: 1px solid gold; padding: 15px; z-index: 100; overflow-y: auto; }
         #left { left: 0; } #right { right: 0; }
-        .hide-side { transform: translateX(110%); }
-        .hide-left { transform: translateX(-110%); }
+        
+        /* شات ثابت */
+        #chat-memory { height: 60%; border: 1px solid #333; overflow-y: auto; padding: 10px; margin-top: 10px; }
+        .msg-line { border-bottom: 1px solid #222; padding: 5px; color: white; }
 
-        /* شات ثابت جهة اليسار */
-        #chat-stream { height: 200px; overflow-y: auto; border: 1px dashed gold; margin-bottom: 15px; padding: 5px; background: rgba(255,215,0,0.05); }
-        .msg-bubble { padding: 5px 10px; border-radius: 10px; margin-bottom: 5px; font-size: 13px; border-right: 3px solid gold; }
-
-        /* لوحة التحكم والملف الشخصي */
-        .box-item { background: #111; border: 1px solid gold; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
-        .btn-king { background: gold; color: #000; border: none; padding: 5px 10px; cursor: pointer; font-weight: bold; border-radius: 5px; width: 100%; margin-top: 5px; }
-
-        /* الملف الشخصي (ينفتح بكلمة علوش) */
-        #profile-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; background: #000; border: 2px solid gold; z-index: 2000; display: none; padding: 20px; border-radius: 15px; box-shadow: 0 0 50px gold; }
-
-        /* منطقة الوسط */
-        .center-king { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
-        .king-title { font-size: 4rem; text-shadow: 0 0 20px gold; animation: glow 2s infinite; }
-        @keyframes glow { 0%, 100% { text-shadow: 0 0 20px gold; } 50% { text-shadow: 0 0 40px gold, 0 0 10px white; } }
-
-        .footer-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: #050505; border-top: 2px solid gold; display: flex; align-items: center; justify-content: center; z-index: 300; }
-        #main-input { width: 60%; padding: 15px; border-radius: 30px; border: 1px solid gold; background: #000; color: gold; outline: none; }
+        /* الملف الشخصي المطور */
+        #profile-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; background: #0a0a0a; border: 2px solid gold; display: none; z-index: 500; padding: 20px; border-radius: 15px; }
+        .cover-sq { width: 100%; height: 120px; background: #1a1a1a; border: 1px solid gold; border-radius: 10px; }
+        .p-circle { width: 100px; height: 100px; border-radius: 50%; border: 3px solid gold; margin: -50px auto 10px; display: block; background: #000; }
+        .info-field { width: 95%; background: #000; color: gold; border: 1px solid #444; padding: 10px; margin: 5px 0; border-radius: 5px; }
+        
+        .close-x { float: left; color: red; cursor: pointer; font-size: 20px; font-weight: bold; }
+        .center-stage { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="profile-popup">
-        <span style="color:red; cursor:pointer; font-weight:bold;" onclick="toggleProfile(false)">X إغلاق</span>
-        <div style="width:100%; height:80px; background:gold; border-radius:10px; margin-top:10px;"></div>
-        <img src="https://via.placeholder.com/60/000/gold" style="border-radius:50%; border:2px solid gold; margin:-30px auto 10px; display:block;">
-        <input type="text" placeholder="البريد" value="rgrghh77@gmail.com" style="width:100%; background:#000; color:gold; border:1px solid #333; margin-bottom:5px;">
-        <input type="number" placeholder="العمر" value="21" style="width:100%; background:#000; color:gold; border:1px solid #333; margin-bottom:5px;">
-        <input type="password" placeholder="تغيير الرمز" style="width:100%; background:#000; color:gold; border:1px solid #333;">
-        <button class="btn-king" onclick="toggleProfile(false)">حفظ التغييرات</button>
+    <div id="profile-box">
+        <span class="close-x" onclick="toggleProfile(false)">X</span>
+        <div class="cover-sq"></div> <img src="https://via.placeholder.com/100" class="p-circle"> <h3 style="text-align:center;">إعدادات الإمبراطور</h3>
+        <input type="text" class="info-field" id="u-email" value="******@gmail.com" readonly>
+        <input type="password" class="info-field" id="u-pass" value="********" readonly>
+        <input type="text" class="info-field" value="العمر: 21" readonly>
+        <input type="text" class="info-field" value="تاريخ الدخول: 2025/12/28" readonly>
+        
+        <button onclick="toggleProfile(false)" style="width:100%; background:gold; border:none; padding:10px; margin-top:10px; cursor:pointer; font-weight:bold;">حفظ وإغلاق</button>
     </div>
 
     <div id="left" class="side">
-        <h3 style="text-align:center;">📜 لوحة السيادة</h3>
-        
-        <div class="box-item">
-            <p style="margin:0; font-size:14px;">👤 الملف الشخصي</p>
-            <button class="btn-king" onclick="toggleProfile(true)">فتح الملف</button>
-        </div>
-
-        <div class="box-item">
-            <p style="margin:0; font-size:14px;">⚙️ إعدادات الشات</p>
-            <input type="color" id="chat-color" onchange="changeColor(this.value)" style="width:100%; cursor:pointer;">
-            <button class="btn-king" onclick="clearChat()">تصفير الشات 🗑️</button>
-            <button class="btn-king" onclick="location.reload()">تحديث 🔄</button>
-        </div>
-
-        <div class="box-item">
-            <p style="margin:0; font-size:14px;">📺 اليوتيوب</p>
-            <input type="text" id="yt-search" placeholder="بحث..." style="width:70%; background:#000; color:gold; border:1px solid gold;">
+        <h3>📜 المميزات</h3>
+        <button onclick="toggleProfile(true)" style="width:100%; background:gold; padding:10px; border:none; cursor:pointer; font-weight:bold;">الملف الشخصي 👤</button>
+        <hr color="gold">
+        <div id="yt-container">
+            <p>يوتيوب المملكة</p>
+            <input type="text" id="yt-q" placeholder="ابحث..." style="width:70%;">
             <button onclick="searchYT()">🔍</button>
-            <div id="yt-area"></div>
+            <div id="yt-res"></div>
         </div>
-
-        <div id="chat-stream"></div>
     </div>
 
-    <div class="center-king" onclick="toggleSides()">
-        <h1 class="king-title">مملكة علوش</h1>
+    <div class="center-stage" onclick="toggleSides()">
+        <h1 style="font-size: 50px; text-shadow: 0 0 20px gold;">مملكة علوش</h1>
         <p>نظام الكارما: 1205 🏆</p>
     </div>
 
     <div id="right" class="side">
-        <h3>👥 المتصلون</h3>
-        <p>👑 <b>علوش_الإمبراطور</b></p>
-        <p id="bot-welcome" style="color:#00ffea; text-shadow: 0 0 5px #00ffea;">🤖 BOT_GUARD: نشط</p>
+        <h3>💬 الشات الثابت</h3>
+        <div id="chat-memory"></div>
+        <p style="color:cyan; text-shadow:0 0 10px cyan;">🤖 BOT_GUARD: أهلاً بعودتك يا ملك!</p>
     </div>
 
-    <div class="footer-bar">
-        <input type="text" id="main-input" placeholder="أصدر أمرك يا ملك...">
-        <button onclick="executeOrder()" style="background:gold; border:none; margin-left:10px; padding:12px 30px; border-radius:30px; font-weight:bold; cursor:pointer;">تنفيذ ⚡</button>
+    <div style="position:fixed; bottom:0; width:100%; height:70px; background:#050505; border-top:1px solid gold; display:flex; align-items:center; justify-content:center; z-index:200;">
+        <input type="text" id="king-in" placeholder="أصدر أمرك..." style="width:60%; padding:12px; border-radius:20px; background:#000; color:gold; border:1px solid gold;">
+        <button onclick="sendOrder()" style="background:gold; border:none; padding:12px 30px; border-radius:20px; margin-left:10px; font-weight:bold; cursor:pointer;">إرسال</button>
     </div>
 
     <script>
-        const YT_KEY = "AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU";
-
-        function toggleSides() {
-            document.getElementById('left').classList.toggle('hide-left');
-            document.getElementById('right').classList.toggle('hide-side');
-        }
-
-        function executeOrder() {
-            let inp = document.getElementById('main-input');
-            let val = inp.value.trim();
-            if(!val) return;
-
-            // نظام البوت المترحب المتوهج
-            let bot = document.getElementById('bot-welcome');
-            bot.style.textShadow = "0 0 20px #00ffea";
-            setTimeout(() => bot.style.textShadow = "0 0 5px #00ffea", 1000);
-
+        function sendOrder() {
+            let val = document.getElementById('king-in').value;
             if(val === "علوش") {
                 toggleProfile(true);
-            } else {
-                let stream = document.getElementById('chat-stream');
-                let msg = document.createElement('div');
-                msg.className = 'msg_bubble';
-                msg.style.color = document.getElementById('chat-color').value;
-                msg.innerHTML = `<b>أنت:</b> ${val}`;
-                stream.prepend(msg);
+            } else if(val !== "") {
+                let chat = document.getElementById('chat-memory');
+                let div = document.createElement('div');
+                div.className = 'msg-line';
+                div.innerHTML = `<b>أنت:</b> ${val}`;
+                chat.appendChild(div);
+                chat.scrollTop = chat.scrollHeight;
             }
-            inp.value = "";
+            document.getElementById('king-in').value = "";
         }
 
-        function changeColor(c) { 
-            let bubbles = document.querySelectorAll('.msg_bubble');
-            bubbles.forEach(b => b.style.color = c);
-        }
-
-        function clearChat() { document.getElementById('chat-stream').innerHTML = ""; }
-        function toggleProfile(s) { document.getElementById('profile-popup').style.display = s ? 'block' : 'none'; }
-
-        async function searchYT() {
-            let q = document.getElementById('yt-search').value;
-            if(!q) return;
-            try {
-                let res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${q}&key=${YT_KEY}&type=video`);
-                let data = await res.json();
-                let vidId = data.items[0].id.videoId;
-                document.getElementById('yt-area').innerHTML = `<iframe width="100%" height="120" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>`;
-            } catch(e) { alert("خطأ في اليوتيوب"); }
+        function toggleProfile(s) { document.getElementById('profile-box').style.display = s ? 'block' : 'none'; }
+        function toggleSides() {
+            let l = document.getElementById('left');
+            let r = document.getElementById('right');
+            l.style.display = (l.style.display === 'none') ? 'block' : 'none';
+            r.style.display = (r.style.display === 'none') ? 'block' : 'none';
         }
     </script>
 </body>
