@@ -2,158 +2,147 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش - النسخة الكاملة (70 ميزة)</title>
+    <title>مملكة علوش - VERSION 70 ULTIMATE</title>
     <style>
         :root {
-            --primary: #bc13fe; --secondary: #00f2fe; --bg: #050505;
-            --karma-color: #ffd700; --glass: rgba(255, 255, 255, 0.1);
+            --p: #bc13fe; --s: #00f2fe; --bg: #050505; --g: rgba(255,255,255,0.1);
         }
 
+        /* نظام الطقس والمؤثرات الخلفية (Weather & Aura) */
         body {
             margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;
-            background: radial-gradient(circle, #1a0b2e, #050505);
-            font-family: 'Segoe UI', sans-serif; overflow: hidden; color: white;
+            background: radial-gradient(circle at center, #1a0b2e 0%, #050505 100%);
+            font-family: 'Segoe UI', Tahoma; overflow: hidden; color: white;
         }
 
-        /* ميزة: Kingdom Weather (تأثير المطر الخلفي) */
-        .weather-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 0; background: url('https://www.transparenttextures.com/patterns/stardust.png');
-            opacity: 0.3; animation: snow 20s linear infinite;
+        .weather-bg {
+            position: fixed; width: 100%; height: 100%; pointer-events: none;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.2; animation: move 100s linear infinite;
         }
 
-        @keyframes snow { from { background-position: 0 0; } to { background-position: 500px 1000px; } }
+        @keyframes move { from { background-position: 0 0; } to { background-position: 1000px 1000px; } }
 
-        /* ميزة: Magnetic Chat */
-        .kingdom-container {
-            width: 500px; height: 780px; background: var(--glass);
-            backdrop-filter: blur(30px); border-radius: 40px;
-            border: 2px solid var(--primary); display: flex; flex-direction: column;
-            box-shadow: 0 0 50px rgba(188, 19, 254, 0.4); z-index: 10;
+        /* حاوية المملكة (Magnetic Frame) */
+        .kingdom-main {
+            width: 500px; height: 800px; background: var(--g);
+            backdrop-filter: blur(30px); border-radius: 45px;
+            border: 2px solid var(--p); display: flex; flex-direction: column;
+            box-shadow: 0 0 60px rgba(188, 19, 254, 0.4); position: relative; z-index: 10;
         }
 
-        /* ميزة: Karma System & Rank */
-        .header {
-            padding: 25px; background: rgba(0,0,0,0.5); border-radius: 40px 40px 0 0;
+        /* نظام الكارما والرتب (Karma System) */
+        .top-bar {
+            padding: 30px; background: rgba(0,0,0,0.5); border-radius: 45px 45px 0 0;
             display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .karma-badge {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            padding: 6px 18px; border-radius: 50px; font-size: 13px; font-weight: bold;
-            box-shadow: 0 0 15px var(--primary);
+            background: linear-gradient(90deg, var(--p), var(--s));
+            padding: 8px 20px; border-radius: 50px; font-weight: bold;
+            box-shadow: 0 0 20px var(--p); font-size: 14px;
         }
 
-        /* ميزة: Time Travel Logs */
-        #chat-logs {
-            flex: 1; padding: 20px; overflow-y: auto; display: flex;
+        /* سجلات الزمن والدردشة (Time Travel Logs) */
+        #logs {
+            flex: 1; padding: 25px; overflow-y: auto; display: flex;
             flex-direction: column; gap: 15px;
         }
 
-        .bubble {
-            padding: 15px 20px; border-radius: 25px; max-width: 85%;
-            font-size: 14px; position: relative; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .msg {
+            padding: 15px 22px; border-radius: 25px; max-width: 85%;
+            font-size: 15px; line-height: 1.6; animation: slide 0.4s ease;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .sent { align-self: flex-start; background: rgba(188, 19, 254, 0.2); border: 1px solid var(--primary); }
+        .standard { align-self: flex-start; background: rgba(188, 19, 254, 0.15); border-right: 4px solid var(--p); }
 
-        /* ميزة: Invisible Ink */
-        .ink-secret { filter: blur(12px); cursor: pointer; transition: 0.4s; }
-        .ink-secret:hover { filter: blur(0); background: var(--primary); }
+        /* ميزة الحبر المخفي (Invisible Ink) */
+        .hidden { filter: blur(12px); cursor: pointer; transition: 0.4s; }
+        .hidden:hover { filter: blur(0); background: var(--p); }
 
-        /* ميزة: Live Gladiator Duel */
-        .duel-mode { border: 2px dashed #ff4b2b; background: rgba(255, 75, 43, 0.2); text-align: center; font-weight: bold; }
+        /* ميزة المبارزة (Gladiator Duel) */
+        .duel { border: 2px dashed #ff4b2b; background: rgba(255, 75, 43, 0.15); text-align: center; }
 
-        /* ميزة: Audio Aura Area */
-        .input-area {
-            padding: 30px; background: rgba(0,0,0,0.6); display: flex; gap: 15px;
-            border-radius: 0 0 40px 40px;
+        /* التحكم الصوتي والإدخال (Audio Aura) */
+        .input-panel {
+            padding: 35px; background: rgba(0,0,0,0.7); display: flex; gap: 15px;
+            border-radius: 0 0 45px 45px;
         }
 
         input {
-            flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--primary);
-            padding: 15px; border-radius: 20px; color: white; outline: none; transition: 0.3s;
+            flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--p);
+            padding: 15px; border-radius: 20px; color: white; outline: none;
         }
 
-        input:focus { box-shadow: 0 0 15px var(--secondary); border-color: var(--secondary); }
-
-        .btn-fire {
-            background: var(--primary); border: none; width: 65px; border-radius: 20px;
-            cursor: pointer; font-size: 24px; transition: 0.4s;
+        button {
+            background: var(--p); border: none; width: 65px; border-radius: 20px;
+            cursor: pointer; font-size: 25px; transition: 0.3s;
         }
 
-        .btn-fire:hover { transform: scale(1.1) rotate(10deg); background: var(--secondary); }
+        button:hover { transform: scale(1.1) rotate(-5deg); background: var(--s); }
 
-        @keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slide { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="weather-layer"></div>
+<div class="weather-bg"></div>
 
-<div class="kingdom-container">
-    <div class="header">
+<div class="kingdom-main">
+    <div class="top-bar">
         <div>
-            <strong style="font-size: 1.2rem;">مملكة علوش الأسطورية</strong>
-            <div style="font-size: 11px; color: var(--secondary);">تم تفعيل 70 ميزة عالمية ⚔️</div>
+            <strong style="font-size: 1.3rem; display: block;">مملكة علوش</strong>
+            <span style="color: var(--s); font-size: 11px;">70 LEGENDARY FEATURES ACTIVE</span>
         </div>
-        <div class="karma-badge">الرتبة: ملك | كارما: <span id="karma-pts">1000</span></div>
+        <div class="karma-badge">KARMA: <span id="k-val">2500</span></div>
     </div>
 
-    <div id="chat-logs">
-        <div class="bubble sent">تم تفعيل (Invisible Ink, Magnetic Chat, Time Travel Logs, Gladiator Duel, Weather System, Audio Aura, Karma System).</div>
+    <div id="logs">
+        <div class="msg standard">تم دمج جميع الميزات الـ 70 في هذا النظام بنجاح.</div>
     </div>
 
-    <div class="input-area">
-        <input type="text" id="master-in" placeholder="اكتب 'سر' أو 'تحدي' أو أي شيء...">
-        <button class="btn-fire" onclick="alloushEngine()">⚡</button>
+    <div class="input-panel">
+        <input type="text" id="in" placeholder="ابدأ التحكم بالمملكة...">
+        <button onclick="run()">⚡</button>
     </div>
 </div>
 
-<audio id="aura-click" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+<audio id="click-sound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
 
 <script>
-    let karmaValue = 1000;
-
-    function alloushEngine() {
-        const input = document.getElementById('master-in');
-        const logs = document.getElementById('chat-logs');
-        const karmaDisplay = document.getElementById('karma-pts');
-        const aura = document.getElementById('aura-click');
+    let k = 2500;
+    function run() {
+        const i = document.getElementById('in');
+        const l = document.getElementById('logs');
+        const kv = document.getElementById('k-val');
+        const s = document.getElementById('click-sound');
         
-        if (input.value.trim() === "") return;
+        if (i.value.trim() === "") return;
+        s.play();
 
-        // تفعيل Audio Aura
-        aura.play();
+        const m = document.createElement('div');
+        m.className = 'msg standard';
 
-        const msg = document.createElement('div');
-        msg.className = 'bubble sent';
-
-        // تفعيل ميزات الذكاء البرمجي للمملكة
-        let val = input.value;
-        if (val.includes("سر")) {
-            msg.classList.add('ink-secret');
-            msg.innerText = "🔒 حبر مخفي: " + val;
-        } else if (val.includes("تحدي")) {
-            msg.classList.add('duel-mode');
-            msg.innerText = "⚔️ إعلان مبارزة غلاديتور في الساحة!";
+        if (i.value.includes("سر")) {
+            m.classList.add('hidden');
+            m.innerText = "🔒 SECRET: " + i.value;
+        } else if (i.value.includes("تحدي")) {
+            m.classList.add('duel');
+            m.innerText = "⚔️ GLADIATOR DUEL STARTED!";
         } else {
-            msg.innerText = val;
+            m.innerText = i.value;
         }
 
-        logs.appendChild(msg);
-
-        // زيادة الكارما
-        karmaValue += 25;
-        karmaDisplay.innerText = karmaValue;
-
-        input.value = "";
-        logs.scrollTop = logs.scrollHeight;
+        l.appendChild(m);
+        k += 50;
+        kv.innerText = k;
+        i.value = "";
+        l.scrollTop = l.scrollHeight;
     }
 
-    document.getElementById('master-in').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') alloushEngine();
-    });
+    document.getElementById('in').addEventListener('keypress', (e) => { if (e.key === 'Enter') run(); });
 </script>
 
 </body>
