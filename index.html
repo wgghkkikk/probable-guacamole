@@ -3,140 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* إجبار السواد ومنع البياض نهائياً */
-        html, body { 
-            margin: 0; padding: 0; 
-            background: #000 !important; 
-            color: gold; 
-            font-family: 'Arial', sans-serif; 
-            height: 100vh; width: 100vw; overflow: hidden;
-        }
-
-        /* الجوانب الملكية */
-        .side { 
-            position: fixed; top: 0; width: 260px; height: calc(100vh - 80px); 
-            background: #050505; border: 1px solid gold; z-index: 100; 
-            padding: 15px; overflow-y: auto; transition: 0.5s;
-        }
-        #left { left: 0; border-radius: 0 0 20px 0; }
-        #right { right: 0; border-radius: 0 0 0 20px; }
-
-        /* الشات الثابت في وسط الشاشة (الميزة المطلوبة) */
-        #screen-wall {
-            position: fixed; top: 15%; left: 280px; right: 280px; bottom: 100px;
-            display: flex; flex-direction: column; align-items: center;
-            overflow-y: auto; pointer-events: none; z-index: 50;
-        }
-        .royal-msg {
-            background: rgba(255, 215, 0, 0.1); border: 1px solid gold;
-            padding: 10px 20px; border-radius: 15px; margin-bottom: 10px;
-            color: #fff; font-weight: bold; text-shadow: 0 0 5px gold;
-            animation: fadeIn 0.4s ease; pointer-events: auto;
-        }
-
-        /* الملف الشخصي - محمي ومخفي */
-        #profile-panel {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 400px; background: #0a0a0a; border: 3px solid gold;
-            border-radius: 20px; display: none; z-index: 2000; padding: 25px;
-            box-shadow: 0 0 100px gold;
-        }
-        .close-x { position: absolute; top: 15px; left: 15px; color: red; cursor: pointer; font-size: 24px; font-weight: bold; }
-        .p-header { width: 100%; height: 100px; background: #111; border: 1px solid gold; border-radius: 15px; }
-        .p-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid gold; margin: -40px auto 15px; display: block; background: #000; }
+        body { margin: 0; background: #000 !important; color: gold; font-family: 'Arial', sans-serif; height: 100vh; overflow: hidden; }
         
-        /* إخفاء البيانات الحساسة تلقائياً */
-        .secure-input { width: 95%; margin: 8px 0; background: #000; border: 1px solid #333; color: gold; padding: 10px; border-radius: 8px; }
+        /* الجوانب */
+        .side { position: fixed; top: 0; width: 280px; height: calc(100vh - 80px); background: #050505; border: 1px solid gold; z-index: 100; padding: 15px; overflow-y: auto; transition: 0.5s; }
+        #left { left: 0; } #right { right: 0; }
+        .hide-side { transform: translateX(110%); }
+        .hide-left { transform: translateX(-110%); }
 
-        /* اليوتيوب المربع */
-        .yt-card { border: 1px solid gold; margin-top: 15px; border-radius: 10px; overflow: hidden; background: #000; position: relative; }
+        /* شات ثابت جهة اليسار */
+        #chat-stream { height: 200px; overflow-y: auto; border: 1px dashed gold; margin-bottom: 15px; padding: 5px; background: rgba(255,215,0,0.05); }
+        .msg-bubble { padding: 5px 10px; border-radius: 10px; margin-bottom: 5px; font-size: 13px; border-right: 3px solid gold; }
 
-        /* شريط الإرسال السفلي */
-        .bottom-bar {
-            position: fixed; bottom: 0; width: 100%; height: 80px;
-            background: #050505; border-top: 2px solid gold;
-            display: flex; align-items: center; justify-content: center; z-index: 300;
-        }
-        #main-input { width: 60%; padding: 15px; border-radius: 30px; border: 1px solid gold; background: #000; color: gold; outline: none; font-size: 16px; }
+        /* لوحة التحكم والملف الشخصي */
+        .box-item { background: #111; border: 1px solid gold; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+        .btn-king { background: gold; color: #000; border: none; padding: 5px 10px; cursor: pointer; font-weight: bold; border-radius: 5px; width: 100%; margin-top: 5px; }
+
+        /* الملف الشخصي (ينفتح بكلمة علوش) */
+        #profile-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; background: #000; border: 2px solid gold; z-index: 2000; display: none; padding: 20px; border-radius: 15px; box-shadow: 0 0 50px gold; }
+
+        /* منطقة الوسط */
+        .center-king { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
+        .king-title { font-size: 4rem; text-shadow: 0 0 20px gold; animation: glow 2s infinite; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 20px gold; } 50% { text-shadow: 0 0 40px gold, 0 0 10px white; } }
+
+        .footer-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: #050505; border-top: 2px solid gold; display: flex; align-items: center; justify-content: center; z-index: 300; }
+        #main-input { width: 60%; padding: 15px; border-radius: 30px; border: 1px solid gold; background: #000; color: gold; outline: none; }
     </style>
 </head>
 <body>
 
-    <div id="screen-wall"></div>
-
-    <div id="profile-panel">
-        <span class="close-x" onclick="toggleProfile(false)">X</span>
-        <div class="p-header"></div>
-        <div class="p-avatar"></div>
-        <h3 style="text-align:center;">إدارة الهوية الملكية</h3>
-        <input type="email" class="secure-input" id="m-email" placeholder="البريد الإلكتروني" value="rgrghh77@gmail.com">
-        <input type="number" class="secure-input" id="m-age" placeholder="العمر" value="21">
-        <input type="password" class="secure-input" placeholder="الرمز السري">
-        <button onclick="saveSecret()" style="width:100%; background:gold; border:none; padding:12px; margin-top:10px; border-radius:10px; font-weight:bold; cursor:pointer;">حفظ وتشفير 🔒</button>
+    <div id="profile-popup">
+        <span style="color:red; cursor:pointer; font-weight:bold;" onclick="toggleProfile(false)">X إغلاق</span>
+        <div style="width:100%; height:80px; background:gold; border-radius:10px; margin-top:10px;"></div>
+        <img src="https://via.placeholder.com/60/000/gold" style="border-radius:50%; border:2px solid gold; margin:-30px auto 10px; display:block;">
+        <input type="text" placeholder="البريد" value="rgrghh77@gmail.com" style="width:100%; background:#000; color:gold; border:1px solid #333; margin-bottom:5px;">
+        <input type="number" placeholder="العمر" value="21" style="width:100%; background:#000; color:gold; border:1px solid #333; margin-bottom:5px;">
+        <input type="password" placeholder="تغيير الرمز" style="width:100%; background:#000; color:gold; border:1px solid #333;">
+        <button class="btn-king" onclick="toggleProfile(false)">حفظ التغييرات</button>
     </div>
 
     <div id="left" class="side">
-        <h3>📜 الميزات واليوتيوب</h3>
-        <div style="display:flex; gap:5px;">
-            <input type="text" id="yt-in" placeholder="بحث يوتيوب..." style="flex:1; background:#000; color:gold; border:1px solid gold; padding:5px;">
-            <button onclick="searchVideo()" style="background:gold; border:none; padding:5px; cursor:pointer;">🔍</button>
+        <h3 style="text-align:center;">📜 لوحة السيادة</h3>
+        
+        <div class="box-item">
+            <p style="margin:0; font-size:14px;">👤 الملف الشخصي</p>
+            <button class="btn-king" onclick="toggleProfile(true)">فتح الملف</button>
         </div>
-        <div id="yt-area"></div>
+
+        <div class="box-item">
+            <p style="margin:0; font-size:14px;">⚙️ إعدادات الشات</p>
+            <input type="color" id="chat-color" onchange="changeColor(this.value)" style="width:100%; cursor:pointer;">
+            <button class="btn-king" onclick="clearChat()">تصفير الشات 🗑️</button>
+            <button class="btn-king" onclick="location.reload()">تحديث 🔄</button>
+        </div>
+
+        <div class="box-item">
+            <p style="margin:0; font-size:14px;">📺 اليوتيوب</p>
+            <input type="text" id="yt-search" placeholder="بحث..." style="width:70%; background:#000; color:gold; border:1px solid gold;">
+            <button onclick="searchYT()">🔍</button>
+            <div id="yt-area"></div>
+        </div>
+
+        <div id="chat-stream"></div>
+    </div>
+
+    <div class="center-king" onclick="toggleSides()">
+        <h1 class="king-title">مملكة علوش</h1>
+        <p>نظام الكارما: 1205 🏆</p>
     </div>
 
     <div id="right" class="side">
-        <h3>👥 شعب المملكة</h3>
+        <h3>👥 المتصلون</h3>
         <p>👑 <b>علوش_الإمبراطور</b></p>
-        <p style="color:#00ffea;">🤖 BOT_GUARD</p>
+        <p id="bot-welcome" style="color:#00ffea; text-shadow: 0 0 5px #00ffea;">🤖 BOT_GUARD: نشط</p>
     </div>
 
-    <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-        <h1 style="font-size:3.5rem; text-shadow: 0 0 20px gold; margin:0;">مملكة علوش</h1>
-        <p style="color:#555;">نظام الكارما: 1205</p>
-    </div>
-
-    <div class="bottom-bar">
-        <input type="text" id="main-input" placeholder="اكتب 'علوش' لفتح الملف أو رسالة لتثبيتها على الشاشة...">
-        <button onclick="handleRoyalAction()" style="background:gold; border:none; margin-left:10px; padding:12px 30px; border-radius:30px; font-weight:bold; cursor:pointer;">إرسال ⚡</button>
+    <div class="footer-bar">
+        <input type="text" id="main-input" placeholder="أصدر أمرك يا ملك...">
+        <button onclick="executeOrder()" style="background:gold; border:none; margin-left:10px; padding:12px 30px; border-radius:30px; font-weight:bold; cursor:pointer;">تنفيذ ⚡</button>
     </div>
 
     <script>
         const YT_KEY = "AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU";
 
-        function handleRoyalAction() {
+        function toggleSides() {
+            document.getElementById('left').classList.toggle('hide-left');
+            document.getElementById('right').classList.toggle('hide-side');
+        }
+
+        function executeOrder() {
             let inp = document.getElementById('main-input');
             let val = inp.value.trim();
+            if(!val) return;
+
+            // نظام البوت المترحب المتوهج
+            let bot = document.getElementById('bot-welcome');
+            bot.style.textShadow = "0 0 20px #00ffea";
+            setTimeout(() => bot.style.textShadow = "0 0 5px #00ffea", 1000);
+
             if(val === "علوش") {
                 toggleProfile(true);
-            } else if(val !== "") {
-                // تثبيت الرسالة في وسط الشاشة
-                let wall = document.getElementById('screen-wall');
+            } else {
+                let stream = document.getElementById('chat-stream');
                 let msg = document.createElement('div');
-                msg.className = 'royal-msg';
-                msg.innerText = val;
-                wall.prepend(msg); // تظهر في الأعلى وتدفع القديم للأسفل
+                msg.className = 'msg_bubble';
+                msg.style.color = document.getElementById('chat-color').value;
+                msg.innerHTML = `<b>أنت:</b> ${val}`;
+                stream.prepend(msg);
             }
             inp.value = "";
         }
 
-        async function searchVideo() {
-            let q = document.getElementById('yt-in').value;
+        function changeColor(c) { 
+            let bubbles = document.querySelectorAll('.msg_bubble');
+            bubbles.forEach(b => b.style.color = c);
+        }
+
+        function clearChat() { document.getElementById('chat-stream').innerHTML = ""; }
+        function toggleProfile(s) { document.getElementById('profile-popup').style.display = s ? 'block' : 'none'; }
+
+        async function searchYT() {
+            let q = document.getElementById('yt-search').value;
             if(!q) return;
             try {
                 let res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${q}&key=${YT_KEY}&type=video`);
                 let data = await res.json();
                 let vidId = data.items[0].id.videoId;
-                let area = document.getElementById('yt-area');
-                let div = document.createElement('div');
-                div.className = 'yt-card';
-                div.innerHTML = `<button onclick="this.parentElement.remove()" style="position:absolute; background:red; color:white; border:none; cursor:pointer; z-index:10;">X</button>
-                                 <iframe width="100%" height="150" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>`;
-                area.prepend(div);
-            } catch(e) { alert("🤖 نظام الحماية: خطأ في جلب الفيديو."); }
+                document.getElementById('yt-area').innerHTML = `<iframe width="100%" height="120" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>`;
+            } catch(e) { alert("خطأ في اليوتيوب"); }
         }
-
-        function toggleProfile(s) { document.getElementById('profile-panel').style.display = s ? 'block' : 'none'; }
-        function saveSecret() { alert("🔒 تم تشفير البيانات وحفظها بعيداً عن المتطفلين."); toggleProfile(false); }
     </script>
 </body>
 </html>
