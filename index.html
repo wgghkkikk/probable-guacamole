@@ -2,163 +2,138 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>S C R I P T - THE ROYAL EDITION</title>
+    <title>مملكة علوش | نظام الإدارة والتحكم</title>
     <style>
-        :root { --king: #bc13fe; --accent: #00f2fe; --gold: #ffd700; --bg: #050505; }
+        :root { --king: #bc13fe; --admin: #ff3e3e; --bg: #050505; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #000; color: white; font-family: 'Tahoma', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* شريط الأخبار */
-        .news { background: #111; border-bottom: 2px solid var(--king); height: 35px; overflow: hidden; display: flex; align-items: center; }
-        .news-move { display: inline-block; white-space: nowrap; animation: move 20s linear infinite; color: var(--gold); font-size: 14px; font-weight: bold; }
-        @keyframes move { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
-
-        .wrapper { display: flex; flex: 1; overflow: hidden; }
+        /* الهيدر */
+        header { height: 50px; background: #111; border-bottom: 2px solid var(--king); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        
+        .main { display: flex; flex: 1; overflow: hidden; }
 
         /* يمين: الأسماء */
-        .side-r { width: 240px; background: #0a0a0a; border-left: 1px solid #222; padding: 10px; }
-        .u-item { padding: 10px; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .side-r { width: 220px; background: #0a0a0a; border-left: 1px solid #222; padding: 10px; }
+        .u-item { padding: 8px; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
         .u-item:hover { background: #1a1a1a; }
 
         /* وسط: الشات */
-        .chat-main { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
-        #msgs { flex: 1; padding: 20px; overflow-y: auto; background-image: radial-gradient(#111 1px, transparent 1px); background-size: 20px 20px; }
+        .chat-box { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+        #msgs { flex: 1; padding: 15px; overflow-y: auto; }
 
-        /* يسار: يوتيوب */
-        .side-l { width: 280px; background: #0a0a0a; border-right: 1px solid #222; padding: 10px; }
-
-        /* الملف الشخصي (البروفايل) */
-        #profile-card { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 300px; background: #151515; border: 2px solid var(--king); border-radius: 15px;
-            padding: 20px; text-align: center; display: none; z-index: 1000; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        /* لوحة الإدارة (مخفية وتظهر عند الطلب) */
+        #admin-panel { 
+            position: absolute; bottom: 80px; left: 20px; width: 250px; 
+            background: #151515; border: 2px solid var(--admin); border-radius: 10px; 
+            padding: 15px; display: none; z-index: 2000; box-shadow: 0 0 20px rgba(255,0,0,0.3);
         }
-        .prof-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--king); margin-bottom: 10px; }
-
-        /* ستايلات الملك والبوت */
-        .king-glow { font-weight: bold; text-shadow: 0 0 10px var(--king); color: var(--king); }
-        .bot-msg { background: rgba(0, 242, 254, 0.1); border-right: 3px solid var(--accent); padding: 5px 10px; margin: 5px 0; font-size: 13px; color: var(--accent); }
+        .adm-btn { width: 100%; padding: 8px; margin-bottom: 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; }
 
         /* منطقة الكتابة */
         .footer { padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px; }
         input { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; outline: none; }
         .btn { background: var(--king); border: none; color: white; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-
-        #yt-p { width: 100%; display: none; background: #000; border-bottom: 2px solid var(--king); }
+        
+        .king-glow { color: var(--king); text-shadow: 0 0 10px var(--king); font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="news"><div class="news-move">👑 أهلاً بك في مملكة علوش.. نظام البوت والبروفايل قيد التشغيل الآن 👑</div></div>
+<header>
+    <div class="king-glow">👑 مملكة علوش</div>
+    <button onclick="toggleAdmin()" style="background:var(--admin); color:white; border:none; padding:5px 15px; border-radius:5px; cursor:pointer; font-size:12px;">لوحة التحكم ⚙️</button>
+</header>
 
-<div class="wrapper">
+<div class="main">
     <div class="side-r">
-        <div style="color:#555; font-size:12px; margin-bottom:10px;">المتواجدون</div>
-        <div class="u-item" onclick="showProfile('علوش الملك', 'ملك المملكة', 'https://i.pravatar.cc/150?u=king')">
-            <span style="color:gold">👑</span> <span class="king-glow">علوش الملك</span>
-        </div>
-        <div class="u-item" onclick="showProfile('بوت المملكة', 'خادم آلي', 'https://i.pravatar.cc/150?u=bot')">
-            <span style="color:var(--accent)">🤖</span> <span>بوت المملكة</span>
-        </div>
+        <div style="color:#555; font-size:11px; margin-bottom:10px;">المتواجدون</div>
+        <div class="u-item"><span>👑 علوش الملك</span></div>
+        <div class="u-item"><span>👤 زائر_المملكة</span> <button onclick="kickUser()" style="background:red; color:white; border:none; font-size:8px; padding:2px; border-radius:3px;">طرد</button></div>
     </div>
 
-    <div class="chat-main">
-        <div id="profile-card">
-            <img id="p-img" src="" class="prof-img">
-            <h3 id="p-name" class="king-glow"></h3>
-            <p id="p-rank" style="color:gray; font-size:12px; margin-bottom:15px;"></p>
-            <div style="display:flex; gap:5px; justify-content:center;">
-                <button onclick="document.getElementById('profile-card').style.display='none'" class="btn" style="background:#444">إغلاق</button>
-                <button class="btn">إضافة صديق</button>
-            </div>
+    <div class="chat-box">
+        <div id="admin-panel">
+            <h4 style="color:var(--admin); margin-bottom:10px; text-align:center;">إدارة المملكة</h4>
+            <button class="adm-btn" style="background:#cc0000;" onclick="clearChat()">🗑️ تصفير الشات</button>
+            <button class="adm-btn" style="background:#ff8c00;" onclick="sendAlert()">📢 تنبيه عام</button>
+            <button class="adm-btn" id="lockBtn" style="background:#444;" onclick="toggleLock()">🔒 قفل الشات</button>
+            <button class="adm-btn" style="background:#555;" onclick="toggleAdmin()">إغلاق اللوحة</button>
         </div>
 
-        <div id="yt-p"></div>
         <div id="msgs">
-            <div class="bot-msg">🤖 بوت المملكة: أهلاً بك يا ملك، أنا في خدمتك. اكتب "سلام" لترى ردي!</div>
+            <div style="text-align:center; color:gray; font-size:12px; margin-top:20px;">-- أهلاً بك في غرفة التحكم يا ملك --</div>
         </div>
+
         <div class="footer">
-            <input type="text" id="cIn" placeholder="اكتب رسالتك...">
+            <input type="text" id="cIn" placeholder="اكتب هنا...">
             <button class="btn" onclick="send()">إرسال</button>
         </div>
-    </div>
-
-    <div class="side-l">
-        <h4 style="color:var(--king); margin-bottom:10px;">🔍 يوتيوب</h4>
-        <input type="text" id="yIn" placeholder="بحث..." style="width:100%; margin-bottom:5px;">
-        <button class="btn" style="width:100%; background:red; height:35px;" onclick="search()">بحث</button>
-        <div id="yRes" style="margin-top:10px; overflow-y:auto; flex:1"></div>
     </div>
 </div>
 
 <script>
-    const API_KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
+    let isLocked = false;
 
-    function showProfile(name, rank, img) {
-        document.getElementById('p-name').innerText = name;
-        document.getElementById('p-rank').innerText = rank;
-        document.getElementById('p-img').src = img;
-        document.getElementById('profile-card').style.display = 'block';
+    function toggleAdmin() {
+        const p = document.getElementById('admin-panel');
+        p.style.display = (p.style.display === 'none' || p.style.display === '') ? 'block' : 'none';
     }
 
     function send() {
+        if(isLocked) { alert("الشات مقفل حالياً بأمر الإدارة!"); return; }
         const inp = document.getElementById('cIn');
         const box = document.getElementById('msgs');
-        const val = inp.value.trim();
-        if(!val) return;
+        if(!inp.value.trim()) return;
 
-        // رسالة الملك
         const d = document.createElement('div');
         d.style.marginBottom = "10px";
-        d.innerHTML = `<span class="king-glow">👑 علوش الملك:</span> ${val}`;
+        d.innerHTML = `<span class="king-glow">علوش الملك:</span> ${inp.value}`;
         box.appendChild(d);
-
-        // نظام البوت
-        setTimeout(() => {
-            if(val.includes("سلام") || val.includes("مرحبا")) {
-                addBotMsg("وعليكم السلام يا ملك.. نورت عرشك! 👑");
-            } else if(val.includes("بوت") || val.includes("ساعدني")) {
-                addBotMsg("أنا بوت المملكة، يمكنني البحث لك عن الأغاني أو تنبيه الأعضاء.");
-            } else if(val.length > 20) {
-                addBotMsg("يا سلام على هذا الكلام الجميل يا ملك! ✨");
-            }
-        }, 1000);
-
         inp.value = "";
         box.scrollTop = box.scrollHeight;
     }
 
-    function addBotMsg(text) {
-        const box = document.getElementById('msgs');
-        const d = document.createElement('div');
-        d.className = 'bot-msg';
-        d.innerHTML = `🤖 بوت المملكة: ${text}`;
-        box.appendChild(d);
-        box.scrollTop = box.scrollHeight;
+    // وظائف الإدارة
+    function clearChat() {
+        if(confirm("هل تريد مسح كل الرسائل؟")) {
+            document.getElementById('msgs').innerHTML = '<div style="text-align:center; color:red; font-size:12px;">تم تصفير السجل بأمر الملك 🧹</div>';
+        }
     }
 
-    async function search() {
-        const q = document.getElementById('yIn').value;
-        const resDiv = document.getElementById('yRes');
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}`);
-        const data = await res.json();
-        resDiv.innerHTML = "";
-        data.items.forEach(item => {
-            const card = document.createElement('div');
-            card.style.background="#1a1a1a"; card.style.padding="5px"; card.style.marginTop="5px"; card.style.cursor="pointer";
-            card.onclick = () => {
-                const p = document.getElementById('yt-p');
-                p.style.display = 'block';
-                p.innerHTML = `<button onclick="this.parentElement.style.display='none'" style="width:100%; background:red; color:white; border:none; cursor:pointer">إغلاق</button>
-                               <iframe width="100%" height="200" src="https://www.youtube.com/embed/${item.id.videoId}?autoplay=1" frameborder="0"></iframe>`;
-            };
-            card.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}" style="width:100%"><p style="font-size:10px">${item.snippet.title}</p>`;
-            resDiv.appendChild(card);
-        });
+    function sendAlert() {
+        const msg = prompt("اكتب رسالة التنبيه:");
+        if(msg) {
+            const box = document.getElementById('msgs');
+            const d = document.createElement('div');
+            d.style.cssText = "background:red; color:white; padding:10px; text-align:center; margin:10px; border-radius:5px; font-weight:bold; animation: blink 1s infinite;";
+            d.innerHTML = `📢 تنبيه إداري: ${msg}`;
+            box.appendChild(d);
+        }
+    }
+
+    function toggleLock() {
+        isLocked = !isLocked;
+        const btn = document.getElementById('lockBtn');
+        btn.innerText = isLocked ? "🔓 فتح الشات" : "🔒 قفل الشات";
+        btn.style.background = isLocked ? "green" : "#444";
+        const box = document.getElementById('msgs');
+        const d = document.createElement('div');
+        d.style.cssText = "color:orange; text-align:center; font-size:12px; margin:10px;";
+        d.innerHTML = isLocked ? "تم قفل الشات من قبل الملك 🔒" : "تم فتح الشات.. سولفوا يا جماعة 🔓";
+        box.appendChild(d);
+    }
+
+    function kickUser() {
+        alert("تم طرد المستخدم بنجاح! (برمجياً سيتم منعه من الدخول)");
     }
 
     document.getElementById('cIn').onkeydown = (e) => { if(e.keyCode == 13) send(); };
 </script>
+
+<style>
+@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+</style>
 
 </body>
 </html>
