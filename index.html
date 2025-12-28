@@ -2,95 +2,85 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مملكة علوش - نظام الحفظ السحابي</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    
+    <title>مملكة علوش - الشات العالمي</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #8a2be2; --bg: #0b0b0e; --accent: #00ffcc; }
         body { background: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        
-        #kingdom-container {
-            width: 420px; height: 550px;
-            background: #16161d; border-radius: 20px;
-            border: 2px solid var(--primary); display: flex; flex-direction: column; overflow: hidden;
-        }
-
-        .header { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        #messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        
-        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9em; position: relative; }
-        .sent { background: var(--primary); align-self: flex-start; }
-        .hidden-ink { filter: blur(5px); cursor: pointer; transition: 0.3s; }
+        #kingdom-container { width: 420px; height: 550px; background: #16161d; border-radius: 20px; border: 2px solid var(--primary); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 20px rgba(138,43,226,0.5); }
+        .header { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        #messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0b0b0e; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9em; position: relative; animation: pop 0.3s ease; }
+        .received { background: var(--primary); align-self: flex-start; }
+        .hidden-ink { filter: blur(5px); transition: 0.3s; cursor: pointer; }
         .hidden-ink:hover { filter: blur(0); }
-
         .footer { padding: 15px; background: #1f1f27; display: flex; gap: 10px; }
         input { flex: 1; background: #000; border: 1px solid var(--primary); color: white; padding: 10px; border-radius: 10px; outline: none; }
-        button { background: var(--primary); border: none; color: white; padding: 0 15px; border-radius: 10px; cursor: pointer; }
+        button { background: var(--primary); border: none; color: white; padding: 0 15px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div id="kingdom-container">
     <div class="header">
-        <span>مملكة علوش - Cloud Connect</span>
-        <div id="status" style="font-size: 0.7em; color: var(--accent);">متصل أونلاين ✅</div>
+        <span>مملكة علوش - النسخة 70 الأسطورية</span>
+        <div style="font-size: 0.7em; color: var(--accent);">متصل عالمياً 🌐</div>
     </div>
     <div id="messages"></div>
     <div class="footer">
-        <input type="text" id="input" placeholder="اكتب رسالة لحفظها في السحاب...">
-        <button onclick="sendToCloud()">إرسال</button>
+        <input type="text" id="input" placeholder="اكتب رسالة ليراها الجميع...">
+        <button onclick="sendMsg()">إرسال</button>
     </div>
 </div>
 
 <script>
-    // إعدادات Firebase (هذه تجريبية، يفضل استبدالها بمفاتيح مشروعك لاحقاً)
-    const firebaseConfig = {
-        databaseURL: "YOUR_DATABASE_URL_HERE" // هنا تضع رابط قاعدة بياناتك
-    };
-    
-    // ملاحظة: لكي يعمل الكود "الآن" بدون إعدادات معقدة، سأجعله يستخدم LocalStorage مؤقتاً 
-    // ليعطيك نفس تجربة "الحفظ" فوراً، وإذا أردت ربط Firebase حقيقي سأعطيك الطريقة.
+    // ملاحظة: هذه بيانات ربط تجريبية لمشروع عام (Public)
+    // لكي يعمل الشات بين جهازين، يجب وضع مفاتيح API الخاصة بمشروعك هنا
+    const SUPABASE_URL = 'https://your-project.supabase.co';
+    const SUPABASE_KEY = 'your-anon-key';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const msgContainer = document.getElementById('messages');
     const inputField = document.getElementById('input');
 
-    // وظيفة تحميل الرسائل المحفوظة عند فتح الصفحة
-    window.onload = function() {
-        const savedMsgs = JSON.parse(localStorage.getItem('alloush_msgs')) || [];
-        savedMsgs.forEach(msg => displayMessage(msg.text, msg.isHidden));
-    };
-
-    function sendToCloud() {
-        const text = inputField.value.trim();
-        if (text === "") return;
-
-        const isHidden = text.includes("سر");
-        
-        // 1. العرض في الصفحة
-        displayMessage(text, isHidden);
-
-        // 2. الحفظ في ذاكرة المتصفح (تعمل كقاعدة بيانات محلية)
-        saveMessage(text, isHidden);
-
-        inputField.value = "";
-        msgContainer.scrollTop = msgContainer.scrollHeight;
+    // 1. وظيفة لجلب الرسائل القديمة من السحاب
+    async function loadMsgs() {
+        const { data } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
+        if (data) {
+            msgContainer.innerHTML = '';
+            data.forEach(m => displayMessage(m.text, m.is_hidden));
+        }
     }
+
+    // 2. إرسال الرسالة للسحاب (Online)
+    async function sendMsg() {
+        const text = inputField.value.trim();
+        if (!text) return;
+        const isHidden = text.includes("سر");
+
+        // إرسال البيانات لقاعدة البيانات العالمية
+        await supabase.from('messages').insert([{ text: text, is_hidden: isHidden }]);
+        
+        inputField.value = "";
+    }
+
+    // 3. التحديث اللحظي (Real-time) - أهم جزء!
+    // هذا الكود يجعل الرسالة تظهر عند الكل فور إرسالها
+    supabase.channel('public:messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+        displayMessage(payload.new.text, payload.new.is_hidden);
+    }).subscribe();
 
     function displayMessage(text, isHidden) {
         const div = document.createElement('div');
-        div.className = 'msg sent' + (isHidden ? ' hidden-ink' : '');
+        div.className = 'msg received' + (isHidden ? ' hidden-ink' : '');
         div.innerText = text;
         msgContainer.appendChild(div);
+        msgContainer.scrollTop = msgContainer.scrollHeight;
     }
 
-    function saveMessage(text, isHidden) {
-        let msgs = JSON.parse(localStorage.getItem('alloush_msgs')) || [];
-        msgs.push({ text: text, isHidden: isHidden });
-        localStorage.setItem('alloush_msgs', JSON.stringify(msgs));
-    }
-
-    inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendToCloud(); });
+    loadMsgs(); // تحميل الرسائل عند الفتح
+    inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMsg(); });
 </script>
 
 </body>
