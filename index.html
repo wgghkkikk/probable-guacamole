@@ -1,44 +1,15 @@
-<div id="extra-systems" style="background: #0a0a0a; border: 2px solid #gold; padding: 15px; margin-top: 10px; border-radius: 10px; border-left: 5px solid #bc13fe;">
-    <h4 style="color: gold; margin-top: 0;">💰 خزنة الملك والأنظمة الأسطورية</h4>
+function activateLightning() {
+    let user = document.getElementById('target-user').value;
+    if(user == "") { alert("حدد الهدف يا ملك!"); return; }
     
-    <div style="display: flex; justify-content: space-around; background: #1a1a1a; padding: 10px; border-radius: 5px;">
-        <div title="نظام الكارما">⭐ كارما: <span id="karma-val" style="color: #bc13fe;">1000</span></div>
-        <div title="خزنة الملك">🪙 علوش كوين: <span id="coins-val" style="color: gold;">500</span></div>
-        <div id="kingdom-weather">🌤️ الجو: ملكي</div>
-    </div>
-
-    <br>
-    <button onclick="earnCoins()" style="background: #28a745; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">💎 تجميع نقاط</button>
-    <button onclick="changeWeather()" style="background: #17a2b8; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🌪️ تغيير الطقس</button>
-</div>
-
-<script>
-// 1. نظام الكارما (Karma System) - الميزة رقم 70
-let karma = 1000;
-function updateKarma(val) {
-    karma += val;
-    document.getElementById('karma-val').innerText = karma;
-}
-
-// 2. نظام العملات (خزنة الملك)
-let coins = 500;
-function earnCoins() {
-    coins += 10;
-    document.getElementById('coins-val').innerText = coins;
-    alert("مبروك! حصلت على 10 عملات علوش ذهبية 🪙");
-    updateKarma(5); // التفاعل يزيد الكارما أيضاً
-}
-
-// 3. طقس المملكة (Kingdom Weather) - الميزة رقم 68
-const weatherList = ["🌤️ مشمس ملكي", "🌧️ أمطار ذهبية", "🌪️ عاصفة الصاعقة", "❄️ ثلوج المملكة"];
-let weatherIndex = 0;
-function changeWeather() {
-    weatherIndex = (weatherIndex + 1) % weatherList.length;
-    document.getElementById('kingdom-weather').innerText = "الجو: " + weatherList[weatherIndex];
+    // 1. إرسال رسالة الصاعقة لكل الشات
+    alert("⚡ صاعقة الملك علوش تضرب " + user + " وتطرده خارج المملكة!");
     
-    // إذا صار الجو عاصفة، نفعل اهتزاز خفيف للشاشة
-    if(weatherIndex === 2) {
-        document.body.style.animation = "shake 0.5s 3";
-    }
+    // 2. كود الحظر الفعلي (يمنع المتصفح من الكتابة)
+    localStorage.setItem("banned_" + user, "true"); 
+    
+    // 3. مسح ساحة الدردشة عند الشخص المطرود
+    document.getElementById('messages-box').innerHTML = "<h1 style='color:red;'>لقد طردك الملك علوش! لا يمكنك الدخول مجدداً.</h1>";
+    
+    console.log("تم سحق " + user + " ومنعه من الكتابة.");
 }
-</script>
