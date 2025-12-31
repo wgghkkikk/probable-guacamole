@@ -1,91 +1,93 @@
 <style>
-    /* 1. إظهار زر الإرسال المقلوب (الذي اختفى في الصورة) */
-    .royal-footer {
+    /* 1. تصحيح زر الإرسال (ليكون واضحاً وغير مقلوب النص) */
+    .input-wrapper {
         position: fixed;
-        bottom: 10px;
-        width: 100%;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
         display: flex;
-        flex-direction: row-reverse; /* الزر عاليسار بالمقلوب */
-        padding: 15px;
+        flex-direction: row-reverse; /* ترتيب العناصر بالمقلوب */
+        align-items: center;
+        background: #222;
+        border: 2px solid gold;
+        border-radius: 50px;
+        padding: 5px 15px;
         z-index: 9999;
-        background: rgba(0,0,0,0.9);
-        border-top: 2px solid gold;
-        gap: 10px;
     }
 
     #send-btn {
-        transform: scaleX(-1); /* قلب الزر للهيبة */
-        background: linear-gradient(45deg, #8b0000, #ff0000);
-        color: gold;
+        background: red;
+        color: white;
         border: 2px solid gold;
-        padding: 10px 30px;
-        border-radius: 20px;
+        border-radius: 30px;
+        padding: 10px 25px;
         cursor: pointer;
         font-weight: bold;
+        direction: rtl; /* تصحيح اتجاه النص داخل الزر */
     }
 
-    /* 2. حاوية "الآلاف المؤلفة" (تظهر بنص الشاشة) */
+    /* 2. قائمة الآلاف المؤلفة (تظهر في منتصف الشاشة) */
     #mega-emoji-palace {
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 90%;
-        height: 70%;
-        background: rgba(0, 0, 0, 0.98);
-        border: 5px double gold;
+        width: 85%;
+        height: 60%;
+        background: rgba(0, 0, 0, 0.95);
+        border: 3px double gold;
+        border-radius: 20px;
         z-index: 10000;
-        display: none; /* مخفي ويظهر بضغطة 😊 */
+        display: none; /* تفتح عند الضغط على الإيموجي */
         grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
-        overflow-y: scroll;
-        padding: 25px;
-        border-radius: 30px;
-        box-shadow: 0 0 100px red;
+        overflow-y: auto;
+        padding: 20px;
+        box-shadow: 0 0 50px red;
     }
 
-    .emoji-item {
-        font-size: 35px;
-        cursor: pointer;
-        padding: 5px;
-        transition: 0.2s;
-    }
-    .emoji-item:hover { transform: scale(1.4); background: rgba(255,215,0,0.2); }
+    .emoji-item { font-size: 30px; cursor: pointer; padding: 5px; text-align: center; }
 </style>
 
 <div id="users-panel" class="side-panel">
-    <div id="king-counter">👥 الرعية: <span id="online-count">0</span></div> <div class="panel-title">𓆩 المتصلين 𓆪</div>
-    <div id="user-list"></div>
+    <div style="color:gold; text-align:center; padding:10px; border:1px solid gold; border-radius:10px;">
+        👥 الرعية: <span id="online-count">0</span>
+    </div>
 </div>
 
-<div id="mega-emoji-palace" id="emoji-box"></div>
-
-<div class="royal-footer">
+<div class="input-wrapper">
     <button id="send-btn" onclick="send()">إرسال ⟸</button>
-    <input type="text" id="msg-in" style="flex:1; background:#111; color:white; border:1px solid gold; border-radius:20px; padding:10px;" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
-    <button onclick="openEmojiPalace()" style="background:none; border:none; font-size:30px; cursor:pointer;">😊</button>
+    <input type="text" id="msg-in" style="flex:1; background:none; border:none; color:white; padding:10px; text-align:right;" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
+    <span onclick="openEmojiPalace()" style="cursor:pointer; font-size:30px;">😊</span>
 </div>
+
+<div id="mega-emoji-palace"></div>
 
 <script>
-    // توليد الآلاف المؤلفة من الرموز والزخارف فوراً
+    // توليد الآلاف المؤلفة فوراً عند الطلب
     function openEmojiPalace() {
         const palace = document.getElementById('mega-emoji-palace');
         if (palace.innerHTML === "") {
-            let content = "";
-            // سحب آلاف الرموز والملصقات
-            for (let i = 0x1F600; i <= 0x1F64F; i++) content += `<span class="emoji-item" onclick="add('${String.fromCodePoint(i)}')">${String.fromCodePoint(i)}</span>`;
-            for (let i = 0x1F300; i <= 0x1F5FF; i++) content += `<span class="emoji-item" onclick="add('${String.fromCodePoint(i)}')">${String.fromCodePoint(i)}</span>`;
-            for (let i = 0x2600; i <= 0x26FF; i++) content += `<span class="emoji-item" onclick="add('${String.fromCodePoint(i)}')">${String.fromCodePoint(i)}</span>`;
-            palace.innerHTML = content;
+            let items = "";
+            // إضافة آلاف الرموز والزخارف
+            const ranges = [[0x1F600, 0x1F64F], [0x1F300, 0x1F5FF], [0x1F900, 0x1F9FF], [0x2600, 0x26FF]];
+            ranges.forEach(r => {
+                for (let i = r[0]; i <= r[1]; i++) {
+                    items += `<span class="emoji-item" onclick="document.getElementById('msg-in').value += '${String.fromCodePoint(i)}'">${String.fromCodePoint(i)}</span>`;
+                }
+            });
+            // إضافة زخارف الأسماء (الآلاف المؤلفة)
+            const decorations = ["卍", "亗", "𓆩𓆪", "꧁꧂", "⚔️", "💎", "🔥", "🧿"];
+            decorations.forEach(d => {
+                items += `<span class="emoji-item" onclick="document.getElementById('msg-in').value += '${d}'">${d}</span>`;
+            });
+            palace.innerHTML = items;
         }
         palace.style.display = (palace.style.display === "none" ? "grid" : "none");
     }
 
-    function add(char) {
-        document.getElementById('msg-in').value += char;
-    }
-
     function send() {
         // تنفيذ الإرسال مع الرعد والبرق والزلزال
-        triggerRoyalEffects();
+        console.log("تم إرسال مرسوم الملك!");
     }
 </script>
