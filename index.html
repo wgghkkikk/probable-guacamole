@@ -1,17 +1,66 @@
-<button onclick="togglePanel('users-panel')" style="position:fixed; top:20px; right:20px; z-index:4000; background:none; border:1px solid var(--gold); color:var(--gold); border-radius:5px; cursor:pointer;">☰ المتصلين</button>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>👑 مملكة علوش - الإصدار التفاعلي 👑</title>
+    <style>
+        :root { --gold: #ffd700; }
+        body { margin: 0; background: #000; color: white; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; }
 
-<button onclick="togglePanel('settings-panel')" style="position:fixed; top:20px; left:20px; z-index:4000; background:none; border:1px solid var(--gold); color:var(--gold); border-radius:5px; cursor:pointer;">⚙️ الإعدادات</button>
+        /* 1. الخلفية الكونية */
+        #star-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--duration) infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
 
-<style>
-    /* إضافة حركة النعومة عند الفتح والإغلاق */
-    .side-panel {
-        transition: transform 0.5s ease-in-out, opacity 0.5s;
-        transform: scaleX(1);
-        opacity: 1;
-    }
-    .panel-hidden {
-        transform: scaleX(0);
-        opacity: 0;
-        pointer-events: none;
-    }
-</style>
+        /* 2. الساعة والبراويز المتزامنة (Rainbow Sync) */
+        #royal-clock, .side-panel, .input-area { border: 2px solid var(--gold); animation: rainbow-border 3s linear infinite; }
+        #royal-clock { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); padding: 5px 25px; border-radius: 50px; z-index: 3000; background: rgba(0,0,0,0.8); font-weight: bold; }
+
+        @keyframes rainbow-border {
+            0%, 100% { border-color: red; box-shadow: 0 0 15px red; }
+            50% { border-color: blue; box-shadow: 0 0 25px blue; }
+        }
+
+        /* 3. أجنحة المملكة الذكية (فتح وإغلاق) */
+        .side-panel { position: fixed; top: 70px; width: 220px; height: calc(100% - 180px); background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; border-radius: 15px; transition: 0.5s; opacity: 1; }
+        #users-panel { right: 10px; }
+        #settings-panel { left: 10px; }
+        .panel-hidden { transform: scaleX(0); opacity: 0; pointer-events: none; }
+
+        /* 4. خانة الإرسال والزر المقلوب */
+        .input-area { position: fixed; bottom: 0; width: 100%; display: flex; flex-direction: row-reverse; background: rgba(0,0,0,0.9); padding: 15px; gap: 10px; z-index: 3000; }
+        #msg-in { flex: 1; padding: 12px; border-radius: 25px; background: #111; color: white; border: 1px solid var(--gold); outline: none; text-align: right; }
+        #send-btn { transform: scaleX(-1); background: linear-gradient(45deg, #8b0000, #ff0000); color: gold; border: 2px solid gold; padding: 10px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+
+        /* 5. الاسم المشع والبساط */
+        .royal-carpet { background: linear-gradient(90deg, transparent, rgba(139,0,0,0.9), transparent); border-top: 1px solid var(--gold); padding: 15px; margin: 10px 0; }
+        .royal-name { font-weight: bold; background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 400%; animation: rainbow-flow 3s linear infinite; }
+        @keyframes rainbow-flow { 0% { background-position: 0%; } 100% { background-position: 100%; } }
+
+        /* 6. أزرار التحكم الفخمة */
+        .ctrl-btn { position: fixed; top: 20px; z-index: 4000; background: rgba(0,0,0,0.7); border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body onload="initKingdom()">
+    <div id="star-container"></div>
+    <div id="royal-clock">🕒 00:00:00</div>
+
+    <button class="ctrl-btn" style="right: 20px;" onclick="togglePanel('users-panel')">☰ المتصلين</button>
+    <button class="ctrl-btn" style="left: 20px;" onclick="togglePanel('settings-panel')">⚙️ الإعدادات</button>
+
+    <div id="users-panel" class="side-panel"><h3 style="text-align:center; color:var(--gold);">𓆩 المتصلين 𓆪</h3><div id="user-list"></div></div>
+    <div id="settings-panel" class="side-panel"><h3 style="text-align:center; color:var(--gold);">𓆩 الإعدادات 𓆪</h3><button style="width:100%;" onclick="alert('حماية الملك مفعلة!')">نظام الحماية 🛡️</button></div>
+
+    <div id="chat-container" style="margin: 0 240px; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end;">
+        <div id="messages" style="overflow-y: auto; padding: 20px; margin-bottom: 100px;"></div>
+        
+        <div class="input-area">
+            <button id="send-btn" onclick="send()">إرسال ⟸</button>
+            <input type="text" id="msg-in" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
+            <button onclick="toggleEmoji()" style="background:none; border:1px solid gold; color:gold; border-radius:50%; width:40px;">😊</button>
+        </div>
+    </div>
+
+    <script>
+        function initKingdom() {
+            setInterval(() => { document.getElementById('royal-clock').innerText = "🕒 " + new Date().toLocale
