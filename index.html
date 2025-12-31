@@ -1,161 +1,41 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>👑 مملكة علوش | نظام الإيموجيات العملاق</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <style>
-        :root { --gold: #d4af37; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: url('https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed; background-size: cover; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: -1; }
+<script>
+    // هذه الروابط تمثل الإيموجيات اللي دزيتها يا ملك
+    const specialEmojis = [
+        "https://fonts.gstatic.com/s/e/notoemoji/latest/1f973/512.gif",
+        "https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.gif",
+        "https://fonts.gstatic.com/s/e/notoemoji/latest/1f451/512.gif",
+        "https://fonts.gstatic.com/s/e/notoemoji/latest/1f48e/512.gif"
+        // يمكنك إضافة المزيد من روابط الصور هنا
+    ];
 
-        header { background: rgba(17, 17, 17, 0.95); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); z-index: 1000; }
-        .nav-btn { background: #222; border: 1px solid var(--gold); color: var(--gold); padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.3s; }
-        .nav-btn:hover { background: var(--gold); color: black; }
+    const eList = document.getElementById('emoji-list');
+    
+    // إضافة الإيموجيات الخاصة كصور صغيرة
+    specialEmojis.forEach(url => {
+        let img = document.createElement('img');
+        img.src = url;
+        img.style.width = "35px";
+        img.style.cursor = "pointer";
+        img.onclick = () => {
+            // إرسال الإيموجي كصورة مباشرة
+            db.ref("messages").push().set({ 
+                u: "علوش", 
+                img: url, 
+                type: 'image', 
+                time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) 
+            });
+            toggleEmoji();
+        };
+        eList.appendChild(img);
+    });
 
-        #wrapper { display: flex; flex: 1; position: relative; overflow: hidden; }
-        .sidebar { position: absolute; top: 0; width: 260px; height: 100%; background: rgba(15, 15, 15, 0.98); transition: 0.4s ease; z-index: 1001; border: 1px solid #333; }
-        .open-right { right: 0 !important; } .open-left { left: 0 !important; }
-        #admin-panel { right: -270px; border-left: 2px solid red; } 
-        #color-panel { right: -270px; border-left: 2px solid var(--gold); } 
-        #users-panel { left: -270px; border-right: 2px solid var(--gold); }
-
-        #messages { flex: 1; overflow-y: auto; padding: 20px; background: rgba(0, 0, 0, 0.4); }
-        .line { border-bottom: 1px dotted rgba(212, 175, 55, 0.2); padding: 10px 0; font-size: 16px; }
-        
-        /* التأثيرات المتحركة */
-        .fire { color: #ff4500; font-weight: bold; text-shadow: 0 -2px 4px #fff, 0 -4px 10px #ff0, 0 -8px 15px #ff8000; animation: f-anim 1s infinite alternate; }
-        .gold-flow { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: g-anim 2s linear infinite; font-weight: bold; }
-        .rainbow { animation: r-anim 2s infinite linear; font-weight: bold; }
-        @keyframes f-anim { from { text-shadow: 0 -2px 4px #fff; } to { text-shadow: 0 -2px 10px #ff0, 0 -10px 20px #f00; } }
-        @keyframes g-anim { to { background-position: 200% center; } }
-        @keyframes r-anim { 0%{color:red} 33%{color:lime} 66%{color:blue} 100%{color:red} }
-
-        /* صندوق الإيموجي العملاق */
-        #emoji-box { 
-            position: absolute; bottom: 80px; right: 10px; width: 280px; max-height: 250px;
-            background: rgba(25, 25, 25, 0.98); border: 2px solid var(--gold); 
-            padding: 10px; display: none; overflow-y: auto; z-index: 2000; border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-        .emoji-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
-        .emoji-item { cursor: pointer; font-size: 24px; transition: transform 0.2s; text-align: center; }
-        .emoji-item:hover { transform: scale(1.3); }
-
-        footer { padding: 15px; background: rgba(17, 17, 17, 0.95); border-top: 1px solid var(--gold); display: flex; gap: 10px; align-items: center; }
-        input[type="text"] { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #444; background: #000; color: #fff; outline: none; }
-        .chat-img { max-width: 200px; border-radius: 8px; border: 1px solid var(--gold); }
-    </style>
-</head>
-<body>
-    <div id="overlay"></div>
-    <header>
-        <button class="nav-btn" onclick="toggleSide('admin-panel')">⚙️ الإدارة</button>
-        <button class="nav-btn" onclick="toggleSide('color-panel')" style="color: cyan;">🎨 صبغ الخط</button>
-        <div style="font-weight: bold; color: var(--gold); font-size: 1.2rem;">👑 مـمـلـكـة عـلـوش</div>
-        <button class="nav-btn" onclick="toggleSide('users-panel', 'left')">👥 المتصلون</button>
-    </header>
-
-    <div id="wrapper">
-        <div id="admin-panel" class="sidebar"><div style="padding:20px;"><h3>⚙️ الإدارة</h3><button class="nav-btn" onclick="clearDB()" style="width:100%">🧹 مسح الشات بالكامل</button></div></div>
-        
-        <div id="color-panel" class="sidebar">
-            <div style="padding:20px;">
-                <h3>🎨 صبغ وتأثيرات</h3>
-                <label>اختر التأثير المتحرك:</label>
-                <select id="f-anim" onchange="updateS()" style="width:100%; padding:10px; margin:10px 0; background:#000; color:#fff; border:1px solid gold; border-radius:5px;">
-                    <option value="">عادي</option>
-                    <option value="fire">🔥 خط النار</option>
-                    <option value="gold-flow">💰 الذهب الملكي</option>
-                    <option value="rainbow">🌈 قوس قزح</option>
-                </select>
-                <label>أو لون ثابت:</label>
-                <input type="color" id="f-color" value="#ffffff" onchange="updateS()" style="width:100%; height:45px; border:none; cursor:pointer;">
-            </div>
-        </div>
-
-        <div id="chat-window" style="flex:1; display:flex; flex-direction:column; position:relative;">
-            <div id="messages"></div>
-            <div id="emoji-box">
-                <div class="emoji-grid" id="emoji-list"></div>
-            </div>
-        </div>
-
-        <div id="users-panel" class="sidebar"><div style="padding:20px;"><h3>👥 المتصلون</h3><div style="color:lime; font-weight:bold;">● الملك علوش</div></div></div>
-    </div>
-
-    <footer>
-        <button class="nav-btn" onclick="toggleEmoji()" style="font-size: 20px;">😊</button>
-        <button class="nav-btn" onclick="document.getElementById('img-up').click()" style="font-size: 20px;">🖼️</button>
-        <input type="file" id="img-up" hidden accept="image/*" onchange="upImg(this)">
-        <input type="text" id="msg-in" placeholder="أصدر مرسومك الملكي...">
-        <button class="nav-btn" onclick="send()" style="padding:10px 25px; background:var(--gold); color:black;">إرسال</button>
-    </footer>
-
-    <script>
-        const firebaseConfig = { databaseURL: "https://alloush-kingdom-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(firebaseConfig); const db = firebase.database();
-        let myS = { c: '#ffffff', a: '' };
-
-        function updateS() { myS.c = document.getElementById('f-color').value; myS.a = document.getElementById('f-anim').value; }
-        function toggleSide(id, side='right') { document.getElementById(id).classList.toggle(side==='right'?'open-right':'open-left'); }
-        
-        // --- مكتبة الإيموجيات الضخمة ---
-        const emojis = [
-            "👑","💎","🔥","⚔️","🛡️","🦁","🌟","✨","💯","🔱", // ملكية
-            "😂","🤣","😍","🥰","😎","😏","😜","😇","🤩","🥳", // وجوه
-            "❤️","🧡","💛","💚","💙","💜","🖤","🤍","💔","💖", // قلوب
-            "👍","👎","👌","👊","🤝","🤝","🙏","💪","👋","🤳", // حركات
-            "🌹","🌸","🌺","🍀","🌑","🌍","⚡","🔥","❄️","🌊", // طبيعة
-            "🔫","💣","🧨","💰","💵","🔔","📣","📢","🚫","✅"  // أدوات
-        ];
-        
-        const eList = document.getElementById('emoji-list');
-        const eBox = document.getElementById('emoji-box');
-        
-        emojis.forEach(e => {
-            let s = document.createElement('span'); s.className='emoji-item'; s.innerText=e;
-            s.onclick = () => { document.getElementById('msg-in').value += e; };
-            eList.appendChild(s);
-        });
-
-        function toggleEmoji() { eBox.style.display = eBox.style.display === 'block' ? 'none' : 'block'; }
-
-        function send() {
-            const inp = document.getElementById('msg-in');
-            if(inp.value.trim()) {
-                db.ref("messages").push().set({ u: "علوش", t: inp.value, s: {c: myS.c, a: myS.a}, type: 'text', time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-                inp.value = ""; eBox.style.display = 'none';
-            }
-        }
-
-        function upImg(input) {
-            const file = input.files[0];
-            if(file) {
-                const r = new FileReader(); r.onload = (e) => {
-                    db.ref("messages").push().set({ u: "علوش", img: e.target.result, type: 'image', time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-                }; r.readAsDataURL(file);
-            }
-        }
-
-        db.ref("messages").limitToLast(50).on("child_added", (snap) => {
-            const d = snap.val(); const box = document.getElementById('messages');
-            const div = document.createElement('div'); div.className = 'line';
-            if(d.type === 'image') {
-                div.innerHTML = `<b style="color:var(--gold)">${d.u}:</b><br><img src="${d.img}" class="chat-img">`;
-            } else {
-                const s = d.s || {c:'#fff', a:''};
-                div.innerHTML = `<b style="color:var(--gold)">${d.u}:</b> <span class="${s.a}" style="color:${s.c}">${d.t}</span> <small style="float:left; color:rgba(255,255,255,0.2)">${d.time}</small>`;
-            }
-            box.appendChild(div); box.scrollTop = box.scrollHeight;
-        });
-
-        function clearDB() { if(confirm("هل أنت متأكد من مسح تاريخ المملكة؟")) db.ref("messages").remove(); location.reload(); }
-        document.getElementById('msg-in').onkeypress = (e) => { if(e.key==='Enter') send(); };
-        
-        // إغلاق الإيموجي عند الضغط على الشات
-        document.getElementById('messages').onclick = () => { eBox.style.display = 'none'; };
-    </script>
-</body>
-</html>
+    // بقية الإيموجيات العادية
+    const standardEmojis = ["😂","😍","🔥","👑","💎","✨","🌟","❤️"];
+    standardEmojis.forEach(e => {
+        let s = document.createElement('span');
+        s.className = 'emoji-item';
+        s.innerText = e;
+        s.onclick = () => { document.getElementById('msg-in').value += e; };
+        eList.appendChild(s);
+    });
+</script>
