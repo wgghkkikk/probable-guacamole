@@ -2,77 +2,71 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👑 شات مملكة علوش الرسمي</title>
+    <title>👑 شات مملكة علوش الأسطوري</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --gold: #d4af37; --dark: #0a0a0a; --panel: #151515; }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma; background: var(--dark); color: white; display: flex; height: 100vh; overflow: hidden; }
+        :root { --gold: #d4af37; --bg: #050505; --panel: #111; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma; background: var(--bg); color: #fff; display: flex; height: 100vh; overflow: hidden; }
         
-        /* القائمة الجانبية الاحترافية */
-        #side-bar { width: 260px; background: var(--panel); border-left: 2px solid var(--gold); display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.5); }
-        .king-card { padding: 25px 15px; text-align: center; background: linear-gradient(to bottom, #1a1a1a, #0a0a0a); border-bottom: 1px solid #333; }
-        .king-avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); box-shadow: 0 0 15px var(--gold); margin-bottom: 10px; object-fit: cover; }
-        .status { color: #00ff00; font-size: 12px; margin-top: 5px; }
+        /* القائمة الجانبية الكاملة */
+        #sidebar { width: 280px; background: var(--panel); border-left: 2px solid var(--gold); display: flex; flex-direction: column; }
+        .profile-card { padding: 30px 15px; text-align: center; border-bottom: 2px solid #222; background: linear-gradient(to bottom, #1a1a1a, #050505); }
+        .user-pic { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--gold); box-shadow: 0 0 20px var(--gold); margin-bottom: 10px; cursor: pointer; }
+        .king-name { font-size: 20px; font-weight: bold; color: var(--gold); text-shadow: 0 0 5px #000; }
+        
+        /* شاشة الدردشة */
+        #chat-main { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        header { padding: 15px 25px; background: #000; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
+        #messages-view { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background-image: radial-gradient(#1a1a1a 1px, transparent 1px); background-size: 20px 20px; }
 
-        /* منطقة الشات الرئيسية */
-        #main-chat { flex-grow: 1; display: flex; flex-direction: column; background: #000; }
-        header { padding: 15px 20px; background: #111; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
-        #chat-messages { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: url('https://www.transparenttextures.com/patterns/dark-matter.png'); }
+        /* الفقاعات الاحترافية */
+        .bubble { max-width: 70%; padding: 12px 18px; border-radius: 20px; font-size: 15px; position: relative; line-height: 1.5; }
+        .king-bubble { align-self: flex-start; background: #1a1a1a; border-right: 4px solid var(--gold); color: var(--gold); font-weight: bold; border-top-right-radius: 2px; }
+        .user-bubble { align-self: flex-end; background: #333; color: #fff; border-top-left-radius: 2px; }
+        .meta { font-size: 10px; margin-bottom: 4px; opacity: 0.6; display: block; }
 
-        /* فقاعات الرسائل */
-        .msg { max-width: 75%; padding: 12px 15px; border-radius: 15px; font-size: 15px; line-height: 1.4; position: relative; animation: slide 0.3s ease; }
-        .msg-king { align-self: flex-start; background: #1a1a1a; border-right: 4px solid var(--gold); color: var(--gold); font-weight: bold; }
-        .msg-user { align-self: flex-end; background: #252525; border-left: 4px solid #555; color: #fff; }
-        .sender-tag { font-size: 10px; opacity: 0.7; margin-bottom: 4px; display: block; }
-
-        /* لوحة التحكم والأدوات */
-        #admin-panel { position: fixed; top: 70px; right: 20px; background: #1a1a1a; border: 1px solid var(--gold); padding: 15px; border-radius: 12px; display: none; z-index: 1000; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
-        .admin-btn { width: 100%; padding: 10px; margin-bottom: 8px; border-radius: 8px; border: 1px solid var(--gold); background: #000; color: var(--gold); cursor: pointer; font-weight: bold; }
-        .admin-btn:hover { background: var(--gold); color: #000; }
+        /* لوحة التحكم الجاهزة */
+        #admin-box { position: absolute; top: 70px; right: 20px; background: #1a1a1a; border: 1px solid var(--gold); padding: 15px; border-radius: 12px; display: none; z-index: 100; width: 200px; }
+        .adm-btn { width: 100%; padding: 10px; margin-bottom: 10px; background: #000; color: var(--gold); border: 1px solid var(--gold); cursor: pointer; font-weight: bold; border-radius: 5px; }
+        .adm-btn:hover { background: var(--gold); color: #000; }
 
         /* بار الإرسال */
-        #input-bar { padding: 15px 25px; background: #111; display: flex; gap: 12px; border-top: 1px solid #222; }
-        #text-input { flex-grow: 1; padding: 14px; border-radius: 25px; border: 1px solid #444; background: #000; color: #fff; outline: none; transition: 0.3s; }
-        #text-input:focus { border-color: var(--gold); box-shadow: 0 0 8px var(--gold); }
-        .send-btn { background: var(--gold); color: #000; border: none; padding: 0 30px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 16px; }
-
-        @keyframes slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #send-bar { padding: 15px; background: #111; display: flex; gap: 10px; border-top: 2px solid #222; }
+        #msg-in { flex-grow: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid var(--gold); background: #000; color: #fff; outline: none; }
+        .send-btn { background: var(--gold); color: #000; border: none; padding: 0 25px; border-radius: 30px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <aside id="side-bar">
-        <div class="king-card">
-            <img src="https://via.placeholder.com/90/d4af37/000?text=علوش" id="main-avatar" class="king-avatar">
-            <div style="font-weight: bold; font-size: 18px; color: var(--gold);">الملك علوش</div>
-            <div class="status">● متصل الآن</div>
+    <aside id="sidebar">
+        <div class="profile-card">
+            <img src="https://via.placeholder.com/100/d4af37/000?text=Alloush" id="king-img" class="user-pic" title="اضغط لتغيير الصورة">
+            <div class="king-name">👑 علوش الملك</div>
+            <div style="font-size: 12px; color: #00ff00; margin-top: 5px;">● متصل الآن</div>
         </div>
         <div style="padding: 20px;">
-            <p style="font-size: 13px; color: #888;">إحصائيات المملكة:</p>
-            <div style="color: var(--gold); font-size: 14px;">الرتبة: الحاكم المطلق</div>
-            <div style="color: #fff; font-size: 14px; margin-top: 5px;">المتواجدون: <span id="online">1</span></div>
+            <p style="color: var(--gold); font-size: 14px;">قائمة المتواجدين:</p>
+            <div id="online-list" style="font-size: 14px;">👑 علوش (الملك)</div>
         </div>
     </aside>
 
-    <main id="main-chat">
+    <main id="chat-main">
         <header>
-            <div style="font-weight: bold; font-size: 20px;">👑 مـمـلـكـة عـلـوش</div>
-            <button onclick="toggleAdmin()" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:6px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">⚙️ لوحة التحكم</button>
+            <div style="font-size: 22px; font-weight: bold; color: var(--gold);">مملكة علوش</div>
+            <button onclick="toggleAdmin()" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:5px 15px; border-radius:5px; cursor:pointer;">⚙️ لوحة الإدارة</button>
         </header>
 
-        <div id="chat-messages"></div>
+        <div id="messages-view"></div>
 
-        <div id="admin-panel">
-            <button class="admin-btn" onclick="setAvatar()">🖼️ تغيير الصورة الشخصية</button>
-            <button class="admin-btn" onclick="clearAllChat()" style="color: #ff4d4d; border-color: #ff4d4d;">🧹 مسح كل الرسائل</button>
-            <button class="admin-btn" onclick="toggleAdmin()">❌ إغلاق اللوحة</button>
+        <div id="admin-box">
+            <button class="adm-btn" onclick="changeAvatar()">🖼️ تغيير صورتي</button>
+            <button class="adm-btn" onclick="clearKingdom()" style="color: red; border-color: red;">🧹 تصفير الشات</button>
         </div>
 
-        <div id="input-bar">
-            <input type="text" id="text-input" placeholder="أصدر أوامرك الملكية هنا...">
-            <button class="send-btn" onclick="pushMessage()">إرسال ✨</button>
+        <div id="send-bar">
+            <input type="text" id="msg-in" placeholder="أصدر مرسومك الملكي يا علوش...">
+            <button class="send-btn" onclick="send()">إرسال ✨</button>
         </div>
     </main>
 
@@ -81,66 +75,55 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // إرسال الرسائل
-        function pushMessage() {
-            const inp = document.getElementById('text-input');
-            if(inp.value.trim() !== "") {
+        function send() {
+            const input = document.getElementById('msg-in');
+            if(input.value.trim() !== "") {
                 db.ref("messages").push().set({
-                    name: "علوش",
-                    text: inp.value,
+                    user: "علوش",
+                    text: input.value,
+                    rank: "الملك",
                     isKing: true,
                     time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                 });
-                inp.value = "";
+                input.value = "";
             }
         }
 
-        // عرض الرسائل بتصميم احترافي
-        db.ref("messages").limitToLast(50).on("child_added", (snap) => {
-            const data = snap.val();
-            const box = document.getElementById('chat-messages');
+        db.ref("messages").limitToLast(40).on("child_added", (snapshot) => {
+            const data = snapshot.val();
+            const view = document.getElementById('messages-view');
             const div = document.createElement('div');
-            div.className = `msg ${data.isKing ? 'msg-king' : 'msg-user'}`;
-            div.innerHTML = `
-                <span class="sender-tag">${data.name} • ${data.time}</span>
-                <div>${data.text}</div>
-            `;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+            div.className = `bubble ${data.isKing ? 'king-bubble' : 'user-bubble'}`;
+            div.innerHTML = `<span class="meta">${data.user} (${data.rank}) • ${data.time}</span>${data.text}`;
+            view.appendChild(div);
+            view.scrollTop = view.scrollHeight;
         });
 
-        // وظائف لوحة التحكم
         function toggleAdmin() {
-            const p = document.getElementById('admin-panel');
-            p.style.display = p.style.display === "none" ? "block" : "none";
+            const box = document.getElementById('admin-box');
+            box.style.display = box.style.display === 'none' ? 'block' : 'none';
         }
 
-        function setAvatar() {
-            const url = prompt("ألصق رابط صورتك الجديدة (رابط مباشر):");
+        function changeAvatar() {
+            const url = prompt("ألصق رابط صورتك الجديدة المربعة:");
             if(url) {
-                document.getElementById('main-avatar').src = url;
-                localStorage.setItem('king_avatar', url);
+                document.getElementById('king-img').src = url;
+                localStorage.setItem('alloush_pfp', url);
             }
         }
 
-        function clearAllChat() {
-            if(confirm("هل أنت متأكد من مسح تاريخ الشات بالكامل؟")) {
+        function clearKingdom() {
+            if(confirm("سيتم مسح تاريخ المملكة بالكامل، هل أنت متأكد؟")) {
                 db.ref("messages").remove();
                 location.reload();
             }
         }
 
-        // تحميل الإعدادات المحفوظة
         window.onload = () => {
-            const savedImg = localStorage.getItem('king_avatar');
-            if(savedImg) document.getElementById('main-avatar').src = savedImg;
-            document.getElementById('online').innerText = Math.floor(Math.random() * 4) + 1;
+            if(localStorage.getItem('alloush_pfp')) document.getElementById('king-img').src = localStorage.getItem('alloush_pfp');
         };
 
-        // إرسال بالضغط على Enter
-        document.getElementById('text-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') pushMessage();
-        });
+        document.getElementById('msg-in').addEventListener('keypress', (e) => { if(e.key === 'Enter') send(); });
     </script>
 </body>
 </html>
