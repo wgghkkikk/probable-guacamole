@@ -1,41 +1,27 @@
-<div id="alloush-advanced-system" style="background: #111; color: #bc13fe; padding: 15px; border: 2px solid #bc13fe; border-radius: 10px; margin-top: 10px; font-family: 'Tahoma';">
-    <h3 style="text-shadow: 0 0 10px #bc13fe;">🛡️ نظام الرتب والرادار الملكي</h3>
+
+<div id="chat-area" style="background: #000; border: 2px solid #bc13fe; border-radius: 10px; margin-top: 20px; padding: 10px; flex-grow: 1; display: flex; flex-direction: column;">
+    <h4 style="color: #bc13fe; border-bottom: 1px solid #333; padding-bottom: 5px;">💬 ساحة الدردشة العامة</h4>
     
-    <div id="rank-display" style="font-weight: bold; margin-bottom: 10px;">
-        رتبتك الحالية: <span style="color: gold;">👑 مـلـك المـمـلـكـة</span>
+    <div id="messages-box" style="flex-grow: 1; overflow-y: auto; color: #eee; font-size: 14px; margin-bottom: 10px; min-height: 200px;">
+        <p style="color: gold;">📢 نظام: أهلاً بكم في مملكة علوش الرسمية!</p>
     </div>
 
-    <div id="radar-box" style="background: #000; border: 1px solid #333; padding: 5px; height: 60px; overflow-y: auto; font-size: 12px; color: #0f0;">
-        📡 الرادار: جاري مراقبة المتسللين...
+    <div style="display: flex; gap: 5px;">
+        <input type="text" id="msg-input" placeholder="اكتب رسالتك هنا..." style="flex-grow: 1; background: #222; color: white; border: 1px solid #bc13fe; padding: 10px; border-radius: 5px;">
+        <button onclick="sendMessage()" style="background: #bc13fe; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">إرسال</button>
     </div>
-
-    <br>
-    <button onclick="toggleGhost()" id="ghost-btn" style="background: gray; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">👻 وضع الاختفاء: معطل</button>
-    <button onclick="scanShells()" style="background: #0056b3; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🔍 فحص الشلات</button>
 </div>
 
 <script>
-// ميزة وضع الاختفاء (Invisible Ink / Ghost Mode)
-let isGhost = false;
-function toggleGhost() {
-    isGhost = !isGhost;
-    let btn = document.getElementById('ghost-btn');
-    if(isGhost) {
-        btn.innerText = "👻 وضع الاختفاء: مفعل";
-        btn.style.background = "#bc13fe";
-        alert("تم تفعيل وضع الاختفاء.. أنت الآن روح المملكة!");
-    } else {
-        btn.innerText = "👻 وضع الاختفاء: معطل";
-        btn.style.background = "gray";
+function sendMessage() {
+    let input = document.getElementById('msg-input');
+    let box = document.getElementById('messages-box');
+    
+    if(input.value.trim() !== "") {
+        // إضافة الرسالة للصندوق (مؤقتاً للمعاينة)
+        box.innerHTML += `<p><strong>👑 علوش:</strong> ${input.value}</p>`;
+        input.value = ""; // تفريغ الحقل
+        box.scrollTop = box.scrollHeight; // النزول لآخر رسالة
     }
-}
-
-// ميزة رادار كشف الشلات والتهديدات
-function scanShells() {
-    let radar = document.getElementById('radar-box');
-    radar.innerHTML += "<br>⚠️ جاري فحص الثغرات...";
-    setTimeout(() => {
-        radar.innerHTML += "<br>✅ تم تأمين برغي الحماية.. لا يوجد شلات!";
-    }, 1500);
 }
 </script>
