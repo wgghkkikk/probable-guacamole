@@ -1,88 +1,44 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش - النظام المتكامل 70 ميزة</title>
-    <style>
-        :root { --king: #bc13fe; --gold: gold; --bg: #000; }
-        body { background: var(--bg); color: white; font-family: 'Tahoma', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        /* لوحة التحكم الملكية */
-        .admin-panel { background: #111; border: 2px solid var(--gold); padding: 15px; text-align: center; border-radius: 0 0 20px 20px; box-shadow: 0 5px 15px var(--king); }
-        .btn { border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
-        
-        /* ساحة الدردشة */
-        #chat-screen { flex-grow: 1; overflow-y: auto; padding: 20px; background: linear-gradient(to bottom, #000, #050505); }
-        .msg { margin-bottom: 10px; border-bottom: 1px solid #1a1a1a; padding-bottom: 5px; animation: fadeIn 0.5s; }
-        .rank-king { color: var(--gold); font-weight: bold; }
-        
-        /* الرادار والأنظمة */
-        .system-status { background: #0a0a0a; border-top: 1px solid var(--king); padding: 10px; display: flex; justify-content: space-between; font-size: 12px; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-3px, -3px); } 100% { transform: translate(1px, 1px); } }
-    </style>
-</head>
-<body>
+<div id="extra-systems" style="background: #0a0a0a; border: 2px solid #gold; padding: 15px; margin-top: 10px; border-radius: 10px; border-left: 5px solid #bc13fe;">
+    <h4 style="color: gold; margin-top: 0;">💰 خزنة الملك والأنظمة الأسطورية</h4>
+    
+    <div style="display: flex; justify-content: space-around; background: #1a1a1a; padding: 10px; border-radius: 5px;">
+        <div title="نظام الكارما">⭐ كارما: <span id="karma-val" style="color: #bc13fe;">1000</span></div>
+        <div title="خزنة الملك">🪙 علوش كوين: <span id="coins-val" style="color: gold;">500</span></div>
+        <div id="kingdom-weather">🌤️ الجو: ملكي</div>
+    </div>
 
-<div class="admin-panel">
-    <h2 style="color: var(--gold); margin: 0;">👑 لوحة تحكم ملك علوش 👑</h2>
-    <input type="text" id="target" placeholder="اسم الهدف..." style="padding: 8px; border-radius: 5px; border: 1px solid var(--king); background: #222; color: white;">
-    <button class="btn" style="background: red; color: white;" onclick="runFeature('strike')">⚡ صاعقة</button>
-    <button class="btn" style="background: orange;" onclick="runFeature('quake')">🫨 زلزال</button>
-    <button class="btn" style="background: #bc13fe; color: white;" onclick="runFeature('ghost')">👻 اختفاء</button>
-    <button class="btn" style="background: #0056b3; color: white;" onclick="runFeature('scan')">🔍 رادار الشلات</button>
-</div>
-
-<div id="chat-screen">
-    <div class="msg"><span class="rank-king">[نظام]:</span> تم تفعيل الـ 70 ميزة الأسطورية لـ "مملكة علوش".</div>
-</div>
-
-<div style="padding: 15px; background: #111; display: flex; gap: 10px;">
-    <input type="text" id="chat-input" placeholder="اكتب رسالتك الملكية..." style="flex-grow: 1; padding: 12px; border-radius: 5px; border: 1px solid var(--king); background: #000; color: white;">
-    <button class="btn" style="background: var(--king); color: white; padding: 10px 25px;" onclick="sendMsg()">إرسال</button>
-</div>
-
-<div class="system-status">
-    <span id="radar-text">📡 الرادار: مؤمن ✅</span>
-    <span id="weather-text">🌤️ طقس المملكة: ملكي</span>
-    <span id="karma-text">⭐ الكارما: +1000</span>
+    <br>
+    <button onclick="earnCoins()" style="background: #28a745; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">💎 تجميع نقاط</button>
+    <button onclick="changeWeather()" style="background: #17a2b8; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🌪️ تغيير الطقس</button>
 </div>
 
 <script>
-// محرك الميزات الـ 70
-function runFeature(type) {
-    let user = document.getElementById('target').value;
-    if(!user && type !== 'ghost' && type !== 'scan') { alert("حدد الهدف يا ملك!"); return; }
-
-    switch(type) {
-        case 'strike':
-            alert(`⚡ صاعقة الملك تسحق ${user}!`);
-            break;
-        case 'quake':
-            document.body.style.animation = "shake 0.2s infinite";
-            setTimeout(() => document.body.style.animation = "", 2000);
-            break;
-        case 'ghost':
-            alert("👻 وضع الاختفاء مفعل.. أنت غير مرئي الآن.");
-            break;
-        case 'scan':
-            document.getElementById('radar-text').innerText = "📡 جاري فحص الشلات... تم التنظيف!";
-            break;
-    }
+// 1. نظام الكارما (Karma System) - الميزة رقم 70
+let karma = 1000;
+function updateKarma(val) {
+    karma += val;
+    document.getElementById('karma-val').innerText = karma;
 }
 
-function sendMsg() {
-    let input = document.getElementById('chat-input');
-    let screen = document.getElementById('chat-screen');
-    if(input.value.trim() !== "") {
-        screen.innerHTML += `<div class="msg"><span class="rank-king">👑 علوش:</span> ${input.value}</div>`;
-        input.value = "";
-        screen.scrollTop = screen.scrollHeight;
+// 2. نظام العملات (خزنة الملك)
+let coins = 500;
+function earnCoins() {
+    coins += 10;
+    document.getElementById('coins-val').innerText = coins;
+    alert("مبروك! حصلت على 10 عملات علوش ذهبية 🪙");
+    updateKarma(5); // التفاعل يزيد الكارما أيضاً
+}
+
+// 3. طقس المملكة (Kingdom Weather) - الميزة رقم 68
+const weatherList = ["🌤️ مشمس ملكي", "🌧️ أمطار ذهبية", "🌪️ عاصفة الصاعقة", "❄️ ثلوج المملكة"];
+let weatherIndex = 0;
+function changeWeather() {
+    weatherIndex = (weatherIndex + 1) % weatherList.length;
+    document.getElementById('kingdom-weather').innerText = "الجو: " + weatherList[weatherIndex];
+    
+    // إذا صار الجو عاصفة، نفعل اهتزاز خفيف للشاشة
+    if(weatherIndex === 2) {
+        document.body.style.animation = "shake 0.5s 3";
     }
 }
 </script>
-
-</body>
-</html>
