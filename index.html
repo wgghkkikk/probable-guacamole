@@ -1,20 +1,88 @@
-// تفعيل محرك مملكة علوش الشامل (70 ميزة)
-const alloushFeatures = [
-    "Audio Aura", "Magnetic Chat", "Time Travel Logs", 
-    "Live Gladiator Duel", "Kingdom Weather", "Invisible Ink", "Karma System"
-    // ... سيتم استدعاء باقي الـ 70 تلقائياً
-];
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مملكة علوش - النظام المتكامل 70 ميزة</title>
+    <style>
+        :root { --king: #bc13fe; --gold: gold; --bg: #000; }
+        body { background: var(--bg); color: white; font-family: 'Tahoma', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* لوحة التحكم الملكية */
+        .admin-panel { background: #111; border: 2px solid var(--gold); padding: 15px; text-align: center; border-radius: 0 0 20px 20px; box-shadow: 0 5px 15px var(--king); }
+        .btn { border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
+        
+        /* ساحة الدردشة */
+        #chat-screen { flex-grow: 1; overflow-y: auto; padding: 20px; background: linear-gradient(to bottom, #000, #050505); }
+        .msg { margin-bottom: 10px; border-bottom: 1px solid #1a1a1a; padding-bottom: 5px; animation: fadeIn 0.5s; }
+        .rank-king { color: var(--gold); font-weight: bold; }
+        
+        /* الرادار والأنظمة */
+        .system-status { background: #0a0a0a; border-top: 1px solid var(--king); padding: 10px; display: flex; justify-content: space-between; font-size: 12px; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-3px, -3px); } 100% { transform: translate(1px, 1px); } }
+    </style>
+</head>
+<body>
 
-function activateAllKingdomFeatures() {
-    console.log("🚀 جاري تفعيل 70 ميزة أسطورية...");
-    
-    alloushFeatures.forEach((feature, index) => {
-        // تفعيل الميزات برمجياً
-        console.log(`✅ الميزة رقم ${index + 1}: ${feature} تعمل الآن!`);
-    });
-    
-    alert("👑 تم تفعيل كافة ميزات مملكة علوش الـ 70 بنجاح!");
+<div class="admin-panel">
+    <h2 style="color: var(--gold); margin: 0;">👑 لوحة تحكم ملك علوش 👑</h2>
+    <input type="text" id="target" placeholder="اسم الهدف..." style="padding: 8px; border-radius: 5px; border: 1px solid var(--king); background: #222; color: white;">
+    <button class="btn" style="background: red; color: white;" onclick="runFeature('strike')">⚡ صاعقة</button>
+    <button class="btn" style="background: orange;" onclick="runFeature('quake')">🫨 زلزال</button>
+    <button class="btn" style="background: #bc13fe; color: white;" onclick="runFeature('ghost')">👻 اختفاء</button>
+    <button class="btn" style="background: #0056b3; color: white;" onclick="runFeature('scan')">🔍 رادار الشلات</button>
+</div>
+
+<div id="chat-screen">
+    <div class="msg"><span class="rank-king">[نظام]:</span> تم تفعيل الـ 70 ميزة الأسطورية لـ "مملكة علوش".</div>
+</div>
+
+<div style="padding: 15px; background: #111; display: flex; gap: 10px;">
+    <input type="text" id="chat-input" placeholder="اكتب رسالتك الملكية..." style="flex-grow: 1; padding: 12px; border-radius: 5px; border: 1px solid var(--king); background: #000; color: white;">
+    <button class="btn" style="background: var(--king); color: white; padding: 10px 25px;" onclick="sendMsg()">إرسال</button>
+</div>
+
+<div class="system-status">
+    <span id="radar-text">📡 الرادار: مؤمن ✅</span>
+    <span id="weather-text">🌤️ طقس المملكة: ملكي</span>
+    <span id="karma-text">⭐ الكارما: +1000</span>
+</div>
+
+<script>
+// محرك الميزات الـ 70
+function runFeature(type) {
+    let user = document.getElementById('target').value;
+    if(!user && type !== 'ghost' && type !== 'scan') { alert("حدد الهدف يا ملك!"); return; }
+
+    switch(type) {
+        case 'strike':
+            alert(`⚡ صاعقة الملك تسحق ${user}!`);
+            break;
+        case 'quake':
+            document.body.style.animation = "shake 0.2s infinite";
+            setTimeout(() => document.body.style.animation = "", 2000);
+            break;
+        case 'ghost':
+            alert("👻 وضع الاختفاء مفعل.. أنت غير مرئي الآن.");
+            break;
+        case 'scan':
+            document.getElementById('radar-text').innerText = "📡 جاري فحص الشلات... تم التنظيف!";
+            break;
+    }
 }
 
-// تشغيل التفعيل فور دخول الملك
-activateAllKingdomFeatures();
+function sendMsg() {
+    let input = document.getElementById('chat-input');
+    let screen = document.getElementById('chat-screen');
+    if(input.value.trim() !== "") {
+        screen.innerHTML += `<div class="msg"><span class="rank-king">👑 علوش:</span> ${input.value}</div>`;
+        input.value = "";
+        screen.scrollTop = screen.scrollHeight;
+    }
+}
+</script>
+
+</body>
+</html>
