@@ -1,131 +1,91 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <title>مملكة علوش الملكية</title>
-    <style>
-        :root { --gold: #ffd700; --royal-red: #8b0000; }
-        body { margin: 0; background: #000; color: white; font-family: 'Arial', sans-serif; overflow: hidden; }
+<style>
+    /* 1. ترتيب الأزرار بالمقلوب [الطلب الملكي] */
+    .input-area {
+        display: flex;
+        flex-direction: row-reverse; /* يخلي الزر عاليسار والكتابة عاليمين */
+        gap: 10px;
+        background: rgba(255, 215, 0, 0.1);
+        padding: 15px;
+        border: 2px dashed var(--gold);
+    }
 
-        /* 1. الخلفية الفضائية والنجوم */
-        #star-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
-        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--duration) infinite; }
-        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+    #send-btn {
+        transform: scaleX(-1); /* يقلب شكل الزر إذا كان فيه سهم */
+        background: linear-gradient(45deg, #8b0000, #ff0000);
+        color: gold;
+        border: 2px solid gold;
+        font-weight: bold;
+        padding: 10px 25px;
+        cursor: pointer;
+    }
 
-        /* 2. الساعة الملكية الذهبية */
-        #royal-clock { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); color: var(--gold); font-size: 22px; font-weight: bold; text-shadow: 0 0 10px gold; background: rgba(0,0,0,0.6); padding: 5px 20px; border-radius: 50px; border: 2px solid var(--gold); z-index: 2000; }
+    /* 2. الإيموجيات في منتصف الشاشة [الطلب الملكي] */
+    #emoji-list {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* يخليها بنص الشاشة بالضبط */
+        width: 80%;
+        max-height: 400px;
+        background: rgba(0, 0, 0, 0.9);
+        border: 3px double var(--gold);
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+        z-index: 5000;
+        padding: 20px;
+        box-shadow: 0 0 50px red;
+        display: none; /* تظهر فقط عند الحاجة */
+    }
 
-        /* 3. وميض البرق واهتزاز الشاشة */
-        #flash-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; opacity: 0; z-index: 10000; pointer-events: none; }
-        .flash-active { animation: flash-anim 0.4s ease-out; }
-        @keyframes flash-anim { 0%, 100% { opacity: 0; } 10%, 30% { opacity: 0.8; } }
-        .shake-active { animation: shake 0.5s infinite; }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(1px, 1px); } }
-
-        /* 4. البساط الأحمر والاسم المشع */
-        .royal-carpet { background: linear-gradient(90deg, rgba(255,0,0,0), rgba(139,0,0,0.8), rgba(255,0,0,0)); border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); padding: 10px; margin: 5px 0; }
-        .royal-name { font-weight: bold; background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 400%; animation: rainbow-flow 3s linear infinite; }
-        @keyframes rainbow-flow { 0% { background-position: 0%; } 100% { background-position: 100%; } }
-
-        /* 5. قائمة الإيموجيات والملصقات النابضة */
-        #emoji-list { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; background: rgba(0,0,0,0.8); height: 200px; overflow-y: auto; border-top: 2px solid var(--gold); }
-        .emoji-item { cursor: pointer; transition: 0.3s; }
-        .pulse { animation: pulse-anim 1.5s infinite; }
-        @keyframes pulse-anim { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-    </style>
-</head>
-<body>
-    <div id="star-container"></div>
-    <div id="royal-clock">🕒 00:00:00</div>
-    <div id="flash-overlay"></div>
+    /* 3. الزخرفة واللاوات 𓆩 𓆪 */
+    .line b::before { content: "𓆩 "; color: var(--gold); }
+    .line b::after { content: " 𓆪"; color: var(--gold); }
     
-    <div id="chat-container" style="height: 100vh; display: flex; flex-direction: column;">
-        <div id="messages" style="flex: 1; overflow-y: auto; padding: 20px; padding-top: 60px;"></div>
-        <div id="emoji-list"></div>
-        <div class="input-area" style="padding: 10px; background: #111;">
-            <input type="text" id="my-name" value="علوش" hidden>
-            <input type="text" id="msg-in" placeholder="اكتب مرسومك الملكي..." style="width: 80%; padding: 10px;">
-            <button onclick="send()" style="width: 15%; padding: 10px; background: var(--gold); cursor: pointer;">إرسال</button>
-        </div>
+    .royal-carpet {
+        border-left: 5px solid gold;
+        border-right: 5px solid gold;
+        background: url('https://www.transparenttextures.com/patterns/royal-lineage.png'), linear-gradient(90deg, #4b0000, #8b0000);
+        text-align: center;
+        font-size: 1.2em;
+    }
+
+    /* زخرفة إضافية للنصوص */
+    .decorated-text {
+        font-family: 'Lateef', serif;
+        text-shadow: 1px 1px 2px black, 0 0 1em blue, 0 0 0.2em blue;
+    }
+</style>
+
+<div id="emoji-list">
     </div>
 
-    <script>
-        // دالة الساعة
-        setInterval(() => { document.getElementById('royal-clock').innerText = "🕒 " + new Date().toLocaleTimeString('en-GB'); }, 1000);
+<div class="input-area">
+    <button id="send-btn" onclick="send()">إرسال ⟸</button>
+    <input type="text" id="msg-in" class="decorated-text" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك 👑ﮩﮩ٨ﮩﮩـ">
+    <button onclick="toggleEmoji()" style="background:none; border:1px solid gold; color:gold;">😊</button>
+</div>
 
-        // دالة النجوم
-        function createStars() {
-            const container = document.getElementById('star-container');
-            for (let i = 0; i < 150; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.width = star.style.height = Math.random() * 3 + 'px';
-                star.style.left = Math.random() * 100 + 'vw';
-                star.style.top = Math.random() * 100 + 'vh';
-                star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
-                container.appendChild(star);
-            }
+<script>
+    // إظهار وإخفاء قائمة الإيموجيات من نص الشاشة
+    function toggleEmoji() {
+        const el = document.getElementById('emoji-list');
+        el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'grid' : 'none';
+    }
+
+    // إضافة الزخرفة الآلية للرسائل
+    function decorate(text) {
+        return "꧁ " + text + " ꧂";
+    }
+
+    // تعديل الإرسال ليشمل الزخرفة
+    function send() {
+        const inp = document.getElementById('msg-in');
+        if(inp.value.trim()) {
+            const decoratedMsg = decorate(inp.value);
+            // إرسال decoratedMsg لـ Firebase
+            renderMessage({u: "علوش", t: decoratedMsg, effect: "fire_rain"});
+            triggerEffects(); // البرق والرعد والزلزال
+            inp.value = "";
         }
-        createStars();
-
-        // دالة الإيموجيات والملصقات
-        function loadEmojis() {
-            const eList = document.getElementById('emoji-list');
-            const stickers = ["👑", "🔥", "💎", "⚡", "🌟", "🚀", "⚔️", "🛡️"];
-            stickers.forEach(stk => {
-                let s = document.createElement('span');
-                s.className = 'emoji-item pulse';
-                s.style.fontSize = "40px";
-                s.innerText = stk;
-                s.onclick = () => document.getElementById('msg-in').value += stk;
-                eList.appendChild(s);
-            });
-            // تحميل آلاف الإيموجيات
-            for (let i = 0x1F600; i <= 0x1F64F; i++) {
-                let s = document.createElement('span');
-                s.className = 'emoji-item';
-                s.innerText = String.fromCodePoint(i);
-                s.onclick = () => document.getElementById('msg-in').value += s.innerText;
-                eList.appendChild(s);
-            }
-        }
-        loadEmojis();
-
-        // دالة الإرسال والتأثيرات
-        function send() {
-            const inp = document.getElementById('msg-in');
-            const name = document.getElementById('my-name').value;
-            if(inp.value.trim()) {
-                // هنا يتم الربط مع Firebase لإرسال d.effect = "fire_rain"
-                renderMessage({u: name, t: inp.value, effect: "fire_rain", time: new Date().toLocaleTimeString()});
-                triggerEffects();
-                inp.value = "";
-            }
-        }
-
-        function triggerEffects() {
-            document.getElementById('flash-overlay').classList.add('flash-active');
-            document.body.classList.add('shake-active');
-            new Audio('https://www.soundjay.com/nature/thunder-storm-01.mp3').play();
-            makeItRain(); // دالة مطر النار
-            setTimeout(() => {
-                document.getElementById('flash-overlay').classList.remove('flash-active');
-                document.body.classList.remove('shake-active');
-            }, 1000);
-        }
-
-        function renderMessage(d) {
-            const box = document.getElementById('messages');
-            const div = document.createElement('div');
-            div.className = d.u === "علوش" ? 'line royal-carpet' : 'line';
-            const kingBadge = d.u === "علوش" ? "👑 " : "";
-            const nameClass = d.u === "علوش" ? "royal-name" : "";
-            div.innerHTML = `<b class="${nameClass}">${kingBadge}${d.u}:</b> <span>${d.t}</span>`;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function makeItRain() { /* كود مطر النار المذكور سابقاً */ }
-    </script>
-</body>
-</html>
+    }
+</script>
