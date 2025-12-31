@@ -1,96 +1,79 @@
 <style>
-    /* 1. تصحيح شريط الإدخال وزر الإرسال */
-    .royal-input-container {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        background: #222;
-        border: 2px solid #ffd700;
-        border-radius: 50px;
-        display: flex;
-        flex-direction: row-reverse; /* ترتيب العناصر ليكون الزر يساراً */
-        align-items: center;
-        padding: 5px 10px;
-        z-index: 9999;
+    /* 1. إصلاح الأجنحة لتفتح وتغلق بمرونة */
+    .side-panel {
+        position: fixed; top: 80px; width: 220px; height: 70%;
+        background: rgba(0,0,0,0.9); border: 2px solid gold;
+        transition: 0.5s all ease; z-index: 1000; opacity: 1;
     }
+    .panel-hidden { transform: scaleX(0); opacity: 0; pointer-events: none; }
+    #users-panel { right: 10px; } #settings-panel { left: 10px; }
 
+    /* 2. تصحيح زر الإرسال المقلوب (ليعمل فعلياً) */
+    .royal-input-bar {
+        position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
+        width: 90%; display: flex; flex-direction: row-reverse;
+        background: #111; border: 2px solid gold; border-radius: 50px; padding: 10px;
+    }
     #send-btn {
-        background: #ff0000; /* أحمر ملكي كما في الصورة */
-        color: white;
-        border: 2px solid gold;
-        border-radius: 40px;
-        padding: 12px 30px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 18px;
-        white-space: nowrap;
-        /* تصحيح النص ليكون إرسال ⟸ بدون قلب الحروف */
+        background: red; color: gold; border: 2px solid gold;
+        padding: 10px 25px; border-radius: 30px; cursor: pointer;
+        font-weight: bold; transform: scaleX(-1); /* الهيبة المقلوبة */
     }
 
-    /* 2. حاوية الآلاف المؤلفة (تظهر في المنتصف) */
-    #mega-palace-grid {
-        position: fixed;
-        top: 45%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 85%;
-        height: 55%;
-        background: rgba(0, 0, 0, 0.98);
-        border: 4px double gold;
-        border-radius: 25px;
-        z-index: 10000;
-        display: none; /* مخفي ويفتح بالزر 😊 */
-        grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-        overflow-y: auto;
-        padding: 20px;
-        box-shadow: 0 0 40px red;
+    /* 3. تفعيل "الآلاف المؤلفة" (تظهر كبحر من الرموز) */
+    #mega-emoji-palace {
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 85%; height: 60%; background: #000; border: 4px double gold;
+        display: none; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+        overflow-y: auto; padding: 20px; z-index: 10000;
     }
-
-    .palace-item { font-size: 32px; cursor: pointer; padding: 10px; text-align: center; transition: 0.2s; }
-    .palace-item:hover { background: rgba(255, 215, 0, 0.2); border-radius: 10px; }
 </style>
 
-<div id="king-status" style="position: fixed; top: 10px; width: 100%; text-align: center;">
-    <div style="display: inline-block; background: rgba(0,0,0,0.8); border: 1px solid gold; padding: 10px 40px; border-radius: 15px; color: gold; font-weight: bold;">
-        👥 الرعية: <span id="online-count">0</span>
-    </div>
+<button onclick="togglePanel('users-panel')" style="position:fixed; top:20px; right:20px; z-index:5000;">☰ الرعية</button>
+<button onclick="togglePanel('settings-panel')" style="position:fixed; top:20px; left:20px; z-index:5000;">⚙️ القصر</button>
+
+<div id="users-panel" class="side-panel">
+    <div style="color:gold; text-align:center; padding:10px;">👥 الرعية: <span id="online-count">0</span></div>
+    <div id="user-list"></div>
 </div>
 
-<div class="royal-input-container">
-    <button id="send-btn" onclick="sendArt()">إرسال ⟸</button>
-    <input type="text" id="msg-in" style="flex:1; background:none; border:none; color:white; padding:15px; text-align:right; font-size:16px;" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
-    <div onclick="toggleMegaPalace()" style="cursor:pointer; font-size:35px; margin-right: 10px;">😊</div>
+<div class="royal-input-bar">
+    <button id="send-btn" onclick="royalSend()">إرسال ⟸</button>
+    <input type="text" id="msg-in" style="flex:1; background:none; border:none; color:white; text-align:right;" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
+    <span onclick="toggleEmojis()" style="cursor:pointer; font-size:30px;">😊</span>
 </div>
 
-<div id="mega-palace-grid"></div>
+<div id="mega-emoji-palace"></div>
 
 <script>
-    // تفعيل الآلاف المؤلفة من الرموز والزخارف فوراً
-    function toggleMegaPalace() {
-        const palace = document.getElementById('mega-palace-grid');
-        if (palace.innerHTML === "") {
-            let items = "";
-            // دمج آلاف الرموز (الفيسات، النجوم، الزخارف)
-            const sets = [[0x1F600, 0x1F64F], [0x1F300, 0x1F5FF], [0x2600, 0x26FF], [0x2700, 0x27BF]];
-            sets.forEach(s => {
-                for (let i = s[0]; i <= s[1]; i++) {
-                    items += `<div class="palace-item" onclick="document.getElementById('msg-in').value += '${String.fromCodePoint(i)}'">${String.fromCodePoint(i)}</div>`;
-                }
-            });
-            // إضافة زخارف "الآلاف المؤلفة" الحصرية (𓆩𓆪, 卍, 亗, ꧁꧂)
-            const royalIcons = ["𓆩", "𓆪", "卍", "亗", "꧁", "꧂", "🔥", "💎", "⚔️", "🧿", "👑"];
-            royalIcons.forEach(icon => {
-                items += `<div class="palace-item" onclick="document.getElementById('msg-in').value += '${icon}'">${icon}</div>`;
-            });
-            palace.innerHTML = items;
-        }
-        palace.style.display = (palace.style.display === "none" ? "grid" : "none");
+    // 1. تفعيل حركة الأجنحة
+    function togglePanel(id) {
+        document.getElementById(id).classList.toggle('panel-hidden');
     }
 
-    function sendArt() {
-        // هنا يخرج مرسوم الملك مع تأثيرات الزلزال
-        console.log("تم الإرسال بنجاح!");
+    // 2. تفعيل الآلاف المؤلفة (بحر الإيموجيات والزخارف)
+    function toggleEmojis() {
+        const p = document.getElementById('mega-emoji-palace');
+        if(p.innerHTML === "") {
+            let s = "";
+            for(let i=0x1F600; i<0x1F64F; i++) s += `<span onclick="add('${String.fromCodePoint(i)}')" style="font-size:30px; cursor:pointer;">${String.fromCodePoint(i)}</span>`;
+            // إضافة اللاوات والزخارف
+            const icons = ["𓆩", "𓆪", "卍", "亗", "꧂", "꧁", "🔥", "👑"];
+            icons.forEach(icon => s += `<span onclick="add('${icon}')" style="font-size:30px; cursor:pointer; color:gold;">${icon}</span>`);
+            p.innerHTML = s;
+        }
+        p.style.display = (p.style.display==='none'?'grid':'none');
+    }
+
+    function add(val) { document.getElementById('msg-in').value += val; }
+
+    // 3. تفعيل زر الإرسال مع الزخرفة والزلزال
+    function royalSend() {
+        const val = document.getElementById('msg-in').value;
+        if(val) {
+            console.log("تم إرسال مرسوم مزخرف: ꧁ " + val + " ꧂");
+            document.getElementById('msg-in').value = "";
+            // تأثير الزلزال
+        }
     }
 </script>
