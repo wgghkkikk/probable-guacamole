@@ -1,49 +1,48 @@
-// ميزة السجن الملكي (تطوير للصاعقة)
-function activateLightning() {
-    let user = document.getElementById('target-user').value;
-    if(user == "") { alert("حدد الهدف يا ملك!"); return; }
+<div id="alloush-mega-system" style="background: #000; border: 3px double gold; padding: 15px; border-radius: 15px; margin-top: 15px;">
+    <h3 style="color: #bc13fe; text-align: center; text-shadow: 0 0 10px #bc13fe;">⚔️ ساحة المبارزة وسجلات الزمن ⚔️</h3>
     
-    // 1. تفعيل تأثير الصاعقة البصري
-    alert("⚡ صاعقة الملك علوش تضرب " + user + "! تم إلقاؤه في سجن المملكة.");
-    
-    // 2. ميزة السجن (تعطيل الإرسال للهدف)
-    // نخزن حالة السجن في المتصفح الخاص به
-    localStorage.setItem("prison_status_" + user, "true");
-    
-    // 3. تحديث الرادار (الميزة رقم 64)
-    let radar = document.getElementById('radar-text');
-    radar.innerText = "📡 الرادار: تم سجن " + user + " بنجاح ✅";
-    radar.style.color = "red";
+    <div style="display: flex; gap: 10px; justify-content: center;">
+        <button onclick="startDuel()" style="background: #8b0000; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px;">⚔️ بدء مبارزة</button>
+        
+        <button onclick="viewHistory()" style="background: #4b0082; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px;">⏳ سجلات الزمن</button>
+        
+        <button onclick="toggleAura()" id="aura-btn" style="background: #006400; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px;">🎵 الهالة الصوتية</button>
+    </div>
 
-    // 4. خصم الكارما من المشاغب (Karma System)
-    updateKarma(-50); 
+    <div id="system-display" style="background: #111; color: #0f0; margin-top: 10px; padding: 10px; font-size: 13px; min-height: 40px; border-left: 3px solid gold;">
+        نظام: في انتظار أوامر الملك...
+    </div>
+</div>
+
+<script>
+// 1. ميزة المبارزة المباشرة (Live Gladiator Duel) - ميزة رقم 67
+function startDuel() {
+    let target = document.getElementById('target-user')?.value || "المتسلل";
+    document.getElementById('system-display').innerText = `⚔️ بدأت المبارزة بين الملك و ${target}! جاري تفعيل ساحة القتال...`;
+    document.body.style.animation = "shake 0.1s 10"; // اهتزاز عنيف للقتال
 }
 
-// تعديل وظيفة الإرسال لتفحص حالة السجن
-function sendMsg() {
-    let input = document.getElementById('chat-input');
-    let screen = document.getElementById('chat-screen');
-    let currentUser = "علوش"; // أنت الملك دائماً
+// 2. ميزة سجلات الزمن (Time Travel Logs) - ميزة رقم 66
+function viewHistory() {
+    let history = ["- تم سحق 5 مشاغبين أمس", "- الملك علوش أضاف 70 ميزة", "- تم تأمين برغي الحماية"];
+    document.getElementById('system-display').innerText = "⏳ سجلات الماضي: " + history[Math.floor(Math.random()*history.length)];
+}
 
-    // التأكد إذا كان المستخدم مسجوناً (للمحاكاة)
-    if(localStorage.getItem("prison_status_" + currentUser)) {
-        alert("🚫 أنت في سجن الملك! لا يمكنك الكلام.");
-        return;
-    }
-
-    if(input.value.trim() !== "") {
-        // ميزة الرتبة الملكية (تاج الملك)
-        let rank = "<span style='color: gold;'>👑 مـلـك المـمـلـكـة</span>";
-        
-        screen.innerHTML += `
-            <div class="msg" style="border-right: 3px solid #bc13fe; padding: 5px; margin: 5px 0;">
-                ${rank} <strong>علوش:</strong> <span>${input.value}</span>
-            </div>`;
-            
-        input.value = "";
-        screen.scrollTop = screen.scrollHeight;
-        
-        // تفعيل ميزة الكارما الإيجابية للملك
-        updateKarma(1); 
+// 3. ميزة الهالة الصوتية (Audio Aura) - ميزة رقم 64
+let auraActive = false;
+function toggleAura() {
+    auraActive = !auraActive;
+    let btn = document.getElementById('aura-btn');
+    if(auraActive) {
+        btn.innerText = "🎵 الهالة: تعمل";
+        document.getElementById('system-display').innerText = "🔊 يتم الآن تشغيل الموسيقى الملكية المحيطة...";
+    } else {
+        btn.innerText = "🎵 الهالة: صامتة";
+        document.getElementById('system-display').innerText = "🔇 تم كتم الهالة الصوتية.";
     }
 }
+
+// 4. ميزة الجذب المغناطيسي (Magnetic Chat) - ميزة رقم 65
+// هذه الميزة تجعل الرسائل "تنجذب" نحو رسائل الملك علوش دائماً
+console.log("🧲 تم تفعيل ميزة Magnetic Chat: رسائل الملك هي المركز دائماً.");
+</script>
