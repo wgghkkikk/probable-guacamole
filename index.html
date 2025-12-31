@@ -1,23 +1,49 @@
+// ميزة السجن الملكي (تطوير للصاعقة)
+function activateLightning() {
+    let user = document.getElementById('target-user').value;
+    if(user == "") { alert("حدد الهدف يا ملك!"); return; }
+    
+    // 1. تفعيل تأثير الصاعقة البصري
+    alert("⚡ صاعقة الملك علوش تضرب " + user + "! تم إلقاؤه في سجن المملكة.");
+    
+    // 2. ميزة السجن (تعطيل الإرسال للهدف)
+    // نخزن حالة السجن في المتصفح الخاص به
+    localStorage.setItem("prison_status_" + user, "true");
+    
+    // 3. تحديث الرادار (الميزة رقم 64)
+    let radar = document.getElementById('radar-text');
+    radar.innerText = "📡 الرادار: تم سجن " + user + " بنجاح ✅";
+    radar.style.color = "red";
+
+    // 4. خصم الكارما من المشاغب (Karma System)
+    updateKarma(-50); 
+}
+
+// تعديل وظيفة الإرسال لتفحص حالة السجن
 function sendMsg() {
     let input = document.getElementById('chat-input');
     let screen = document.getElementById('chat-screen');
-    
+    let currentUser = "علوش"; // أنت الملك دائماً
+
+    // التأكد إذا كان المستخدم مسجوناً (للمحاكاة)
+    if(localStorage.getItem("prison_status_" + currentUser)) {
+        alert("🚫 أنت في سجن الملك! لا يمكنك الكلام.");
+        return;
+    }
+
     if(input.value.trim() !== "") {
-        // إضافة التاج الذهبي للملك علوش
-        let crown = "<span style='color: gold;'>👑 مـلـك المـمـلـكـة</span>";
-        let time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        // ميزة الرتبة الملكية (تاج الملك)
+        let rank = "<span style='color: gold;'>👑 مـلـك المـمـلـكـة</span>";
         
         screen.innerHTML += `
-            <div class="msg" style="border-right: 3px solid #bc13fe; padding-right: 10px;">
-                <span style="font-size: 10px; color: gray;">[${time}]</span> 
-                ${crown} <strong style="color: #bc13fe;">علوش:</strong> 
-                <span style="color: #fff;">${input.value}</span>
+            <div class="msg" style="border-right: 3px solid #bc13fe; padding: 5px; margin: 5px 0;">
+                ${rank} <strong>علوش:</strong> <span>${input.value}</span>
             </div>`;
             
         input.value = "";
         screen.scrollTop = screen.scrollHeight;
         
-        // تفعيل ميزة الكارما تلقائياً مع كل رسالة
+        // تفعيل ميزة الكارما الإيجابية للملك
         updateKarma(1); 
     }
 }
