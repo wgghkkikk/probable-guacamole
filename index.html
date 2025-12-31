@@ -1,41 +1,39 @@
-        }
-    });
-}
 function initKingdom() {
     const name = document.getElementById('my-name').value;
     db.ref("activity_log").push().set({ user: name, time: new Date().toLocaleString('ar-EG') });
     
     const eList = document.getElementById('emoji-list');
-    eList.innerHTML = ""; // تنظيف القائمة قبل التحميل لضمان السرعة
+    eList.innerHTML = ""; // تنظيف القائمة لضمان السرعة
 
-    // 1. إضافة الملصقات الملكية الملونة (تشبه ملصقات يوتيوب)
-    const stickers = ["👑", "🔥", "💎", "🛡️", "⚔️", "🌟", "🚀", "🦁", "💰", "✨", "🎁", "🧿"];
-    stickers.forEach(stk => {
+    // 1. قسم الملصقات المتحركة (تأثير النبض واللمعان)
+    const animatedStickers = ["👑", "🔥", "💎", "✨", "🌟", "🚀", "⚔️", "🛡️", "🧿", "💰"];
+    animatedStickers.forEach(stk => {
         let s = document.createElement('span');
         s.className = 'emoji-item';
-        s.style.fontSize = "35px"; // تكبير الملصقات لتكون واضحة كملصقات يوتيوب
-        s.style.filter = "drop-shadow(0 0 5px gold)"; // إضافة لمعة ملكية ذهبية
+        s.style.fontSize = "40px"; // حجم كبير للملصقات
+        s.style.display = "inline-block";
+        s.style.animation = "pulse 1.5s infinite"; // إضافة حركة النبض
+        s.style.filter = "drop-shadow(0 0 8px gold)"; // لمعة قوية
         s.innerText = stk;
         s.onclick = () => { document.getElementById('msg-in').value += stk; };
         eList.appendChild(s);
     });
 
-    // 2. إضافة آلاف الإيموجيات العالمية (النطاقات الشاملة)
+    // 2. إضافة آلاف الإيموجيات العادية
     const ranges = [
-        [0x1F600, 0x1F64F], // الوجوه الضاحكة
-        [0x1F300, 0x1F5FF], // الرموز والأشياء المنوعة
-        [0x1F680, 0x1F6FF], // المواصلات والخرائط
-        [0x1F900, 0x1F9FF], // الإيموجيات الحديثة والإضافية
-        [0x2600, 0x26FF],   // علامات ورموز منوعة
-        [0x1F1E6, 0x1F1FF]  // الأعلام العالمية
+        [0x1F600, 0x1F64F], // الوجوه
+        [0x1F300, 0x1F5FF], // الرموز
+        [0x1F680, 0x1F6FF], // المواصلات
+        [0x1F900, 0x1F9FF], // الحديثة
+        [0x1F1E6, 0x1F1FF]  // الأعلام
     ];
 
     ranges.forEach(range => {
         for (let i = range[0]; i <= range[1]; i++) {
             let s = document.createElement('span');
             s.className = 'emoji-item';
-            s.innerText = String.fromCodePoint(i); // تحويل الكود إلى إيموجي حقيقي
-            s.onclick = () => { document.getElementById('msg-in').value += s.innerText; }; // إضافة للنص عند الضغط
+            s.innerText = String.fromCodePoint(i); // تحويل الكود إلى إيموجي
+            s.onclick = () => { document.getElementById('msg-in').value += s.innerText; }; // إضافة للنص
             eList.appendChild(s);
         }
     });
