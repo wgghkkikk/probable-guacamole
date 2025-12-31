@@ -1,17 +1,6 @@
-#royal-clock {
-    position: fixed;
-    top: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'Orbitron', sans-serif;
-    color: var(--gold);
-    font-size: 22px;
-    font-weight: bold;
-    text-shadow: 0 0 10px gold, 0 0 20px #000;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 5px 20px;
-    border-radius: 50px;
-    border: 2px solid var(--gold);
-    z-index: 2000;
-    letter-spacing: 2px;
+function updateRoyalClock() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-GB'); // توقيت المملكة الرسمي
+    document.getElementById('royal-clock').innerText = "🕒 " + timeStr;
 }
+setInterval(updateRoyalClock, 1000);
