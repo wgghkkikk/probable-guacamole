@@ -2,87 +2,119 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>👑 مملكة علوش | النظام الشامل</title>
+    <title>👑 مملكة علوش | النظام المتكامل</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --gold: #d4af37; --bg-overlay: rgba(0, 0, 0, 0.7); }
+        :root { --gold: #d4af37; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: url('https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed; background-size: cover; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: -1; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: -1; }
 
         header { background: rgba(17, 17, 17, 0.95); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); z-index: 1000; }
-        #news-bar { background: rgba(212, 175, 55, 0.15); color: var(--gold); font-size: 13px; padding: 3px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.3); text-align: center; }
-
         .nav-btn { background: #222; border: 1px solid var(--gold); color: var(--gold); padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; }
+
         #wrapper { display: flex; flex: 1; position: relative; overflow: hidden; }
-        .sidebar { position: absolute; top: 0; width: 250px; height: 100%; background: rgba(15, 15, 15, 0.98); transition: 0.4s ease; z-index: 500; border: 1px solid #333; }
+        .sidebar { position: absolute; top: 0; width: 260px; height: 100%; background: rgba(15, 15, 15, 0.98); transition: 0.4s ease; z-index: 1001; border: 1px solid #333; }
         .open-right { right: 0 !important; } .open-left { left: 0 !important; }
-        #admin-panel { right: -260px; border-left: 2px solid red; } #color-panel { right: -260px; border-left: 2px solid var(--gold); } #users-panel { left: -260px; border-right: 2px solid var(--gold); }
+        #admin-panel { right: -270px; border-left: 2px solid red; } 
+        #color-panel { right: -270px; border-left: 2px solid var(--gold); } 
+        #users-panel { left: -270px; border-right: 2px solid var(--gold); }
 
         #messages { flex: 1; overflow-y: auto; padding: 20px; background: rgba(0, 0, 0, 0.4); }
-        .line { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 10px 0; font-size: 15px; }
-        .chat-img { max-width: 250px; border-radius: 10px; border: 2px solid var(--gold); margin-top: 5px; display: block; }
+        .line { border-bottom: 1px dotted rgba(212, 175, 55, 0.2); padding: 10px 0; font-size: 16px; }
+        
+        /* التأثيرات المتحركة */
+        .fire { color: #ff4500; font-weight: bold; text-shadow: 0 -2px 4px #fff, 0 -4px 10px #ff0, 0 -8px 15px #ff8000; animation: f-anim 1s infinite alternate; }
+        .gold-flow { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: g-anim 2s linear infinite; font-weight: bold; }
+        .rainbow { animation: r-anim 2s infinite linear; font-weight: bold; }
+        @keyframes f-anim { from { text-shadow: 0 -2px 4px #fff; } to { text-shadow: 0 -2px 10px #ff0, 0 -10px 20px #f00; } }
+        @keyframes g-anim { to { background-position: 200% center; } }
+        @keyframes r-anim { 0%{color:red} 33%{color:lime} 66%{color:blue} 100%{color:red} }
 
-        /* تأثيرات الخطوط */
-        .rainbow { animation: rainbow-anim 2s infinite linear; font-weight: bold; }
-        .fire { color: #ff4500; font-weight: bold; text-shadow: 0 -2px 4px #fff, 0 -4px 10px #ff0, 0 -10px 20px #ff8000; animation: fire-anim 1s infinite alternate; }
-        .gold-flow { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: gold-anim 2s linear infinite; font-weight: bold; }
-        @keyframes fire-anim { from { text-shadow: 0 -2px 4px #fff, 0 -4px 10px #ff0; } to { text-shadow: 0 -2px 4px #fff, 0 -12px 25px #ff8000; } }
-        @keyframes gold-anim { to { background-position: 200% center; } }
-        @keyframes rainbow-anim { 0% {color: red;} 33% {color: lime;} 66% {color: blue;} 100% {color: red;} }
+        /* صندوق الإيموجي */
+        #emoji-box { position: absolute; bottom: 80px; right: 10px; background: #222; border: 1px solid var(--gold); padding: 10px; display: none; grid-template-columns: repeat(5, 1fr); gap: 5px; z-index: 2000; border-radius: 10px; }
+        .emoji-item { cursor: pointer; font-size: 20px; padding: 5px; }
 
         footer { padding: 15px; background: rgba(17, 17, 17, 0.95); border-top: 1px solid var(--gold); display: flex; gap: 10px; align-items: center; }
         input[type="text"] { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #444; background: #000; color: #fff; outline: none; }
-        .icon-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--gold); padding: 0 5px; }
+        .chat-img { max-width: 200px; border-radius: 8px; border: 1px solid var(--gold); }
     </style>
 </head>
 <body>
     <div id="overlay"></div>
     <header>
         <button class="nav-btn" onclick="toggleSide('admin-panel')">⚙️ الإدارة</button>
-        <button class="nav-btn" onclick="toggleSide('color-panel')" style="color: cyan; border-color: cyan;">🔥 التأثيرات</button>
-        <div style="font-weight: bold; color: var(--gold); text-shadow: 2px 2px 4px #000;">👑 مـمـلـكـة عـلـوش</div>
+        <button class="nav-btn" onclick="toggleSide('color-panel')" style="color: cyan;">🎨 صبغ الخط</button>
+        <div style="font-weight: bold; color: var(--gold);">👑 مـمـلـكـة عـلـوش</div>
         <button class="nav-btn" onclick="toggleSide('users-panel', 'left')">👥 المتصلون</button>
     </header>
-    <div id="news-bar"><marquee id="news-text">أهلاً بكم في شات مملكة علوش الرسمي.. نورتونا يا ملوك</marquee></div>
 
     <div id="wrapper">
-        <div id="admin-panel" class="sidebar"><div style="padding:20px;"><h3>⚙️ الإدارة</h3><button class="nav-btn" onclick="clearDB()">🧹 مسح الشات</button><br><br><button class="nav-btn" onclick="updateNews()">📢 تغيير الإعلان</button></div></div>
-        <div id="color-panel" class="sidebar"><div style="padding:20px;"><h3>🎨 صبغ الخط</h3><select id="f-anim" onchange="updateS()" style="width:100%; padding:10px; background:#222; color:#fff;"><option value="">عادي</option><option value="rainbow">🌈 قوس قزح</option><option value="fire">🔥 خط النار</option><option value="gold-flow">💰 ذهب</option></select><input type="color" id="f-color" value="#ffffff" onchange="updateS()" style="width:100%; height:40px; margin-top:10px;"></div></div>
-        <div id="chat-window" style="flex:1; display:flex; flex-direction:column;"><div id="messages"></div></div>
-        <div id="users-panel" class="sidebar"><div style="padding:20px;"><h3>👥 المتصلون</h3><div style="color:#00ff00;">● الملك علوش</div></div></div>
+        <div id="admin-panel" class="sidebar"><div style="padding:20px;"><h3>⚙️ الإدارة</h3><button class="nav-btn" onclick="clearDB()">🧹 مسح الشات</button></div></div>
+        
+        <div id="color-panel" class="sidebar">
+            <div style="padding:20px;">
+                <h3>🎨 صبغ وتأثيرات</h3>
+                <label>اختر التأثير:</label>
+                <select id="f-anim" onchange="updateS()" style="width:100%; padding:8px; margin:10px 0; background:#000; color:#fff; border:1px solid gold;">
+                    <option value="">عادي</option>
+                    <option value="fire">🔥 خط النار</option>
+                    <option value="gold-flow">💰 الذهب</option>
+                    <option value="rainbow">🌈 قوس قزح</option>
+                </select>
+                <label>أو لون ثابت:</label>
+                <input type="color" id="f-color" value="#ffffff" onchange="updateS()" style="width:100%; height:40px;">
+            </div>
+        </div>
+
+        <div id="chat-window" style="flex:1; display:flex; flex-direction:column; position:relative;">
+            <div id="messages"></div>
+            <div id="emoji-box"></div>
+        </div>
+
+        <div id="users-panel" class="sidebar"><div style="padding:20px;"><h3>👥 المتصلون</h3><div style="color:lime;">● الملك علوش</div></div></div>
     </div>
 
     <footer>
-        <button class="icon-btn" onclick="document.getElementById('img-upload').click()">🖼️</button>
-        <input type="file" id="img-upload" hidden accept="image/*" onchange="uploadImg(this)">
-        <input type="text" id="msg-in" placeholder="أصدر مرسومك...">
-        <button class="nav-btn" onclick="send()" style="padding:10px 25px;">إرسال</button>
+        <button class="nav-btn" onclick="toggleEmoji()">😊</button>
+        <button class="nav-btn" onclick="document.getElementById('img-up').click()">🖼️</button>
+        <input type="file" id="img-up" hidden accept="image/*" onchange="upImg(this)">
+        <input type="text" id="msg-in" placeholder="اكتب مرسومك...">
+        <button class="nav-btn" onclick="send()" style="padding:10px 20px;">إرسال</button>
     </footer>
 
     <script>
         const firebaseConfig = { databaseURL: "https://alloush-kingdom-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig); const db = firebase.database();
         let myS = { c: '#ffffff', a: '' };
+
         function updateS() { myS.c = document.getElementById('f-color').value; myS.a = document.getElementById('f-anim').value; }
         function toggleSide(id, side='right') { document.getElementById(id).classList.toggle(side==='right'?'open-right':'open-left'); }
         
+        // إعداد الإيموجيات
+        const emojis = ["😂","😍","👑","🔥","🌹","💎","⚔️","🤝","😎","👍","👎","❤️","✨","😂","🤔"];
+        const eBox = document.getElementById('emoji-box');
+        emojis.forEach(e => {
+            let s = document.createElement('span'); s.className='emoji-item'; s.innerText=e;
+            s.onclick = () => { document.getElementById('msg-in').value += e; toggleEmoji(); };
+            eBox.appendChild(s);
+        });
+        function toggleEmoji() { eBox.style.display = eBox.style.display === 'grid' ? 'none' : 'grid'; }
+
         function send() {
             const inp = document.getElementById('msg-in');
             if(inp.value.trim()) {
-                db.ref("messages").push().set({ u: "علوش", t: inp.value, s: myS, type: 'text', time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+                db.ref("messages").push().set({ u: "علوش", t: inp.value, s: {c: myS.c, a: myS.a}, type: 'text', time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
                 inp.value = "";
             }
         }
 
-        function uploadImg(input) {
+        function upImg(input) {
             const file = input.files[0];
             if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
+                const r = new FileReader(); r.onload = (e) => {
                     db.ref("messages").push().set({ u: "علوش", img: e.target.result, type: 'image', time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-                };
-                reader.readAsDataURL(file);
+                }; r.readAsDataURL(file);
             }
         }
 
@@ -90,7 +122,7 @@
             const d = snap.val(); const box = document.getElementById('messages');
             const div = document.createElement('div'); div.className = 'line';
             if(d.type === 'image') {
-                div.innerHTML = `<b style="color:var(--gold)">${d.u}:</b><br><img src="${d.img}" class="chat-img"><small style="color:#555">${d.time}</small>`;
+                div.innerHTML = `<b style="color:var(--gold)">${d.u}:</b><br><img src="${d.img}" class="chat-img">`;
             } else {
                 const s = d.s || {c:'#fff', a:''};
                 div.innerHTML = `<b style="color:var(--gold)">${d.u}:</b> <span class="${s.a}" style="color:${s.c}">${d.t}</span> <small style="float:left; color:rgba(255,255,255,0.2)">${d.time}</small>`;
@@ -98,9 +130,7 @@
             box.appendChild(div); box.scrollTop = box.scrollHeight;
         });
 
-        function clearDB() { if(confirm("مسح الشات؟")) db.ref("messages").remove(); location.reload(); }
-        function updateNews() { let n = prompt("الإعلان الجديد:"); if(n) { db.ref("news").set(n); } }
-        db.ref("news").on("value", (s) => { if(s.val()) document.getElementById('news-text').innerText = s.val(); });
+        function clearDB() { if(confirm("مسح؟")) db.ref("messages").remove(); location.reload(); }
         document.getElementById('msg-in').onkeypress = (e) => { if(e.key==='Enter') send(); };
     </script>
 </body>
