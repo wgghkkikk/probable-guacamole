@@ -1,25 +1,38 @@
-function renderMessage(d) {
-    const box = document.getElementById('messages');
-    const div = document.createElement('div');
-    div.className = 'line';
-    
-    // فحص إذا كان المرسل هو الملك علوش لإضافة التاج والاسم المشع
-    let kingBadge = "";
-    let nameClass = "";
-    
-    if (d.u === "علوش") {
-        kingBadge = " <span style='filter: drop-shadow(0 0 5px gold);'>👑</span> "; // التاج الذهبي
-        nameClass = "royal-name"; // كلاس الاسم المشع
-    }
+/* خلفية النجوم المتحركة */
+#star-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    overflow: hidden;
+    background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+}
 
-    const s = d.s || {c:'#fff', a:''};
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: twinkle var(--duration) infinite;
+}
 
-    if(d.type === 'image') {
-        div.innerHTML = `<b class="${nameClass}" style="color:var(--gold)">${kingBadge}${d.u}:</b><br><img src="${d.img}" style="max-width:250px; border-radius:15px; border:2px solid gold; margin-top:5px;">`;
-    } else {
-        div.innerHTML = `<b class="${nameClass}" style="color:var(--gold)">${kingBadge}${d.u}:</b> <span class="${s.a}" style="color:${s.c}">${d.t}</span> <small style="float:left; opacity:0.3">${d.time}</small>`;
-    }
-    
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* تأثير الشهب الساقطة */
+.shooting-star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: linear-gradient(to right, white, transparent);
+    animation: shoot 3s linear infinite;
+}
+
+@keyframes shoot {
+    0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
+    100% { transform: translateX(1000px) translateY(1000px) rotate(-45deg); opacity: 0; }
 }
