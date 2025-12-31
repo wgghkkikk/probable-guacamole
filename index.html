@@ -1,48 +1,35 @@
-<div id="alloush-mega-system" style="background: #000; border: 3px double gold; padding: 15px; border-radius: 15px; margin-top: 15px;">
-    <h3 style="color: #bc13fe; text-align: center; text-shadow: 0 0 10px #bc13fe;">⚔️ ساحة المبارزة وسجلات الزمن ⚔️</h3>
+<div id="king-cinema" style="background: #000; border: 2px solid gold; border-radius: 10px; margin-top: 15px; padding: 10px; text-align: center;">
+    <h4 style="color: gold; margin-bottom: 10px;">🎥 سينما المملكة (YouTube Sync)</h4>
     
-    <div style="display: flex; gap: 10px; justify-content: center;">
-        <button onclick="startDuel()" style="background: #8b0000; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px;">⚔️ بدء مبارزة</button>
-        
-        <button onclick="viewHistory()" style="background: #4b0082; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px;">⏳ سجلات الزمن</button>
-        
-        <button onclick="toggleAura()" id="aura-btn" style="background: #006400; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px;">🎵 الهالة الصوتية</button>
+    <div id="player-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #111; border-radius: 5px;">
+        <iframe id="video-frame" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="" frameborder="0" allowfullscreen></iframe>
     </div>
 
-    <div id="system-display" style="background: #111; color: #0f0; margin-top: 10px; padding: 10px; font-size: 13px; min-height: 40px; border-left: 3px solid gold;">
-        نظام: في انتظار أوامر الملك...
+    <div style="margin-top: 10px; display: flex; gap: 5px;">
+        <input type="text" id="video-url" placeholder="الصق رابط يوتيوب هنا..." style="flex-grow: 1; padding: 8px; background: #222; color: white; border: 1px solid #bc13fe;">
+        <button onclick="playVideo()" style="background: #ff0000; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 5px; font-weight: bold;">تشغيل</button>
     </div>
 </div>
 
 <script>
-// 1. ميزة المبارزة المباشرة (Live Gladiator Duel) - ميزة رقم 67
-function startDuel() {
-    let target = document.getElementById('target-user')?.value || "المتسلل";
-    document.getElementById('system-display').innerText = `⚔️ بدأت المبارزة بين الملك و ${target}! جاري تفعيل ساحة القتال...`;
-    document.body.style.animation = "shake 0.1s 10"; // اهتزاز عنيف للقتال
-}
+// ميزة تشغيل الفيديو المتزامن
+function playVideo() {
+    let urlInput = document.getElementById('video-url').value;
+    let frame = document.getElementById('video-frame');
+    
+    // استخراج ID الفيديو من الرابط
+    let videoId = "";
+    if (urlInput.includes("v=")) {
+        videoId = urlInput.split("v=")[1].substring(0, 11);
+    } else if (urlInput.includes("youtu.be/")) {
+        videoId = urlInput.split("youtu.be/")[1].substring(0, 11);
+    }
 
-// 2. ميزة سجلات الزمن (Time Travel Logs) - ميزة رقم 66
-function viewHistory() {
-    let history = ["- تم سحق 5 مشاغبين أمس", "- الملك علوش أضاف 70 ميزة", "- تم تأمين برغي الحماية"];
-    document.getElementById('system-display').innerText = "⏳ سجلات الماضي: " + history[Math.floor(Math.random()*history.length)];
-}
-
-// 3. ميزة الهالة الصوتية (Audio Aura) - ميزة رقم 64
-let auraActive = false;
-function toggleAura() {
-    auraActive = !auraActive;
-    let btn = document.getElementById('aura-btn');
-    if(auraActive) {
-        btn.innerText = "🎵 الهالة: تعمل";
-        document.getElementById('system-display').innerText = "🔊 يتم الآن تشغيل الموسيقى الملكية المحيطة...";
+    if (videoId) {
+        frame.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1";
+        document.getElementById('system-display').innerText = "🎬 الملك علوش بدأ عرضاً سينمائياً الآن!";
     } else {
-        btn.innerText = "🎵 الهالة: صامتة";
-        document.getElementById('system-display').innerText = "🔇 تم كتم الهالة الصوتية.";
+        alert("يا ملك، الرابط غير صحيح. تأكد من لصق رابط يوتيوب حقيقي.");
     }
 }
-
-// 4. ميزة الجذب المغناطيسي (Magnetic Chat) - ميزة رقم 65
-// هذه الميزة تجعل الرسائل "تنجذب" نحو رسائل الملك علوش دائماً
-console.log("🧲 تم تفعيل ميزة Magnetic Chat: رسائل الملك هي المركز دائماً.");
 </script>
