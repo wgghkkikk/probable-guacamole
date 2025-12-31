@@ -6,48 +6,67 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { background: #000; color: gold; font-family: sans-serif; text-align: center; margin: 0; overflow: hidden; }
-        #royal-header { background: linear-gradient(#d4af37, #8a6d3b); color: #000; padding: 10px; font-weight: bold; font-size: 22px; box-shadow: 0 0 15px gold; }
-        #chat-screen { height: 50vh; overflow-y: auto; background: rgba(0,0,0,0.95); border: 2px solid gold; margin: 15px auto; width: 90%; padding: 10px; border-radius: 15px; text-align: left; }
-        #video-system { position: absolute; top: 60px; right: 10px; width: 250px; background: #111; border: 2px solid gold; padding: 10px; border-radius: 12px; z-index: 1000; }
-        #player-frame { width: 100%; height: 160px; border-radius: 8px; border: 1px solid #444; background: #000; display: none; }
-        input { width: 85%; padding: 8px; margin-bottom: 5px; border-radius: 5px; border: 1px solid gold; background: #222; color: #fff; }
-        .royal-btn { background: gold; color: #000; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px; }
+        body { background: #000; color: gold; font-family: sans-serif; text-align: center; margin: 0; }
+        #royal-header { background: linear-gradient(#d4af37, #8a6d3b); color: #000; padding: 15px; font-weight: bold; font-size: 24px; box-shadow: 0 0 20px gold; }
+        #chat-screen { height: 45vh; overflow-y: auto; background: rgba(0,0,0,0.9); border: 2px solid gold; margin: 10px auto; width: 90%; padding: 10px; border-radius: 15px; text-align: left; }
+        #video-box { position: absolute; top: 70px; right: 10px; width: 260px; background: #111; border: 2px solid gold; padding: 10px; border-radius: 15px; z-index: 1000; }
+        #search-input { width: 85%; padding: 10px; margin-bottom: 5px; border-radius: 8px; border: 1px solid gold; background: #222; color: #fff; }
+        #player-frame { width: 100%; height: 180px; border-radius: 10px; border: 1px solid #444; display: none; }
+        .royal-btn { background: gold; color: #000; border: none; padding: 10px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div id="royal-header">👑 مملكة علوش: كاسر الحظر العالمي 👑</div>
+    <div id="royal-header">👑 مملكة علوش: التشغيل القسري 👑</div>
 
-    <div id="video-system">
-        <input id="video-query" type="text" placeholder="اكتب اسم الفيديو هنا...">
-        <button class="royal-btn" onclick="bypassPlay()">تشغيل داخل المملكة 🎬</button>
-        <iframe id="player-frame" src="" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+    <div id="video-box">
+        <input id="video-query" type="text" placeholder="اكتب اسم الأغنية...">
+        <button class="royal-btn" onclick="kingSearch()">بحث وتشغيل فوري 🎬</button>
+        <div id="loading" style="display:none; color:white; font-size:12px; margin:5px;">جارِ جلب الفيديو من يوتيوب...</div>
+        <iframe id="player-frame" src="" frameborder="0" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>
     </div>
 
     <div id="chat-screen"></div>
 
     <script>
-        // دالة كسر الحظر - تستخدم محرك بحث بديل يجلب فيديو يوتيوب
-        function bypassPlay() {
+        // دالة البحث والتشغيل باستخدام مفتاحك يا ملك
+        async function kingSearch() {
+            const apiKey = "AIzaSyD-x7j0-1vb8-pc55-gr75-336s"; // دمجنا مفتاحك هنا
             let query = document.getElementById('video-query').value;
             let player = document.getElementById('player-frame');
-            if(query) {
-                // نستخدم محرك duckduckgo للبحث عن الفيديو وتوليد Embed لا يمكن حظره
-                let searchUrl = "https://www.youtube.com/embed?listType=search&list=" + encodeURIComponent(query);
-                
-                // التعديل السحري: إضافة متغيرات تمنع يوتيوب من معرفة مصدر الطلب
-                player.src = searchUrl + "&origin=https://google.com&hl=ar&cc_load_policy=1";
+            let loader = document.getElementById('loading');
+
+            if(!query) return;
+            loader.style.display = "block";
+            player.style.display = "none";
+
+            try {
+                // خطوة 1: البحث عن الفيديو وجلب ID الخاص به
+                const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`);
+                const data = await response.json();
+
+                if(data.items && data.items.length > 0) {
+                    let videoId = data.items[0].id.videoId;
+                    // خطوة 2: تشغيل الفيديو برابط الـ Embed المباشر (أصعب على يوتيوب حظره)
+                    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&origin=https://wgghkkikk.github.io`;
+                    player.style.display = "block";
+                } else {
+                    alert("لم يتم العثور على نتائج!");
+                }
+            } catch (error) {
+                // إذا فشل الـ API، نستخدم الطريقة البديلة القصوى
+                player.src = "https://www.youtube.com/embed?listType=search&list=" + encodeURIComponent(query);
                 player.style.display = "block";
             }
+            loader.style.display = "none";
         }
 
-        // إعدادات Firebase البسيطة للشات
+        // إعدادات الشات (Firebase)
         const firebaseConfig = { databaseURL: "https://alloush-kingdom-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        db.ref("messages").on("child_added", (snapshot) => {
+        db.ref("messages").limitToLast(10).on("child_added", (snapshot) => {
             let data = snapshot.val();
             document.getElementById('chat-screen').innerHTML += `<div><b style="color:gold;">[${data.user}]:</b> ${data.text}</div>`;
             document.getElementById('chat-screen').scrollTop = document.getElementById('chat-screen').scrollHeight;
