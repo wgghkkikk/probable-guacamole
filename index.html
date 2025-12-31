@@ -1,15 +1,23 @@
-function activateLightning() {
-    let user = document.getElementById('target-user').value;
-    if(user == "") { alert("حدد الهدف يا ملك!"); return; }
+function sendMsg() {
+    let input = document.getElementById('chat-input');
+    let screen = document.getElementById('chat-screen');
     
-    // 1. إرسال رسالة الصاعقة لكل الشات
-    alert("⚡ صاعقة الملك علوش تضرب " + user + " وتطرده خارج المملكة!");
-    
-    // 2. كود الحظر الفعلي (يمنع المتصفح من الكتابة)
-    localStorage.setItem("banned_" + user, "true"); 
-    
-    // 3. مسح ساحة الدردشة عند الشخص المطرود
-    document.getElementById('messages-box').innerHTML = "<h1 style='color:red;'>لقد طردك الملك علوش! لا يمكنك الدخول مجدداً.</h1>";
-    
-    console.log("تم سحق " + user + " ومنعه من الكتابة.");
+    if(input.value.trim() !== "") {
+        // إضافة التاج الذهبي للملك علوش
+        let crown = "<span style='color: gold;'>👑 مـلـك المـمـلـكـة</span>";
+        let time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        screen.innerHTML += `
+            <div class="msg" style="border-right: 3px solid #bc13fe; padding-right: 10px;">
+                <span style="font-size: 10px; color: gray;">[${time}]</span> 
+                ${crown} <strong style="color: #bc13fe;">علوش:</strong> 
+                <span style="color: #fff;">${input.value}</span>
+            </div>`;
+            
+        input.value = "";
+        screen.scrollTop = screen.scrollHeight;
+        
+        // تفعيل ميزة الكارما تلقائياً مع كل رسالة
+        updateKarma(1); 
+    }
 }
