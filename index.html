@@ -1,6 +1,16 @@
-function updateRoyalClock() {
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-GB'); // توقيت المملكة الرسمي
-    document.getElementById('royal-clock').innerText = "🕒 " + timeStr;
-}
-setInterval(updateRoyalClock, 1000);
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>مملكة علوش الملكية</title>
+    <style>
+        :root { --gold: #ffd700; --royal-red: #8b0000; }
+        body { margin: 0; background: #000; color: white; font-family: 'Arial', sans-serif; overflow: hidden; }
+
+        /* 1. الخلفية الفضائية والنجوم */
+        #star-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--duration) infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+
+        /* 2. الساعة الملكية الذهبية */
+        #royal-clock { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); color
