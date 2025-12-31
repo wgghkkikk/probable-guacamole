@@ -1,40 +1,41 @@
-<div id="alloush-control-panel" style="background: #1a1a1a; color: gold; padding: 15px; border: 2px solid gold; border-radius: 10px; text-align: center;">
-    <h3>👑 لوحة تحكم ملك علوش 👑</h3>
-    <input type="text" id="target-user" placeholder="اسم المشاغب هنا..." style="padding: 5px; border-radius: 5px;">
-    <br><br>
-    <button onclick="activateLightning()" style="background: red; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; font-weight: bold;">⚡ إطلاق الصاعقة</button>
-    <button onclick="activateEarthquake()" style="background: orange; color: black; border: none; padding: 10px; cursor: pointer; border-radius: 5px; font-weight: bold;">🫨 زلزال الشاشة</button>
+<div id="alloush-advanced-system" style="background: #111; color: #bc13fe; padding: 15px; border: 2px solid #bc13fe; border-radius: 10px; margin-top: 10px; font-family: 'Tahoma';">
+    <h3 style="text-shadow: 0 0 10px #bc13fe;">🛡️ نظام الرتب والرادار الملكي</h3>
+    
+    <div id="rank-display" style="font-weight: bold; margin-bottom: 10px;">
+        رتبتك الحالية: <span style="color: gold;">👑 مـلـك المـمـلـكـة</span>
+    </div>
+
+    <div id="radar-box" style="background: #000; border: 1px solid #333; padding: 5px; height: 60px; overflow-y: auto; font-size: 12px; color: #0f0;">
+        📡 الرادار: جاري مراقبة المتسللين...
+    </div>
+
+    <br>
+    <button onclick="toggleGhost()" id="ghost-btn" style="background: gray; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">👻 وضع الاختفاء: معطل</button>
+    <button onclick="scanShells()" style="background: #0056b3; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🔍 فحص الشلات</button>
 </div>
 
 <script>
-// 1. ميزة الصاعقة (طرد مع مسح الرسائل)
-function activateLightning() {
-    let user = document.getElementById('target-user').value;
-    if(user == "") { alert("حدد الهدف يا ملك!"); return; }
-    
-    alert("⚡ صاعقة الملك علوش تضرب " + user + " الآن!");
-    // هنا الكود البرمجي لمسح رسائله وحظره فوراً
-    console.log("تم سحق " + user + " بنجاح.");
+// ميزة وضع الاختفاء (Invisible Ink / Ghost Mode)
+let isGhost = false;
+function toggleGhost() {
+    isGhost = !isGhost;
+    let btn = document.getElementById('ghost-btn');
+    if(isGhost) {
+        btn.innerText = "👻 وضع الاختفاء: مفعل";
+        btn.style.background = "#bc13fe";
+        alert("تم تفعيل وضع الاختفاء.. أنت الآن روح المملكة!");
+    } else {
+        btn.innerText = "👻 وضع الاختفاء: معطل";
+        btn.style.background = "gray";
+    }
 }
 
-// 2. ميزة الزلزال (تعليق المتصفح للمشاغب)
-function activateEarthquake() {
-    let user = document.getElementById('target-user').value;
-    alert("🫨 جارٍ تدوير رأس " + user + " بزلزال المملكة!");
-    
-    // هذا الكود يجعل شاشة الهدف تهتز (برمجياً)
-    let body = document.body;
-    body.style.animation = "shake 0.5s infinite";
+// ميزة رادار كشف الشلات والتهديدات
+function scanShells() {
+    let radar = document.getElementById('radar-box');
+    radar.innerHTML += "<br>⚠️ جاري فحص الثغرات...";
+    setTimeout(() => {
+        radar.innerHTML += "<br>✅ تم تأمين برغي الحماية.. لا يوجد شلات!";
+    }, 1500);
 }
 </script>
-
-<style>
-/* تأثير الزلزال الملكي */
-@keyframes shake {
-  0% { transform: translate(1px, 1px) rotate(0deg); }
-  10% { transform: translate(-1px, -2px) rotate(-1deg); }
-  30% { transform: translate(3px, 2px) rotate(0deg); }
-  50% { transform: translate(-1px, 2px) rotate(1deg); }
-  100% { transform: translate(1px, -2px) rotate(-1deg); }
-}
-</style>
