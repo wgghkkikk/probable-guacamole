@@ -6,98 +6,66 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { background: radial-gradient(circle, #1a1a1a, #000); color: gold; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; overflow: hidden; }
-        #royal-header { background: linear-gradient(to bottom, #d4af37, #8a6d3b); color: #000; padding: 12px; font-weight: bold; font-size: 26px; box-shadow: 0 0 20px gold; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
-        #stats-bar { display: flex; justify-content: space-around; background: rgba(255,215,0,0.1); padding: 8px; border-bottom: 2px solid gold; font-size: 14px; }
-        #chat-screen { height: 50vh; overflow-y: auto; background: rgba(0,0,0,0.9); border: 3px double gold; margin: 20px auto; width: 90%; padding: 15px; border-radius: 20px; text-align: left; box-shadow: inset 0 0 20px gold; }
-        .msg { margin-bottom: 12px; border-bottom: 1px dashed #444; padding: 8px; animation: slideIn 0.3s ease-out; }
-        .king-style { color: gold; font-weight: bold; text-shadow: 0 0 10px gold; font-size: 1.1em; }
-        #youtube-search-box { position: absolute; top: 80px; right: 20px; width: 250px; background: rgba(0,0,0,0.95); border: 2px solid gold; padding: 12px; border-radius: 15px; z-index: 1000; box-shadow: 0 0 15px gold; }
-        #search-query { width: 88%; padding: 10px; margin-bottom: 10px; border-radius: 10px; background: #111; color: #fff; border: 1px solid gold; outline: none; }
-        #youtube-player { width: 100%; height: 170px; border-radius: 10px; margin-top: 10px; border: 1px solid #555; }
-        #input-area { position: fixed; bottom: 25px; width: 100%; display: flex; justify-content: center; gap: 15px; }
-        input#chat-input { width: 65%; padding: 15px; border-radius: 35px; border: 2px solid gold; background: #111; color: #fff; outline: none; font-size: 16px; }
-        .royal-btn { padding: 12px 30px; border-radius: 35px; background: gold; color: #000; font-weight: bold; cursor: pointer; border: none; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .royal-btn:hover { background: #fff; transform: scale(1.08); box-shadow: 0 0 15px gold; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        body { background: #000; color: gold; font-family: sans-serif; text-align: center; margin: 0; }
+        #royal-header { background: linear-gradient(gold, #8a6d3b); color: #000; padding: 15px; font-weight: bold; font-size: 24px; box-shadow: 0 0 15px gold; }
+        #chat-screen { height: 50vh; overflow-y: auto; background: rgba(0,0,0,0.9); border: 2px solid gold; margin: 10px auto; width: 90%; padding: 10px; border-radius: 15px; text-align: left; }
+        #search-box { position: fixed; top: 70px; right: 10px; width: 220px; background: #111; border: 2px solid gold; padding: 10px; border-radius: 10px; z-index: 100; }
+        iframe { width: 100%; height: 150px; border-radius: 8px; margin-top: 5px; }
+        #input-area { position: fixed; bottom: 10px; width: 100%; }
+        input { padding: 10px; border-radius: 20px; border: 1px solid gold; background: #222; color: #fff; width: 60%; }
+        button { padding: 10px 20px; border-radius: 20px; background: gold; color: #000; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="royal-header">👑 مملكة علوش: محرك البحث الأسطوري 👑</div>
-    
-    <div id="stats-bar">
-        <span>الزوار الآن: <b id="visitor-count">2</b></span>
-        <span>الحماية الملكية: <b style="color: lime;">نظام Gladiator مفعل ✅</b></span>
-    </div>
+    <div id="royal-header">👑 مملكة علوش: محرك التشغيل الفوري 👑</div>
 
-    <div id="youtube-search-box">
-        <input id="search-query" type="text" placeholder="ماذا تريد أن تسمع يا ملك؟">
-        <button class="royal-btn" onclick="searchYoutube()" style="width:100%; padding:10px;">بحث ملكي 🔍</button>
-        <iframe id="youtube-player" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div id="search-box">
+        <input id="video-name" type="text" placeholder="اكتب اسم الأغنية/الفيديو..." style="width: 90%; margin-bottom: 5px;">
+        <button onclick="forcePlay()" style="width: 100%;">تشغيل فوري 🎬</button>
+        <div id="player-area"></div>
     </div>
 
     <div id="chat-screen"></div>
-    
+
     <div id="input-area">
-        <input id="chat-input" type="text" placeholder="اكتب مرسومك الملكي هنا...">
-        <button class="royal-btn" onclick="sendMsg()">إرسال ✨</button>
+        <input id="chat-msg" type="text" placeholder="اكتب مرسومك الملكي...">
+        <button onclick="sendMsg()">إرسال ✨</button>
     </div>
 
     <script>
+        // ربط السيرفر
         const firebaseConfig = { databaseURL: "https://alloush-kingdom-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- وظيفة البحث باستخدام مفتاحك الذي أرسلته ---
-        async function searchYoutube() {
-            const apiKey = "x7j0-1vb8-pc55-gr75-336s"; // مفتاحك الملكي مدمج هنا
-            let query = document.getElementById('search-query').value;
-            if(!query) return;
-
-            try {
-                const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`);
-                const data = await response.json();
-                if(data.items && data.items.length > 0) {
-                    let videoId = data.items[0].id.videoId;
-                    document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-                } else {
-                    // إذا لم تظهر نتائج، نستخدم طريقة البحث البديلة لضمان التشغيل
-                    document.getElementById('youtube-player').src = "https://www.youtube.com/embed?listType=search&list=" + encodeURIComponent(query) + "&autoplay=1";
-                }
-            } catch (error) {
-                // في حالة وجود قيود على المفتاح، ننتقل للبحث العام تلقائياً
-                document.getElementById('youtube-player').src = "https://www.youtube.com/embed?listType=search&list=" + encodeURIComponent(query) + "&autoplay=1";
+        // حل مشكلة "غير متوفر" - تشغيل عبر محرك بحث يوتيوب المباشر
+        function forcePlay() {
+            let name = document.getElementById('video-name').value;
+            if(name) {
+                let embedUrl = "https://www.youtube.com/embed?listType=search&list=" + encodeURIComponent(name);
+                document.getElementById('player-area').innerHTML = `<iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
             }
         }
 
         function sendMsg() {
-            let input = document.getElementById('chat-input');
+            let msg = document.getElementById('chat-msg');
             let isKing = localStorage.getItem("is_king") === "true";
-            if(input.value.trim() !== "") {
+            if(msg.value.trim() !== "") {
                 db.ref("messages").push().set({
                     user: isKing ? "👑 علوش" : "زائر",
-                    text: input.value,
-                    rank: isKing ? "ملك المملكة" : "مواطن",
-                    isKing: isKing
+                    text: msg.value,
+                    rank: isKing ? "ملك المملكة" : "مواطن"
                 });
-                input.value = "";
+                msg.value = "";
             }
         }
 
         db.ref("messages").on("child_added", (snapshot) => {
-            let msg = snapshot.val();
-            let style = msg.isKing ? 'king-style' : 'color:white;';
-            document.getElementById('chat-screen').innerHTML += `
-                <div class="msg">
-                    <span class="${style}">[${msg.rank}] ${msg.user}:</span> ${msg.text}
-                </div>`;
+            let data = snapshot.val();
+            document.getElementById('chat-screen').innerHTML += `<div><b>[${data.rank}] ${data.user}:</b> ${data.text}</div>`;
             document.getElementById('chat-screen').scrollTop = document.getElementById('chat-screen').scrollHeight;
         });
-
-        setInterval(() => {
-            document.getElementById('visitor-count').innerText = Math.floor(Math.random() * 3) + 2;
-        }, 10000);
     </script>
 </body>
 </html>
