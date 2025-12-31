@@ -6,42 +6,32 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { background: radial-gradient(circle, #1a1a1a, #000); color: gold; font-family: sans-serif; text-align: center; margin: 0; overflow: hidden; }
-        #royal-header { background: linear-gradient(to bottom, #d4af37, #8a6d3b); color: #000; padding: 12px; font-weight: bold; font-size: 24px; box-shadow: 0 0 20px gold; }
-        #stats-bar { display: flex; justify-content: space-around; background: rgba(255,215,0,0.1); padding: 8px; border-bottom: 2px solid gold; font-size: 14px; }
-        #chat-screen { height: 50vh; overflow-y: auto; background: rgba(0,0,0,0.85); border: 3px double gold; margin: 20px auto; width: 90%; padding: 15px; border-radius: 15px; text-align: left; box-shadow: inset 0 0 15px gold; }
-        .msg { margin-bottom: 12px; border-bottom: 1px dashed #444; padding: 5px; }
-        .king-style { color: gold; font-weight: bold; text-shadow: 0 0 8px gold; }
-        
-        /* صندوق اليوتيوب الداخلي */
-        #youtube-container { position: absolute; top: 70px; right: 20px; width: 250px; background: rgba(0,0,0,0.9); border: 2px solid gold; padding: 10px; border-radius: 12px; z-index: 1000; }
-        #search-input { width: 85%; padding: 8px; margin-bottom: 8px; border-radius: 8px; background: #111; color: #fff; border: 1px solid gold; }
-        #player-frame { width: 100%; height: 160px; border-radius: 8px; border: 1px solid #555; display: none; }
-        
-        #input-area { position: fixed; bottom: 20px; width: 100%; display: flex; justify-content: center; gap: 10px; }
-        input#chat-input { width: 60%; padding: 14px; border-radius: 30px; border: 2px solid gold; background: #111; color: #fff; outline: none; }
-        .royal-btn { padding: 10px 20px; border-radius: 30px; background: gold; color: #000; font-weight: bold; cursor: pointer; border: none; }
+        body { background: #000; color: gold; font-family: sans-serif; text-align: center; margin: 0; overflow: hidden; }
+        #royal-header { background: linear-gradient(#d4af37, #8a6d3b); color: #000; padding: 10px; font-weight: bold; font-size: 22px; }
+        #chat-screen { height: 50vh; overflow-y: auto; background: rgba(0,0,0,0.9); border: 2px solid gold; margin: 15px auto; width: 90%; padding: 10px; border-radius: 15px; text-align: left; }
+        #video-box { position: absolute; top: 60px; right: 10px; width: 240px; background: #111; border: 2px solid gold; padding: 10px; border-radius: 12px; z-index: 1000; }
+        #player-frame { width: 100%; height: 150px; border-radius: 8px; border: 1px solid #444; background: #000; }
+        #search-input { width: 85%; padding: 8px; margin-bottom: 5px; border-radius: 5px; border: 1px solid gold; background: #222; color: #fff; }
+        #input-area { position: fixed; bottom: 15px; width: 100%; }
+        .royal-btn { background: gold; color: #000; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="royal-header">👑 مملكة علوش: التشغيل الداخلي 👑</div>
-    
-    <div id="stats-bar">
-        <span>الزوار الآن: <b id="visitor-count">2</b></span>
-        <span>الحماية: <b style="color: lime;">مفعلة ✅</b></span>
-    </div>
+    <div id="royal-header">👑 مملكة علوش: إصدار التحدي النهائي 👑</div>
 
-    <div id="youtube-container">
-        <input id="search-query" type="text" placeholder="ابحث بالاسم هنا...">
-        <button class="royal-btn" onclick="playInside()" style="width:100%; margin-top:5px;">تشغيل داخل المملكة 🎬</button>
-        <iframe id="player-frame" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div id="video-box">
+        <input id="video-query" type="text" placeholder="اكتب اسم الفيديو...">
+        <button class="royal-btn" onclick="playNow()" style="width:100%; margin-top:5px;">تشغيل داخلي 🎬</button>
+        <div id="player-container" style="margin-top:10px;">
+             <div id="placeholder" style="color:#555; font-size:12px; padding:20px;">الفيديو سيظهر هنا</div>
+        </div>
     </div>
 
     <div id="chat-screen"></div>
-    
+
     <div id="input-area">
-        <input id="chat-input" type="text" placeholder="اكتب مرسومك الملكي...">
+        <input id="chat-input" type="text" placeholder="اكتب رسالتك...">
         <button class="royal-btn" onclick="sendMsg()">إرسال ✨</button>
     </div>
 
@@ -50,38 +40,29 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // وظيفة التشغيل "داخل" الصفحة
-        function playInside() {
-            let query = document.getElementById('search-query').value;
-            let player = document.getElementById('player-frame');
+        function playNow() {
+            let query = document.getElementById('video-query').value;
             if(query) {
-                // استخدام رابط الـ search الخاص بالـ Embed
-                player.src = "https://www.youtube.com/embed?listType=search&list=" + encodeURIComponent(query) + "&autoplay=1";
-                player.style.display = "block";
+                // تقنية الـ "no-cookie" لتجاوز قيود يوتيوب الجغرافية والتقنية
+                let cleanQuery = encodeURIComponent(query);
+                let embedUrl = `https://www.youtube-nocookie.com/embed?listType=search&list=${cleanQuery}&autoplay=1`;
+                
+                document.getElementById('player-container').innerHTML = 
+                    `<iframe id="player-frame" src="${embedUrl}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
             }
         }
 
         function sendMsg() {
             let input = document.getElementById('chat-input');
-            let isKing = localStorage.getItem("is_king") === "true";
             if(input.value.trim() !== "") {
-                db.ref("messages").push().set({
-                    user: isKing ? "👑 علوش" : "زائر",
-                    text: input.value,
-                    rank: isKing ? "ملك المملكة" : "مواطن",
-                    isKing: isKing
-                });
+                db.ref("messages").push().set({ user: "علوش", text: input.value, rank: "ملك" });
                 input.value = "";
             }
         }
 
         db.ref("messages").on("child_added", (snapshot) => {
-            let msg = snapshot.val();
-            let style = msg.isKing ? 'king-style' : 'color:white;';
-            document.getElementById('chat-screen').innerHTML += `
-                <div class="msg">
-                    <span class="${style}">[${msg.rank}] ${msg.user}:</span> ${msg.text}
-                </div>`;
+            let data = snapshot.val();
+            document.getElementById('chat-screen').innerHTML += `<div><b>[${data.rank}] ${data.user}:</b> ${data.text}</div>`;
             document.getElementById('chat-screen').scrollTop = document.getElementById('chat-screen').scrollHeight;
         });
     </script>
