@@ -1,51 +1,2 @@
-<div id="king-final-layer" style="background: #050505; border: 2px solid #bc13fe; border-radius: 15px; margin-top: 20px; padding: 15px; box-shadow: 0 0 20px rgba(188, 19, 254, 0.5);">
-    
-    <div id="poll-system" style="border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px;">
-        <h5 style="color: gold; margin: 0 0 10px 0;">📊 استفتاء المملكة</h5>
-        <div id="poll-question" style="font-size: 14px; margin-bottom: 10px;">هل مملكة علوش هي الأقوى؟</div>
-        <button onclick="vote('yes')" style="background: #28a745; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">نعم</button>
-        <button onclick="vote('no')" style="background: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">لا</button>
-        <div id="poll-results" style="font-size: 12px; margin-top: 5px; color: #888;">الأصوات: نعم (100%) | لا (0%)</div>
-    </div>
-
-    <div id="guard-bot" style="display: flex; align-items: center; gap: 10px; background: #111; padding: 10px; border-radius: 10px;">
-        <div style="font-size: 24px;">🤖</div>
-        <div style="font-size: 13px;">
-            <strong style="color: #bc13fe;">مساعد الملك:</strong> 
-            <span id="bot-status">أهلاً بك يا جلالة الملك، الدرع الملكي مفعل 100% ضد النسخ والتخريب.</span>
-        </div>
-    </div>
-</div>
-
-<script>
-// تفعيل نظام التصويت
-function vote(type) {
-    if(type === 'yes') {
-        alert("👑 الملك دائماً على حق! تم تسجيل صوتك.");
-    } else {
-        alert("🚫 عذراً، هذا الخيار غير متاح في قوانين المملكة!");
-    }
-}
-
-// ميزة الدرع الملكي (المنع من النسخ أو فحص الكود)
-document.addEventListener('contextmenu', event => {
-    event.preventDefault();
-    document.getElementById('bot-status').innerText = "⚠️ محاولة تخريب! الدرع الملكي تصدى لمحاولة ضغط كليك يمين.";
-});
-
-document.onkeydown = function(e) {
-    if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0))) {
-        document.getElementById('bot-status').innerText = "🚫 محاولة دخول للكود! الملك علوش يمنعك من التجسس.";
-        return false;
-    }
-}
-
-// رسالة الترحيب الآلية لكل الميزات
-window.addEventListener('load', () => {
-    console.log("🔥 تفعيل الـ 70 ميزة أسطورية لـ 'مملكة علوش' اكتمل بنجاح.");
-    setTimeout(() => {
-        let box = document.getElementById('messages-box');
-        box.innerHTML += `<p style="color: gold; text-align: center; border: 1px solid gold; padding: 5px;">📜 تم تفعيل الدستور الملكي للـ 70 ميزة.. المملكة الآن في قمتها!</p>`;
-    }, 3000);
-});
-</script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
