@@ -2,81 +2,87 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>👑 مملكة علوش | نظام القوائم الذكي</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 إدارة مملكة علوش المطلقة</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --gold: #d4af37; --bg: #0a0a0a; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        :root { --king-gold: #d4af37; --bg: #000; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* الهيدر العلوي مع الأزرار */
+        /* شريط التحكم العلوي */
         header { 
-            background: #111; padding: 10px 15px; display: flex; justify-content: space-between; 
-            align-items: center; border-bottom: 2px solid var(--gold); z-index: 1000;
+            background: #111; padding: 12px 20px; display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 2px solid var(--king-gold); box-shadow: 0 2px 15px rgba(212, 175, 55, 0.2);
         }
-        .toggle-btn { background: var(--gold); border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .nav-btn { background: transparent; border: 1px solid var(--king-gold); color: var(--king-gold); padding: 8px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .nav-btn:hover { background: var(--king-gold); color: black; }
 
-        /* منطقة العمل الرئيسية */
-        #main-wrapper { display: flex; flex: 1; position: relative; overflow: hidden; }
+        #main-content { flex: 1; display: flex; position: relative; }
 
-        /* القوائم الجانبية (مخفية افتراضياً) */
-        .sidebar { 
-            position: absolute; top: 0; width: 240px; height: 100%; 
-            background: #151515; transition: 0.4s ease; z-index: 500; border: 1px solid #333; 
+        /* اللوحات الجانبية المتحركة */
+        .side-panel { 
+            position: absolute; top: 0; width: 260px; height: 100%; 
+            background: #111; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 1000; border: 1px solid #222; 
         }
-        #users-list { right: -250px; border-left: 2px solid var(--gold); } /* قائمة المتصلين يميناً */
-        #admin-tools { left: -250px; border-right: 2px solid var(--gold); } /* الإدارة يساراً */
+        #left-admin { right: -265px; border-left: 2px solid var(--king-gold); } /* لوحة التحكم */
+        #right-users { left: -265px; border-right: 2px solid var(--king-gold); } /* قائمة المتصلين */
 
-        /* الحالة عند الفتح */
-        .sidebar.open-right { right: 0 !important; }
-        .sidebar.open-left { left: 0 !important; }
+        /* فئة التفعيل */
+        .panel-open { transform: translateX(0); }
+        #left-admin.panel-open { transform: translateX(-265px); }
+        #right-users.panel-open { transform: translateX(265px); }
 
-        /* منطقة الشات */
-        #chat-window { flex: 1; display: flex; flex-direction: column; background: #000; transition: 0.4s; }
+        /* منطقة الدردشة */
+        #chat-area { flex: 1; display: flex; flex-direction: column; background: #080808; z-index: 100; }
+        #msg-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
 
-        #messages { flex: 1; overflow-y: auto; padding: 15px; }
-        .line { border-bottom: 1px solid #222; padding: 8px 0; font-size: 14px; animation: fadeIn 0.3s; }
-        
-        /* شريط الإرسال */
-        footer { background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid var(--gold); }
-        input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #444; background: #000; color: #fff; outline: none; }
-        .send-btn { background: var(--gold); border: none; padding: 0 25px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        /* سطر الدردشة */
+        .chat-line { border-bottom: 1px solid #1a1a1a; padding: 8px 0; font-size: 15px; }
+        .king-label { color: var(--king-gold); font-weight: bold; }
+        .time-label { color: #444; font-size: 11px; margin-right: 10px; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* منطقة الإرسال السفلي */
+        footer { padding: 15px 25px; background: #111; display: flex; gap: 12px; border-top: 2px solid #222; }
+        #user-input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; outline: none; font-size: 16px; }
+        .send-btn { background: var(--king-gold); color: black; border: none; padding: 0 35px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <header>
-        <button class="toggle-btn" onclick="toggleSide('admin-tools', 'open-left')">⚙️ الإدارة</button>
-        <div style="font-weight: bold; color: var(--gold);">👑 مـمـلـكـة عـلـوش</div>
-        <button class="toggle-btn" onclick="toggleSide('users-list', 'open-right')">👥 المتصلون</button>
+        <button class="nav-btn" onclick="togglePanel('left-admin')">⚙️ الإدارة</button>
+        <div style="font-size: 22px; font-weight: bold; letter-spacing: 2px;">👑 مـمـلـكـة عـلـوش</div>
+        <button class="nav-btn" onclick="togglePanel('right-users')">👥 المتصلون</button>
     </header>
 
-    <div id="main-wrapper">
-        <div id="admin-tools" class="sidebar">
-            <div style="padding:20px;">
-                <h3 style="color:var(--gold); border-bottom: 1px solid #333;">⚙️ تحكم الملك</h3>
-                <button onclick="clearChat()" style="width:100%; padding:10px; background:red; color:white; border:none; margin-top:10px; cursor:pointer;">🧹 مسح الشات</button>
-                <button onclick="changeName()" style="width:100%; padding:10px; background:#444; color:white; border:none; margin-top:10px; cursor:pointer;">✏️ تغيير اسمي</button>
+    <div id="main-content">
+        <div id="left-admin" class="side-panel">
+            <div style="padding: 25px;">
+                <h3 style="color: var(--king-gold);">🛠️ مركز التحكم</h3>
+                <hr style="border: 0.5px solid #333;">
+                <button class="nav-btn" style="width: 100%; margin-top: 15px;" onclick="clearDatabase()">🧹 تصفير السيرفر</button>
+                <button class="nav-btn" style="width: 100%; margin-top: 15px;" onclick="changeKingProfile()">👤 تعديل بروفايلي</button>
+                <p style="font-size: 12px; color: #666; margin-top: 20px;">أنت الآن تتحكم بكل شيء يا علوش.</p>
             </div>
         </div>
 
-        <div id="chat-window">
-            <div id="messages"></div>
+        <div id="chat-area">
+            <div id="msg-container"></div>
         </div>
 
-        <div id="users-list" class="sidebar">
-            <div style="padding:20px;">
-                <h3 style="color:var(--gold); border-bottom: 1px solid #333;">👥 المتواجدون</h3>
-                <div style="margin-top:10px;">🟢 الملك علوش</div>
+        <div id="right-users" class="side-panel">
+            <div style="padding: 25px;">
+                <h3 style="color: var(--king-gold);">👥 فرسان المملكة</h3>
+                <div style="margin-top: 15px;">🟢 الملك علوش (أونلاين)</div>
             </div>
         </div>
     </div>
 
     <footer>
-        <input type="text" id="msg-input" placeholder="اكتب مرسومك الملكي...">
-        <button class="send-btn" onclick="send()">إرسال</button>
+        <input type="text" id="user-input" placeholder="اكتب مرسومك الملكي يا ملك...">
+        <button class="send-btn" onclick="sendMessage()">إرسال</button>
     </footer>
 
     <script>
@@ -84,38 +90,41 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // دالة فتح وإغلاق القوائم
-        function toggleSide(id, className) {
-            document.getElementById(id).classList.toggle(className);
+        // نظام فتح القوائم
+        function togglePanel(id) {
+            const panel = document.getElementById(id);
+            panel.classList.toggle('panel-open');
         }
 
-        function send() {
-            const inp = document.getElementById('msg-input');
-            const myName = localStorage.getItem('kingName') || "علوش";
-            if(inp.value.trim()) {
+        // إرسال الرسائل
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            if(input.value.trim() !== "") {
                 db.ref("messages").push().set({
-                    user: myName,
-                    text: inp.value,
-                    time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+                    user: "علوش",
+                    text: input.value,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                 });
-                inp.value = "";
+                input.value = "";
             }
         }
 
-        db.ref("messages").limitToLast(40).on("child_added", (snap) => {
-            const data = snap.val();
-            const msgBox = document.getElementById('messages');
-            const line = document.createElement('div');
-            line.className = 'line';
-            line.innerHTML = `<b style="color:var(--gold)">${data.user}:</b> <span style="color:#ddd">${data.text}</span> <small style="color:#555; float:left;">${data.time}</small>`;
-            msgBox.appendChild(line);
-            msgBox.scrollTop = msgBox.scrollHeight;
+        // استقبال الرسائل
+        db.ref("messages").limitToLast(50).on("child_added", (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('msg-container');
+            const div = document.createElement('div');
+            div.className = 'chat-line';
+            div.innerHTML = `<span class="king-label">[الملك] ${data.user}:</span> <span style="color:#ddd">${data.text}</span> <span class="time-label">${data.time}</span>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         });
 
-        function clearChat() { if(confirm("مسح الكل؟")) db.ref("messages").remove(); location.reload(); }
-        function changeName() { let n = prompt("اسمك الجديد:"); if(n) localStorage.setItem('kingName', n); }
+        // أوامر الملك
+        function clearDatabase() { if(confirm("هل تريد طرد جميع الأرواح ومسح الشات؟")) db.ref("messages").remove(); location.reload(); }
+        function changeKingProfile() { alert("ميزة تعديل البروفايل تحت يدك الآن."); }
 
-        document.getElementById('msg-input').onkeypress = (e) => { if(e.key === 'Enter') send(); };
+        document.getElementById('user-input').onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
     </script>
 </body>
 </html>
