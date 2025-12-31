@@ -1,35 +1,33 @@
-// دالة التحكم التلقائي عند الكتابة
-const msgInput = document.getElementById('msg-in');
+/* بصمة الملك خلف الرسالة */
+.royal-carpet::before {
+    content: "علوش";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 40px;
+    opacity: 0.1;
+    color: gold;
+    pointer-events: none;
+    font-family: 'Amiri', serif;
+}
 
-msgInput.addEventListener('input', function() {
-    const usersPanel = document.getElementById('users-panel');
-    const settingsPanel = document.getElementById('settings-panel');
-    const chatContainer = document.getElementById('chat-container');
+/* توهج الأجنحة النيوني */
+.side-panel {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.3);
+}
 
-    if (this.value.length > 0) {
-        // إخفاء الأجنحة وتوسيع الشات عند البدء بالكتابة
-        usersPanel.classList.add('panel-hidden');
-        settingsPanel.classList.add('panel-hidden');
-        chatContainer.style.margin = "0 20px"; 
-    } else {
-        // إعادة الأجنحة عند مسح النص
-        usersPanel.classList.remove('panel-hidden');
-        settingsPanel.classList.remove('panel-hidden');
-        chatContainer.style.margin = "0 240px";
-    }
-});
-
-// تعديل دالة الإرسال لإعادة الوضع الطبيعي
-function send() {
-    const inp = document.getElementById('msg-in');
-    if(inp.value.trim()) {
-        renderMessage({u: "علوش", t: "꧁ " + inp.value + " ꧂"});
-        triggerRoyalEffects(); // تأثيرات الزلزال والبرق
-        
-        // إعادة الأجنحة بعد الإرسال
-        inp.value = "";
-        document.getElementById('users-panel').classList.remove('panel-hidden');
-        document.getElementById('settings-panel').classList.remove('panel-hidden');
-        document.getElementById('chat-container').style.margin = "0 240px";
-    }
+/* إشعار الدخول الملكي */
+#king-alert {
+    position: fixed;
+    top: -100px;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, gold, transparent);
+    color: black;
+    text-align: center;
+    padding: 15px;
+    font-weight: bold;
+    z-index: 5000;
+    transition: 0.8s;
 }
