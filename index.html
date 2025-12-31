@@ -1,27 +1,21 @@
 
-<div id="chat-area" style="background: #000; border: 2px solid #bc13fe; border-radius: 10px; margin-top: 20px; padding: 10px; flex-grow: 1; display: flex; flex-direction: column;">
-    <h4 style="color: #bc13fe; border-bottom: 1px solid #333; padding-bottom: 5px;">💬 ساحة الدردشة العامة</h4>
-    
-    <div id="messages-box" style="flex-grow: 1; overflow-y: auto; color: #eee; font-size: 14px; margin-bottom: 10px; min-height: 200px;">
-        <p style="color: gold;">📢 نظام: أهلاً بكم في مملكة علوش الرسمية!</p>
-    </div>
-
-    <div style="display: flex; gap: 5px;">
-        <input type="text" id="msg-input" placeholder="اكتب رسالتك هنا..." style="flex-grow: 1; background: #222; color: white; border: 1px solid #bc13fe; padding: 10px; border-radius: 5px;">
-        <button onclick="sendMessage()" style="background: #bc13fe; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">إرسال</button>
-    </div>
+<div style="background: #111; padding: 10px; border: 1px dashed #bc13fe; margin-bottom: 5px; display: flex; justify-content: space-between;">
+    <span style="color: #bc13fe;">👥 المتواجدون الآن: <span id="user-count" style="color: gold;">1</span></span>
+    <span style="color: #bc13fe;">🕒 التوقيت الملكي: <span id="clock" style="color: white;">00:00</span></span>
 </div>
 
 <script>
-function sendMessage() {
-    let input = document.getElementById('msg-input');
+// تحديث الساعة تلقائياً
+setInterval(() => {
+    const now = new Date();
+    document.getElementById('clock').innerText = now.getHours() + ":" + (now.getMinutes()<10?'0':'') + now.getMinutes();
+}, 1000);
+
+// ميزة الترحيب الذكي
+window.onload = function() {
     let box = document.getElementById('messages-box');
-    
-    if(input.value.trim() !== "") {
-        // إضافة الرسالة للصندوق (مؤقتاً للمعاينة)
-        box.innerHTML += `<p><strong>👑 علوش:</strong> ${input.value}</p>`;
-        input.value = ""; // تفريغ الحقل
-        box.scrollTop = box.scrollHeight; // النزول لآخر رسالة
-    }
+    setTimeout(() => {
+        box.innerHTML += `<p style="color: #0f0; font-size: 12px; text-align: center;">✨ تم تفعيل نظام الرادار بنجاح.. المملكة مؤمنة بالكامل ✨</p>`;
+    }, 2000);
 }
 </script>
