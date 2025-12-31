@@ -5,26 +5,29 @@ function initKingdom() {
     const eList = document.getElementById('emoji-list');
     eList.innerHTML = ""; // تنظيف القائمة لضمان السرعة
 
-    // 1. قسم الملصقات المتحركة (تأثير النبض واللمعان)
-    const animatedStickers = ["👑", "🔥", "💎", "✨", "🌟", "🚀", "⚔️", "🛡️", "🧿", "💰"];
-    animatedStickers.forEach(stk => {
+    // 1. قسم الملصقات الملكية (حركة نبض + تأثير نار عند الضغط)
+    const fireStickers = ["👑", "🔥", "💎", "✨", "🌟", "🚀", "⚔️", "🛡️", "🧿", "💰"];
+    fireStickers.forEach(stk => {
         let s = document.createElement('span');
         s.className = 'emoji-item';
         s.style.fontSize = "40px"; // حجم كبير للملصقات
         s.style.display = "inline-block";
-        s.style.animation = "pulse 1.5s infinite"; // إضافة حركة النبض
-        s.style.filter = "drop-shadow(0 0 8px gold)"; // لمعة قوية
+        s.style.animation = "pulse 1.5s infinite"; // حركة النبض المستمرة
+        s.style.filter = "drop-shadow(0 0 8px gold)"; // لمعة ذهبية
         s.innerText = stk;
-        s.onclick = () => { document.getElementById('msg-in').value += stk; };
+        s.onclick = () => { 
+            document.getElementById('msg-in').value += stk;
+            makeItRain(); // تشغيل مطر النار عند الضغط
+        };
         eList.appendChild(s);
     });
 
-    // 2. إضافة آلاف الإيموجيات العادية
+    // 2. إضافة آلاف الإيموجيات العادية (النطاقات العالمية)
     const ranges = [
         [0x1F600, 0x1F64F], // الوجوه
         [0x1F300, 0x1F5FF], // الرموز
         [0x1F680, 0x1F6FF], // المواصلات
-        [0x1F900, 0x1F9FF], // الحديثة
+        [0x1F900, 0x1F9FF], // الإضافات الحديثة
         [0x1F1E6, 0x1F1FF]  // الأعلام
     ];
 
@@ -37,4 +40,26 @@ function initKingdom() {
             eList.appendChild(s);
         }
     });
+}
+
+// دالة مطر النار الملكي
+function makeItRain() {
+    for (let i = 0; i < 20; i++) {
+        const fire = document.createElement('div');
+        fire.innerText = "🔥";
+        fire.style.position = 'fixed';
+        fire.style.left = Math.random() * 100 + 'vw';
+        fire.style.top = '-50px';
+        fire.style.fontSize = Math.random() * 20 + 20 + 'px';
+        fire.style.zIndex = '9999';
+        fire.style.transition = 'transform 2s linear, opacity 2s';
+        document.body.appendChild(fire);
+        
+        setTimeout(() => {
+            fire.style.transform = `translateY(${window.innerHeight + 100}px) rotate(${Math.random() * 360}deg)`;
+            fire.style.opacity = '0';
+        }, 100);
+        
+        setTimeout(() => fire.remove(), 2500);
+    }
 }
