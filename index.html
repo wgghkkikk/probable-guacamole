@@ -1,24 +1,24 @@
-// 1. دالة تشغيل اهتزاز الشاشة عند الكل
-function screenShake() {
-    document.body.classList.add('shake-active');
-    setTimeout(() => {
-        document.body.classList.remove('shake-active');
-    }, 1000);
+/* تأثير وميض البرق الأبيض */
+#flash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    opacity: 0;
+    z-index: 10000;
+    pointer-events: none;
 }
 
-// 2. تحديث دالة الاستقبال لتشغيل (المطر + الرعد + الزلزال) عند استلام الرسالة
-db.ref("messages").limitToLast(1).on("child_added", (snap) => {
-    const d = snap.val();
-    if(d.effect === "fire_rain") {
-        makeItRain();   // تساقط النار 🔥
-        playThunder();  // صوت الرعد ⚡
-        screenShake();  // اهتزاز الشاشة 🫨
-    }
-    renderMessage(d); // عرض الرسالة وتنسيق الخطوط
-});
+@keyframes flash-anim {
+    0% { opacity: 0; }
+    10% { opacity: 0.8; }
+    20% { opacity: 0; }
+    30% { opacity: 0.8; }
+    100% { opacity: 0; }
+}
 
-// 3. الحفاظ على آلاف الإيموجيات والملصقات المتحركة
-function initKingdom() {
-    // كود تحميل الملصقات النابضة والإيموجيات العالمية كما هو
-    // يضمن وجود آلاف الرموز (وجوه، أعلام، رموز، مواصلات)
+.flash-active {
+    animation: flash-anim 0.4s ease-out;
 }
