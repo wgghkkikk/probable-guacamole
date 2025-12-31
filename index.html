@@ -1,102 +1,55 @@
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script>
-// 1. إعدادات الاتصال بمملكة علوش
-const firebaseConfig = {
-    databaseURL: "https://alloush-kingdom-default-rtdb.firebaseio.com"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+<!DOCTYPE html>
+<html>
+<head>
+    <title>مملكة علوش</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body style="background: #000; color: #fff; font-family: sans-serif; text-align: center;">
 
-// السطر 11: تعريف بصمة الملك
-const KING_NAME = "👑 علوش";
-
-// السطر 13: وظيفة إرسال الرسائل مع التحقق الملكي
-function sendMsg() {
-    let input = document.getElementById('chat-input');
+    <h2>👑 شات مملكة علوش 👑</h2>
+    <div id="chat-screen" style="height: 400px; overflow-y: auto; background: #111; border: 2px solid gold; margin: 20px; padding: 10px; text-align: left;"></div>
     
-    // الاسم الافتراضي لأي شخص يدخل
-    let username = "زائر"; 
-    let rank = "مواطن";
+    <input id="chat-input" type="text" placeholder="اكتب رسالتك هنا..." style="width: 70%; padding: 10px;">
+    <button onclick="sendMsg()" style="padding: 10px; background: gold; border: none; cursor: pointer;">إرسال</button>
 
-    // إذا كان هذا جهاز "الملك علوش" الحقيقي
-    if (localStorage.getItem("is_king") === "true") {
-        username = KING_NAME;
-        rank = "ملك المملكة";
-    }
+    <script>
+        // ربط السيرفر
+        const firebaseConfig = { databaseURL: "https://alloush-kingdom-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    if(input.value.trim() !== "") {
-        db.ref("messages").push().set({
-            user: username,
-            text: input.value,
-            rank: rank,
-            timestamp: Date.now()
+        // بصمة الملك
+        function activateKing() {
+            localStorage.setItem("is_king", "true");
+            alert("تم تفعيل البصمة الملكية بجهازك يا ملك علوش! 👑");
+        }
+
+        // إرسال الرسائل
+        function sendMsg() {
+            let input = document.getElementById('chat-input');
+            let user = localStorage.getItem("is_king") === "true" ? "👑 علوش" : "زائر";
+            let rank = localStorage.getItem("is_king") === "true" ? "ملك المملكة" : "مواطن";
+
+            if(input.value.trim() !== "") {
+                db.ref("messages").push().set({
+                    user: user,
+                    text: input.value,
+                    rank: rank
+                });
+                input.value = "";
+            }
+        }
+
+        // استقبال الرسائل لايف
+        db.ref("messages").on("child_added", (snapshot) => {
+            let msg = snapshot.val();
+            document.getElementById('chat-screen').innerHTML += `
+                <div style="border-bottom: 1px solid #333; padding: 5px;">
+                    <b style="color:gold;">[${msg.rank}] ${msg.user}:</b> ${msg.text}
+                </div>`;
+            document.getElementById('chat-screen').scrollTop = document.getElementById('chat-screen').scrollHeight;
         });
-        input.value = "";
-    }
-}
-
-  // 1. وظيفة تفعيل البصمة الملكية (تكتبها بالكونسول مرة واحدة)
-function activateKing() {
-    localStorage.setItem("is_king", "true");
-    alert("تم تفعيل البصمة الملكية بجهازك يا ملك علوش! 👑");
-}
-
-// 2. تحديث الشات فوراً (لايف) لكل الموجودين
-db.ref("messages").on("child_added", (snapshot) => {
-    let msg = snapshot.val();
-    let screen = document.getElementById('chat-screen');
-    
-    if (screen) {
-        screen.innerHTML += `
-            <div class="msg" style="border-bottom: 1px solid #1a1a1a; padding: 5px; margin: 5px 0;">
-                <span style="color:gold; font-weight:bold;">[${msg.rank}]</span> 
-                <strong style="color:#bc13fe;">${msg.user}:</strong> 
-                <span style="color:#fff;">${msg.text}</span>
-            </div>`;
-        
-        // النزول لآخر رسالة تلقائياً
-        screen.scrollTop = screen.scrollHeight;
-    }
-});
-</script>// وظيفة تفعيل البصمة (تكتبها مرة واحدة في متصفحك لتصبح الملك)
-function activateKing() {
-    localStorage.setItem("is_king", "true");
-    alert("تم تفعيل البصمة الملكية بجهازك يا ملك علوش! 👑");
-}
-  // 3. وظيفة استقبال الرسائل وعرضها فوراً (لايف)
-db.ref("messages").on("child_added", (snapshot) => {
-    let msg = snapshot.val();
-    let screen = document.getElementById('chat-screen');
-    
-    if (screen) {
-        screen.innerHTML += `
-            <div class="msg" style="border-bottom: 1px solid #1a1a1a; padding: 5px; margin: 5px 0;">
-                <span style="color:gold; font-weight:bold;">[${msg.rank}]</span> 
-                <strong style="color:#bc13fe;">${msg.user}:</strong> 
-                <span style="color:#fff;">${msg.text}</span>
-            </div>`;
-        
-        // النزول لآخر رسالة تلقائياً
-        screen.scrollTop = screen.scrollHeight;
-    }
-});
-
-// إغلاق وسم السكريبت
-</script>// 3. وظيفة استقبال الرسائل (تحديث الشات فوراً لكل الناس)
-db.ref("messages").on("child_added", (snapshot) => {
-    let msg = snapshot.val();
-    let screen = document.getElementById('chat-screen');
-    
-    // تصميم الرسالة الملكية
-    screen.innerHTML += `
-        <div class="msg" style="border-bottom: 1px solid #1a1a1a; padding: 5px;">
-            <span style="color:gold; font-weight:bold;">[${msg.rank}]</span> 
-            <strong style="color:#bc13fe;">${msg.user}:</strong> 
-            <span style="color:#fff;">${msg.text}</span>
-        </div>`;
-        
-    // النزول لآخر رسالة تلقائياً
-    screen.scrollTop = screen.scrollHeight;
-});
-</script>
+    </script>
+</body>
+</html>
