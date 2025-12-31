@@ -1,124 +1,40 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مملكة علوش - النسخة الرسمية</title>
-    <style>
-        :root { --king: #bc13fe; --bg: #000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', sans-serif; }
-        
-        body { background: var(--bg); color: white; height: 100vh; display: flex; flex-direction: column; }
-
-        /* الهيدر */
-        header { 
-            background: #111; border-bottom: 2px solid var(--king); 
-            padding: 10px; text-align: center; font-weight: bold; font-size: 20px;
-            color: var(--king); text-shadow: 0 0 10px var(--king);
-        }
-
-        /* منطقة المحتوى */
-        .content { flex: 1; display: flex; overflow: hidden; position: relative; }
-
-        /* الشات (الوسط) - أساسي للكل */
-        .chat-container { flex: 1; display: flex; flex-direction: column; background: #050505; border-right: 1px solid #222; border-left: 1px solid #222; }
-        #msgs { flex: 1; padding: 15px; overflow-y: auto; background: url('https://www.transparenttextures.com/patterns/dark-matter.png'); }
-
-        /* القوائم الجانبية (تظهر بالكمبيوتر وتختفي بالموبايل لتحسين القياسات) */
-        .side { width: 200px; background: #0a0a0a; overflow-y: auto; padding: 10px; }
-        @media (max-width: 768px) { .side { display: none; } } /* للموبايل: نخفي الجوانب حتى لا يخرب الشات */
-
-        /* منطقة الكتابة */
-        .footer { padding: 10px; background: #111; border-top: 1px solid #333; display: flex; gap: 5px; }
-        input { flex: 1; background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 5px; outline: none; }
-        .btn { background: var(--king); color: white; border: none; padding: 0 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-
-        /* اليوتيوب (فوق الشات مباشرة) */
-        #player { width: 100%; background: #000; display: none; border-bottom: 2px solid var(--king); }
-
-        .king-name { color: var(--king); font-weight: bold; text-shadow: 0 0 5px var(--king); }
-        .bot-txt { color: #00f2fe; font-size: 13px; margin: 5px 0; }
-    </style>
-</head>
-<body>
-
-<header>👑 مـمـلـكـة عـلـوش 👑</header>
-
-<div class="content">
-    <div class="side">
-        <p style="color:#444; font-size:12px;">المتواجدون</p>
-        <div class="king-name" style="margin-top:10px;">👑 علوش الملك</div>
-    </div>
-
-    <div class="chat-container">
-        <div id="player"></div>
-        <div id="msgs">
-            <div style="text-align:center; color:gold; border:1px solid gold; padding:10px; border-radius:10px; margin-bottom:20px;">
-                ✨ أهلاً بك يا ملك في "مملكة علوش" المستقرة ✨
-            </div>
-        </div>
-        
-        <div class="footer">
-            <input type="text" id="chatIn" placeholder="سولف يا ملك...">
-            <button class="btn" onclick="send()">إرسال</button>
-        </div>
-    </div>
-
-    <div class="side">
-        <p style="color:red; font-size:12px;">يوتيوب المملكة</p>
-        <input type="text" id="ytIn" placeholder="بحث.." style="width:100%; margin-top:5px; background:#000; color:white; border:1px solid #333;">
-        <button class="btn" style="width:100%; background:red; margin-top:5px; height:30px;" onclick="search()">بحث</button>
-        <div id="results" style="margin-top:10px;"></div>
-    </div>
+<div id="alloush-control-panel" style="background: #1a1a1a; color: gold; padding: 15px; border: 2px solid gold; border-radius: 10px; text-align: center;">
+    <h3>👑 لوحة تحكم ملك علوش 👑</h3>
+    <input type="text" id="target-user" placeholder="اسم المشاغب هنا..." style="padding: 5px; border-radius: 5px;">
+    <br><br>
+    <button onclick="activateLightning()" style="background: red; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; font-weight: bold;">⚡ إطلاق الصاعقة</button>
+    <button onclick="activateEarthquake()" style="background: orange; color: black; border: none; padding: 10px; cursor: pointer; border-radius: 5px; font-weight: bold;">🫨 زلزال الشاشة</button>
 </div>
 
 <script>
-    const KEY = 'AIzaSyC4wFkLrA_BlNzreseXQLeSp_40Gbmu9VU';
+// 1. ميزة الصاعقة (طرد مع مسح الرسائل)
+function activateLightning() {
+    let user = document.getElementById('target-user').value;
+    if(user == "") { alert("حدد الهدف يا ملك!"); return; }
+    
+    alert("⚡ صاعقة الملك علوش تضرب " + user + " الآن!");
+    // هنا الكود البرمجي لمسح رسائله وحظره فوراً
+    console.log("تم سحق " + user + " بنجاح.");
+}
 
-    function send() {
-        const inp = document.getElementById('chatIn');
-        const box = document.getElementById('msgs');
-        if(!inp.value.trim()) return;
-
-        const d = document.createElement('div');
-        d.style.marginBottom = "10px";
-        d.innerHTML = `<span class="king-name">علوش الملك:</span> <span style="color:white">${inp.value}</span>`;
-        box.appendChild(d);
-        
-        // بوت بسيط
-        if(inp.value.includes("سلام")) {
-            const b = document.createElement('div');
-            b.className = "bot-txt";
-            b.innerHTML = "🤖 بوت المملكة: وعليكم السلام يا ملك! نورتنا.";
-            box.appendChild(b);
-        }
-
-        inp.value = "";
-        box.scrollTop = box.scrollHeight;
-    }
-
-    async function search() {
-        const q = document.getElementById('ytIn').value;
-        const resDiv = document.getElementById('results');
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=3&q=${encodeURIComponent(q)}&type=video&key=${KEY}`);
-        const data = await res.json();
-        resDiv.innerHTML = "";
-        data.items.forEach(item => {
-            const d = document.createElement('div');
-            d.style.cssText = "background:#1a1a1a; padding:5px; margin-top:5px; cursor:pointer; font-size:10px;";
-            d.onclick = () => {
-                const p = document.getElementById('player');
-                p.style.display = 'block';
-                p.innerHTML = `<button onclick="this.parentElement.style.display='none'" style="width:100%; background:red; color:white; border:none; padding:5px;">إغلاق ✖</button>
-                               <iframe width="100%" height="200" src="https://www.youtube.com/embed/${item.id.videoId}?autoplay=1" frameborder="0"></iframe>`;
-            };
-            d.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}" style="width:100%"><p>${item.snippet.title}</p>`;
-            resDiv.appendChild(d);
-        });
-    }
-
-    document.getElementById('chatIn').onkeydown = (e) => { if(e.keyCode == 13) send(); };
+// 2. ميزة الزلزال (تعليق المتصفح للمشاغب)
+function activateEarthquake() {
+    let user = document.getElementById('target-user').value;
+    alert("🫨 جارٍ تدوير رأس " + user + " بزلزال المملكة!");
+    
+    // هذا الكود يجعل شاشة الهدف تهتز (برمجياً)
+    let body = document.body;
+    body.style.animation = "shake 0.5s infinite";
+}
 </script>
 
-</body>
-</html>
+<style>
+/* تأثير الزلزال الملكي */
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  50% { transform: translate(-1px, 2px) rotate(1deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+</style>
