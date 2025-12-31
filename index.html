@@ -2,53 +2,44 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>👑 مملكة علوش | الإصدار الذهبي</title>
+    <title>👑 مملكة علوش | الألوف المؤلفة</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --gold: #d4af37; }
-        body { 
-            margin: 0; font-family: 'Segoe UI', sans-serif; 
-            background: #000 url('https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=1920') no-repeat center center fixed; 
-            background-size: cover; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; 
-        }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #000 url('https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=1920') no-repeat center center fixed; background-size: cover; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1; }
 
-        header { background: rgba(20, 20, 20, 0.95); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 1000; }
-        .nav-btn { background: #1a1a1a; border: 1px solid var(--gold); color: var(--gold); padding: 7px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.3s; }
-        .nav-btn:hover { background: var(--gold); color: #000; }
+        header { background: rgba(20, 20, 20, 0.95); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); z-index: 1000; }
+        .nav-btn { background: #1a1a1a; border: 1px solid var(--gold); color: var(--gold); padding: 7px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
         #wrapper { display: flex; flex: 1; position: relative; overflow: hidden; }
-        .sidebar { position: absolute; top: 0; width: 260px; height: 100%; background: rgba(15, 15, 15, 0.98); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1001; border: 1px solid #333; }
-        #admin-panel { right: -270px; border-left: 2px solid red; } 
-        #color-panel { right: -270px; border-left: 2px solid var(--gold); } 
-        #users-panel { left: -270px; border-right: 2px solid var(--gold); }
+        .sidebar { position: absolute; top: 0; width: 260px; height: 100%; background: rgba(15, 15, 15, 0.98); transition: 0.4s ease; z-index: 1001; border: 1px solid #333; }
         .open-right { right: 0 !important; } .open-left { left: 0 !important; }
+        #admin-panel { right: -270px; border-left: 2px solid red; } #color-panel { right: -270px; border-left: 2px solid var(--gold); } #users-panel { left: -260px; border-right: 2px solid var(--gold); }
 
-        #messages { flex: 1; overflow-y: auto; padding: 25px; background: rgba(0, 0, 0, 0.5); scroll-behavior: smooth; }
-        .line { border-bottom: 1px solid rgba(212, 175, 55, 0.1); padding: 12px 0; font-size: 16px; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        #messages { flex: 1; overflow-y: auto; padding: 25px; background: rgba(0, 0, 0, 0.5); }
+        .line { border-bottom: 1px solid rgba(212, 175, 55, 0.1); padding: 12px 0; }
 
-        /* تأثيرات الخطوط الملكية */
+        /* تأثيرات الخطوط */
         .fire { color: #ff4500; font-weight: bold; text-shadow: 0 -2px 10px #ff0, 0 -5px 20px #f00; animation: f-anim 1s infinite alternate; }
         .gold-flow { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: g-anim 2s linear infinite; font-weight: bold; }
         @keyframes f-anim { from { text-shadow: 0 -2px 5px #ff0; } to { text-shadow: 0 -5px 15px #f00; } }
         @keyframes g-anim { to { background-position: 200% center; } }
 
-        /* صندوق الإيموجيات المحدث */
+        /* --- صندوق الإيموجيات العملاق --- */
         #emoji-box { 
-            position: absolute; bottom: 85px; right: 20px; width: 300px; max-height: 280px;
-            background: #1a1a1a; border: 2px solid var(--gold); padding: 15px; 
-            display: none; overflow-y: auto; z-index: 2000; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            position: absolute; bottom: 85px; right: 20px; width: 320px; height: 350px;
+            background: #1a1a1a; border: 2px solid var(--gold); padding: 10px; 
+            display: none; flex-direction: column; z-index: 2000; border-radius: 15px;
         }
-        .emoji-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        .emoji-item { cursor: pointer; font-size: 26px; text-align: center; transition: 0.2s; }
+        #emoji-search { width: 90%; padding: 8px; margin-bottom: 10px; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; align-self: center; }
+        .emoji-scroll { overflow-y: auto; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; padding: 10px; }
+        .emoji-item { cursor: pointer; font-size: 28px; text-align: center; }
         .emoji-item:hover { transform: scale(1.2); }
-        .sticker-img { width: 45px; height: 45px; cursor: pointer; object-fit: contain; }
 
-        footer { padding: 15px 25px; background: rgba(20, 20, 20, 0.98); border-top: 1px solid var(--gold); display: flex; gap: 12px; align-items: center; }
-        #msg-in { flex: 1; padding: 14px 20px; border-radius: 25px; border: 1px solid #444; background: #000; color: #fff; outline: none; font-size: 15px; }
-        .chat-img { max-width: 200px; border-radius: 12px; border: 2px solid var(--gold); margin: 10px 0; }
+        footer { padding: 15px 25px; background: rgba(20, 20, 20, 0.98); border-top: 1px solid var(--gold); display: flex; gap: 12px; }
+        #msg-in { flex: 1; padding: 14px 20px; border-radius: 25px; border: 1px solid #444; background: #000; color: #fff; outline: none; }
     </style>
 </head>
 <body>
@@ -56,43 +47,29 @@
     <header>
         <button class="nav-btn" onclick="toggleSide('admin-panel')">⚙️ الإدارة</button>
         <button class="nav-btn" onclick="toggleSide('color-panel')" style="color: cyan;">🎨 صبغ الخط</button>
-        <div style="font-weight: bold; color: var(--gold); font-size: 20px; letter-spacing: 1px;">👑 مـمـلـكـة عـلـوش</div>
+        <div style="font-weight: bold; color: var(--gold); font-size: 20px;">👑 مـمـلـكـة عـلـوش</div>
         <button class="nav-btn" onclick="toggleSide('users-panel', 'left')">👥 المتصلون</button>
     </header>
 
     <div id="wrapper">
-        <div id="admin-panel" class="sidebar"><div style="padding:20px;"><h3>⚙️ الإدارة الملكية</h3><button class="nav-btn" onclick="clearDB()" style="width:100%">🧹 تصفير الشات</button></div></div>
+        <div id="admin-panel" class="sidebar"><div style="padding:20px;"><h3>⚙️ الإدارة</h3><button class="nav-btn" onclick="clearDB()" style="width:100%">🧹 تصفير الشات</button></div></div>
+        <div id="color-panel" class="sidebar"><div style="padding:20px;"><h3>🎨 الصبغ</h3><select id="f-anim" onchange="updateS()" style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid var(--gold);"><option value="">عادي</option><option value="fire">🔥 خط النار</option><option value="gold-flow">💰 الذهب</option></select><input type="color" id="f-color" value="#ffffff" onchange="updateS()" style="width:100%; height:45px; margin-top:10px;"></div></div>
         
-        <div id="color-panel" class="sidebar">
-            <div style="padding:20px;">
-                <h3>🎨 صبغ النك والخط</h3>
-                <label>تأثيرات متحركة:</label>
-                <select id="f-anim" onchange="updateS()" style="width:100%; padding:10px; margin:10px 0; background:#000; color:#fff; border:1px solid var(--gold);">
-                    <option value="">خط عادي</option>
-                    <option value="fire">🔥 خط النار</option>
-                    <option value="gold-flow">💰 الذهب السائل</option>
-                </select>
-                <label>لون ثابت:</label>
-                <input type="color" id="f-color" value="#ffffff" onchange="updateS()" style="width:100%; height:45px; border:none; background:none; cursor:pointer;">
-            </div>
-        </div>
-
         <div id="chat-window" style="flex:1; display:flex; flex-direction:column; position:relative;">
             <div id="messages"></div>
             <div id="emoji-box">
-                <div class="emoji-grid" id="emoji-list">
-                    </div>
+                <input type="text" id="emoji-search" placeholder="ابحث عن إيموجي...">
+                <div class="emoji-scroll" id="emoji-list"></div>
             </div>
         </div>
-
-        <div id="users-panel" class="sidebar"><div style="padding:20px;"><h3>👥 المتصلون</h3><div style="color:lime; font-weight:bold;">● الملك علوش</div></div></div>
+        <div id="users-panel" class="sidebar"><div style="padding:20px;"><h3>👥 المتصلون</h3><div style="color:lime;">● الملك علوش</div></div></div>
     </div>
 
     <footer>
-        <button class="nav-btn" onclick="toggleEmoji()" style="font-size: 20px; border-radius: 50%; padding: 10px;">😊</button>
-        <button class="nav-btn" onclick="document.getElementById('img-up').click()" style="font-size: 20px; border-radius: 50%; padding: 10px;">🖼️</button>
+        <button class="nav-btn" onclick="toggleEmoji()">😊</button>
+        <button class="nav-btn" onclick="document.getElementById('img-up').click()">🖼️</button>
         <input type="file" id="img-up" hidden accept="image/*" onchange="upImg(this)">
-        <input type="text" id="msg-in" placeholder="اكتب مرسومك يا ملك...">
+        <input type="text" id="msg-in" placeholder="اكتب مرسومك...">
         <button class="nav-btn" onclick="send()" style="padding:12px 30px; background:var(--gold); color:#000;">إرسال</button>
     </footer>
 
@@ -104,27 +81,33 @@
         function updateS() { myS.c = document.getElementById('f-color').value; myS.a = document.getElementById('f-anim').value; }
         function toggleSide(id, side='right') { document.getElementById(id).classList.toggle(side==='right'?'open-right':'open-left'); }
         
-        // --- إضافة إيموجيات الصورة واليوتيوب ---
-        const emojis = ["👑","🔥","💎","⚔️","😂","😍","❤️","👍","✨","🌟"];
-        const stickers = [
-            "https://www.gstatic.com/lamda/images/gemini_sparkle_v002.svg", // مثال لأيقونة لامعة
-            "https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.gif"  // مثال لنار متحركة
-        ];
-        
+        // --- توليد آلاف الإيموجيات ---
         const eList = document.getElementById('emoji-list');
-        emojis.forEach(e => {
-            let s = document.createElement('span'); s.className='emoji-item'; s.innerText=e;
-            s.onclick = () => { document.getElementById('msg-in').value += e; };
-            eList.appendChild(s);
-        });
+        const start = 0x1F600; const end = 0x1F64F; // الوجوه
+        const start2 = 0x1F300; const end2 = 0x1F5FF; // الطبيعة والأشياء
         
-        function toggleEmoji() { const b = document.getElementById('emoji-box'); b.style.display = b.style.display === 'block' ? 'none' : 'block'; }
+        function loadEmojis() {
+            let all = "";
+            for(let i=start; i<=end; i++) all += String.fromCodePoint(i);
+            for(let i=start2; i<=end2; i++) all += String.fromCodePoint(i);
+            // إضافة إيموجيات صورتك المفضلة كبداية
+            const favs = ["👑","🔥","💎","⚔️","🛡️","🦁"]; 
+            
+            [...favs, ...all].forEach(e => {
+                let s = document.createElement('span'); s.className='emoji-item'; s.innerText=e;
+                s.onclick = () => { document.getElementById('msg-in').value += e; };
+                eList.appendChild(s);
+            });
+        }
+        loadEmojis();
 
+        function toggleEmoji() { const b = document.getElementById('emoji-box'); b.style.display = b.style.display === 'flex' ? 'none' : 'flex'; }
+        
         function send() {
             const inp = document.getElementById('msg-in');
             if(inp.value.trim()) {
                 db.ref("messages").push().set({ u: "علوش", t: inp.value, s: {c: myS.c, a: myS.a}, type: 'text', time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-                inp.value = ""; document.getElementById('emoji-box').style.display = 'none';
+                inp.value = "";
             }
         }
 
@@ -141,15 +124,15 @@
             const d = snap.val(); const box = document.getElementById('messages');
             const div = document.createElement('div'); div.className = 'line';
             if(d.type === 'image') {
-                div.innerHTML = `<b style="color:var(--gold)">${d.u}:</b><br><img src="${d.img}" class="chat-img">`;
+                div.innerHTML = `<b style="color:var(--gold)">${d.u}:</b><br><img src="${d.img}" class="chat-img" style="max-width:200px; border:1px solid gold; border-radius:10px;">`;
             } else {
                 const s = d.s || {c:'#fff', a:''};
-                div.innerHTML = `<b style="color:var(--gold)">${d.u}:</b> <span class="${s.a}" style="color:${s.c}">${d.t}</span> <small style="float:left; color:rgba(255,255,255,0.3)">${d.time}</small>`;
+                div.innerHTML = `<b style="color:var(--gold)">${d.u}:</b> <span class="${s.a}" style="color:${s.c}">${d.t}</span> <small style="float:left; color:rgba(255,255,255,0.2)">${d.time}</small>`;
             }
             box.appendChild(div); box.scrollTop = box.scrollHeight;
         });
 
-        function clearDB() { if(confirm("هل تمسح تاريخ المملكة؟")) db.ref("messages").remove(); location.reload(); }
+        function clearDB() { if(confirm("مسح؟")) db.ref("messages").remove(); location.reload(); }
         document.getElementById('msg-in').onkeypress = (e) => { if(e.key==='Enter') send(); };
         document.getElementById('messages').onclick = () => { document.getElementById('emoji-box').style.display = 'none'; };
     </script>
