@@ -1,113 +1,21 @@
-<style>
-    /* 1. هيكلة الأجنحة الجانبية (الجهتين) */
-    .side-panel {
-        position: fixed;
-        top: 60px;
-        width: 200px;
-        height: calc(100% - 150px);
-        background: rgba(0, 0, 0, 0.85);
-        border: 2px solid var(--gold);
-        padding: 15px;
-        z-index: 1000;
-        overflow-y: auto;
-        border-radius: 15px;
-        box-shadow: 0 0 20px var(--gold);
-    }
-    
-    #users-panel { right: 10px; } /* جهة المتصلين */
-    #settings-panel { left: 10px; } /* جهة الإعدادات والألوان */
+/* ربط ألوان الجهتين والبراويز بحركة قوس قزح */
+.side-panel, #royal-clock, .input-area {
+    border-image: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet) 1;
+    animation: rainbow-border 3s linear infinite;
+}
 
-    .panel-title {
-        text-align: center;
-        color: var(--gold);
-        font-weight: bold;
-        border-bottom: 1px double var(--gold);
-        margin-bottom: 15px;
-        padding-bottom: 5px;
-        font-size: 18px;
-    }
+@keyframes rainbow-border {
+    0% { filter: hue-rotate(0deg); border-color: red; box-shadow: 0 0 15px red; }
+    50% { filter: hue-rotate(180deg); border-color: blue; box-shadow: 0 0 25px blue; }
+    100% { filter: hue-rotate(360deg); border-color: red; box-shadow: 0 0 15px red; }
+}
 
-    /* 2. زخرفة قائمة المتصلين 𓆩 𓆪 */
-    .user-entry {
-        padding: 8px;
-        margin-bottom: 5px;
-        border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-    .user-entry::before { content: "𓆩"; color: var(--gold); }
-    .user-entry::after { content: "𓆪"; color: var(--gold); }
-
-    /* 3. ألوان وإعدادات مزخرفة */
-    .color-btn {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 8px;
-        border: 1px solid var(--gold);
-        background: #222;
-        color: white;
-        cursor: pointer;
-        border-radius: 5px;
-        transition: 0.3s;
-    }
-    .color-btn:hover { background: var(--gold); color: black; }
-
-    /* 4. تعديل الشات ليكون بالمنتصف بين الجهتين */
-    #chat-container {
-        margin: 0 220px; /* ترك مسافة للأجنحة */
-    }
-
-    @media (max-width: 800px) {
-        .side-panel { display: none; } /* إخفاء الأجنحة في الموبايل لعدم الزحمة */
-        #chat-container { margin: 0; }
-    }
-</style>
-
-<div id="users-panel" class="side-panel">
-    <div class="panel-title">𓆩 المتصلين 𓆪</div>
-    <div id="user-list">
-        <div class="user-entry">الملك علوش 👑</div>
-        <div class="user-entry">قيد الانتظار...</div>
-    </div>
-</div>
-
-<div id="settings-panel" class="side-panel">
-    <div class="panel-title">𓆩 الإعدادات 𓆪</div>
-    <button class="color-btn" onclick="changeTheme('gold')">تغيير للذهبي ✨</button>
-    <button class="color-btn" onclick="changeTheme('fire')">ثيم النار 🔥</button>
-    <button class="color-btn" onclick="changeTheme('royal')">الثيم الملكي 👑</button>
-    <div style="margin-top:20px; color:var(--gold); font-size:12px; text-align:center;">
-        ـﮩﮩ٨ﮩﮩ مملكة علوش ﮩﮩ٨ﮩﮩـ
-    </div>
-</div>
-
-<script>
-    // نظام تغيير الألوان والزخرفة فوراً
-    function changeTheme(type) {
-        if(type === 'gold') {
-            document.documentElement.style.setProperty('--gold', '#ffd700');
-            document.body.style.background = "#000";
-        } else if(type === 'fire') {
-            document.documentElement.style.setProperty('--gold', '#ff4500');
-            document.body.style.background = "radial-gradient(circle, #200 0%, #000 100%)";
-        } else if(type === 'royal') {
-            document.documentElement.style.setProperty('--gold', '#c0c0c0');
-            document.body.style.background = "#1a1a1a";
-        }
-        triggerRoyalEffects(); // وميض عند تغيير الثيم
-    }
-
-    // تحديث قائمة المتصلين (ربط مع Firebase)
-    db.ref("users").on("value", (snap) => {
-        const uList = document.getElementById('user-list');
-        uList.innerHTML = "";
-        snap.forEach(user => {
-            let div = document.createElement('div');
-            div.className = "user-entry";
-            div.innerText = user.val().name;
-            uList.appendChild(div);
-        });
-    });
-</script>
+/* تزامن نصوص العناوين مع ألوان الملك */
+.panel-title {
+    background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 400%;
+    animation: rainbow-flow 3s linear infinite;
+    text-shadow: none; /* إزالة الظل القديم لزيادة وضوح اللون */
+}
