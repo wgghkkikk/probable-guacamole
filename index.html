@@ -1,3 +1,32 @@
+// 1. تعديل دالة الإرسال لتشمل أمر "مطر النار" للكل
+function send() {
+    const inp = document.getElementById('msg-in');
+    const name = document.getElementById('my-name').value;
+    if(inp.value.trim()) {
+        const msgId = db.ref("messages").push().key;
+        db.ref("messages/" + msgId).set({ 
+            u: name, 
+            t: inp.value, 
+            s: {c: myS.c, a: myS.a}, 
+            type: 'text', 
+            time: new Date().toLocaleTimeString(),
+            effect: "fire_rain" // إضافة علامة التأثير للرسالة
+        });
+        inp.value = "";
+    }
+}
+
+// 2. تحديث دالة الاستقبال لتشغيل المطر عند استلام الرسالة
+db.ref("messages").limitToLast(1).on("child_added", (snap) => {
+    const d = snap.val();
+    // إذا كانت الرسالة تحتوي على تأثير النار، يشتغل عند الكل فوراً
+    if(d.effect === "fire_rain") {
+        makeItRain(); 
+    }
+    // بقية كود عرض الرسائل المعتاد هنا...
+});
+
+// 3. تحديث دالة الإيموجيات لتعمل مع النظام الجديد
 function initKingdom() {
     const name = document.getElementById('my-name').value;
     db.ref("activity_log").push().set({ user: name, time: new Date().toLocaleString('ar-EG') });
@@ -5,61 +34,28 @@ function initKingdom() {
     const eList = document.getElementById('emoji-list');
     eList.innerHTML = ""; // تنظيف القائمة لضمان السرعة
 
-    // 1. قسم الملصقات الملكية (حركة نبض + تأثير نار عند الضغط)
-    const fireStickers = ["👑", "🔥", "💎", "✨", "🌟", "🚀", "⚔️", "🛡️", "🧿", "💰"];
+    // ملصقات القمة المتحركة
+    const fireStickers = ["👑", "🔥", "💎", "✨", "🌟", "🚀", "⚔️", "🛡️"];
     fireStickers.forEach(stk => {
         let s = document.createElement('span');
         s.className = 'emoji-item';
-        s.style.fontSize = "40px"; // حجم كبير للملصقات
-        s.style.display = "inline-block";
-        s.style.animation = "pulse 1.5s infinite"; // حركة النبض المستمرة
-        s.style.filter = "drop-shadow(0 0 8px gold)"; // لمعة ذهبية
+        s.style.fontSize = "40px"; 
+        s.style.animation = "pulse 1.5s infinite"; // حركة النبض
+        s.style.filter = "drop-shadow(0 0 8px gold)"; 
         s.innerText = stk;
-        s.onclick = () => { 
-            document.getElementById('msg-in').value += stk;
-            makeItRain(); // تشغيل مطر النار عند الضغط
-        };
+        s.onclick = () => { document.getElementById('msg-in').value += stk; };
         eList.appendChild(s);
     });
 
-    // 2. إضافة آلاف الإيموجيات العادية (النطاقات العالمية)
-    const ranges = [
-        [0x1F600, 0x1F64F], // الوجوه
-        [0x1F300, 0x1F5FF], // الرموز
-        [0x1F680, 0x1F6FF], // المواصلات
-        [0x1F900, 0x1F9FF], // الإضافات الحديثة
-        [0x1F1E6, 0x1F1FF]  // الأعلام
-    ];
-
+    // إضافة آلاف الإيموجيات العالمية
+    const ranges = [[0x1F600, 0x1F64F], [0x1F300, 0x1F5FF], [0x1F680, 0x1F6FF], [0x1F900, 0x1F9FF], [0x1F1E6, 0x1F1FF]];
     ranges.forEach(range => {
         for (let i = range[0]; i <= range[1]; i++) {
             let s = document.createElement('span');
             s.className = 'emoji-item';
-            s.innerText = String.fromCodePoint(i); // تحويل الكود إلى إيموجي
-            s.onclick = () => { document.getElementById('msg-in').value += s.innerText; }; // إضافة للنص
+            s.innerText = String.fromCodePoint(i);
+            s.onclick = () => { document.getElementById('msg-in').value += s.innerText; };
             eList.appendChild(s);
         }
     });
-}
-
-// دالة مطر النار الملكي
-function makeItRain() {
-    for (let i = 0; i < 20; i++) {
-        const fire = document.createElement('div');
-        fire.innerText = "🔥";
-        fire.style.position = 'fixed';
-        fire.style.left = Math.random() * 100 + 'vw';
-        fire.style.top = '-50px';
-        fire.style.fontSize = Math.random() * 20 + 20 + 'px';
-        fire.style.zIndex = '9999';
-        fire.style.transition = 'transform 2s linear, opacity 2s';
-        document.body.appendChild(fire);
-        
-        setTimeout(() => {
-            fire.style.transform = `translateY(${window.innerHeight + 100}px) rotate(${Math.random() * 360}deg)`;
-            fire.style.opacity = '0';
-        }, 100);
-        
-        setTimeout(() => fire.remove(), 2500);
-    }
 }
