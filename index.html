@@ -1,22 +1,17 @@
-// 1. دالة موسيقى الدخول الملكية
-function playRoyalEntry() {
-    // صوت بوق ملكي (ألحان النصر)
-    const fanfare = new Audio('https://www.soundjay.com/human/sounds/trumpet-fanfare-01.mp3');
-    fanfare.volume = 0.6;
-    fanfare.play().catch(e => console.log("المتصفح ينتظر لمسة منك لتشغيل موسيقى الدخول"));
-}
-
-// 2. تحديث دالة البدء لتشمل الموسيقى والخلفية والتعقب
-function initKingdom() {
-    const name = document.getElementById('my-name').value;
-    
-    // تشغيل موسيقى الدخول إذا كان المستخدم هو الملك علوش
-    if(name === "علوش") {
-        playRoyalEntry();
-    }
-
-    db.ref("activity_log").push().set({ user: name, time: new Date().toLocaleString('ar-EG') });
-    
-    // تحميل آلاف الإيموجيات والملصقات المتحركة
-    loadAllEmojis(); 
+#royal-clock {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Orbitron', sans-serif;
+    color: var(--gold);
+    font-size: 22px;
+    font-weight: bold;
+    text-shadow: 0 0 10px gold, 0 0 20px #000;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 5px 20px;
+    border-radius: 50px;
+    border: 2px solid var(--gold);
+    z-index: 2000;
+    letter-spacing: 2px;
 }
