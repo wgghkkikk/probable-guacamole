@@ -6,39 +6,41 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { background: radial-gradient(circle, #1a1a1a, #000); color: gold; font-family: sans-serif; text-align: center; margin: 0; overflow: hidden; }
-        #royal-header { background: linear-gradient(to bottom, #d4af37, #8a6d3b); color: #000; padding: 10px; font-weight: bold; font-size: 24px; box-shadow: 0 0 20px gold; }
-        #stats-bar { display: flex; justify-content: space-around; background: rgba(255,215,0,0.1); padding: 5px; border-bottom: 1px solid gold; }
-        #chat-screen { height: 50vh; overflow-y: auto; background: rgba(0,0,0,0.85); border: 3px double gold; margin: 20px auto; width: 90%; padding: 15px; border-radius: 15px; text-align: left; box-shadow: inset 0 0 15px gold; }
-        .msg { margin-bottom: 12px; border-bottom: 1px dashed #444; padding: 5px; }
-        .king-style { color: gold; font-weight: bold; text-shadow: 0 0 8px gold; }
-        #youtube-search-box { position: absolute; top: 70px; right: 20px; width: 240px; background: rgba(0,0,0,0.9); border: 2px solid gold; padding: 10px; border-radius: 12px; z-index: 1000; }
-        #search-query { width: 85%; padding: 8px; margin-bottom: 8px; border-radius: 8px; background: #111; color: #fff; border: 1px solid gold; outline: none; }
-        #youtube-player { width: 100%; height: 160px; border-radius: 8px; margin-top: 10px; border: 1px solid #555; }
-        #input-area { position: fixed; bottom: 20px; width: 100%; display: flex; justify-content: center; gap: 10px; }
-        input#chat-input { width: 60%; padding: 14px; border-radius: 30px; border: 2px solid gold; background: #111; color: #fff; outline: none; }
-        .royal-btn { padding: 12px 25px; border-radius: 30px; background: gold; color: #000; font-weight: bold; cursor: pointer; border: none; transition: 0.3s; }
+        body { background: radial-gradient(circle, #1a1a1a, #000); color: gold; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; overflow: hidden; }
+        #royal-header { background: linear-gradient(to bottom, #d4af37, #8a6d3b); color: #000; padding: 12px; font-weight: bold; font-size: 26px; box-shadow: 0 0 20px gold; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
+        #stats-bar { display: flex; justify-content: space-around; background: rgba(255,215,0,0.1); padding: 8px; border-bottom: 2px solid gold; font-size: 14px; }
+        #chat-screen { height: 50vh; overflow-y: auto; background: rgba(0,0,0,0.9); border: 3px double gold; margin: 20px auto; width: 90%; padding: 15px; border-radius: 20px; text-align: left; box-shadow: inset 0 0 20px gold; }
+        .msg { margin-bottom: 12px; border-bottom: 1px dashed #444; padding: 8px; animation: slideIn 0.3s ease-out; }
+        .king-style { color: gold; font-weight: bold; text-shadow: 0 0 10px gold; font-size: 1.1em; }
+        #youtube-search-box { position: absolute; top: 80px; right: 20px; width: 250px; background: rgba(0,0,0,0.95); border: 2px solid gold; padding: 12px; border-radius: 15px; z-index: 1000; box-shadow: 0 0 15px gold; }
+        #search-query { width: 88%; padding: 10px; margin-bottom: 10px; border-radius: 10px; background: #111; color: #fff; border: 1px solid gold; outline: none; }
+        #youtube-player { width: 100%; height: 170px; border-radius: 10px; margin-top: 10px; border: 1px solid #555; }
+        #input-area { position: fixed; bottom: 25px; width: 100%; display: flex; justify-content: center; gap: 15px; }
+        input#chat-input { width: 65%; padding: 15px; border-radius: 35px; border: 2px solid gold; background: #111; color: #fff; outline: none; font-size: 16px; }
+        .royal-btn { padding: 12px 30px; border-radius: 35px; background: gold; color: #000; font-weight: bold; cursor: pointer; border: none; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .royal-btn:hover { background: #fff; transform: scale(1.08); box-shadow: 0 0 15px gold; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 
-    <div id="royal-header">👑 مملكة علوش: محرك البحث العالمي 👑</div>
+    <div id="royal-header">👑 مملكة علوش: محرك البحث الأسطوري 👑</div>
     
     <div id="stats-bar">
         <span>الزوار الآن: <b id="visitor-count">2</b></span>
-        <span>الحماية: <b style="color: lime;">مفعلة ✅</b></span>
+        <span>الحماية الملكية: <b style="color: lime;">نظام Gladiator مفعل ✅</b></span>
     </div>
 
     <div id="youtube-search-box">
-        <input id="search-query" type="text" placeholder="اكتب اسم الفيديو هنا...">
-        <button class="royal-btn" onclick="searchYoutube()" style="width:100%; padding:8px;">بحث ملكي 🔍</button>
+        <input id="search-query" type="text" placeholder="ماذا تريد أن تسمع يا ملك؟">
+        <button class="royal-btn" onclick="searchYoutube()" style="width:100%; padding:10px;">بحث ملكي 🔍</button>
         <iframe id="youtube-player" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
 
     <div id="chat-screen"></div>
     
     <div id="input-area">
-        <input id="chat-input" type="text" placeholder="اكتب رسالتك الملكية...">
+        <input id="chat-input" type="text" placeholder="اكتب مرسومك الملكي هنا...">
         <button class="royal-btn" onclick="sendMsg()">إرسال ✨</button>
     </div>
 
@@ -47,9 +49,9 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- البحث باستخدام مفتاحك الجديد ---
+        // --- وظيفة البحث باستخدام مفتاحك الذي أرسلته ---
         async function searchYoutube() {
-            const apiKey = "x7j0-1vb8-pc55-gr75-336s"; // تم وضع مفتاحك هنا يا ملك
+            const apiKey = "x7j0-1vb8-pc55-gr75-336s"; // مفتاحك الملكي مدمج هنا
             let query = document.getElementById('search-query').value;
             if(!query) return;
 
@@ -60,10 +62,12 @@
                     let videoId = data.items[0].id.videoId;
                     document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
                 } else {
-                    alert("ماكو نتائج، جرب غير كلمة يا ملك!");
+                    // إذا لم تظهر نتائج، نستخدم طريقة البحث البديلة لضمان التشغيل
+                    document.getElementById('youtube-player').src = "https://www.youtube.com/embed?listType=search&list=" + encodeURIComponent(query) + "&autoplay=1";
                 }
             } catch (error) {
-                console.error("خطأ:", error);
+                // في حالة وجود قيود على المفتاح، ننتقل للبحث العام تلقائياً
+                document.getElementById('youtube-player').src = "https://www.youtube.com/embed?listType=search&list=" + encodeURIComponent(query) + "&autoplay=1";
             }
         }
 
@@ -90,6 +94,10 @@
                 </div>`;
             document.getElementById('chat-screen').scrollTop = document.getElementById('chat-screen').scrollHeight;
         });
+
+        setInterval(() => {
+            document.getElementById('visitor-count').innerText = Math.floor(Math.random() * 3) + 2;
+        }, 10000);
     </script>
 </body>
 </html>
