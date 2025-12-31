@@ -1,60 +1,70 @@
 <style>
-    /* 1. الأجنحة: إجبارية الظهور والحركة */
-    .wing {
-        position: fixed; top: 100px; width: 250px; height: 65%;
+    /* 1. الأجنحة: سد وفتح حقيقي (انزلاق كامل) */
+    .wing-panel {
+        position: fixed; top: 90px; width: 240px; height: 65%;
         background: rgba(0,0,0,0.9); border: 3px solid gold;
-        border-radius: 20px; transition: 0.4s all; z-index: 5000;
+        border-radius: 20px; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 5000; box-shadow: 0 0 25px purple;
     }
-    #right-wing { right: 10px; transform: translateX(0); }
-    #left-wing { left: 10px; transform: translateX(0); }
-    .closed-right { transform: translateX(260px) !important; } /* سد الجناح اليمين */
-    .closed-left { transform: translateX(-260px) !important; } /* سد الجناح اليسار */
+    #users-wing { right: 10px; } 
+    #settings-wing { left: 10px; }
+    .wing-closed-right { transform: translateX(270px); opacity: 0; } /* سد الجناح اليمين */
+    .wing-closed-left { transform: translateX(-270px); opacity: 0; } /* سد الجناح اليسار */
 
-    /* 2. بحر الآلاف المؤلفة: يظهر كأنه تطبيق منفصل */
-    #mega-store {
+    /* 2. بحر الآلاف المؤلفة (انفجار الرموز والزخارف) */
+    #mega-ocean {
         position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-        width: 90%; height: 70%; background: #000; border: 5px double gold;
-        z-index: 10000; display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-        overflow-y: scroll; padding: 20px; transition: 0.3s; border-radius: 30px;
+        width: 85%; height: 65%; background: #000; border: 4px double gold;
+        z-index: 10000; display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+        overflow-y: scroll; padding: 25px; transition: 0.4s; border-radius: 30px;
+        box-shadow: 0 0 100px red;
     }
-    .show-store { transform: translate(-50%, -50%) scale(1) !important; }
+    .ocean-open { transform: translate(-50%, -50%) scale(1) !important; }
+    .item-art { font-size: 32px; cursor: pointer; padding: 8px; text-align: center; color: white; transition: 0.2s; }
+    .item-art:hover { transform: scale(1.4); color: gold; }
 
-    /* 3. زر الإرسال المقلوب: تصحيح الخطأ في الصور */
-    .royal-send-btn {
+    /* 3. زر الإرسال المقلوب المصحح */
+    .send-royal {
         background: red !important; color: white !important;
-        border: 2px solid gold !important; border-radius: 50px !important;
-        padding: 10px 30px !important; font-weight: bold !important;
-        cursor: pointer;
+        border: 2px solid gold !important; border-radius: 50px;
+        padding: 10px 35px; cursor: pointer; font-weight: bold;
     }
 </style>
 
-<button onclick="document.getElementById('right-wing').classList.toggle('closed-right')" style="position:fixed; top:20px; right:20px; z-index:6000;">𓆩 سد/فتح الرعية 𓆪</button>
-<button onclick="document.getElementById('left-wing').classList.toggle('closed-left')" style="position:fixed; top:20px; left:20px; z-index:6000;">𓆩 سد/فتح الإعدادات 𓆪</button>
+<button onclick="document.getElementById('users-wing').classList.toggle('wing-closed-right')" style="position:fixed; top:20px; right:20px; z-index:6000; background:gold; border-radius:10px; padding:10px; cursor:pointer;">𓆩 فتح/سد الرعية 𓆪</button>
+<button onclick="document.getElementById('settings-wing').classList.toggle('wing-closed-left')" style="position:fixed; top:20px; left:20px; z-index:6000; background:gold; border-radius:10px; padding:10px; cursor:pointer;">𓆩 فتح/سد الإعدادات 𓆪</button>
 
-<div id="right-wing" class="wing">
-    <div style="color:gold; text-align:center; padding:15px; border-bottom:1px solid gold;">
-        👥 الرعية: <span id="count">0</span>
+<div id="users-wing" class="wing-panel">
+    <div style="color:gold; text-align:center; padding:15px; border-bottom:1px solid gold; font-weight:bold;">
+        👥 الرعية: <span id="online-count">0</span>
     </div>
+    <div id="user-list"></div>
 </div>
 
-<div id="left-wing" class="wing">
-    <div style="color:gold; text-align:center; padding:15px;">⚙️ نظام الحماية الملكي 🛡️</div>
+<div id="settings-wing" class="wing-panel">
+    <div style="color:gold; text-align:center; padding:15px; border-bottom:1px solid gold;">⚙️ نظام القصر</div>
+    <button style="width:90%; margin:10px 5%; padding:10px; background:white; color:black; font-weight:bold; border-radius:10px;">نظام الحماية الملكي 🛡️</button>
 </div>
 
-<div id="mega-store"></div>
+<div id="mega-ocean"></div>
 
-<div style="position:fixed; bottom:20px; width:100%; display:flex; flex-direction:row-reverse; justify-content:center; gap:10px; z-index:6000;">
-    <button class="royal-send-btn" onclick="alert('تم إرسال مرسوم مزخرف!')">إرسال ⟸</button>
-    <input type="text" id="inp" style="width:60%; border-radius:50px; padding:10px; text-align:right;" placeholder="مرسوم الملك علوش...">
-    <button onclick="document.getElementById('mega-store').classList.toggle('show-store')" style="font-size:30px; background:none; border:none; cursor:pointer;">😊</button>
+<div style="position:fixed; bottom:20px; width:100%; display:flex; flex-direction:row-reverse; justify-content:center; gap:15px; z-index:6000; background:rgba(0,0,0,0.8); padding:10px;">
+    <button class="send-royal" onclick="alert('تم إرسال مرسوم مزخرف!')">إرسال ⟸</button>
+    <input type="text" id="king-inp" style="width:60%; border-radius:50px; padding:12px; text-align:right; border:1px solid gold; background:#111; color:white;" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
+    <button onclick="document.getElementById('mega-ocean').classList.toggle('ocean-open')" style="font-size:35px; background:none; border:none; cursor:pointer;">😊</button>
 </div>
 
 <script>
-    // تفعيل انفجار الآلاف المؤلفة
-    const store = document.getElementById('mega-store');
+    // 1. توليد "الآلاف المؤلفة" من الرموز والزخارف (شلع قلع)
+    const ocean = document.getElementById('mega-ocean');
     let data = "";
-    for(let i=0x1F600; i<0x1F64F; i++) data += `<span onclick="document.getElementById('inp').value += '${String.fromCodePoint(i)}'" style="font-size:35px; cursor:pointer;">${String.fromCodePoint(i)}</span>`;
-    const symbols = ["𓆩", "𓆪", "卍", "亗", "꧂", "꧁", "🔥", "👑"];
-    symbols.forEach(s => data += `<span onclick="document.getElementById('inp').value += '${s}'" style="font-size:35px; cursor:pointer; color:gold;">${s}</span>`);
-    store.innerHTML = data;
+    // إضافة آلاف الإيموجيات
+    for(let i=0x1F600; i<0x1F64F; i++) data += `<div class="item-art" onclick="add('${String.fromCodePoint(i)}')">${String.fromCodePoint(i)}</div>`;
+    for(let i=0x1F300; i<0x1F5FF; i++) data += `<div class="item-art" onclick="add('${String.fromCodePoint(i)}')">${String.fromCodePoint(i)}</div>`;
+    // إضافة الزخارف واللاوات الحصرية
+    const royal = ["𓆩", "𓆪", "卍", "亗", "꧁", "꧂", "🔥", "💎", "⚔️", "👑", "🧿"];
+    royal.forEach(r => data += `<div class="item-art" onclick="add('${r}')" style="color:gold;">${r}</div>`);
+    ocean.innerHTML = data;
+
+    function add(v) { document.getElementById('king-inp').value += v; }
 </script>
