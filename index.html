@@ -1,15 +1,85 @@
-<div id="youtube-section" style="position: absolute; top: 70px; right: 20px; width: 220px;">
-    <input id="video-id" type="text" placeholder="ضع رابط الفيديو هنا..." style="width: 80%; padding: 5px; font-size: 12px; border-radius: 5px;">
-    <button onclick="playVideo()" style="padding: 5px; font-size: 10px; margin-top: 5px;">تشغيل 🎬</button>
-    <iframe id="youtube-player" width="200" height="150" src="" frameborder="0" allowfullscreen style="margin-top:10px; border: 2px solid gold; border-radius: 10px;"></iframe>
-</div>
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>👑 مملكة علوش الأسطورية 👑</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { background: radial-gradient(circle, #1a1a1a, #000); color: gold; font-family: sans-serif; text-align: center; margin: 0; overflow: hidden; }
+        #royal-header { background: linear-gradient(to bottom, #d4af37, #8a6d3b); color: #000; padding: 10px; font-weight: bold; font-size: 24px; }
+        #stats-bar { display: flex; justify-content: space-around; background: rgba(255,215,0,0.1); padding: 5px; border-bottom: 1px solid gold; }
+        #chat-screen { height: 55vh; overflow-y: auto; background: rgba(0,0,0,0.8); border: 3px double gold; margin: 20px auto; width: 90%; padding: 15px; border-radius: 15px; text-align: left; }
+        .msg { margin-bottom: 10px; border-bottom: 1px dashed #333; padding: 5px; }
+        .king-style { color: gold; font-weight: bold; text-shadow: 0 0 10px gold; }
+        #input-area { position: fixed; bottom: 20px; width: 100%; }
+        input { width: 50%; padding: 12px; border-radius: 20px; border: 2px solid gold; background: #222; color: #fff; }
+        button { padding: 12px 25px; border-radius: 20px; background: gold; color: #000; font-weight: bold; cursor: pointer; }
+        
+        /* صندوق البحث الجديد */
+        #youtube-search-box { position: absolute; top: 70px; right: 20px; width: 230px; background: rgba(0,0,0,0.9); border: 2px solid gold; padding: 10px; border-radius: 10px; }
+        #search-input { width: 90%; padding: 5px; margin-bottom: 5px; border-radius: 5px; }
+        #youtube-player { width: 100%; height: 150px; border-radius: 5px; margin-top: 10px; }
+    </style>
+</head>
+<body>
 
-<script>
-function playVideo() {
-    let url = document.getElementById('video-id').value;
-    let videoId = url.split('v=')[1] || url.split('/').pop();
-    if(videoId) {
-        document.getElementById('youtube-player').src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1";
-    }
-}
-</script>
+    <div id="royal-header">👑 مملكة علوش: بحث اليوتيوب الملكي 👑</div>
+    
+    <div id="stats-bar">
+        <span>الزوار الآن: <b id="visitor-count">2</b></span>
+        <span>الحماية: <b style="color: lime;">مفعلة ✅</b></span>
+    </div>
+
+    <div id="youtube-search-box">
+        <input id="search-query" type="text" placeholder="ابحث عن أي فيديو...">
+        <button onclick="searchAndPlay()" style="width:100%; padding:5px;">بحث وتشغيل 🔍</button>
+        <iframe id="youtube-player" src="" frameborder="0" allow="autoplay" allowfullscreen></iframe>
+    </div>
+
+    <div id="chat-screen"></div>
+    
+    <div id="input-area">
+        <input id="chat-input" type="text" placeholder="اكتب رسالتك الملكية هنا...">
+        <button onclick="sendMsg()">إرسال ✨</button>
+    </div>
+
+    <script>
+        const firebaseConfig = { databaseURL: "https://alloush-kingdom-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // وظيفة البحث بالاسم
+        function searchAndPlay() {
+            let query = document.getElementById('search-query').value;
+            if(query) {
+                // نستخدم محرك بحث يوتيوب المباشر
+                let searchUrl = "https://www.youtube.com/embed?listType=search&list=" + encodeURIComponent(query) + "&autoplay=1";
+                document.getElementById('youtube-player').src = searchUrl;
+            }
+        }
+
+        function sendMsg() {
+            let input = document.getElementById('chat-input');
+            let isKing = localStorage.getItem("is_king") === "true";
+            let user = isKing ? "👑 علوش" : "زائر";
+            let rank = isKing ? "ملك المملكة" : "مواطن";
+
+            if(input.value.trim() !== "") {
+                db.ref("messages").push().set({ user: user, text: input.value, rank: rank, isKing: isKing });
+                input.value = "";
+            }
+        }
+
+        db.ref("messages").on("child_added", (snapshot) => {
+            let msg = snapshot.val();
+            let style = msg.isKing ? 'king-style' : '';
+            document.getElementById('chat-screen').innerHTML += `
+                <div class="msg">
+                    <span class="${style}">[${msg.rank}] ${msg.user}:</span> ${msg.text}
+                </div>`;
+            document.getElementById('chat-screen').scrollTop = document.getElementById('chat-screen').scrollHeight;
+        });
+    </script>
+</body>
+</html>
