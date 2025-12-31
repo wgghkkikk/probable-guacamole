@@ -1,79 +1,107 @@
-<style>
-    /* 1. إصلاح الأجنحة لتفتح وتغلق بمرونة */
-    .side-panel {
-        position: fixed; top: 80px; width: 220px; height: 70%;
-        background: rgba(0,0,0,0.9); border: 2px solid gold;
-        transition: 0.5s all ease; z-index: 1000; opacity: 1;
-    }
-    .panel-hidden { transform: scaleX(0); opacity: 0; pointer-events: none; }
-    #users-panel { right: 10px; } #settings-panel { left: 10px; }
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <style>
+        :root { --gold: #ffd700; }
+        body { background: #000; color: white; font-family: sans-serif; overflow: hidden; margin: 0; }
 
-    /* 2. تصحيح زر الإرسال المقلوب (ليعمل فعلياً) */
-    .royal-input-bar {
-        position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
-        width: 90%; display: flex; flex-direction: row-reverse;
-        background: #111; border: 2px solid gold; border-radius: 50px; padding: 10px;
-    }
-    #send-btn {
-        background: red; color: gold; border: 2px solid gold;
-        padding: 10px 25px; border-radius: 30px; cursor: pointer;
-        font-weight: bold; transform: scaleX(-1); /* الهيبة المقلوبة */
-    }
-
-    /* 3. تفعيل "الآلاف المؤلفة" (تظهر كبحر من الرموز) */
-    #mega-emoji-palace {
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        width: 85%; height: 60%; background: #000; border: 4px double gold;
-        display: none; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-        overflow-y: auto; padding: 20px; z-index: 10000;
-    }
-</style>
-
-<button onclick="togglePanel('users-panel')" style="position:fixed; top:20px; right:20px; z-index:5000;">☰ الرعية</button>
-<button onclick="togglePanel('settings-panel')" style="position:fixed; top:20px; left:20px; z-index:5000;">⚙️ القصر</button>
-
-<div id="users-panel" class="side-panel">
-    <div style="color:gold; text-align:center; padding:10px;">👥 الرعية: <span id="online-count">0</span></div>
-    <div id="user-list"></div>
-</div>
-
-<div class="royal-input-bar">
-    <button id="send-btn" onclick="royalSend()">إرسال ⟸</button>
-    <input type="text" id="msg-in" style="flex:1; background:none; border:none; color:white; text-align:right;" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
-    <span onclick="toggleEmojis()" style="cursor:pointer; font-size:30px;">😊</span>
-</div>
-
-<div id="mega-emoji-palace"></div>
-
-<script>
-    // 1. تفعيل حركة الأجنحة
-    function togglePanel(id) {
-        document.getElementById(id).classList.toggle('panel-hidden');
-    }
-
-    // 2. تفعيل الآلاف المؤلفة (بحر الإيموجيات والزخارف)
-    function toggleEmojis() {
-        const p = document.getElementById('mega-emoji-palace');
-        if(p.innerHTML === "") {
-            let s = "";
-            for(let i=0x1F600; i<0x1F64F; i++) s += `<span onclick="add('${String.fromCodePoint(i)}')" style="font-size:30px; cursor:pointer;">${String.fromCodePoint(i)}</span>`;
-            // إضافة اللاوات والزخارف
-            const icons = ["𓆩", "𓆪", "卍", "亗", "꧂", "꧁", "🔥", "👑"];
-            icons.forEach(icon => s += `<span onclick="add('${icon}')" style="font-size:30px; cursor:pointer; color:gold;">${icon}</span>`);
-            p.innerHTML = s;
+        /* 1. الأجنحة (تنسد وتنفتح فعلياً) */
+        .side-panel {
+            position: fixed; top: 70px; width: 230px; height: 75%;
+            background: rgba(0,0,0,0.95); border: 2px solid var(--gold);
+            transition: 0.5s ease-in-out; z-index: 2000; border-radius: 15px;
+            box-shadow: 0 0 20px purple;
         }
-        p.style.display = (p.style.display==='none'?'grid':'none');
-    }
+        #users-panel { right: 10px; }
+        #settings-panel { left: 10px; }
+        .panel-hidden { transform: scaleX(0); opacity: 0; pointer-events: none; }
 
-    function add(val) { document.getElementById('msg-in').value += val; }
-
-    // 3. تفعيل زر الإرسال مع الزخرفة والزلزال
-    function royalSend() {
-        const val = document.getElementById('msg-in').value;
-        if(val) {
-            console.log("تم إرسال مرسوم مزخرف: ꧁ " + val + " ꧂");
-            document.getElementById('msg-in').value = "";
-            // تأثير الزلزال
+        /* 2. شريط الإرسال الملكي والزر المقلوب */
+        .royal-bar {
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
+            width: 90%; display: flex; flex-direction: row-reverse;
+            background: #1a1a1a; border: 2px solid var(--gold); border-radius: 50px;
+            padding: 8px 15px; z-index: 3000; align-items: center;
         }
-    }
-</script>
+        #send-btn {
+            background: red; color: white; border: 2px solid var(--gold);
+            border-radius: 30px; padding: 12px 25px; cursor: pointer;
+            font-weight: bold; font-size: 18px; direction: rtl;
+        }
+
+        /* 3. حاوية الآلاف المؤلفة (تظهر في المنتصف) */
+        #mega-palace {
+            position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%);
+            width: 85%; height: 60%; background: #000; border: 4px double var(--gold);
+            display: none; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+            overflow-y: auto; padding: 20px; z-index: 10000; border-radius: 20px;
+        }
+        .item { font-size: 30px; cursor: pointer; padding: 5px; text-align: center; }
+        
+        /* أزرار التحكم بالأجنحة */
+        .toggle-btn {
+            position: fixed; top: 20px; z-index: 4000;
+            background: #222; color: var(--gold); border: 1px solid var(--gold);
+            padding: 8px 15px; cursor: pointer; border-radius: 10px;
+        }
+    </style>
+</head>
+<body onload="initKingdom()">
+
+    <button class="toggle-btn" style="right: 20px;" onclick="togglePanel('users-panel')">☰ الرعية</button>
+    <button class="toggle-btn" style="left: 20px;" onclick="togglePanel('settings-panel')">⚙️ الإعدادات</button>
+
+    <div id="users-panel" class="side-panel">
+        <div style="color:var(--gold); text-align:center; padding:10px; border-bottom: 1px solid gold;">
+            👥 الرعية: <span id="online-count">0</span>
+        </div>
+        <div id="user-list" style="padding: 10px;"></div>
+    </div>
+
+    <div id="settings-panel" class="side-panel">
+        <div style="color:var(--gold); text-align:center; padding:10px;">⚙️ إعدادات المملكة</div>
+        <button style="width:90%; margin:5%; padding:10px; background:white; color:black;">نظام الحماية الملكي 🛡️</button>
+    </div>
+
+    <div id="mega-palace"></div>
+
+    <div class="royal-bar">
+        <button id="send-btn" onclick="sendArt()">إرسال ⟸</button>
+        <input type="text" id="msg-in" style="flex:1; background:none; border:none; color:white; padding:10px; text-align:right;" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
+        <span onclick="toggleMega()" style="cursor:pointer; font-size:30px; margin-right:10px;">😊</span>
+    </div>
+
+    <script>
+        // 1. تفعيل حركة الأجنحة (تنسد وتنفتح)
+        function togglePanel(id) {
+            document.getElementById(id).classList.toggle('panel-hidden');
+        }
+
+        // 2. تفعيل الآلاف المؤلفة (بحر من الإيموجيات والزخارف)
+        function toggleMega() {
+            const p = document.getElementById('mega-palace');
+            if(p.innerHTML === "") {
+                let s = "";
+                // توليد آلاف الرموز
+                for(let i=0x1F600; i<0x1F64F; i++) s += `<div class="item" onclick="add('${String.fromCodePoint(i)}')">${String.fromCodePoint(i)}</div>`;
+                // إضافة زخارف اللاوات والنجوم
+                const dec = ["𓆩", "𓆪", "卍", "亗", "꧂", "꧁", "🔥", "💎", "⚔️", "👑"];
+                dec.forEach(d => s += `<div class="item" onclick="add('${d}')" style="color:gold;">${d}</div>`);
+                p.innerHTML = s;
+            }
+            p.style.display = (p.style.display === 'none' ? 'grid' : 'none');
+        }
+
+        function add(v) { document.getElementById('msg-in').value += v; }
+
+        // 3. تفعيل زر الإرسال الملكي
+        function sendArt() {
+            const val = document.getElementById('msg-in').value;
+            if(val) {
+                alert("تم إرسال مرسوم مزخرف: ꧁ " + val + " ꧂");
+                document.getElementById('msg-in').value = "";
+            }
+        }
+    </script>
+</body>
+</html>
