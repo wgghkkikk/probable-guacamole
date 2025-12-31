@@ -2,104 +2,107 @@
 <html lang="ar" dir="rtl">
 <head>
     <style>
-        :root { --gold: #ffd700; }
-        body { background: #000; color: white; font-family: sans-serif; overflow: hidden; margin: 0; }
+        :root { --king-gold: #ffd700; --royal-red: #ff0000; }
+        body { background: #000; color: white; margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, sans-serif; }
 
-        /* 1. الأجنحة (تنسد وتنفتح فعلياً) */
+        /* 1. الأجنحة الملكية (تنسد وتنفتح بذكاء) */
         .side-panel {
-            position: fixed; top: 70px; width: 230px; height: 75%;
-            background: rgba(0,0,0,0.95); border: 2px solid var(--gold);
-            transition: 0.5s ease-in-out; z-index: 2000; border-radius: 15px;
-            box-shadow: 0 0 20px purple;
+            position: fixed; top: 80px; width: 240px; height: 70%;
+            background: rgba(0,0,0,0.95); border: 2px solid var(--king-gold);
+            border-radius: 20px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2000; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
         }
-        #users-panel { right: 10px; }
-        #settings-panel { left: 10px; }
+        #users-panel { right: 15px; } 
+        #settings-panel { left: 15px; }
         .panel-hidden { transform: scaleX(0); opacity: 0; pointer-events: none; }
 
-        /* 2. شريط الإرسال الملكي والزر المقلوب */
-        .royal-bar {
-            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
-            width: 90%; display: flex; flex-direction: row-reverse;
-            background: #1a1a1a; border: 2px solid var(--gold); border-radius: 50px;
-            padding: 8px 15px; z-index: 3000; align-items: center;
+        /* 2. شريط الإرسال والزر المقلوب المصحح */
+        .input-bar {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; display: flex; flex-direction: row-reverse; /* الزر يساراً */
+            background: #1a1a1a; border: 2px solid var(--king-gold);
+            border-radius: 50px; padding: 10px 20px; align-items: center; z-index: 3000;
         }
         #send-btn {
-            background: red; color: white; border: 2px solid var(--gold);
-            border-radius: 30px; padding: 12px 25px; cursor: pointer;
-            font-weight: bold; font-size: 18px; direction: rtl;
+            background: var(--royal-red); color: white; border: 2px solid var(--king-gold);
+            border-radius: 40px; padding: 12px 30px; cursor: pointer;
+            font-weight: bold; font-size: 18px; white-space: nowrap;
         }
 
-        /* 3. حاوية الآلاف المؤلفة (تظهر في المنتصف) */
-        #mega-palace {
+        /* 3. بحر الآلاف المؤلفة (بمنتصف الشاشة) */
+        #mega-emoji-box {
             position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; height: 60%; background: #000; border: 4px double var(--gold);
-            display: none; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
-            overflow-y: auto; padding: 20px; z-index: 10000; border-radius: 20px;
+            width: 85%; height: 60%; background: rgba(0,0,0,0.98);
+            border: 4px double var(--king-gold); border-radius: 25px;
+            display: none; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            overflow-y: auto; padding: 25px; z-index: 10000;
         }
-        .item { font-size: 30px; cursor: pointer; padding: 5px; text-align: center; }
-        
-        /* أزرار التحكم بالأجنحة */
-        .toggle-btn {
-            position: fixed; top: 20px; z-index: 4000;
-            background: #222; color: var(--gold); border: 1px solid var(--gold);
-            padding: 8px 15px; cursor: pointer; border-radius: 10px;
+        .emoji-item { font-size: 35px; cursor: pointer; text-align: center; padding: 10px; transition: 0.2s; }
+        .emoji-item:hover { transform: scale(1.3); background: rgba(255,215,0,0.2); border-radius: 10px; }
+
+        /* أزرار التحكم الملكية */
+        .royal-toggle {
+            position: fixed; top: 20px; background: #222; color: var(--king-gold);
+            border: 1px solid var(--king-gold); padding: 10px 20px; border-radius: 15px;
+            cursor: pointer; z-index: 4000; font-weight: bold;
         }
     </style>
 </head>
-<body onload="initKingdom()">
+<body onload="buildKingdom()">
 
-    <button class="toggle-btn" style="right: 20px;" onclick="togglePanel('users-panel')">☰ الرعية</button>
-    <button class="toggle-btn" style="left: 20px;" onclick="togglePanel('settings-panel')">⚙️ الإعدادات</button>
+    <button class="royal-toggle" style="right: 20px;" onclick="toggleWing('users-panel')">𓆩 الرعية 𓆪</button>
+    <button class="royal-toggle" style="left: 20px;" onclick="toggleWing('settings-panel')">𓆩 الإعدادات 𓆪</button>
 
     <div id="users-panel" class="side-panel">
-        <div style="color:var(--gold); text-align:center; padding:10px; border-bottom: 1px solid gold;">
-            👥 الرعية: <span id="online-count">0</span>
+        <div style="color:var(--king-gold); text-align:center; padding:15px; border-bottom:1px solid gold; font-weight:bold;">
+            👥 الرعية المتواجدة: <span id="online-count">0</span>
         </div>
-        <div id="user-list" style="padding: 10px;"></div>
+        <div id="user-list"></div>
     </div>
 
     <div id="settings-panel" class="side-panel">
-        <div style="color:var(--gold); text-align:center; padding:10px;">⚙️ إعدادات المملكة</div>
-        <button style="width:90%; margin:5%; padding:10px; background:white; color:black;">نظام الحماية الملكي 🛡️</button>
+        <div style="color:var(--king-gold); text-align:center; padding:15px;">⚙️ نظام القصر الملكي</div>
+        <button style="width:90%; margin:5%; padding:12px; background:white; color:black; font-weight:bold; border-radius:10px;">نظام الحماية الملكي 🛡️</button>
     </div>
 
-    <div id="mega-palace"></div>
+    <div id="mega-emoji-box"></div>
 
-    <div class="royal-bar">
-        <button id="send-btn" onclick="sendArt()">إرسال ⟸</button>
-        <input type="text" id="msg-in" style="flex:1; background:none; border:none; color:white; padding:10px; text-align:right;" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
-        <span onclick="toggleMega()" style="cursor:pointer; font-size:30px; margin-right:10px;">😊</span>
+    <div class="input-bar">
+        <button id="send-btn" onclick="sendRoyalMessage()">إرسال ⟸</button>
+        <input type="text" id="msg-in" style="flex:1; background:none; border:none; color:white; padding:15px; text-align:right; outline:none;" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
+        <div onclick="openMegaMenu()" style="cursor:pointer; font-size:35px; margin-right:15px;">😊</div>
     </div>
 
     <script>
-        // 1. تفعيل حركة الأجنحة (تنسد وتنفتح)
-        function togglePanel(id) {
+        // 1. تفعيل حركة الأجنحة (الفتح والغلق)
+        function toggleWing(id) {
             document.getElementById(id).classList.toggle('panel-hidden');
         }
 
-        // 2. تفعيل الآلاف المؤلفة (بحر من الإيموجيات والزخارف)
-        function toggleMega() {
-            const p = document.getElementById('mega-palace');
-            if(p.innerHTML === "") {
-                let s = "";
+        // 2. تفعيل الآلاف المؤلفة (بحر الإيموجيات والزخارف)
+        function openMegaMenu() {
+            const box = document.getElementById('mega-emoji-box');
+            if(box.innerHTML === "") {
+                let html = "";
                 // توليد آلاف الرموز
-                for(let i=0x1F600; i<0x1F64F; i++) s += `<div class="item" onclick="add('${String.fromCodePoint(i)}')">${String.fromCodePoint(i)}</div>`;
-                // إضافة زخارف اللاوات والنجوم
-                const dec = ["𓆩", "𓆪", "卍", "亗", "꧂", "꧁", "🔥", "💎", "⚔️", "👑"];
-                dec.forEach(d => s += `<div class="item" onclick="add('${d}')" style="color:gold;">${d}</div>`);
-                p.innerHTML = s;
+                for(let i=0x1F600; i<0x1F64F; i++) html += `<div class="emoji-item" onclick="add('${String.fromCodePoint(i)}')">${String.fromCodePoint(i)}</div>`;
+                // إضافة زخارف اللاوات الحصرية
+                const kings = ["𓆩", "𓆪", "卍", "亗", "꧁", "꧂", "🔥", "💎", "⚔️", "👑", "🧿"];
+                kings.forEach(k => html += `<div class="emoji-item" onclick="add('${k}')" style="color:gold;">${k}</div>`);
+                box.innerHTML = html;
             }
-            p.style.display = (p.style.display === 'none' ? 'grid' : 'none');
+            box.style.display = (box.style.display === "none" ? "grid" : "none");
         }
 
         function add(v) { document.getElementById('msg-in').value += v; }
 
-        // 3. تفعيل زر الإرسال الملكي
-        function sendArt() {
-            const val = document.getElementById('msg-in').value;
-            if(val) {
-                alert("تم إرسال مرسوم مزخرف: ꧁ " + val + " ꧂");
-                document.getElementById('msg-in').value = "";
+        // 3. تفعيل الإرسال مع الرعد والزخرفة
+        function sendRoyalMessage() {
+            const input = document.getElementById('msg-in');
+            if(input.value.trim()) {
+                alert("تم إرسال مرسوم مزخرف: ꧁ " + input.value + " ꧂");
+                input.value = "";
+                // تفعيل تأثير الزلزال الملكي
             }
         }
     </script>
