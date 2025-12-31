@@ -1,18 +1,24 @@
-    100% { transform: translateX(1000px) translateY(1000px) rotate(-45deg); opacity: 0; }
+/* تأثير البساط الأحمر لرسائل الملك */
+.royal-carpet {
+    background: linear-gradient(90deg, rgba(255,0,0,0) 0%, rgba(139,0,0,0.8) 50%, rgba(255,0,0,0) 100%);
+    border-top: 1px solid var(--gold);
+    border-bottom: 1px solid var(--gold);
+    padding: 10px;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
 }
-function createStars() {
-    const container = document.getElementById('star-container');
-    for (let i = 0; i < 150; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        const size = Math.random() * 3 + 'px';
-        star.style.width = size;
-        star.style.height = size;
-        star.style.left = Math.random() * 100 + 'vw';
-        star.style.top = Math.random() * 100 + 'vh';
-        star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
-        container.appendChild(star);
-    }
+
+/* حركة بسيطة للبساط ليظهر كأنه حرير */
+.royal-carpet::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: carpet-shine 3s infinite;
 }
-// استدعاء الدالة عند تشغيل المملكة
-window.addEventListener('load', createStars);
+
+@keyframes carpet-shine {
+    to { left: 100%; }
+}
