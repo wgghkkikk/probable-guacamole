@@ -1,33 +1,8 @@
-/* بصمة الملك خلف الرسالة */
-.royal-carpet::before {
-    content: "علوش";
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 40px;
-    opacity: 0.1;
-    color: gold;
-    pointer-events: none;
-    font-family: 'Amiri', serif;
-}
-
-/* توهج الأجنحة النيوني */
-.side-panel {
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.3);
-}
-
-/* إشعار الدخول الملكي */
-#king-alert {
-    position: fixed;
-    top: -100px;
-    left: 0;
-    width: 100%;
-    background: linear-gradient(90deg, transparent, gold, transparent);
-    color: black;
-    text-align: center;
-    padding: 15px;
-    font-weight: bold;
-    z-index: 5000;
-    transition: 0.8s;
-}
+<div id="users-panel" class="side-panel">
+    <div id="king-counter" style="text-align: center; color: var(--gold); background: rgba(255, 215, 0, 0.1); border: 1px solid var(--gold); border-radius: 10px; padding: 10px; margin-bottom: 15px; font-weight: bold; font-size: 18px;">
+        👥 عدد الرعية: <span id="online-count">0</span>
+    </div>
+    <div class="panel-title">𓆩 المتصلين 𓆪</div>
+    <div id="user-list">
+        </div>
+</div>
