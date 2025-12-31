@@ -1,17 +1,20 @@
+        }
+    });
+}
 function initKingdom() {
     const name = document.getElementById('my-name').value;
     db.ref("activity_log").push().set({ user: name, time: new Date().toLocaleString('ar-EG') });
-
+    
     const eList = document.getElementById('emoji-list');
-    eList.innerHTML = ""; // تنظيف القائمة قبل التحميل
+    eList.innerHTML = ""; // تنظيف القائمة قبل التحميل لضمان السرعة
 
-    // 1. إضافة الملصقات الملونة (تشبه ملصقات يوتيوب)
+    // 1. إضافة الملصقات الملكية الملونة (تشبه ملصقات يوتيوب)
     const stickers = ["👑", "🔥", "💎", "🛡️", "⚔️", "🌟", "🚀", "🦁", "💰", "✨", "🎁", "🧿"];
     stickers.forEach(stk => {
         let s = document.createElement('span');
         s.className = 'emoji-item';
-        s.style.fontSize = "35px"; // تكبير الملصقات المميزة
-        s.style.filter = "drop-shadow(0 0 5px gold)"; // إضافة لمعة ملكية
+        s.style.fontSize = "35px"; // تكبير الملصقات لتكون واضحة كملصقات يوتيوب
+        s.style.filter = "drop-shadow(0 0 5px gold)"; // إضافة لمعة ملكية ذهبية
         s.innerText = stk;
         s.onclick = () => { document.getElementById('msg-in').value += stk; };
         eList.appendChild(s);
@@ -20,10 +23,10 @@ function initKingdom() {
     // 2. إضافة آلاف الإيموجيات العالمية (النطاقات الشاملة)
     const ranges = [
         [0x1F600, 0x1F64F], // الوجوه الضاحكة
-        [0x1F300, 0x1F5FF], // الرموز والأشياء
+        [0x1F300, 0x1F5FF], // الرموز والأشياء المنوعة
         [0x1F680, 0x1F6FF], // المواصلات والخرائط
-        [0x1F900, 0x1F9FF], // الإيموجيات الحديثة
-        [0x2600, 0x26FF],   // علامات منوعة
+        [0x1F900, 0x1F9FF], // الإيموجيات الحديثة والإضافية
+        [0x2600, 0x26FF],   // علامات ورموز منوعة
         [0x1F1E6, 0x1F1FF]  // الأعلام العالمية
     ];
 
@@ -31,7 +34,7 @@ function initKingdom() {
         for (let i = range[0]; i <= range[1]; i++) {
             let s = document.createElement('span');
             s.className = 'emoji-item';
-            s.innerText = String.fromCodePoint(i); // تحويل الكود إلى إيموجي
+            s.innerText = String.fromCodePoint(i); // تحويل الكود إلى إيموجي حقيقي
             s.onclick = () => { document.getElementById('msg-in').value += s.innerText; }; // إضافة للنص عند الضغط
             eList.appendChild(s);
         }
