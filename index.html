@@ -1,65 +1,82 @@
 <style>
-    /* 1. تصميم جناح الإعدادات ليحتوي الملايين */
-    #settings-wing {
-        position: fixed; top: 80px; left: 15px; width: 280px; height: 75%;
+    /* 1. تصميم جناح الإعدادات ليحتوي الملايين والرموز */
+    #settings-panel {
+        position: fixed; top: 85px; left: 15px; width: 280px; height: 75%;
         background: rgba(0,0,0,0.98); border: 3px solid gold;
-        border-radius: 20px; overflow-y: auto; z-index: 5000;
-        box-shadow: 0 0 30px purple; padding: 10px;
+        border-radius: 20px; z-index: 5000; overflow-y: auto;
+        box-shadow: 0 0 30px #ff00ff; padding: 15px;
     }
 
-    /* 2. حاوية الرموز داخل الإعدادات */
-    .millions-container {
+    /* 2. حاوية الملايين من الرموز والزخارف */
+    .millions-grid {
         display: grid; grid-template-columns: repeat(4, 1fr);
-        gap: 5px; padding: 10px; background: #111;
-        border-radius: 10px; border: 1px solid #333;
+        gap: 8px; padding: 10px; background: #111;
+        border-radius: 15px; border: 1px solid #444; margin-top: 15px;
     }
 
-    .mega-item {
-        font-size: 25px; cursor: pointer; text-align: center;
-        padding: 5px; transition: 0.2s;
+    .mega-icon {
+        font-size: 28px; cursor: pointer; text-align: center;
+        padding: 5px; transition: 0.2s; color: white;
     }
-    .mega-item:hover { background: gold; color: black; border-radius: 5px; }
+    .mega-icon:hover { transform: scale(1.3); color: gold; background: rgba(255,215,0,0.1); border-radius: 8px; }
 
-    .setting-title {
-        color: gold; text-align: center; font-weight: bold;
-        padding: 10px; border-bottom: 2px double gold; margin-bottom: 10px;
+    /* 3. تصحيح زر الإرسال المقلوب واللون الأحمر */
+    .royal-send-btn {
+        background: #ff0000 !important; color: white !important;
+        border: 2px solid gold !important; border-radius: 40px !important;
+        padding: 10px 30px !important; font-weight: bold !important;
+        font-size: 18px !important; cursor: pointer;
     }
 </style>
 
-<div id="settings-wing">
-    <div class="setting-title">⚙️ خزانة الملايين الملكية</div>
+<div id="settings-panel">
+    <div style="color:gold; text-align:center; font-weight:bold; border-bottom:2px solid gold; padding-bottom:10px;">
+        ⚙️ إعدادات الملايين الملكية
+    </div>
     
-    <button style="width:100%; padding:12px; background:white; color:black; font-weight:bold; border-radius:10px; margin-bottom:15px;">
+    <button style="width:100%; margin:15px 0; padding:12px; background:white; color:black; font-weight:bold; border-radius:10px; border:none;">
         🛡️ نظام الحماية الملكي
     </button>
 
-    <div style="color:white; font-size:12px; margin-bottom:5px;">💎 رموز الملايين المضافة:</div>
-    <div id="millions-list" class="millions-container">
+    <div style="color:gold; font-size:14px; margin-bottom:10px; text-align:center;">𓆩 ملايين الزخارف والرموز 𓆪</div>
+    <div id="millions-list" class="millions-grid">
         </div>
 </div>
 
+<div style="position:fixed; bottom:20px; width:95%; left:2.5%; display:flex; flex-direction:row-reverse; align-items:center; background:rgba(0,0,0,0.9); border:2px solid gold; border-radius:50px; padding:8px 15px; z-index:6000;">
+    <button class="royal-send-btn" onclick="sendArt()">إرسال ⟸</button>
+    <input type="text" id="king-inp" style="flex:1; background:none; border:none; color:white; padding:15px; text-align:right; font-size:16px;" placeholder="ـﮩﮩ٨ﮩﮩ👑 مرسوم الملك علوش 👑ﮩﮩ٨ﮩﮩـ">
+</div>
+
 <script>
-    // توليد ملايين الإضافات والرموز داخل الإعدادات فوراً
-    function loadMillions() {
+    // توليد الملايين من الرموز داخل الإعدادات
+    function loadMegaMillions() {
         const list = document.getElementById('millions-list');
-        let content = "";
+        let icons = "";
         
-        // إضافة آلاف الرموز المتنوعة (فيسات، زخارف، أشياء نادرة)
-        const ranges = [[0x1F600, 0x1F64F], [0x1F300, 0x1F5FF], [0x1F900, 0x1F9FF], [0x2600, 0x26FF]];
-        ranges.forEach(range => {
-            for(let i = range[0]; i <= range[1]; i++) {
-                content += `<div class="mega-item" onclick="document.getElementById('king-inp').value += '${String.fromCodePoint(i)}'">${String.fromCodePoint(i)}</div>`;
+        // سحب آلاف الرموز (الفيسات، النجوم، والرموز النادرة)
+        const ranges = [[0x1F600, 0x1F64F], [0x1F300, 0x1F5FF], [0x2600, 0x26FF], [0x2700, 0x27BF]];
+        ranges.forEach(r => {
+            for(let i = r[0]; i <= r[1]; i++) {
+                icons += `<div class="mega-icon" onclick="addIcon('${String.fromCodePoint(i)}')">${String.fromCodePoint(i)}</div>`;
             }
         });
 
-        // إضافة اللاوات والزخارف الملكية الخاصة
-        const royalExtras = ["𓆩", "𓆪", "卍", "亗", "꧁", "꧂", "🔥", "💎", "⚔️", "👑", "🧿", "✨", "🪐"];
-        royalExtras.forEach(icon => {
-            content += `<div class="mega-item" onclick="document.getElementById('king-inp').value += '${icon}'" style="color:gold;">${icon}</div>`;
+        // إضافة اللاوات الملكية الخاصة بالملك علوش
+        const royalDeco = ["𓆩", "𓆪", "卍", "亗", "꧁", "꧂", "🔥", "💎", "⚔️", "👑", "🧿"];
+        royalDeco.forEach(d => {
+            icons += `<div class="mega-icon" onclick="addIcon('${d}')" style="color:gold;">${d}</div>`;
         });
 
-        list.innerHTML = content;
+        list.innerHTML = icons;
     }
 
-    loadMillions(); // تشغيل التحميل عند فتح القصر
+    function addIcon(val) { document.getElementById('king-inp').value += val; }
+
+    function sendArt() {
+        // تنفيذ الإرسال الملكي في الشاشة
+        alert("تم إرسال مرسوم الملك علوش المزخرف!");
+    }
+
+    loadMegaMillions(); // تشغيل خزانة الملايين فوراً
 </script>
