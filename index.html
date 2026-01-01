@@ -1,72 +1,65 @@
 <style>
-    /* 1. هيكل الشات الكامل (مثل عرب شات) */
-    #royal-chat-container {
-        display: flex; width: 100%; height: 90vh;
-        background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    /* 2. قائمة الرعية والأسماء (الجهة اليمنى) */
-    #users-list {
-        width: 250px; background: white; border-left: 1px solid #ddd;
-        display: flex; flex-direction: column;
-    }
-    .status-bar { background: #28a745; color: white; padding: 10px; text-align: center; font-weight: bold; }
+    /* تصميم الخلفية والنيون المستوحى من */
+    body { background-color: #0b0c10; color: #fff; direction: rtl; font-family: 'Cairo', sans-serif; }
     
-    .user-item {
-        display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee;
+    /* قائمة الأسماء والرتب الملكية */
+    .user-row {
+        margin: 5px; padding: 10px; border-radius: 15px;
+        display: flex; align-items: center; justify-content: space-between;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
     }
-    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #ddd; margin-left: 10px; border: 2px solid gold; }
-    .user-name { font-weight: bold; font-size: 14px; }
-    .king-tag { color: #d4af37; font-size: 12px; display: block; }
+    .king-row { background: linear-gradient(90deg, #ff0000, #b20000); border: 2px solid gold; box-shadow: 0 0 15px #ff0000; }
+    .neon-blue { background: linear-gradient(90deg, #00d2ff, #3a7bd5); box-shadow: 0 0 10px #00d2ff; }
+    .neon-purple { background: linear-gradient(90deg, #9d50bb, #6e48aa); box-shadow: 0 0 10px #9d50bb; }
 
-    /* 3. ساحة المراسيم (الدردشة في الوسط) */
-    #chat-main { flex: 1; display: flex; flex-direction: column; background: white; }
-    #messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #fff; }
-    
-    .msg { margin-bottom: 15px; padding: 10px; border-radius: 10px; max-width: 80%; position: relative; }
-    .msg.king { background: #fff9e6; border: 1px solid gold; align-self: flex-end; }
-    .msg-text { color: #333; line-height: 1.5; }
+    /* ساحة المراسيم والرسائل الملونة */
+    #chat-screen {
+        height: 400px; overflow-y: auto; background: #1a1a1a;
+        border: 1px solid #333; margin: 10px; padding: 10px;
+    }
+    .chat-msg {
+        background: rgba(255, 255, 255, 0.05); margin-bottom: 8px;
+        padding: 8px; border-right: 4px solid gold; border-radius: 5px;
+    }
 
-    /* 4. شريط الإرسال الملكي (أحمر ناري) */
-    #send-zone {
-        padding: 15px; background: #000; display: flex; align-items: center;
-        border-radius: 50px; margin: 10px; border: 2px solid gold;
+    /* شريط الإرسال الذكي */
+    .send-bar {
+        display: flex; background: #222; padding: 10px;
+        position: fixed; bottom: 0; width: 100%; border-top: 2px solid #444;
     }
-    #king-input {
-        flex: 1; background: none; border: none; color: white; padding: 10px; text-align: right; outline: none;
+    .send-bar input {
+        flex: 1; background: #333; border: 1px solid #555;
+        color: white; padding: 10px; border-radius: 20px; text-align: right;
     }
-    .red-send-btn {
-        background: #ff0000; color: white; border: none; border-radius: 30px;
-        padding: 10px 25px; font-weight: bold; cursor: pointer; margin-right: 10px;
-    }
+    .send-btn { background: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 20px; margin-right: 5px; cursor: pointer; }
 </style>
 
-<div id="royal-chat-container">
-    <div id="users-list">
-        <div class="status-bar">🟢 متصل الآن: 70</div>
-        <div class="user-item">
-            <div class="user-avatar"></div>
-            <div>
-                <span class="user-name" style="color:red;">👑 الملك علوش 𓆩𓆪</span>
-                <span class="king-tag">صاحب المملكة</span>
-            </div>
-        </div>
-        <div class="user-item"><div class="user-avatar" style="border:none;"></div><span class="user-name">Reyo Ryan</span></div>
-        <div class="user-item"><div class="user-avatar" style="border:none;"></div><span class="user-name">A-3MMaR</span></div>
-    </div>
+<div class="status-header" style="background: #28a745; text-align: center; padding: 5px;">
+    متصل الآن: 260 رعية 🟢
+</div>
 
-    <div id="chat-main">
-        <div id="messages-area">
-            <div class="msg king">
-                <span style="color:gold; font-weight:bold;">الملك علوش:</span>
-                <p class="msg-text">أهلاً بكم في مملكتي الأسطورية.. هنا تسطر الأمجاد ⚔️✨</p>
-            </div>
-        </div>
-
-        <div id="send-zone">
-            <span style="font-size: 25px; cursor:pointer;">😊</span>
-            <input type="text" id="king-input" placeholder="اكتب مرسومك الملكي هنا...">
-            <button class="red-send-btn">إرسال ⟸</button>
-        </div>
+<div id="users-area">
+    <div class="user-row king-row">
+        <span>👑 الملك علوش 𓆩𓆪</span>
+        <img src="avatar_king.png" style="width:30px; border-radius:50%;">
     </div>
+    <div class="user-row neon-blue">
+        <span>⚡ أنور العراقي ⚡</span>
+        <span style="font-size: 12px;">7</span>
+    </div>
+</div>
+
+<div id="chat-screen">
+    <div class="chat-msg">
+        <b style="color: gold;">الملك علوش:</b> <span style="color: #00ff00;">نورتم المملكة يا أبطال ⚔️</span>
+    </div>
+    <div class="chat-msg">
+        <b style="color: #ff00ff;">جليلة:</b> هلا بيك يا ملكنا الغالي 🌸
+    </div>
+</div>
+
+<div class="send-bar">
+    <button class="send-btn">إرسال</button>
+    <input type="text" placeholder="اكتب مراسيمك هنا...">
+    <span style="font-size: 20px; margin-left: 10px;">😊</span>
 </div>
