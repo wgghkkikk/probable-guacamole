@@ -2,88 +2,61 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة علوش - بث GitHub المباشر</title>
+    <title>مملكة علوش - التحكم النهائي</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a0a; color: #00ffcc; text-align: center; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: #151515; padding: 25px; border-radius: 15px; border: 2px solid #00ffcc; box-shadow: 0 0 20px #00ffcc55; }
-        input, button { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #00ffcc; background: #222; color: #fff; font-size: 16px; }
-        button { background: #00ffcc; color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #00cca3; box-shadow: 0 0 15px #00ffcc; }
-        canvas { width: 100%; border-radius: 10px; border: 1px solid #444; margin-top: 20px; background: #000; }
-        .status { font-weight: bold; margin-top: 10px; color: #ffcc00; }
+        body { background: #000; color: #0f0; text-align: center; font-family: sans-serif; padding: 20px; }
+        .panel { border: 2px solid #0f0; padding: 20px; border-radius: 15px; background: #111; max-width: 600px; margin: auto; }
+        input, button { width: 90%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #0f0; background: #222; color: #fff; }
+        button { background: #0f0; color: #000; font-weight: bold; cursor: pointer; }
+        #status { color: cyan; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>👑 لوحة تحكم مملكة علوش 🚀</h1>
-    <p>بث مباشر عبر GitHub (تخطي قيود الاستضافة)</p>
-
-    <input type="text" id="streamUrl" placeholder="رابط السيرفر (RTMP URL)" value="rtmp://a.rtmp.youtube.com/live2">
-    <input type="text" id="streamKey" placeholder="ضع مفتاح البث (Stream Key) هنا">
-    
-    <hr style="border: 0.5px solid #333;">
-    
-    <input type="file" id="imageInput" accept="image/*">
-    <input type="text" id="overlayText" placeholder="اكتب النص المتحرك هنا">
-    
-    <button id="startBtn">🚀 تشغيل البث كبل (يوتيوب)</button>
-    
-    <div class="status" id="statusText">الحالة: جاهز للأمر يا ملك</div>
-    
-    <canvas id="liveCanvas" width="1280" height="720"></canvas>
-</div>
-
-<script>
-    const canvas = document.getElementById('liveCanvas');
-    const ctx = canvas.getContext('2d');
-    const startBtn = document.getElementById('startBtn');
-    const statusText = document.getElementById('statusText');
-    let bgImg = new Image();
-    let textX = canvas.width;
-
-    // معالجة رفع الصورة
-    document.getElementById('imageInput').onchange = function(e) {
-        const reader = new FileReader();
-        reader.onload = event => bgImg.src = event.target.result;
-        reader.readAsDataURL(e.target.files[0]);
-    };
-
-    // وظيفة الرسم المستمر (المعاينة)
-    function draw() {
-        ctx.fillStyle = "#000";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    <div class="panel">
+        <h1>👑 تحكم مملكة علوش 🚀</h1>
+        <p>البث يعمل الآن عبر سيرفر Mux القوي</p>
         
-        if(bgImg.src) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        <input type="text" id="ytKey" placeholder="ضع مفتاح يوتيوب هنا" value="v977-z6v7-z03u-a1m4-dsq3">
         
-        ctx.fillStyle = "#00ffcc";
-        ctx.font = "bold 50px Arial";
-        const txt = document.getElementById('overlayText').value || "بث مملكة علوش";
-        ctx.fillText(txt, textX, 650);
-        
-        textX -= 4;
-        if (textX < -ctx.measureText(txt).width) textX = canvas.width;
-        
-        requestAnimationFrame(draw);
-    }
-    draw();
+        <button onclick="startMuxStream()">🚀 تشغيل البث الأخضر</button>
+        <div id="status">الحالة: بانتظار أمرك</div>
+    </div>
 
-    startBtn.onclick = () => {
-        const key = document.getElementById('streamKey').value;
-        if(!key) {
-            alert("يا ملك، حط مفتاح البث أولاً!");
-            return;
+    <script>
+        async function startMuxStream() {
+            const ytKey = document.getElementById('ytKey').value;
+            const status = document.getElementById('status');
+            status.innerText = "جاري الاتصال بالمحرك السحابي...";
+
+            // معلومات Mux مالتك اللي حفظناها
+            const tokenId = "3543f100-7cc4-447b-9eb8-8fcb0e83f348";
+            const tokenSecret = "C1nneSjQhsYuG3VMKLn76BYDJPysga0VX2K1xrrRBe3fLBeBJ3rLPbTwjgM1rzPTAsor0hmI+bv";
+
+            try {
+                const response = await fetch('https://api.mux.com/video/v1/live-streams', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa(tokenId + ':' + tokenSecret),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        playback_policy: ['public'],
+                        new_asset_settings: { playback_policy: ['public'] },
+                        generated_live_stream_relay_url: "rtmp://a.rtmp.youtube.com/live2/" + ytKey
+                    })
+                });
+
+                if (response.ok) {
+                    status.innerText = "✅ تم تفعيل البث بنجاح! روح ليوتيوب هسة";
+                    status.style.color = "#0f0";
+                } else {
+                    status.innerText = "❌ فشل الاتصال.. تأكد من الرصيد التجريبي في Mux";
+                    status.style.color = "red";
+                }
+            } catch (err) {
+                status.innerText = "⚠️ خطأ في الشبكة: " + err.message;
+            }
         }
-        
-        statusText.innerText = "جاري تحويل البيانات للبث... انتظر ثواني";
-        statusText.style.color = "#00ff00";
-        
-        // ملاحظة للملك: المتصفح سيقوم بدمج الصورة والنص وإرسالها
-        console.log("Starting stream to: " + document.getElementById('streamUrl').value + "/" + key);
-        alert("تم بدء الإرسال! روح لاستوديو يوتيوب وانتظر اللون الأخضر.");
-    };
-</script>
-
+    </script>
 </body>
 </html>
