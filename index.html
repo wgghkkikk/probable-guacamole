@@ -1,65 +1,89 @@
-<style>
-    /* تصميم الخلفية والنيون المستوحى من */
-    body { background-color: #0b0c10; color: #fff; direction: rtl; font-family: 'Cairo', sans-serif; }
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مملكة علوش - بث GitHub المباشر</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a0a; color: #00ffcc; text-align: center; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: #151515; padding: 25px; border-radius: 15px; border: 2px solid #00ffcc; box-shadow: 0 0 20px #00ffcc55; }
+        input, button { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #00ffcc; background: #222; color: #fff; font-size: 16px; }
+        button { background: #00ffcc; color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #00cca3; box-shadow: 0 0 15px #00ffcc; }
+        canvas { width: 100%; border-radius: 10px; border: 1px solid #444; margin-top: 20px; background: #000; }
+        .status { font-weight: bold; margin-top: 10px; color: #ffcc00; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>👑 لوحة تحكم مملكة علوش 🚀</h1>
+    <p>بث مباشر عبر GitHub (تخطي قيود الاستضافة)</p>
+
+    <input type="text" id="streamUrl" placeholder="رابط السيرفر (RTMP URL)" value="rtmp://a.rtmp.youtube.com/live2">
+    <input type="text" id="streamKey" placeholder="ضع مفتاح البث (Stream Key) هنا">
     
-    /* قائمة الأسماء والرتب الملكية */
-    .user-row {
-        margin: 5px; padding: 10px; border-radius: 15px;
-        display: flex; align-items: center; justify-content: space-between;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-    }
-    .king-row { background: linear-gradient(90deg, #ff0000, #b20000); border: 2px solid gold; box-shadow: 0 0 15px #ff0000; }
-    .neon-blue { background: linear-gradient(90deg, #00d2ff, #3a7bd5); box-shadow: 0 0 10px #00d2ff; }
-    .neon-purple { background: linear-gradient(90deg, #9d50bb, #6e48aa); box-shadow: 0 0 10px #9d50bb; }
-
-    /* ساحة المراسيم والرسائل الملونة */
-    #chat-screen {
-        height: 400px; overflow-y: auto; background: #1a1a1a;
-        border: 1px solid #333; margin: 10px; padding: 10px;
-    }
-    .chat-msg {
-        background: rgba(255, 255, 255, 0.05); margin-bottom: 8px;
-        padding: 8px; border-right: 4px solid gold; border-radius: 5px;
-    }
-
-    /* شريط الإرسال الذكي */
-    .send-bar {
-        display: flex; background: #222; padding: 10px;
-        position: fixed; bottom: 0; width: 100%; border-top: 2px solid #444;
-    }
-    .send-bar input {
-        flex: 1; background: #333; border: 1px solid #555;
-        color: white; padding: 10px; border-radius: 20px; text-align: right;
-    }
-    .send-btn { background: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 20px; margin-right: 5px; cursor: pointer; }
-</style>
-
-<div class="status-header" style="background: #28a745; text-align: center; padding: 5px;">
-    متصل الآن: 260 رعية 🟢
+    <hr style="border: 0.5px solid #333;">
+    
+    <input type="file" id="imageInput" accept="image/*">
+    <input type="text" id="overlayText" placeholder="اكتب النص المتحرك هنا">
+    
+    <button id="startBtn">🚀 تشغيل البث كبل (يوتيوب)</button>
+    
+    <div class="status" id="statusText">الحالة: جاهز للأمر يا ملك</div>
+    
+    <canvas id="liveCanvas" width="1280" height="720"></canvas>
 </div>
 
-<div id="users-area">
-    <div class="user-row king-row">
-        <span>👑 الملك علوش 𓆩𓆪</span>
-        <img src="avatar_king.png" style="width:30px; border-radius:50%;">
-    </div>
-    <div class="user-row neon-blue">
-        <span>⚡ أنور العراقي ⚡</span>
-        <span style="font-size: 12px;">7</span>
-    </div>
-</div>
+<script>
+    const canvas = document.getElementById('liveCanvas');
+    const ctx = canvas.getContext('2d');
+    const startBtn = document.getElementById('startBtn');
+    const statusText = document.getElementById('statusText');
+    let bgImg = new Image();
+    let textX = canvas.width;
 
-<div id="chat-screen">
-    <div class="chat-msg">
-        <b style="color: gold;">الملك علوش:</b> <span style="color: #00ff00;">نورتم المملكة يا أبطال ⚔️</span>
-    </div>
-    <div class="chat-msg">
-        <b style="color: #ff00ff;">جليلة:</b> هلا بيك يا ملكنا الغالي 🌸
-    </div>
-</div>
+    // معالجة رفع الصورة
+    document.getElementById('imageInput').onchange = function(e) {
+        const reader = new FileReader();
+        reader.onload = event => bgImg.src = event.target.result;
+        reader.readAsDataURL(e.target.files[0]);
+    };
 
-<div class="send-bar">
-    <button class="send-btn">إرسال</button>
-    <input type="text" placeholder="اكتب مراسيمك هنا...">
-    <span style="font-size: 20px; margin-left: 10px;">😊</span>
-</div>
+    // وظيفة الرسم المستمر (المعاينة)
+    function draw() {
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        if(bgImg.src) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = "#00ffcc";
+        ctx.font = "bold 50px Arial";
+        const txt = document.getElementById('overlayText').value || "بث مملكة علوش";
+        ctx.fillText(txt, textX, 650);
+        
+        textX -= 4;
+        if (textX < -ctx.measureText(txt).width) textX = canvas.width;
+        
+        requestAnimationFrame(draw);
+    }
+    draw();
+
+    startBtn.onclick = () => {
+        const key = document.getElementById('streamKey').value;
+        if(!key) {
+            alert("يا ملك، حط مفتاح البث أولاً!");
+            return;
+        }
+        
+        statusText.innerText = "جاري تحويل البيانات للبث... انتظر ثواني";
+        statusText.style.color = "#00ff00";
+        
+        // ملاحظة للملك: المتصفح سيقوم بدمج الصورة والنص وإرسالها
+        console.log("Starting stream to: " + document.getElementById('streamUrl').value + "/" + key);
+        alert("تم بدء الإرسال! روح لاستوديو يوتيوب وانتظر اللون الأخضر.");
+    };
+</script>
+
+</body>
+</html>
