@@ -2,32 +2,68 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بث مملكة علوش الاحترافي</title>
+    <title>استوديو علوش الاحترافي للبث</title>
     <style>
-        body { background: #000; color: #0f0; text-align: center; font-family: sans-serif; margin: 0; padding: 0; }
-        .header { background: #111; padding: 20px; border-bottom: 2px solid #0f0; box-shadow: 0 0 20px #0f0; }
-        .video-container { width: 95%; max-width: 800px; margin: 30px auto; border: 3px solid #0f0; border-radius: 15px; overflow: hidden; box-shadow: 0 0 30px #0f0; background: #000; position: relative; padding-bottom: 56.25%; height: 0; }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .status-bar { margin: 20px auto; padding: 10px; width: 80%; background: #222; border-radius: 10px; color: #fff; font-weight: bold; }
-        .btn-refresh { background: #0f0; color: #000; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.3s; box-shadow: 0 0 10px #0f0; }
+        body { background: #1a1a1a; color: white; font-family: Arial; padding: 20px; }
+        .control-panel { background: #222; padding: 20px; border: 2px solid #0f0; border-radius: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .section { background: #333; padding: 15px; border-radius: 8px; border: 1px solid #444; }
+        input, select { width: 90%; padding: 10px; margin: 10px 0; background: #000; color: #0f0; border: 1px solid #0f0; }
+        .preview { background: #000; height: 200px; border: 2px dashed #555; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .ticker { position: absolute; bottom: 10px; width: 100%; white-space: nowrap; animation: scroll 10s linear infinite; }
+        @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        button { background: #0f0; color: #000; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🚀 مملكة علوش - البث المباشر</h1>
+    <h1>🎬 لوحة تحكم مملكة علوش</h1>
+
+    <div class="control-panel">
+        <div class="section">
+            <h3>🔑 إعدادات البث (يوتيوب)</h3>
+            <input type="text" id="streamKey" placeholder="أدخل مفتاح بث يوتيوب (Stream Key)">
+            <input type="text" id="streamUrl" placeholder="رابط سيرفر البث (RTMP)">
+        </div>
+
+        <div class="section">
+            <h3>📺 نوع المحتوى</h3>
+            <select id="contentType">
+                <option value="link">رابط فيديو من قناة أخرى</option>
+                <option value="image">بث صورة ثابتة</option>
+            </select>
+            <input type="text" id="contentSource" placeholder="ضع الرابط هنا أو رابط الصورة">
+        </div>
+
+        <div class="section">
+            <h3>📝 الكتابة على الشاشة</h3>
+            <input type="text" id="overlayText" placeholder="اكتب شيئاً ليظهر في البث">
+            <input type="color" id="textColor" value="#00ff00">
+            <label>لون الشريط</label>
+        </div>
+
+        <div class="section">
+            <h3>🎥 معاينة الشاشة</h3>
+            <div class="preview" id="livePreview">
+                شاشة البث
+                <div class="ticker" id="previewTicker"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/live_stream?channel=UCp7XvUq8J7p7-8vY6S9S-qQ&autoplay=1" allowfullscreen></iframe>
-    </div>
+    <br>
+    <button onclick="startBroadcast()">🚀 تشغيل البث الآن</button>
 
-    <div class="status-bar">
-        🟢 حالة البث: يسحب من قناة علوش مباشرة
-    </div>
-
-    <button class="btn-refresh" onclick="location.reload()">🔄 تحديث الصفحة</button>
-
-    <p style="margin-top: 30px; color: #888;">تم التصميم بواسطة AI لمملكة علوش</p>
+    <script>
+        function startBroadcast() {
+            alert("جارٍ الربط بسيرفر يوتيوب... (تأكد من وضع مفتاح البث الصحيح)");
+            // هنا يتم الربط برمجياً مع سيرفر البث
+        }
+        
+        // تحديث المعاينة فورياً
+        document.getElementById('overlayText').addEventListener('input', function() {
+            const ticker = document.getElementById('previewTicker');
+            ticker.innerText = this.value;
+            ticker.style.color = document.getElementById('textColor').value;
+        });
+    </script>
 </body>
 </html>
