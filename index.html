@@ -1,40 +1,18 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>استوديو علوش - الوسيط المجاني</title>
-    <style>
-        body { background: #000; color: #0f0; text-align: center; font-family: sans-serif; }
-        .panel { border: 2px solid #0f0; border-radius: 15px; padding: 20px; max-width: 500px; margin: auto; }
-        input { width: 100%; padding: 10px; margin: 10px 0; background: #111; color: #0f0; border: 1px solid #0f0; }
-        .status-box { background: #222; padding: 10px; margin-top: 10px; border-radius: 5px; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <div class="panel">
-        <h1>🎬 استوديو علوش (الوسيط المدمج)</h1>
-        
-        <input type="hidden" id="apiKey" value="AIzaSyCXWmSg2y5bhvky2oVp6y4Y6m2tKUctBgg">
-        <input type="hidden" id="streamKey" value="q12g-s6wc-0y03-0ua5-6e6p">
-
-        <div class="status-box">✅ الوسيط: متصل (بدون بطاقة)</div>
-        
-        <input type="text" id="videoUrl" placeholder="رابط الفيديو أو الصورة">
-        <input type="text" id="ticker" placeholder="كلام الشريط المتحرك">
-        
-        <button onclick="startFinalBridge()" style="background:#f00; color:#fff; width:100%; padding:15px; cursor:pointer;">🚀 بدء البث للاستوديو هسة</button>
-        
-        <div id="log" style="font-size: 12px; margin-top: 10px;">بانتظار الضغط على الزر...</div>
-    </div>
-
-    <script>
-        function startFinalBridge() {
-            const sk = document.getElementById('streamKey').value;
-            document.getElementById('log').innerText = "🔴 جارٍ تحويل البيانات للاستوديو عبر الوسيط المباشر...";
-            
-            // تنبيه: هذا الكود يستخدم المتصفح كـ "نفق" لإرسال الفيديو لليوتيوب مباشرة
-            alert("يا ملك، الوسيط اشتغل! ابقِ الصفحة مفتوحة وروح للاستوديو، الإشارة راح توصل خلال لحظات.");
-        }
-    </script>
-</body>
-</html>
+name: Start Live Stream
+on:
+  workflow_dispatch:
+jobs:
+  stream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Python and FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          pip install requests
+      - name: Run Stream
+        env:
+          STREAM_URL: "https://www.youtube.com/watch?v=0_u_XW93uE0"
+          STREAM_KEY: "q12g-s6wc-0y03-0ua5-6e6p"
+        run: python app.py
