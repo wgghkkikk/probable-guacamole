@@ -1,18 +1,27 @@
-name: Start Live Stream
+name: 24/7 Live Stream
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *' # يعيد التشغيل كل 6 ساعات تلقائياً
+  workflow_dispatch: # يخليك تشغله يدوياً بأي وقت
+
 jobs:
-  stream:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install Python and FFmpeg
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          pip install requests
-      - name: Run Stream
-        env:
-          STREAM_URL: "https://www.youtube.com/watch?v=0_u_XW93uE0"
-          STREAM_KEY: "q12g-s6wc-0y03-0ua5-6e6p"
-        run: python app.py
+          sudo apt install ffmpeg -y
+          sudo pip3 install yt-dlp
+
+      - name: Start Streaming
+        run: |
+          # كود البث المستمر
+          while true; do
+            URL=$(yt-dlp -f "best[height<=360]" -g "https://www.youtube.com/watch?v=tS4iR5zOOpA")
+            ffmpeg -re -i "$URL" -c:v libx264 -preset ultrafast -b:v 500k -c:a aac -f flv "rtmp://a.rtmp.youtube.com/live2/Tg40-0hfb-4qem-u70e-exf0"
+            sleep 10
+          done
