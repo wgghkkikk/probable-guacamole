@@ -3,150 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kingdom OBS Professional</title>
+    <title>Hassan Engine v1.0</title>
     <style>
-        :root { --bg: #18181b; --panel: #27272a; --accent: #6366f1; --danger: #ef4444; --success: #22c55e; }
-        body { background: #09090b; color: #e4e4e7; font-family: 'Segoe UI', system-ui; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; font-size: 12px; }
+        :root { --main-bg: #0f0f0f; --panel-bg: #1a1a1a; --accent: #3b82f6; --text: #e5e7eb; }
+        body { background: var(--main-bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Layout Structure */
-        .top-bar { background: var(--panel); padding: 8px 15px; display: flex; gap: 20px; border-bottom: 1px solid #3f3f46; font-size: 11px; }
-        .main-workspace { flex: 1; display: grid; grid-template-columns: 280px 1fr 280px; gap: 10px; padding: 10px; background: #111; }
-        
-        /* Preview Area */
-        .preview-container { background: #000; border: 2px solid #3f3f46; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        /* شاشة المعاينة الذكية */
+        .preview-screen { flex: 1; position: relative; background: #000; display: flex; align-items: center; justify-content: center; border-bottom: 2px solid #333; }
+        #main-video { width: 100%; height: 100%; object-fit: contain; }
         .canvas-overlay { position: absolute; inset: 0; pointer-events: none; }
-        #live-canvas-text { position: absolute; bottom: 10%; width: 100%; text-align: center; color: white; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px #000; }
-        #live-canvas-logo { position: absolute; top: 10px; right: 10px; max-width: 80px; opacity: 0.8; }
+        #text-layer { position: absolute; bottom: 15%; width: 100%; text-align: center; font-size: 20px; font-weight: bold; color: white; text-shadow: 2px 2px 5px #000; }
+        #logo-layer { position: absolute; top: 15px; right: 15px; width: 60px; height: 60px; object-fit: contain; opacity: 0.8; }
 
-        /* Docks & Panels */
-        .dock { background: var(--panel); border: 1px solid #3f3f46; display: flex; flex-direction: column; border-radius: 4px; }
-        .dock-header { background: #18181b; padding: 8px; font-weight: bold; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #a1a1aa; border-bottom: 1px solid #3f3f46; }
-        .dock-content { flex: 1; padding: 10px; overflow-y: auto; }
+        /* منطقة التحكم (Docks) */
+        .controls-area { height: 55%; background: var(--panel-bg); display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 5px; overflow-y: auto; }
+        .dock { background: #262626; border: 1px solid #333; padding: 10px; border-radius: 4px; }
+        h4 { margin: 0 0 10px 0; font-size: 10px; color: #888; text-transform: uppercase; border-bottom: 1px solid #333; }
 
-        /* Controls & Inputs */
-        .input-group { margin-bottom: 12px; }
-        label { display: block; margin-bottom: 5px; color: #a1a1aa; font-size: 11px; }
-        input, select { width: 100%; background: #09090b; border: 1px solid #3f3f46; color: #fff; padding: 8px; border-radius: 4px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 10px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; transition: 0.2s; margin-top: 5px; }
-        .btn-primary { background: var(--accent); }
-        .btn-success { background: var(--success); }
-        .btn-danger { background: var(--danger); }
-
-        /* Status Bar */
-        footer { background: #000; padding: 5px 15px; display: flex; justify-content: space-between; border-top: 1px solid #3f3f46; font-family: monospace; color: #71717a; }
-        .live-indicator { display: flex; align-items: center; gap: 8px; color: #52525b; }
-        .dot { width: 8px; height: 8px; background: #3f3f46; border-radius: 50%; }
-        .is-live .dot { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
-        .is-live { color: var(--danger); }
+        input, select { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 8px; margin-bottom: 8px; border-radius: 4px; font-size: 12px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .btn-start { background: #22c55e; color: white; }
+        .btn-stop { background: #ef4444; color: white; }
+        
+        footer { background: #000; padding: 5px 10px; font-size: 9px; color: #666; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
 
-<div class="top-bar">
-    <span>File</span><span>Edit</span><span>View</span><span>Scene Collection</span><span>Tools</span><span>Help</span>
-</div>
-
-<div class="main-workspace">
-    <!-- Left: Scenes & Sources -->
-    <div class="dock">
-        <div class="dock-header">Sources & Layers</div>
-        <div class="dock-content">
-            <label>Media Source (URL)</label>
-            <input type="text" id="stream_url" placeholder="https://youtube.com/..." oninput="syncPreview()">
-            <hr style="border:0; border-top:1px solid #3f3f46; margin:15px 0;">
-            <label>Overlay Text</label>
-            <input type="text" id="overlay_text" placeholder="Kingdom Live..." oninput="updateUI()">
-            <label>Logo Image URL</label>
-            <input type="text" id="logo_url" placeholder="https://png-link..." oninput="updateUI()">
-        </div>
-    </div>
-
-    <!-- Center: Preview -->
-    <div class="preview-container">
-        <video id="main-video" style="width:100%; height:100%; background:#000;" autoplay muted loop></video>
-        <div class="canvas-overlay">
-            <img id="live-canvas-logo" src="" style="display:none;">
-            <div id="live-canvas-text"></div>
-        </div>
-    </div>
-
-    <!-- Right: Controls & Filters -->
-    <div class="dock">
-        <div class="dock-header">Engine Controls</div>
-        <div class="dock-content">
-            <div class="input-group">
-                <label>Video Filter</label>
-                <select id="v_filter" onchange="updateUI()">
-                    <option value="none">Normal</option>
-                    <option value="grayscale(100%)">B&W</option>
-                    <option value="sepia(80%)">Old Cinema</option>
-                    <option value="brightness(1.5)">Brighten</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Output Resolution</label>
-                <select id="res">
-                    <option>1080p (60fps)</option>
-                    <option selected>720p (30fps)</option>
-                    <option>480p (Mobile)</option>
-                </select>
-            </div>
-            <button class="btn btn-success" id="start-btn" onclick="toggleLive()">START STREAM</button>
-            <button class="btn btn-primary">Studio Mode</button>
-            <button class="btn btn-danger" style="opacity:0.5">Emergency Stop</button>
-        </div>
+<div class="preview-screen">
+    <video id="main-video" autoplay muted loop poster="https://via.placeholder.com/1280x720/000/000"></video>
+    <div class="canvas-overlay">
+        <img id="logo-layer" src="" style="display:none;">
+        <div id="text-layer"></div>
     </div>
 </div>
 
-<footer id="footer">
-    <div class="live-indicator" id="status-display"><div class="dot"></div> OFFLINE</div>
-    <div>CPU: 1.2% | FPS: 60 | KB/S: 0</div>
+<div class="controls-area">
+    <!-- مصادر البث -->
+    <div class="dock">
+        <h4>Sources & Layers</h4>
+        <input type="text" id="v_url" placeholder="رابط الفيديو (Direct Link)" oninput="updatePreview()">
+        <input type="text" id="l_url" placeholder="رابط اللوغو (PNG)" oninput="updateLayers()">
+        <input type="text" id="o_text" placeholder="نص البث (Kingdom)" oninput="updateLayers()">
+    </div>
+
+    <!-- الإعدادات والفلاتر -->
+    <div class="dock">
+        <h4>Engine Settings</h4>
+        <select id="v_filter" onchange="updateLayers()">
+            <option value="none">Normal Filter</option>
+            <option value="grayscale(100%)">Black & White</option>
+            <option value="brightness(1.4) contrast(1.2)">Action Mode</option>
+            <option value="sepia(0.5)">Classic</option>
+        </select>
+        <select id="v_res">
+            <option value="720">720p (HD)</option>
+            <option value="1080">1080p (FHD)</option>
+        </select>
+        <input type="password" id="g_token" placeholder="GitHub Token">
+    </div>
+
+    <!-- أزرار البث -->
+    <div class="dock" style="grid-column: span 2;">
+        <h4>Master Controls</h4>
+        <div style="display: flex; gap: 5px;">
+            <button class="btn btn-start" onclick="launchStream()">GO LIVE NOW</button>
+            <button class="btn btn-stop" onclick="location.reload()">REBOOT ENGINE</button>
+        </div>
+        <div id="status-log" style="font-family:monospace; font-size:10px; color: #0f0; margin-top:5px;">> Engine Ready...</div>
+    </div>
+</div>
+
+<footer>
+    <span>Hassan Kingdom Stream Engine v1.0</span>
+    <span>CPU: 0.8% | STATUS: READY</span>
 </footer>
 
 <script>
-    let isLive = false;
+    function updatePreview() {
+        const url = document.getElementById('v_url').value;
+        const video = document.getElementById('main-video');
+        if(url.startsWith('http')) {
+            video.src = url;
+            document.getElementById('status-log').innerText = "> Video Source Connected.";
+        }
+    }
 
-    function updateUI() {
-        // تحديث النص واللوغو والفلاتر في المعاينة فوراً
-        const text = document.getElementById('overlay_text').value;
-        const logo = document.getElementById('logo_url').value;
+    function updateLayers() {
+        const text = document.getElementById('o_text').value;
+        const logo = document.getElementById('l_url').value;
         const filter = document.getElementById('v_filter').value;
 
-        document.getElementById('live-canvas-text').innerText = text;
+        document.getElementById('text-layer').innerText = text;
         
-        const logoImg = document.getElementById('live-canvas-logo');
-        if(logo) { logoImg.src = logo; logoImg.style.display = 'block'; }
+        const logoEl = document.getElementById('logo-layer');
+        if(logo) { logoEl.src = logo; logoEl.style.display = 'block'; }
         
         document.getElementById('main-video').style.filter = filter;
     }
 
-    function syncPreview() {
-        const url = document.getElementById('stream_url').value;
-        if(url.includes('http')) {
-            document.getElementById('main-video').src = url;
-        }
-    }
+    async function launchStream() {
+        const token = document.getElementById('g_token').value;
+        const log = document.getElementById('status-log');
+        
+        if(!token) { alert("أدخل الـ Token يا بطل!"); return; }
 
-    async function toggleLive() {
-        const btn = document.getElementById('start-btn');
-        const status = document.getElementById('status-display');
-        const footer = document.getElementById('footer');
-
-        if(!isLive) {
-            // منطق الإرسال للسيرفر (GitHub API)
-            isLive = true;
-            btn.innerText = "STOP STREAM";
-            btn.className = "btn btn-danger";
-            footer.classList.add('is-live');
-            status.innerHTML = '<div class="dot"></div> LIVE: 00:00:01';
-            alert("تم إطلاق البث! المحرك يعمل الآن على السيرفر.");
-        } else {
-            isLive = false;
-            btn.innerText = "START STREAM";
-            btn.className = "btn btn-success";
-            footer.classList.remove('is-live');
-            status.innerHTML = '<div class="dot"></div> OFFLINE';
-        }
+        log.innerText = "> Sending Instructions to GitHub...";
+        
+        // كود الربط الفعلي مع سيرفر GitHub
+        try {
+            const res = await fetch('https://api.github.com/repos/wgghkkikk/probable-guacamole/actions/workflows/live.yml/dispatches', {
+                method: 'POST',
+                headers: { 'Authorization': `token ${token}` },
+                body: JSON.stringify({
+                    ref: 'main',
+                    inputs: {
+                        video_url: document.getElementById('v_url').value,
+                        stream_key: "Q12g-s6wc-0y03-0ua5-6e6p", // مفتاحك المحفوظ
+                        filter_type: document.getElementById('v_filter').value
+                    }
+                })
+            });
+            if(res.ok) log.innerText = "> [SUCCESS] BROADCAST ACTIVE!";
+            else log.innerText = "> [ERROR] AUTH FAILED.";
+        } catch(e) { log.innerText = "> [FAILED] CONNECTION ERROR."; }
     }
 </script>
 </body>
