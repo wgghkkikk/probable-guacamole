@@ -2,176 +2,157 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hassan OBS Studio - Live Engine</title>
+    <title>Hassan OBS Studio - PRO System</title>
     <style>
-        :root { --bg: #1e1e1e; --panel: #2d2d2d; --border: #000; --accent: #4a90e2; --text: #e0e0e0; --green: #28a745; --red: #dc3545; }
-        body { background: #121212; color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; font-size: 10px; }
+        :root { --obs-bg: #1e1e1e; --obs-panel: #2d2d2d; --obs-border: #111; --obs-accent: #4a90e2; --obs-text: #e0e0e0; --obs-green: #28a745; --obs-red: #dc3545; }
+        body { background: #0b0b0b; color: var(--obs-text); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; font-size: 11px; }
         
-        /* Top Navigation Bar */
-        nav { background: var(--panel); padding: 5px 12px; display: flex; gap: 12px; border-bottom: 1px solid var(--border); }
-        nav span { cursor: pointer; color: #aaa; }
-
-        /* Preview Screen */
-        .preview-area { flex: 1.5; background: #000; margin: 8px; border: 2px solid #333; display: flex; align-items: center; justify-content: center; position: relative; }
-        .preview-area::after { content: "LIVE PREVIEW"; color: #1a1a1a; font-size: 28px; font-weight: bold; }
-        #timer { position: absolute; top: 10px; left: 10px; color: #fff; font-family: monospace; font-size: 14px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 3px; }
-
-        /* OBS Docks */
-        .obs-docks { background: var(--panel); display: grid; grid-template-columns: 1fr 1fr 1.5fr 1.2fr 1fr; gap: 2px; padding: 5px; border-top: 2px solid #000; height: 260px; }
-        .dock { background: #353535; border: 1px solid var(--border); display: flex; flex-direction: column; }
-        .dock-header { background: #1a1a1a; padding: 5px; text-align: center; font-weight: bold; color: #888; border-bottom: 1px solid var(--border); }
+        /* Menu Bar */
+        .menu-bar { background: var(--obs-panel); padding: 4px 10px; display: flex; gap: 15px; border-bottom: 1px solid #000; color: #bbb; }
         
-        /* Interactive Audio Mixer */
-        .mixer-group { padding: 8px; flex: 1; }
-        .audio-label { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 9px; }
-        .v-meter-bg { height: 10px; background: #111; width: 100%; border-radius: 2px; margin-bottom: 8px; overflow: hidden; position: relative; }
-        .v-meter-fill { height: 100%; width: 0%; background: linear-gradient(to right, #28a745 60%, #ffc107 85%, #dc3545 100%); transition: width 0.1s ease; }
+        /* Main Preview */
+        .preview-box { flex: 1; background: #000; margin: 5px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; position: relative; }
+        .preview-box::after { content: "PROGRAM"; position: absolute; top: 10px; right: 10px; color: rgba(255,255,255,0.2); font-size: 14px; border: 1px solid; padding: 2px 5px; }
 
-        /* System Controls & Inputs */
-        input { background: #111; border: 1px solid #444; color: #fff; padding: 6px; margin: 3px; border-radius: 2px; width: calc(100% - 12px); font-size: 10px; }
-        .obs-btn { background: #4a4a4a; color: white; border: 1px solid #555; padding: 8px; margin: 3px; cursor: pointer; text-align: center; transition: 0.2s; }
-        .btn-stream { background: var(--green); font-weight: bold; margin-top: auto; border: none; }
-        .console { background: #000; color: #0f0; font-family: monospace; font-size: 9px; padding: 5px; flex: 1; overflow-y: auto; border: 1px solid #222; }
+        /* The Docks (Bottom Area) */
+        .docks-area { background: var(--obs-panel); border-top: 2px solid #000; display: grid; grid-template-columns: 180px 180px 1fr 180px 180px; height: 260px; padding: 2px; gap: 2px; }
+        .dock { background: #353535; border: 1px solid var(--obs-border); display: flex; flex-direction: column; }
+        .dock-title { background: #1a1a1a; padding: 4px; text-align: center; font-size: 10px; color: #888; border-bottom: 1px solid #000; }
+        
+        /* Content of Docks */
+        .dock-content { flex: 1; padding: 5px; overflow-y: auto; }
+        .item { padding: 4px; margin-bottom: 2px; background: #2a2a2a; border: 1px solid #444; cursor: pointer; }
+        .item.active { background: var(--obs-accent); border-color: #666; }
 
-        /* Stats Bar */
-        .stats-footer { background: #000; padding: 3px 15px; display: flex; justify-content: space-between; font-size: 9px; color: #999; border-top: 1px solid #333; }
-        .status-indicator { display: flex; align-items: center; gap: 5px; }
-        .dot { width: 7px; height: 7px; border-radius: 50%; background: #444; }
-        .dot-live { background: var(--red); box-shadow: 0 0 6px var(--red); animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.4; } }
+        /* Audio Mixer Special Layout */
+        .mixer-channel { margin-bottom: 10px; }
+        .meter-container { height: 12px; background: #111; border-radius: 1px; overflow: hidden; position: relative; margin: 4px 0; }
+        .meter-bar { height: 100%; width: 0%; background: linear-gradient(to right, #28a745 65%, #ffc107 85%, #dc3545 100%); transition: width 0.1s linear; }
+
+        /* Controls Dock */
+        .control-btn { background: #444; color: #fff; border: 1px solid #555; padding: 6px; margin-bottom: 4px; text-align: center; cursor: pointer; font-size: 11px; }
+        .control-btn:hover { background: #555; }
+        .btn-start { background: var(--obs-green); border: none; font-weight: bold; }
+        .btn-stop { background: var(--obs-red); border: none; font-weight: bold; }
+
+        /* Status Footer */
+        footer { background: #000; padding: 2px 10px; display: flex; justify-content: space-between; font-size: 10px; color: #999; border-top: 1px solid #333; }
+        .live-label { color: #555; font-weight: bold; }
+        .live-active { color: var(--obs-red); }
     </style>
 </head>
 <body>
 
-<nav>
-    <span>File</span><span>Edit</span><span>View</span><span>Profile</span><span>Scene Collection</span><span>Tools</span><span>Help</span>
-</nav>
-
-<div class="preview-area">
-    <div id="timer">00:00:00</div>
+<div class="menu-bar">
+    <span>File</span><span>Edit</span><span>View</span><span>Docks</span><span>Profile</span><span>Tools</span><span>Help</span>
 </div>
 
-<div class="obs-docks">
+<div class="preview-box">
+    <div style="color: #222; font-size: 20px; font-weight: bold;">[ PREVIEW SOURCE ]</div>
+</div>
+
+<div class="docks-area">
     <!-- Scenes -->
     <div class="dock">
-        <div class="dock-header">Scenes</div>
-        <div style="background:var(--accent); padding:6px; cursor:pointer;">Main_Live_Scene</div>
-        <div style="padding:6px; cursor:pointer; color:#777;">Be_Right_Back</div>
+        <div class="dock-title">Scenes</div>
+        <div class="dock-content">
+            <div class="item active">YouTube_Live_24/7</div>
+            <div class="item">Be_Right_Back</div>
+            <div class="item">Ending_Soon</div>
+        </div>
     </div>
 
     <!-- Sources -->
     <div class="dock">
-        <div class="dock-header">Sources</div>
-        <div style="padding:6px;">🌐 Media_Source</div>
-        <div style="padding:6px;">🖼️ Kingdom_Overlay</div>
-        <div style="padding:6px;">🔊 Mic_Aux_Source</div>
-    </div>
-
-    <!-- Active Audio Mixer -->
-    <div class="dock">
-        <div class="dock-header">Audio Mixer</div>
-        <div class="mixer-group">
-            <div class="audio-label"><span>Desktop Audio</span><span id="vol1">-24.5 dB</span></div>
-            <div class="v-meter-bg"><div class="v-meter-fill" id="meter1"></div></div>
-            <div class="audio-label"><span>Mic/Aux</span><span id="vol2">-Infinity</span></div>
-            <div class="v-meter-bg"><div class="v-meter-fill" id="meter2"></div></div>
+        <div class="dock-title">Sources</div>
+        <div class="dock-content">
+            <div class="item">🌐 Video_URL_Source</div>
+            <div class="item">🖼️ Kingdom_Logo</div>
+            <div class="item">🔊 Desktop_Audio</div>
         </div>
     </div>
 
-    <!-- Stream Engine Settings -->
+    <!-- Audio Mixer -->
     <div class="dock">
-        <div class="dock-header">Stream Settings</div>
-        <input type="text" id="stream_url" placeholder="رابط الفيديو (Video URL)">
-        <input type="text" id="stream_key" placeholder="مفتاح البث (Stream Key)">
-        <input type="password" id="gh_token" placeholder="GitHub Token (ghp_...)">
-        <div class="console" id="logBox">>> System Standby.</div>
+        <div class="dock-title">Audio Mixer</div>
+        <div class="dock-content">
+            <div class="mixer-channel">
+                <div style="display:flex; justify-content:space-between"><span>Desktop Audio</span><span>-12.4 dB</span></div>
+                <div class="meter-container"><div class="meter-bar" id="m1"></div></div>
+            </div>
+            <div class="mixer-channel">
+                <div style="display:flex; justify-content:space-between"><span>Mic/Aux</span><span>-inf</span></div>
+                <div class="meter-container"><div class="meter-bar" id="m2"></div></div>
+            </div>
+        </div>
     </div>
 
-    <!-- Main Controls -->
+    <!-- Stream Engine -->
     <div class="dock">
-        <div class="dock-header">Controls</div>
-        <button class="obs-btn btn-stream" id="startBtn" onclick="executeStream()">Start Streaming</button>
-        <button class="obs-btn">Start Recording</button>
-        <button class="obs-btn">Studio Mode</button>
-        <button class="obs-btn" onclick="location.reload()">Settings</button>
-        <button class="obs-btn">Exit</button>
+        <div class="dock-title">Settings Engine</div>
+        <div class="dock-content">
+            <input type="text" id="v_url" placeholder="URL" style="width:100%; background:#111; border:1px solid #444; color:#fff; margin-bottom:5px;">
+            <input type="text" id="s_key" placeholder="Stream Key" style="width:100%; background:#111; border:1px solid #444; color:#fff; margin-bottom:5px;">
+            <input type="password" id="gh_token" placeholder="GitHub Token" style="width:100%; background:#111; border:1px solid #444; color:#fff;">
+            <div id="log" style="color:#0f0; font-family:monospace; font-size:9px; margin-top:10px;">> Ready.</div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="dock">
+        <div class="dock-title">Controls</div>
+        <div class="dock-content" style="display:flex; flex-direction:column;">
+            <div class="control-btn btn-start" id="mainBtn" onclick="runOBS()">Start Streaming</div>
+            <div class="control-btn">Start Recording</div>
+            <div class="control-btn">Studio Mode</div>
+            <div class="control-btn" onclick="location.reload()">Settings</div>
+            <div class="control-btn">Exit</div>
+        </div>
     </div>
 </div>
 
-<div class="stats-footer">
-    <div class="status-indicator"><div class="dot" id="liveDot"></div> LIVE: <span id="liveClock">00:00:00</span></div>
-    <div>REC: 00:00:00</div>
-    <div>CPU: 1.8%</div>
-    <div>FPS: 60.00</div>
-    <div>kb/s: 4500</div>
-</div>
+<footer>
+    <div id="liveStatus"><span class="live-label">● LIVE: 00:00:00</span></div>
+    <div>CPU: 2.1%</div>
+    <div>FPS: 30.00</div>
+    <div>Bitrate: 2500 kb/s</div>
+</footer>
 
 <script>
     let isLive = false;
-    let seconds = 0;
-
-    // محاكاة عدادات الصوت لتنبض بالحياة
-    function startMixer() {
-        setInterval(() => {
-            if(!isLive) return;
-            const m1 = document.getElementById('meter1');
-            const m2 = document.getElementById('meter2');
-            const val1 = Math.floor(Math.random() * 45) + 40;
-            const val2 = Math.floor(Math.random() * 30) + 20;
-            m1.style.width = val1 + "%";
-            m2.style.width = val2 + "%";
-        }, 100);
-    }
-
-    // عداد وقت البث
-    function startTimer() {
-        setInterval(() => {
-            if(!isLive) return;
-            seconds++;
-            const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-            const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-            const s = String(seconds % 60).padStart(2, '0');
-            document.getElementById('timer').innerText = `${h}:${m}:${s}`;
-            document.getElementById('liveClock').innerText = `${h}:${m}:${s}`;
-        }, 1000);
-    }
-
-    async function executeStream() {
+    function runOBS() {
         const token = document.getElementById('gh_token').value;
-        const url = document.getElementById('stream_url').value;
-        const key = document.getElementById('stream_key').value;
-        const log = document.getElementById('logBox');
-        const btn = document.getElementById('startBtn');
+        const url = document.getElementById('v_url').value;
+        const key = document.getElementById('s_key').value;
+        const log = document.getElementById('log');
+        const btn = document.getElementById('mainBtn');
 
-        if(!token || !url || !key) {
-            alert("يا حسن، الخانات فارغة! املأ البيانات لتبدأ.");
-            return;
-        }
+        if(!token || !url || !key) { alert("امسح الغبشة عن عيونك، الخانات فارغة!"); return; }
 
-        log.innerHTML += "<br>>> Connecting to GitHub Actions...";
+        log.innerHTML += "<br>> Initializing Cloud Engine...";
         
-        try {
-            const res = await fetch('https://api.github.com/repos/wgghkkikk/probable-guacamole/actions/workflows/live.yml/dispatches', {
-                method: 'POST',
-                headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' },
-                body: JSON.stringify({ ref: 'main', inputs: { stream_key: key, video_url: url } })
-            });
-
+        fetch('https://api.github.com/repos/wgghkkikk/probable-guacamole/actions/workflows/live.yml/dispatches', {
+            method: 'POST',
+            headers: { 'Authorization': `token ${token}` },
+            body: JSON.stringify({ ref: 'main', inputs: { stream_key: key, video_url: url } })
+        }).then(res => {
             if(res.ok) {
                 isLive = true;
-                log.innerHTML += "<br>>> [SUCCESS] Server is LIVE!";
+                log.innerHTML += "<br>> [SUCCESS] BROADCAST ACTIVE.";
                 btn.innerText = "Stop Streaming";
-                btn.style.background = "#dc3545";
-                document.getElementById('liveDot').classList.add('dot-live');
-                startMixer();
-                startTimer();
-            } else {
-                log.innerHTML += "<br>>> [ERROR] Check Token or GitHub Permissions.";
+                btn.className = "control-btn btn-stop";
+                document.getElementById('liveStatus').innerHTML = "<span class='live-active'>● LIVE: 00:01:05</span>";
+                animateMixer();
             }
-        } catch(e) {
-            log.innerHTML += "<br>>> [CRITICAL] Network Error.";
-        }
+        });
+    }
+
+    function animateMixer() {
+        setInterval(() => {
+            if(!isLive) return;
+            document.getElementById('m1').style.width = (Math.random() * 40 + 50) + "%";
+            document.getElementById('m2').style.width = (Math.random() * 20 + 10) + "%";
+        }, 100);
     }
 </script>
 </body>
