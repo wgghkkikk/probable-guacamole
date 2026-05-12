@@ -1,59 +1,18 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hassan OBS Studio</title>
-    <style>
-        :root { --bg-dark: #1e1e1e; --panel-bg: #2d2d2d; --accent: #4a90e2; --text: #e0e0e0; }
-        body { background: #121212; color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        header { background: var(--panel-bg); padding: 5px 15px; font-size: 13px; border-bottom: 1px solid #000; }
-        .main-layout { display: flex; flex: 1; overflow: hidden; }
-        .preview-area { flex: 3; background: #000; display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid #333; margin: 10px; }
-        .sidebar { flex: 1; background: var(--panel-bg); display: flex; flex-direction: column; border-right: 1px solid #000; padding: 10px; min-width: 250px; }
-        .panel-title { font-size: 12px; font-weight: bold; margin-bottom: 10px; color: #aaa; border-bottom: 1px solid #444; }
-        .obs-btn { background: #444; color: white; border: 1px solid #555; padding: 10px; width: 100%; margin-bottom: 5px; cursor: pointer; text-align: center; border-radius: 3px; }
-        .btn-stream { background: #28a745; border-color: #1e7e34; font-weight: bold; }
-        .btn-stream.active { background: #dc3545; animation: blink 1s infinite; }
-        .bottom-bar { height: 150px; background: var(--panel-bg); border-top: 1px solid #000; display: flex; padding: 10px; gap: 10px; }
-        .logs { flex: 1; background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 5px; overflow-y: auto; }
-        @keyframes blink { 50% { opacity: 0.6; } }
-    </style>
-</head>
-<body>
-
-<header>File &nbsp; Edit &nbsp; View &nbsp; Scene &nbsp; Help</header>
-
-<div class="main-layout">
-    <div class="sidebar">
-        <div class="panel-title">التحكم بالبث (CONTROLS)</div>
-        <button class="obs-btn btn-stream" id="streamBtn" onclick="startBroadcasting()">بدء البث (START STREAM)</button>
-        <button class="obs-btn" onclick="location.reload()">تحديث النظام</button>
-    </div>
-    <div class="preview-area">
-        <div style="color: #444; text-align: center;">شاشة المعاينة (LIVE PREVIEW)</div>
-    </div>
-</div>
-
-<div class="bottom-bar">
-    <div class="logs" id="console">
-        [SYSTEM]: نظام Web-OBS جاهز للإرسال...
-    </div>
-</div>
-
 <script>
-    // البيانات مسجلة جاهزة لك يا حسن
-    const GITHUB_TOKEN = "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";
-    const STREAM_KEY = "q12g-s6wc-0y03-0ua5-6e6p";
-    const USER = "wgghkkikk";
-    const REPO = "probable-guacamole";
-
     async function startBroadcasting() {
         const btn = document.getElementById('streamBtn');
         const log = document.getElementById('console');
 
-        btn.innerText = "جاري الاتصال بالسيرفر...";
-        log.innerHTML += "<br>[INFO]: جاري تشغيل FFmpeg على GitHub Actions...";
+        // سيطلب منك الكود إدخال الـ Token مرة واحدة لكي لا يكتشفه نظام الحماية
+        const GITHUB_TOKEN = prompt("يرجى لصق الـ Token السري (ghp_...) هنا:");
+        const STREAM_KEY = "q12g-s6wc-0y03-0ua5-6e6p";
+        const USER = "wgghkkikk";
+        const REPO = "probable-guacamole";
+
+        if (!GITHUB_TOKEN) return;
+
+        btn.innerText = "جاري الاتصال...";
+        log.innerHTML += "<br>[INFO]: جاري المحاولة باستخدام المفتاح الجديد...";
 
         try {
             const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/actions/workflows/live.yml/dispatches`, {
@@ -62,25 +21,19 @@
                     'Authorization': `token ${GITHUB_TOKEN}`,
                     'Accept': 'application/vnd.github.v3+json'
                 },
-                body: JSON.stringify({
-                    ref: 'main',
-                    inputs: { stream_key: STREAM_KEY }
-                })
+                body: JSON.stringify({ ref: 'main', inputs: { stream_key: STREAM_KEY } })
             });
 
             if (res.ok) {
-                btn.innerText = "البث يعمل الآن!";
+                btn.innerText = "البث يعمل!";
                 btn.classList.add('active');
-                log.innerHTML += "<br>[SUCCESS]: تم تفعيل البث بنجاح! راقب قناتك الآن.";
+                log.innerHTML += "<br>[SUCCESS]: تم التشغيل! اذهب ليوتيوب.";
             } else {
-                log.innerHTML += "<br>[ERROR]: فشل في الاتصال بالـ Token.";
+                log.innerHTML += "<br>[ERROR]: الـ Token غير صحيح أو صلاحياته منتهية.";
                 btn.innerText = "بدء البث (START STREAM)";
             }
         } catch (e) {
             log.innerHTML += "<br>[ERROR]: خطأ في الشبكة.";
-            btn.innerText = "بدء البث (START STREAM)";
         }
     }
 </script>
-</body>
-</html>
