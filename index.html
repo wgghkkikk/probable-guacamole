@@ -3,80 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hassan OBS Studio</title>
+    <title>Web-OBS Studio</title>
     <style>
-        :root { --bg: #121212; --panel: #2d2d2d; --text: #e0e0e0; --green: #28a745; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        header { background: var(--panel); padding: 8px; font-size: 12px; border-bottom: 1px solid #000; color: #888; }
-        .main { display: flex; flex: 1; overflow: hidden; }
-        .sidebar { width: 260px; background: var(--panel); padding: 15px; border-left: 1px solid #000; }
-        .preview { flex: 1; background: #000; margin: 10px; display: flex; align-items: center; justify-content: center; border: 2px solid #333; }
-        .obs-btn { background: #444; color: white; border: 1px solid #555; padding: 12px; width: 100%; margin-bottom: 8px; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .btn-live { background: var(--green); font-weight: bold; }
-        .btn-live.active { background: #dc3545; animation: blink 1s infinite; }
-        input { width: 90%; background: #111; border: 1px solid #444; color: #fff; padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-        .bottom { height: 140px; background: var(--panel); border-top: 1px solid #000; display: flex; padding: 10px; gap: 10px; }
-        .logs { flex: 1; background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; overflow-y: auto; border: 1px solid #333; }
+        :root { --bg-dark: #1e1e1e; --panel-bg: #2d2d2d; --accent: #4a90e2; --text: #e0e0e0; }
+        body { background: #121212; color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header { background: var(--panel-bg); padding: 5px 15px; font-size: 13px; border-bottom: 1px solid #000; }
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
+        .preview-area { flex: 3; background: #000; display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid #333; margin: 10px; }
+        .preview-area::after { content: "شاشة المعاينة (LIVE PREVIEW)"; color: #333; font-weight: bold; }
+        .sidebar { flex: 1; background: var(--panel-bg); display: flex; flex-direction: column; border-right: 1px solid #000; padding: 10px; min-width: 250px; }
+        .panel-title { font-size: 12px; font-weight: bold; margin-bottom: 10px; color: #aaa; text-transform: uppercase; border-bottom: 1px solid #444; }
+        .control-group { margin-bottom: 20px; }
+        label { display: block; font-size: 11px; margin-bottom: 5px; }
+        input { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; font-size: 12px; border-radius: 3px; }
+        .obs-btn { background: #444; color: white; border: 1px solid #555; padding: 10px; width: 100%; margin-bottom: 5px; cursor: pointer; text-align: center; border-radius: 3px; }
+        .obs-btn:hover { background: #555; }
+        .btn-stream { background: #28a745; border-color: #1e7e34; font-weight: bold; }
+        .btn-stream.active { background: #dc3545; animation: blink 1s infinite; }
+        .bottom-bar { height: 150px; background: var(--panel-bg); border-top: 1px solid #000; display: flex; padding: 10px; gap: 10px; }
+        .mixer { flex: 1; border: 1px solid #444; padding: 5px; }
+        .logs { flex: 2; background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 5px; overflow-y: auto; }
         @keyframes blink { 50% { opacity: 0.6; } }
     </style>
 </head>
 <body>
 
-<header>File &nbsp; Edit &nbsp; View &nbsp; Profile &nbsp; Help</header>
+<header>File &nbsp; Edit &nbsp; View &nbsp; Scene &nbsp; Help</header>
 
-<div class="main">
-    <div class="preview">
-        <div style="color: #444;">[ شاشة المعاينة ]</div>
-    </div>
-
+<div class="main-layout">
     <div class="sidebar">
-        <div style="font-size: 11px; color: #aaa; margin-bottom: 10px;">التحكم بالبث</div>
-        <button class="obs-btn btn-live" id="streamBtn" onclick="runAction()">بدء البث (START)</button>
-        <button class="obs-btn" onclick="location.reload()">تحديث الواجهة</button>
-        
-        <div style="margin-top: 20px; font-size: 11px; color: #aaa; margin-bottom: 10px;">إعدادات القناة</div>
-        <input type="password" id="sKey" placeholder="ضع مفتاح البث هنا...">
+        <div class="panel-title">التحكم بالبث (Controls)</div>
+        <div class="control-group">
+            <button class="obs-btn btn-stream" id="streamBtn" onclick="toggleStream()">بدء البث (Start Stream)</button>
+            <button class="obs-btn" onclick="location.reload()">تحديث النظام</button>
+        </div>
+
+        <div class="panel-title">إعدادات القناة</div>
+        <div class="control-group">
+            <label>مفتاح البث (Stream Key):</label>
+            <input type="password" id="keyInput" placeholder="Pasted from YouTube...">
+        </div>
     </div>
+
+    <div class="preview-area" id="preview"></div>
 </div>
 
-<div class="bottom">
-    <div class="logs" id="console">> نظام OBS جاهز... بانتظار المفتاح.</div>
+<div class="bottom-bar">
+    <div class="mixer">
+        <div class="panel-title">ميكسر الصوت (Audio)</div>
+        <div style="height:10px; background: linear-gradient(to right, green, yellow, red); width: 80%; margin-bottom:5px;"></div>
+        <span style="font-size: 10px;">Mic/Aux: [||||||||||||||---]</span>
+    </div>
+    <div class="logs" id="console">
+        [SYSTEM]: نظام Web-OBS جاهز...<br>
+        [SYSTEM]: بانتظار إدخال مفتاح البث للبدء.
+    </div>
 </div>
 
 <script>
-    async function runAction() {
+    let isStreaming = false;
+    
+    async function toggleStream() {
         const btn = document.getElementById('streamBtn');
-        const log = document.getElementById('console');
-        const key = document.getElementById('sKey').value;
+        const consoleLog = document.getElementById('console');
+        const streamKey = document.getElementById('keyInput').value;
+        
+        // معلومات حسابك
+        const GITHUB_TOKEN = "ضع_الـ_TOKEN_هنا"; 
+        const USER = "wgghkkikk";
+        const REPO = "probable-guacamole";
 
-        if(!key) { alert("يرجى إدخال مفتاح البث!"); return; }
+        if (!streamKey) {
+            alert("يرجى وضع مفتاح البث أولاً!");
+            return;
+        }
 
-        btn.innerText = "جاري التشغيل...";
-        log.innerHTML += "<br>[INFO]: جاري إرسال الأمر لسيرفرات GitHub...";
+        if (!isStreaming) {
+            btn.innerText = "جاري طلب البث...";
+            consoleLog.innerHTML += "<br>[INFO]: جاري إرسال الإشارة للسيرفر...";
 
-        // ملاحظة: تأكد من وضع الـ Token الخاص بك هنا لكي يختفي البياض وتعمل الأزرار
-        const myToken = "ضع_الـ_TOKEN_هنا";
+            try {
+                const response = await fetch(`https://api.github.com/repos/${USER}/${REPO}/actions/workflows/live.yml/dispatches`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                    },
+                    body: JSON.stringify({ ref: 'main', inputs: { stream_key: streamKey } })
+                });
 
-        try {
-            const res = await fetch('https://api.github.com/repos/wgghkkikk/probable-guacamole/actions/workflows/live.yml/dispatches', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `token ${myToken}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                },
-                body: JSON.stringify({ ref: 'main', inputs: { stream_key: key } })
-            });
-
-            if(res.ok) {
-                btn.innerText = "إيقاف البث";
-                btn.classList.add('active');
-                log.innerHTML += "<br>[SUCCESS]: تم تشغيل البث بنجاح!";
-            } else {
-                log.innerHTML += "<br>[ERROR]: فشل الاتصال. تأكد من الـ Token.";
-                btn.innerText = "بدء البث (START)";
+                if (response.ok) {
+                    btn.innerText = "إيقاف البث (Stop Stream)";
+                    btn.classList.add('active');
+                    consoleLog.innerHTML += "<br>[SUCCESS]: البث بدأ بنجاح! تفقد يوتيوب.";
+                    isStreaming = true;
+                } else {
+                    consoleLog.innerHTML += "<br>[ERROR]: فشل التشغيل، تأكد من الـ Token.";
+                    btn.innerText = "بدء البث (Start Stream)";
+                }
+            } catch (e) {
+                consoleLog.innerHTML += "<br>[ERROR]: خطأ في الاتصال بالإنترنت.";
+                btn.innerText = "بدء البث (Start Stream)";
             }
-        } catch(e) {
-            log.innerHTML += "<br>[ERROR]: خطأ في الشبكة.";
+        } else {
+            btn.innerText = "بدء البث (Start Stream)";
+            btn.classList.remove('active');
+            consoleLog.innerHTML += "<br>[WARN]: تم طلب إيقاف البث.";
+            isStreaming = false;
         }
     }
 </script>
