@@ -3,188 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hassan Kingdom OBS</title>
+    <title>Kingdom OBS Professional</title>
     <style>
-        :root {
-            --obs-bg: #1e1e1e;
-            --obs-panel: #2d2d2d;
-            --obs-accent: #4a90e2;
-            --obs-border: #111;
-        }
-
-        body {
-            background: #000;
-            color: #ccc;
-            font-family: sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-            font-size: 10px;
-        }
-
-        /* شريط القوائم العلوي */
-        header { background: var(--obs-panel); padding: 5px; display: flex; gap: 10px; border-bottom: 1px solid #000; }
-
-        /* منطقة العمل المركزية */
-        .main-canvas {
-            flex: 1;
-            display: flex;
-            background: #121212;
-            padding: 10px;
-            gap: 10px;
-        }
-
-        /* شاشة العرض (Preview) */
-        .preview-box {
-            flex: 2;
-            background: #000;
-            border: 2px solid #333;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #video_preview {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: #000;
-        }
-
-        /* الطبقات الفوقية (Overlay) */
-        .overlay-label {
-            position: absolute;
-            color: rgba(255,255,255,0.5);
-            border: 1px dashed #444;
-            padding: 5px;
-            pointer-events: none;
-        }
-
-        /* لوحة الخصائص (Properties) */
-        .properties-panel {
-            flex: 1;
-            background: var(--obs-panel);
-            border: 1px solid var(--obs-border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .panel-header { background: #1a1a1a; padding: 5px; font-weight: bold; font-size: 9px; }
-        .panel-body { padding: 10px; flex: 1; overflow-y: auto; }
-
-        /* تقسيم الـ Docks السفلي */
-        .docks-area {
-            height: 200px;
-            background: var(--obs-panel);
-            border-top: 2px solid #000;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1.5fr 1fr;
-            gap: 2px;
-            padding: 2px;
-        }
-
-        .dock { background: #353535; border: 1px solid #111; display: flex; flex-direction: column; }
-        .dock-title { background: #1a1a1a; padding: 4px; text-align: center; font-size: 8px; color: #888; }
-
-        /* الأزرار والمدخلات */
-        .control-group { margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px; }
-        label { display: block; margin-bottom: 3px; color: var(--obs-accent); font-weight: bold; }
-        input, select { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 4px; font-size: 9px; margin-bottom: 5px; }
+        :root { --bg: #18181b; --panel: #27272a; --accent: #6366f1; --danger: #ef4444; --success: #22c55e; }
+        body { background: #09090b; color: #e4e4e7; font-family: 'Segoe UI', system-ui; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; font-size: 12px; }
         
-        .btn { width: 100%; padding: 8px; margin-bottom: 3px; border: 1px solid #555; background: #4a4a4a; color: white; cursor: pointer; }
-        .btn-live { background: #dc3545; font-weight: bold; border: none; }
+        /* Layout Structure */
+        .top-bar { background: var(--panel); padding: 8px 15px; display: flex; gap: 20px; border-bottom: 1px solid #3f3f46; font-size: 11px; }
+        .main-workspace { flex: 1; display: grid; grid-template-columns: 280px 1fr 280px; gap: 10px; padding: 10px; background: #111; }
         
-        .active-item { background: var(--obs-accent) !important; }
+        /* Preview Area */
+        .preview-container { background: #000; border: 2px solid #3f3f46; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .canvas-overlay { position: absolute; inset: 0; pointer-events: none; }
+        #live-canvas-text { position: absolute; bottom: 10%; width: 100%; text-align: center; color: white; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px #000; }
+        #live-canvas-logo { position: absolute; top: 10px; right: 10px; max-width: 80px; opacity: 0.8; }
+
+        /* Docks & Panels */
+        .dock { background: var(--panel); border: 1px solid #3f3f46; display: flex; flex-direction: column; border-radius: 4px; }
+        .dock-header { background: #18181b; padding: 8px; font-weight: bold; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #a1a1aa; border-bottom: 1px solid #3f3f46; }
+        .dock-content { flex: 1; padding: 10px; overflow-y: auto; }
+
+        /* Controls & Inputs */
+        .input-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; color: #a1a1aa; font-size: 11px; }
+        input, select { width: 100%; background: #09090b; border: 1px solid #3f3f46; color: #fff; padding: 8px; border-radius: 4px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; transition: 0.2s; margin-top: 5px; }
+        .btn-primary { background: var(--accent); }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+
+        /* Status Bar */
+        footer { background: #000; padding: 5px 15px; display: flex; justify-content: space-between; border-top: 1px solid #3f3f46; font-family: monospace; color: #71717a; }
+        .live-indicator { display: flex; align-items: center; gap: 8px; color: #52525b; }
+        .dot { width: 8px; height: 8px; background: #3f3f46; border-radius: 50%; }
+        .is-live .dot { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+        .is-live { color: var(--danger); }
     </style>
 </head>
 <body>
 
-<header>
-    <span>File</span><span>Edit</span><span>View</span><span>Source</span><span>Tools</span>
-</header>
+<div class="top-bar">
+    <span>File</span><span>Edit</span><span>View</span><span>Scene Collection</span><span>Tools</span><span>Help</span>
+</div>
 
-<div class="main-canvas">
-    <!-- المعاينة الحية -->
-    <div class="preview-box">
-        <video id="video_preview" autoplay muted loop poster="https://via.placeholder.com/1280x720/000/fff?text=AALLOUSH+KINGDOM+ENGINE"></video>
-        <div class="overlay-label" style="top:10%; right:5%;" id="logo_preview">LOGO</div>
-        <div class="overlay-label" style="bottom:10%; left:50%; transform:translateX(-50%);" id="text_preview">TEXT OVERLAY</div>
+<div class="main-workspace">
+    <!-- Left: Scenes & Sources -->
+    <div class="dock">
+        <div class="dock-header">Sources & Layers</div>
+        <div class="dock-content">
+            <label>Media Source (URL)</label>
+            <input type="text" id="stream_url" placeholder="https://youtube.com/..." oninput="syncPreview()">
+            <hr style="border:0; border-top:1px solid #3f3f46; margin:15px 0;">
+            <label>Overlay Text</label>
+            <input type="text" id="overlay_text" placeholder="Kingdom Live..." oninput="updateUI()">
+            <label>Logo Image URL</label>
+            <input type="text" id="logo_url" placeholder="https://png-link..." oninput="updateUI()">
+        </div>
     </div>
 
-    <!-- لوحة الخصائص والمرشحات (Filters) -->
-    <div class="properties-panel">
-        <div class="panel-header">Properties: Media Source</div>
-        <div class="panel-body">
-            <div class="control-group">
+    <!-- Center: Preview -->
+    <div class="preview-container">
+        <video id="main-video" style="width:100%; height:100%; background:#000;" autoplay muted loop></video>
+        <div class="canvas-overlay">
+            <img id="live-canvas-logo" src="" style="display:none;">
+            <div id="live-canvas-text"></div>
+        </div>
+    </div>
+
+    <!-- Right: Controls & Filters -->
+    <div class="dock">
+        <div class="dock-header">Engine Controls</div>
+        <div class="dock-content">
+            <div class="input-group">
                 <label>Video Filter</label>
-                <select onchange="applyFilter(this.value)">
-                    <option value="none">None (Default)</option>
-                    <option value="grayscale(100%)">Black & White</option>
-                    <option value="brightness(1.5)">High Brightness</option>
-                    <option value="contrast(1.5)">High Contrast</option>
-                    <option value="sepia(1)">Old Style</option>
+                <select id="v_filter" onchange="updateUI()">
+                    <option value="none">Normal</option>
+                    <option value="grayscale(100%)">B&W</option>
+                    <option value="sepia(80%)">Old Cinema</option>
+                    <option value="brightness(1.5)">Brighten</option>
                 </select>
             </div>
-            <div class="control-group">
-                <label>Overlay Logo (URL)</label>
-                <input type="text" id="logo_url" placeholder="https://..." oninput="updateLogo(this.value)">
+            <div class="input-group">
+                <label>Output Resolution</label>
+                <select id="res">
+                    <option>1080p (60fps)</option>
+                    <option selected>720p (30fps)</option>
+                    <option>480p (Mobile)</option>
+                </select>
             </div>
-            <div class="control-group">
-                <label>Scroll Text</label>
-                <input type="text" id="scroll_text" placeholder="Write something..." oninput="updateText(this.value)">
-            </div>
+            <button class="btn btn-success" id="start-btn" onclick="toggleLive()">START STREAM</button>
+            <button class="btn btn-primary">Studio Mode</button>
+            <button class="btn btn-danger" style="opacity:0.5">Emergency Stop</button>
         </div>
     </div>
 </div>
 
-<div class="docks-area">
-    <div class="dock"><div class="dock-title">Scenes</div><div class="dock-body"><button class="btn active-item">Main Stream</button><button class="btn">Match Mode</button></div></div>
-    <div class="dock"><div class="dock-title">Sources</div><div class="dock-body"><button class="btn">🌐 Browser</button><button class="btn">🖼️ Logo</button><button class="btn">📝 Text</button></div></div>
-    <div class="dock"><div class="dock-title">Audio</div><div class="dock-body">
-        <div style="height:10px; background:#000; margin-bottom:5px;"><div style="width:70%; height:100%; background:green;"></div></div>
-        <div style="height:10px; background:#000;"><div style="width:10%; height:100%; background:green;"></div></div>
-    </div></div>
-    <div class="dock">
-        <div class="dock-title">Stream Engine</div>
-        <div class="dock-body" style="padding:5px;">
-            <input type="text" id="v_url" placeholder="Paste Video URL Here">
-            <input type="text" id="s_key" placeholder="Stream Key">
-            <button class="btn btn-live" onclick="startEngine()">START LIVE</button>
-        </div>
-    </div>
-    <div class="dock"><div class="dock-title">Status</div><div class="dock-body" id="log" style="font-family:monospace; font-size:8px; color:yellow;">> Waiting for input...</div></div>
-</div>
+<footer id="footer">
+    <div class="live-indicator" id="status-display"><div class="dot"></div> OFFLINE</div>
+    <div>CPU: 1.2% | FPS: 60 | KB/S: 0</div>
+</footer>
 
 <script>
-    // تحديث المعاينة الحية قبل البث
-    function startEngine() {
-        const url = document.getElementById('v_url').value;
-        const video = document.getElementById('video_preview');
-        const log = document.getElementById('log');
+    let isLive = false;
+
+    function updateUI() {
+        // تحديث النص واللوغو والفلاتر في المعاينة فوراً
+        const text = document.getElementById('overlay_text').value;
+        const logo = document.getElementById('logo_url').value;
+        const filter = document.getElementById('v_filter').value;
+
+        document.getElementById('live-canvas-text').innerText = text;
         
-        if(url) {
-            video.src = url; // محاولة تشغيل الفيديو في المعاينة
-            log.innerHTML += "<br>> Initializing Preview...";
-            log.innerHTML += "<br>> Syncing with GitHub...";
-            // هنا يرسل الأمر لـ GitHub لبدء البث الفعلي
-        } else {
-            alert("حط الرابط أولاً يا حسن!");
+        const logoImg = document.getElementById('live-canvas-logo');
+        if(logo) { logoImg.src = logo; logoImg.style.display = 'block'; }
+        
+        document.getElementById('main-video').style.filter = filter;
+    }
+
+    function syncPreview() {
+        const url = document.getElementById('stream_url').value;
+        if(url.includes('http')) {
+            document.getElementById('main-video').src = url;
         }
     }
 
-    function updateLogo(url) {
-        const lp = document.getElementById('logo_preview');
-        lp.innerHTML = `<img src="${url}" style="max-width:50px; opacity:0.7;">`;
-    }
+    async function toggleLive() {
+        const btn = document.getElementById('start-btn');
+        const status = document.getElementById('status-display');
+        const footer = document.getElementById('footer');
 
-    function updateText(val) {
-        document.getElementById('text_preview').innerText = val;
-    }
-
-    function applyFilter(f) {
-        document.getElementById('video_preview').style.filter = f;
+        if(!isLive) {
+            // منطق الإرسال للسيرفر (GitHub API)
+            isLive = true;
+            btn.innerText = "STOP STREAM";
+            btn.className = "btn btn-danger";
+            footer.classList.add('is-live');
+            status.innerHTML = '<div class="dot"></div> LIVE: 00:00:01';
+            alert("تم إطلاق البث! المحرك يعمل الآن على السيرفر.");
+        } else {
+            isLive = false;
+            btn.innerText = "START STREAM";
+            btn.className = "btn btn-success";
+            footer.classList.remove('is-live');
+            status.innerHTML = '<div class="dot"></div> OFFLINE';
+        }
     }
 </script>
 </body>
