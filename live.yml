@@ -1,32 +1,24 @@
-name: Hassan 24/7 Live Stream
-
+name: Kingdom Live Engine
 on:
   workflow_dispatch:
     inputs:
-      stream_key:
-        description: 'YouTube Stream Key'
+      video_url:
+        description: 'رابط الفيديو'
         required: true
+      overlay_text:
+        description: 'النص'
+        required: false
 
 jobs:
-  broadcast:
+  stream:
     runs-on: ubuntu-latest
     steps:
-      - name: Install FFmpeg & Tools
+      - uses: actions/checkout@v2
+      - name: Install FFmpeg
+        run: sudo apt-get install -y ffmpeg
+      - name: Launch Stream
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg python3-pip
-          pip install yt-dlp
-
-      - name: Start Live Stream
-        run: |
-          # هنا نضع سكربت البث الخاص بك (استخدم الرابط المفضل لديك)
-          url=$(yt-dlp -f "best[height<=360]" -g "https://www.youtube.com/watch?v=9cauMvs6aYQ")
-          
-          # استمرار البث حتى لو حدث خطأ
-          while true; do
-            ffmpeg -re -i "$url" \
-            -c:v libx264 -preset ultrafast -b:v 400k \
-            -c:a aac -b:a 128k -f flv \
-            "rtmp://a.rtmp.youtube.com/live2/${{ github.event.inputs.stream_key }}"
-            sleep 5
-          done
+          ffmpeg -re -i "${{ github.event.inputs.video_url }}" \
+          -vf "drawtext=text='${{ github.event.inputs.overlay_text }}':x=(w-text_w)/2:y=h-th-20:fontsize=30:fontcolor=white" \
+          -c:v libx264 -preset veryfast -b:v 3000k \
+          -c:a aac -b:a 128k -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
