@@ -1,129 +1,26 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hassan Pro OBS Engine</title>
-    <style>
-        :root { --bg: #121212; --panel: #1e1e1e; --accent: #3b82f6; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-        
-        /* شاشة المعاينة */
-        .preview-area { flex: 1; background: #000; position: relative; overflow: hidden; border-bottom: 2px solid #333; }
-        #video-bg { width: 100%; height: 100%; object-fit: contain; }
+async function startStream() {
+    const token = document.getElementById('tok').value; // GitHub Token
+    const videoUrl = document.getElementById('url').value;
+    const text = document.getElementById('msg').value;
 
-        /* العناصر القابلة للتحريك (Resizable & Draggable) */
-        .draggable {
-            position: absolute;
-            border: 2px dashed rgba(59, 130, 246, 0.5);
-            cursor: move;
-            user-select: none;
-            touch-action: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #logo-layer { top: 20px; right: 20px; width: 80px; height: 80px; }
-        #logo-layer img { width: 100%; height: 100%; pointer-events: none; }
-        
-        #text-layer { bottom: 50px; left: 50%; transform: translateX(-50%); padding: 5px; font-size: 20px; font-weight: bold; }
+    const response = await fetch('https://api.github.com/repos/wgghkkikk/probable-guacamole/actions/workflows/live.yml/dispatches', {
+        method: 'POST',
+        headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+        },
+        body: JSON.stringify({
+            ref: 'main',
+            inputs: {
+                video_url: videoUrl,
+                overlay_text: text
+            }
+        })
+    });
 
-        /* لوحة التحكم السفلى */
-        .controls { height: 45%; background: var(--panel); padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; }
-        .input-box { background: #000; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 5px; width: 100%; box-sizing: border-box; margin-bottom: 5px; font-size: 14px; }
-        .btn-go { background: #22c55e; color: white; padding: 15px; border: none; border-radius: 5px; font-weight: bold; width: 100%; grid-column: span 2; }
-        
-        /* أداة التصغير والتكبير */
-        .resizer { width: 15px; height: 15px; background: var(--accent); position: absolute; bottom: -5px; left: -5px; border-radius: 50%; cursor: nwse-resize; }
-    </style>
-</head>
-<body>
-
-<div class="preview-area" id="viewport">
-    <video id="video-bg" autoplay muted loop poster="https://via.placeholder.com/1280x720/111/fff?text=Waiting+for+Source..."></video>
-    
-    <!-- طبقة اللوغو -->
-    <div id="logo-layer" class="draggable">
-        <img id="logo-img" src="https://via.placeholder.com/100?text=LOGO" alt="Logo">
-        <div class="resizer"></div>
-    </div>
-
-    <!-- طبقة النص -->
-    <div id="text-layer" class="draggable">
-        <span id="text-content">Kingdom Live</span>
-        <div class="resizer"></div>
-    </div>
-</div>
-
-<div class="controls">
-    <div>
-        <label>رابط الفيديو</label>
-        <input type="text" id="v_url" class="input-box" placeholder="YouTube / Direct Link" oninput="updateVideo()">
-        <label>رابط اللوغو</label>
-        <input type="text" id="l_url" class="input-box" placeholder="Image Link" oninput="updateLogo()">
-    </div>
-    <div>
-        <label>نص البث</label>
-        <input type="text" id="o_text" class="input-box" placeholder="Enter Text" oninput="updateText()">
-        <label>حجم الخط</label>
-        <input type="range" min="10" max="100" value="20" oninput="changeFontSize(this.value)">
-    </div>
-    <button class="btn-go" onclick="sendToGitHub()">GO LIVE NOW (انطلاق)</button>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-<script>
-    // تحديث الفيديو والمعاينة
-    function updateVideo() {
-        const url = document.getElementById('v_url').value;
-        if(url.includes('http')) document.getElementById('video-bg').src = url;
+    if (response.ok) {
+        alert("تم انطلاق البث من السيرفر بنجاح!");
+    } else {
+        alert("فشل الانطلاق، تأكد من الـ Token.");
     }
-
-    function updateLogo() {
-        const url = document.getElementById('l_url').value;
-        if(url) document.getElementById('logo-img').src = url;
-    }
-
-    function updateText() {
-        document.getElementById('text-content').innerText = document.getElementById('o_text').value;
-    }
-
-    function changeFontSize(size) {
-        document.getElementById('text-layer').style.fontSize = size + "px";
-    }
-
-    // تفعيل خاصية التحريك والتصغير/التكبير (Interact.js)
-    interact('.draggable')
-      .draggable({
-        listeners: {
-          move (event) {
-            var target = event.target
-            var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
-            var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
-            target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
-            target.setAttribute('data-x', x)
-            target.setAttribute('data-y', y)
-          }
-        }
-      })
-      .resizable({
-        edges: { left: true, right: true, bottom: true, top: true },
-        listeners: {
-          move (event) {
-            var target = event.target
-            var x = (parseFloat(target.getAttribute('data-x')) || 0)
-            var y = (parseFloat(target.getAttribute('data-y')) || 0)
-            target.style.width = event.rect.width + 'px'
-            target.style.height = event.rect.height + 'px'
-          }
-        }
-      })
-
-    async function sendToGitHub() {
-        alert("جاري إرسال الإحداثيات والروابط للسيرفر ليبدأ البث الحقيقي بنفس الترتيب!");
-        // هنا يتم الربط بـ GitHub Actions لإرسال الروابط والإحداثيات (x, y)
-    }
-</script>
-</body>
-</html>
+}
