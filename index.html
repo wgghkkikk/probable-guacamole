@@ -1,27 +1,106 @@
-name: 24/7 Live Stream
-on:
-  schedule:
-    - cron: '0 */6 * * *' # يعيد التشغيل كل 6 ساعات تلقائياً
-  workflow_dispatch: # يخليك تشغله يدوياً بأي وقت
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-OBS Studio</title>
+    <style>
+        :root { --bg-dark: #1e1e1e; --panel-bg: #2d2d2d; --accent: #4a90e2; --text: #e0e0e0; }
+        body { background: #121212; color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* Header / Menu */
+        header { background: var(--panel-bg); padding: 5px 15px; font-size: 13px; border-bottom: 1px solid #000; }
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+        /* Main Workspace */
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt install ffmpeg -y
-          sudo pip3 install yt-dlp
+        /* Preview Screen (The Canvas) */
+        .preview-area { flex: 3; background: #000; display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid #333; margin: 10px; }
+        .preview-area::after { content: "شاشة المعاينة (LIVE PREVIEW)"; color: #333; font-weight: bold; }
 
-      - name: Start Streaming
-        run: |
-          # كود البث المستمر
-          while true; do
-            URL=$(yt-dlp -f "best[height<=360]" -g "https://www.youtube.com/watch?v=tS4iR5zOOpA")
-            ffmpeg -re -i "$URL" -c:v libx264 -preset ultrafast -b:v 500k -c:a aac -f flv "rtmp://a.rtmp.youtube.com/live2/Tg40-0hfb-4qem-u70e-exf0"
-            sleep 10
-          done
+        /* Sidebar Controls */
+        .sidebar { flex: 1; background: var(--panel-bg); display: flex; flex-direction: column; border-right: 1px solid #000; padding: 10px; min-width: 250px; }
+
+        .panel-title { font-size: 12px; font-weight: bold; margin-bottom: 10px; color: #aaa; text-transform: uppercase; border-bottom: 1px solid #444; }
+
+        .control-group { margin-bottom: 20px; }
+        label { display: block; font-size: 11px; margin-bottom: 5px; }
+        input, select { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; font-size: 12px; border-radius: 3px; }
+
+        /* OBS Buttons Style */
+        .obs-btn { background: #444; color: white; border: 1px solid #555; padding: 10px; width: 100%; margin-bottom: 5px; cursor: pointer; text-align: center; border-radius: 3px; }
+        .obs-btn:hover { background: #555; }
+        .btn-stream { background: #28a745; border-color: #1e7e34; font-weight: bold; }
+        .btn-stream.active { background: #dc3545; animation: blink 1s infinite; }
+
+        /* Bottom Mixer / Logs */
+        .bottom-bar { height: 150px; background: var(--panel-bg); border-top: 1px solid #000; display: flex; padding: 10px; gap: 10px; }
+        .mixer { flex: 1; border: 1px solid #444; padding: 5px; }
+        .logs { flex: 2; background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 5px; overflow-y: auto; }
+
+        @keyframes blink { 50% { opacity: 0.6; } }
+    </style>
+</head>
+<body>
+
+<header>File &nbsp; Edit &nbsp; View &nbsp; Scene &nbsp; Help</header>
+
+<div class="main-layout">
+    <!-- الأزرار والتحكم على اليمين -->
+    <div class="sidebar">
+        <div class="panel-title">التحكم بالبث (Controls)</div>
+        <div class="control-group">
+            <button class="obs-btn btn-stream" id="streamBtn" onclick="toggleStream()">بدء البث (Start Stream)</button>
+            <button class="obs-btn">بدء التسجيل</button>
+            <button class="obs-btn">كاميرا افتراضية</button>
+            <button class="obs-btn">إعدادات (Settings)</button>
+        </div>
+
+        <div class="panel-title">إعدادات القناة</div>
+        <div class="control-group">
+            <label>مفتاح البث (Stream Key):</label>
+            <input type="password" id="key" placeholder="Pasted from YouTube...">
+        </div>
+    </div>
+
+    <!-- شاشة العرض -->
+    <div class="preview-area" id="preview">
+        <!-- هنا يمكن وضع فيديو يوتيوب للمعاينة -->
+    </div>
+</div>
+
+<div class="bottom-bar">
+    <div class="mixer">
+        <div class="panel-title">ميكسر الصوت (Audio)</div>
+        <div style="height:10px; background: linear-gradient(to right, green, yellow, red); width: 80%; margin-bottom:5px;"></div>
+        <span style="font-size: 10px;">Mic/Aux: [||||||||||||||---]</span>
+    </div>
+    <div class="logs" id="console">
+        [SYSTEM]: نظام Web-OBS جاهز...<br>
+        [SYSTEM]: بانتظار إدخال مفتاح البث للبدء.
+    </div>
+</div>
+
+<script>
+    let isStreaming = false;
+    function toggleStream() {
+        const btn = document.getElementById('streamBtn');
+        const consoleLog = document.getElementById('console');
+        
+        if (!isStreaming) {
+            btn.innerText = "إيقاف البث (Stop Stream)";
+            btn.classList.add('active');
+            consoleLog.innerHTML += "<br>[INFO]: جاري تهيئة سيرفر FFmpeg...";
+            isStreaming = true;
+            // هنا نضع كود الربط بـ GitHub لاحقاً
+        } else {
+            btn.innerText = "بدء البث (Start Stream)";
+            btn.classList.remove('active');
+            consoleLog.innerHTML += "<br>[WARN]: تم إرسال أمر إيقاف البث.";
+            isStreaming = false;
+        }
+    }
+</script>
+
+</body>
+</html>
